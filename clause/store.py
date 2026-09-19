@@ -253,14 +253,17 @@ def _text(item: Any) -> str:
 
 KINDS = ("policy", "provider", "wallet", "carrier", "key", "signers", "privy",
          "application", "payout_pref", "payout_order", "partner", "mandate", "funding",
-         "link", "instruction")
+         "link", "instruction", "asset", "rule")
 
 
 def _books(payouts: Any, partners: Any, mandates: Any,
            applications: Any = None, funding: Any = None, links: Any = None,
-           instructions: Any = None, assets: Any = None) -> dict[str, dict[str, Any]]:
+           instructions: Any = None, assets: Any = None, pipeline: Any = None) -> dict[str, dict[str, Any]]:
     """The newer books, each a plain dict of stored kinds, when present."""
     out: dict[str, dict[str, Any]] = {}
+    if pipeline is not None:
+        # The operator's policy entries: what is refused, why, by whom.
+        out["rule"] = pipeline.entries
     if applications is not None:
         out["application"] = applications.applications
     if funding is not None:
@@ -284,7 +287,8 @@ def _books(payouts: Any, partners: Any, mandates: Any,
 def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
                auth: Any, accounts: Any, payouts: Any = None, partners: Any = None,
                mandates: Any = None, applications: Any = None, funding: Any = None,
-               links: Any = None, instructions: Any = None, assets: Any = None) -> None:
+               links: Any = None, instructions: Any = None, assets: Any = None,
+               pipeline: Any = None) -> None:
     with pool.lock, chain.lock:
         meta = {
             "format": FORMAT,
@@ -306,7 +310,7 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
             "signers": {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()},
             "privy": accounts._by_user,
         }
-        books.update(_books(payouts, partners, mandates, applications, funding, links, instructions, assets))
+        books.update(_books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline))
         docs = {kind: {str(id_): _text(item) for id_, item in book.items()} for kind, book in books.items()}
         logs = {"ledger": [_text(e) for e in pool.ledger],
                 "settlement": [_text(e) for e in chain.settlements]}
@@ -316,7 +320,8 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
 def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
             auth: Any, accounts: Any, payouts: Any = None, partners: Any = None,
             mandates: Any = None, applications: Any = None, funding: Any = None,
-            links: Any = None, instructions: Any = None, assets: Any = None) -> dict[str, int]:
+            links: Any = None, instructions: Any = None, assets: Any = None,
+            pipeline: Any = None) -> dict[str, int]:
     """Put a saved book back. Returns counts, for the log line."""
     from .protocol.auth import load_public_key
 
@@ -377,14 +382,15 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
     store.remember("key", {a: _pem(k) for a, k in auth.keys.items()})
     store.remember("signers", {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()})
     store.remember("privy", accounts._by_user)
-    for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets).items():
+    for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline).items():
         book.clear()
         book.update(store.docs(kind))
         store.remember(kind, book)
     migrated = migrate_legacy_addresses(pool=pool, wallets=wallets, chain=chain, registry=registry,
                                         auth=auth, accounts=accounts, payouts=payouts, partners=partners,
                                         mandates=mandates, applications=applications, funding=funding,
-                                        links=links, instructions=instructions, assets=assets)
+                                        links=links, instructions=instructions, assets=assets,
+                                        pipeline=pipeline)
     if migrated:
         # Re-fingerprinted so the next checkpoint writes every rewritten
         # record under its new id and drops the old ones.
@@ -395,7 +401,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
         store.remember("key", {a: _pem(k) for a, k in auth.keys.items()})
         store.remember("signers", {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()})
         store.remember("privy", accounts._by_user)
-        for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets).items():
+        for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline).items():
             store.remember(kind, book)
         logger.info("rewrote %s legacy 0x addresses in Rialo form", migrated)
     armed = 0
@@ -501,7 +507,8 @@ def legacy_to_rialo(old: str) -> str:
 def migrate_legacy_addresses(*, pool: Any, wallets: Any, chain: Any, registry: Any, auth: Any,
                              accounts: Any, payouts: Any = None, partners: Any = None,
                              mandates: Any = None, applications: Any = None, funding: Any = None,
-                             links: Any = None, instructions: Any = None, assets: Any = None) -> int:
+                             links: Any = None, instructions: Any = None, assets: Any = None,
+                             pipeline: Any = None) -> int:
     """Rewrite every 0x address in the restored book into Rialo form.
 
     Walks every record, dict key and string, replacing each old address (as
@@ -512,7 +519,7 @@ def migrate_legacy_addresses(*, pool: Any, wallets: Any, chain: Any, registry: A
     found: set[str] = set()
     roots: list[Any] = [pool.policies, pool.providers, pool.ledger, wallets.accounts, registry.carriers,
                         auth.keys, auth.signers, accounts._by_user, chain.settlements]
-    roots += list(_books(payouts, partners, mandates, applications, funding, links, instructions, assets).values())
+    roots += list(_books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline).values())
 
     # Only an address that is an account here is rewritten: one with a
     # wallet, a key, a Privy user or a policy. An Ethereum address somebody

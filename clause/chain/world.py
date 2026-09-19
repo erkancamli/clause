@@ -60,7 +60,7 @@ BLOCK_TIME_SECONDS = 0.05
 # event, and flight data is corrected after landing; paying on the first figure
 # and then learning it was wrong cannot be undone on a chain. Rainfall is read
 # only once the season has closed, so it is already final.
-CONFIRM_HOURS = {"earthquake": 24.0, "flight_delay": 6.0, "drought": 0.0, "vehicle_flood": 48.0}
+CONFIRM_HOURS = {"earthquake": 24.0, "flight_delay": 6.0, "drought": 0.0, "vehicle_flood": 48.0, "storm": 48.0}
 
 # Fields that are states rather than measurements. Validators cannot meaningfully
 # disagree about whether a season has closed, so these are not perturbed.
@@ -450,10 +450,10 @@ class Chain:
                 reading.pace = pace
             return reading
 
-        if index_field == "rain_24h_mm":
+        if index_field in ("rain_24h_mm", "wind_24h_kmh"):
             reading = EdgeReading(
                 reference=reference,
-                fields={"rain_24h_mm": 0.0, "events": 0},
+                fields={index_field: 0.0, "events": 0},
                 attested_at=self.timestamp,
                 publisher="NASA POWER",
                 index_field=index_field,
@@ -647,6 +647,8 @@ class Chain:
                     flight.progress_days = max(flight.progress_days, -resolves + elapsed)
             elif policy.peril_key == "vehicle_flood":
                 self.ensure_source(policy.data_reference, "rain_24h_mm", pace=pace)
+            elif policy.peril_key == "storm":
+                self.ensure_source(policy.data_reference, "wind_24h_kmh", pace=pace)
             elif policy.peril_key == EARTHQUAKE.key:
                 # Any coordinate in the country can be insured, so the source
                 # for it comes into being here rather than from a fixed list.
@@ -778,6 +780,9 @@ class Chain:
             elif index_field == "rain_24h_mm":
                 if self._advance_rain_extreme(reading, elapsed_days):
                     touched.add(reading.key)
+            elif index_field == "wind_24h_kmh":
+                if self._advance_wind_extreme(reading, elapsed_days):
+                    touched.add(reading.key)
             elif index_field == "mmi":
                 if self._advance_shaking(reading, elapsed_days):
                     touched.add(reading.key)
@@ -905,6 +910,41 @@ class Chain:
             reading.attested_at = self.timestamp
             return True
         return self._publish(reading, "rain_24h_mm", round(value, 1)).settles
+
+    def _advance_wind_extreme(self, reading: EdgeReading, elapsed_days: float) -> bool:
+        """Windy days at one place, from the Gumbel fit the policy was priced on."""
+        from ..perils.storm import annual_exceedance, nearest
+
+        try:
+            latitude = float(reading.reference.split("lat=")[1].split("&")[0])
+            longitude = float(reading.reference.split("lon=")[1].split("&")[0])
+        except (IndexError, ValueError):
+            return False
+        place, _ = nearest(latitude, longitude)
+        if place is None:
+            return False
+        # Days of 40 km/h or more, as a rate a year; the day's figure is drawn
+        # from the tail above that, so the windiest day over a year follows
+        # the fit.
+        floor = 40.0
+        rate = -math.log(max(1e-12, 1.0 - annual_exceedance(place, floor)))
+        if self.rng.random() >= 1.0 - math.exp(-rate * elapsed_days / 365.25):
+            return False
+        uniform = self.rng.random()
+        low, high = floor, 300.0
+        for _ in range(40):
+            middle = 0.5 * (low + high)
+            share = -math.log(max(1e-12, 1.0 - annual_exceedance(place, middle))) / rate
+            if share > uniform:
+                low = middle
+            else:
+                high = middle
+        value = 0.5 * (low + high)
+        reading.fields["events"] = int(reading.fields.get("events", 0)) + 1
+        if value <= float(reading.fields.get("wind_24h_kmh", 0.0)):
+            reading.attested_at = self.timestamp
+            return True
+        return self._publish(reading, "wind_24h_kmh", round(value, 1)).settles
 
     def _advance_shaking(self, reading: EdgeReading, elapsed_days: float) -> bool:
         """Shaking at one address, drawn from the same curve the policy was priced on."""
@@ -1051,7 +1091,7 @@ class Chain:
             self._queue = [item for item in self._queue if item[1].policy.policy_id != policy.policy_id]
         return False
 
-    RUNNING_MAX = ("max_magnitude", "mmi", "rain_24h_mm")
+    RUNNING_MAX = ("max_magnitude", "mmi", "rain_24h_mm", "wind_24h_kmh")
 
     def _reset_if_idle(self, reference: str) -> None:
         """A source whose index is a running maximum starts again from zero

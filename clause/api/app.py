@@ -64,6 +64,7 @@ from ..protocol.carrier import (
     retire_world_specimens,
 )
 from ..protocol.compliance import ComplianceEngine, Interest
+from ..protocol.pipeline import Action, Match, PolicyError, PolicyPipeline
 from ..protocol.mandates import COOLING_OFF_HOURS, MandateError, Mandates, parse_terms
 from ..protocol.partners import (
     PARTNER_SCREENED_LIMIT,
@@ -236,6 +237,47 @@ class ReviewRequest(BaseModel):
     # Which of the verification items the reviewer says they confirmed:
     # "lei", "domain", "licence", "evidence".
     checked: list[str] = Field(default_factory=list, max_length=8)
+
+
+class PolicyCheck(BaseModel):
+    """An action described to the policy pipeline, to hear its decision
+    without acting. Everything is optional but the stage."""
+
+    stage: str = Field(max_length=16)
+    address: str | None = Field(default=None, max_length=64)
+    country: str | None = Field(default=None, max_length=2)
+    peril: str | None = Field(default=None, max_length=32)
+    limit: float | None = None
+    amount: float | None = None
+    destination: str | None = Field(default=None, max_length=64)
+    wallet: str | None = Field(default=None, max_length=64)
+    latitude: float | None = None
+    longitude: float | None = None
+
+
+class DenyRequest(BaseModel):
+    """A denylist entry: what is refused, and why."""
+
+    match: str = Field(max_length=16)
+    value: str = Field(max_length=64)
+    reason: str = Field(max_length=300)
+    until: float | None = None
+
+
+class PauseRequest(BaseModel):
+    """A moratorium: no new cover on a peril, somewhere, for a while."""
+
+    peril: str = Field(max_length=32)
+    reason: str = Field(max_length=300)
+    country: str | None = Field(default=None, max_length=2)
+    latitude: float | None = None
+    longitude: float | None = None
+    radius_km: float | None = None
+    until: float | None = None
+
+
+class LiftRequest(BaseModel):
+    note: str = Field(default="", max_length=300)
 
 
 class RiderTurn(BaseModel):
@@ -553,7 +595,7 @@ def create_app(
             store, pool=pool, wallets=wallets, chain=chain, registry=registry,
             auth=auth, accounts=accounts, payouts=payouts, partners=partners,
             mandates=mandates, applications=applications, funding=funding,
-            links=links, instructions=instructions, assets=assets))
+            links=links, instructions=instructions, assets=assets, pipeline=pipeline))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -620,6 +662,10 @@ def create_app(
     instructions = Instructions()
     from ..protocol.assets import AssetError, Assets
     assets = Assets()
+    # The operator's policy: what is refused whatever else is proved, and
+    # where nothing new is being written. Asked at every stage that moves
+    # value, and answered without acting at /api/policy/check.
+    pipeline = PolicyPipeline()
     # Rider's purchase path needs a key that only the Latch holds; this server
     # keeps its hash. Unset, Rider cannot buy at all.
     rider_key_hash = os.environ.get("CLAUSE_RIDER_PURCHASE_KEY_SHA256", "").strip().lower()
@@ -686,7 +732,8 @@ def create_app(
                              registry=registry, auth=auth, accounts=accounts,
                              payouts=payouts, partners=partners, mandates=mandates,
                              applications=applications, funding=funding,
-                             links=links, instructions=instructions, assets=assets)
+                             links=links, instructions=instructions, assets=assets,
+                             pipeline=pipeline)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             if settings.specimens:
@@ -783,10 +830,38 @@ def create_app(
     app.state.instructions = instructions
     _CARRIER_NAMES.update({c.carrier_id: c.name for c in registry.carriers.values()})
 
+    def place_of(peril: str, subject: dict[str, Any]) -> tuple[float | None, float | None]:
+        """Where the insured thing is, for a rule that names a circle."""
+        try:
+            resolved = get_peril(peril).validate_subject(subject)
+        except (KeyError, ValueError):
+            resolved = subject
+        try:
+            if "latitude" in resolved and "longitude" in resolved:
+                return float(resolved["latitude"]), float(resolved["longitude"])
+        except (TypeError, ValueError):
+            pass
+        return None, None
+
+    def refused_by_policy(decision: Any) -> HTTPException:
+        """The refusal the pipeline wrote, in the shape the compliance gate
+        uses, so a page or an agent reads both the same way."""
+        return HTTPException(451, {"reasons": list(decision.reasons), "policy": decision.to_dict()})
+
     def recheck_before_payout(policy_: Any) -> str | None:
-        """The compliance ruling again, on the registry as it stands now."""
+        """The operator's policy and the compliance ruling again, on the
+        book and the registry as they stand now."""
         meta = policy_.metadata or {}
-        interest_ = meta.get("interest")
+        interest_ = meta.get("interest") or {}
+        countries_ = tuple(c for c in (str(interest_.get("country") or "").upper(),
+                                       str(interest_.get("resident") or "").upper()) if c)
+        latitude_, longitude_ = place_of(policy_.peril_key, policy_.subject)
+        verdict_ = pipeline.check(Action(
+            stage="settlement", address=policy_.holder, countries=countries_, peril=policy_.peril_key,
+            amount=policy_.limit, latitude=latitude_, longitude=longitude_,
+        ))
+        if not verdict_.allowed:
+            return "; ".join(verdict_.reasons)
         if not interest_:
             return None                      # the demonstration book carries no declaration
         try:
@@ -806,6 +881,11 @@ def create_app(
         return "; ".join(ruling_.reasons) or "no longer lawful where it was written"
 
     chain.settlement_check = recheck_before_payout
+    # Money leaving for a bank, a mobile wallet or another chain asks the
+    # same policy about the destination; a refused payout stays at the address.
+    payouts.gate = lambda account_, destination_, amount_: pipeline.refusal(Action(
+        stage="cashout", address=account_, destination=destination_, amount=amount_))
+    app.state.pipeline = pipeline
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -1020,6 +1100,27 @@ def create_app(
                 "gumbel": place["gumbel"], "largest_mm": place["largest_mm"],
                 "validation": rain_model()["validation"], "basis_risk": VEHICLE_FLOOD.basis_risk}
 
+    @app.get("/api/storm")
+    async def storm_levels(
+        latitude: float = Query(..., ge=-90, le=90), longitude: float = Query(..., ge=-180, le=180),
+    ) -> dict[str, Any]:
+        """The wind a storm cover pays on at a place: that place's own 1 in
+        10, 25 and 50 year daily maxima, and the fit they come from."""
+        from ..perils import STORM
+        from ..perils.storm import model as wind_model, nearest
+
+        if not STORM.territory:
+            raise HTTPException(503, "the wind model has not been built on this deployment, so storm "
+                                     "cover cannot be priced anywhere yet")
+        try:
+            subject = STORM.validate_subject({"latitude": latitude, "longitude": longitude})
+        except ValueError as error:
+            raise HTTPException(400, str(error)) from error
+        place, _ = nearest(latitude, longitude)
+        return {"subject": subject, "levels": STORM.levels(subject),
+                "gumbel": place["gumbel"], "largest_kmh": place.get("largest_kmh"),
+                "validation": wind_model()["validation"], "basis_risk": STORM.basis_risk}
+
     @app.get("/api/models")
     async def hazard_models() -> dict[str, Any]:
         """Every earthquake model the protocol holds, passed or failed.
@@ -1216,6 +1317,16 @@ def create_app(
             else SettlementAsset.STABLECOIN if settlement == "stablecoin"
             else None
         )
+        # The operator's policy first: an address that is refused, or a
+        # moratorium on this peril here, ends it before any licence is looked
+        # up, so the refusal names the rule rather than blaming the registry.
+        latitude, longitude = place_of(peril, subject)
+        verdict = pipeline.check(Action(
+            stage="purchase", address=holder, countries=(risk_country, resident), peril=peril,
+            limit=limit, latitude=latitude, longitude=longitude,
+        ))
+        if not verdict.allowed:
+            raise refused_by_policy(verdict)
         with money:
             registry.reconcile(pool.policies.values())
             ruling = rules.evaluate(
@@ -1881,6 +1992,132 @@ def create_app(
             "eligibility": eligibility.to_dict(),
             "aggregation_rule": chain.aggregator.describe(),
         }
+
+    # -- the operator's policy -------------------------------------------
+
+    @app.get("/api/policy")
+    async def policy_describe() -> dict[str, Any]:
+        """The pipeline as anyone may read it: the rules in order, what each
+        one reads, how many entries are live, and every moratorium in full.
+        A buyer is entitled to know that nothing is being written here this
+        week; nobody is entitled to the denylist."""
+        return pipeline.describe()
+
+    def may_speak_for(address: str | None, *, token: str | None, operator: str | None,
+                      key: str | None) -> str | None:
+        """Who the check is about. A person may ask about their own address,
+        the operator and a partner about any; nobody anonymous about anyone,
+        because the answer is one bit about an address and that bit is
+        exactly what a denylist must not leak."""
+        if operator or sessions.of(token) is not None:
+            if sessions.of(token) is None:
+                settings.require_admin(operator)
+            return address
+        if key:
+            partner_of(key, None)
+            return address
+        mine = session_of(token)
+        if mine is None:
+            raise Refused(401, "sign in first, or present the operator token or a partner key")
+        if address and looks_like_address(address) != mine:
+            raise Refused(403, "you may ask about your own address only")
+        return mine
+
+    @app.post("/api/policy/check")
+    async def policy_check(
+        request: PolicyCheck, http: Request, token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+        key: str | None = Header(None, alias="x-clause-key"),
+    ) -> dict[str, Any]:
+        """The decision the real stage would take, without acting.
+
+        Rider asks its Latch for a decision before it acts rather than acting
+        and catching the refusal; a page can do the same here before it asks
+        a person to sign. Nothing is reserved: the rules run again when the
+        action itself arrives, and they may have changed by then.
+        """
+        guard(http, "policy", limit=60, window=60.0)
+        address = may_speak_for(request.address, token=token, operator=operator, key=key)
+        try:
+            action = Action(
+                stage=request.stage, address=address or "",
+                countries=tuple(c for c in ((request.country or "").upper(),) if c),
+                peril=(request.peril or "")[:32],
+                limit=bounded(request.limit, "limit", 0.0, MAX_LIMIT) if request.limit is not None else 0.0,
+                amount=bounded(request.amount, "amount", 0.0, MAX_LIMIT) if request.amount is not None else 0.0,
+                destination=(request.destination or "").strip(), wallet=(request.wallet or "").strip(),
+                latitude=finite(request.latitude, "latitude") if request.latitude is not None else None,
+                longitude=finite(request.longitude, "longitude") if request.longitude is not None else None,
+            )
+        except PolicyError as error:
+            raise Refused(422, str(error)) from error
+        return pipeline.check(action).to_dict()
+
+    @app.get("/api/operator/policy")
+    async def operator_policy(
+        token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        """Every entry ever written, lifted ones included, and the latest
+        decisions: what was refused, when, by which rule."""
+        reviewer = reviewer_of(operator, token)
+        return {"reviewer": reviewer, **pipeline.book(), "describe": pipeline.describe()}
+
+    @app.post("/api/operator/policy/deny")
+    async def operator_deny(
+        request: DenyRequest, token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        """Refuse an address, a wallet, a country or a destination, at every
+        stage, until lifted. Who wrote it and why stay on the entry."""
+        reviewer = reviewer_of(operator, token)
+        try:
+            match = Match(request.match)
+        except ValueError as error:
+            raise Refused(422, "match one of: address, wallet, country, destination") from error
+        try:
+            entry = pipeline.deny(match=match, value=request.value, reason=request.reason, by=reviewer,
+                                  until=finite(request.until, "until") if request.until is not None else None)
+        except PolicyError as error:
+            raise Refused(422, str(error)) from error
+        logger.info("policy: %s refused by %r: %s", request.match, reviewer, entry.entry_id)
+        return {"entry": entry.to_dict(private=True)}
+
+    @app.post("/api/operator/policy/pause")
+    async def operator_pause(
+        request: PauseRequest, token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        """No new cover on a peril, in a country or inside a circle, until a
+        date or until lifted. Cover already in force is unaffected."""
+        reviewer = reviewer_of(operator, token)
+        if request.peril != "*" and request.peril not in REGISTRY:
+            raise Refused(422, "unknown peril; use * for every peril")
+        try:
+            entry = pipeline.pause(
+                peril=request.peril, reason=request.reason, by=reviewer, country=request.country or "",
+                latitude=finite(request.latitude, "latitude") if request.latitude is not None else None,
+                longitude=finite(request.longitude, "longitude") if request.longitude is not None else None,
+                radius_km=finite(request.radius_km, "radius_km") if request.radius_km is not None else None,
+                until=finite(request.until, "until") if request.until is not None else None,
+            )
+        except PolicyError as error:
+            raise Refused(422, str(error)) from error
+        logger.info("policy: moratorium on %s by %r: %s", request.peril, reviewer, entry.entry_id)
+        return {"entry": entry.to_dict(private=True)}
+
+    @app.post("/api/operator/policy/{entry_id}/lift")
+    async def operator_lift(
+        entry_id: str, request: LiftRequest | None = None, token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        reviewer = reviewer_of(operator, token)
+        try:
+            entry = pipeline.lift(entry_id[:16], by=reviewer, note=request.note if request else "")
+        except PolicyError as error:
+            raise Refused(404, str(error)) from error
+        logger.info("policy: %s lifted by %r", entry.entry_id, reviewer)
+        return {"entry": entry.to_dict(private=True)}
 
     @app.get("/api/carriers")
     async def carriers() -> dict[str, Any]:
@@ -3075,6 +3312,10 @@ def create_app(
         address = session_of(token)
         if address is None:
             raise Refused(401, "sign in first")
+        verdict = pipeline.check(Action(stage="funding", address=address, amount=float(request.amount or 0.0),
+                                        wallet=(request.sender or "").strip()))
+        if not verdict.allowed:
+            raise refused_by_policy(verdict)
         try:
             with money:
                 req = funding.request(address, request.model_dump())
@@ -3168,6 +3409,9 @@ def create_app(
         guard(http, "auth", limit=30, window=60.0)
         account = signed(request.account, "link-wallet", request.nonce, request.signature,
                          {"kind": request.kind, "address": request.address})
+        verdict = pipeline.check(Action(stage="link", address=account, wallet=request.address.strip()))
+        if not verdict.allowed:
+            raise refused_by_policy(verdict)
         try:
             with money:
                 link = links.add(account, request.kind, request.address, nonce=request.wallet_nonce,
@@ -3270,10 +3514,20 @@ def create_app(
         guard(http, "payout", limit=10, window=60.0)
         account = signed(request.account, "payout", request.nonce, request.signature,
                          request.terms())
+        before = payouts.preferences.get(account)
         try:
             pref = payouts.set_preference(account, request.terms())
         except PayoutError as error:
             raise Refused(422, str(error)) from error
+        if pref.method != "wallet":
+            verdict = pipeline.check(Action(stage="cashout", address=account, destination=pref.key()))
+            if not verdict.allowed:
+                with payouts.lock:
+                    if before is not None:
+                        payouts.preferences[account] = before
+                    else:
+                        payouts.preferences.pop(account, None)
+                raise refused_by_policy(verdict)
         return {"preference": pref.to_dict()}
 
     @app.post("/api/payouts/cashout")
@@ -3286,6 +3540,12 @@ def create_app(
         amount = bounded(request.amount, "amount", 0.0, MAX_LIMIT)
         account = signed(request.account, "cashout", request.nonce, request.signature,
                          {"amount": amount})
+        pref = payouts.preference(account)
+        if pref.method != "wallet":
+            verdict = pipeline.check(Action(stage="cashout", address=account,
+                                            destination=pref.key(), amount=amount))
+            if not verdict.allowed:
+                raise refused_by_policy(verdict)
         try:
             with money:
                 order = payouts.cashout(account, amount)
@@ -4303,6 +4563,12 @@ async def _arrivals(
         ("flight_delay", {"route": "TK-IST-AMS", "flight_number": "TK1953", "departure_date": _soon(7)}, (900, 2_200), 2),
         ("flight_delay", {"route": "LH-FRA-IST", "flight_number": "LH1302", "departure_date": _soon(8)}, (800, 2_000), 2),
     ]
+    from ..perils import STORM
+    if STORM.territory:
+        # Only where the wind model was built: a deployment without it has
+        # nothing to price a storm arrival against.
+        candidates.append(("storm", {"latitude": 40.15, "longitude": 26.41, "place": "Çanakkale"}, (30_000, 120_000), 365))
+        candidates.append(("storm", {"latitude": 41.00, "longitude": 39.72, "place": "Trabzon"}, (30_000, 100_000), 365))
 
     counter = 0
     while True:

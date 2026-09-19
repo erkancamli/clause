@@ -105,7 +105,7 @@ def render(
          if cool else f"    Cover of {short:g} days or less has no cooling off period under the law that applies."),
         ("    After that, the unexpired part of the premium comes back on cancellation."
          if cancellation.get("pro_rata_after") else
-         "    After that the policy runs to the end of its term; it cannot be cancelled once the season or the flight can be seen."),
+         "    After that the policy runs to the end of its term; it cannot be cancelled once the season, the weather or the flight can be seen."),
         "    Nothing can be cancelled once the index has reached its trigger.",
         "",
         "7. Before the policy is issued",

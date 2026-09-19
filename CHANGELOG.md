@@ -1,5 +1,50 @@
 # Changelog
 
+## 1.2.0, 19 September 2026
+
+### The policy pipeline
+- An operator's refusal is now a rule in the path of money rather than a
+  note somewhere. Two rules, run in order, the first to deny stopping it: a
+  denylist (an address here, a wallet on another chain, a country, a payout
+  destination) and a moratorium (no new cover on a peril, in a country or
+  inside a circle, until a date or until lifted; cover in force is paid on
+  its terms). Asked at every stage that moves value: a purchase by hand, by
+  application, by a standing instruction, by a partner or by Rider; a payout
+  before it leaves (refused, the premium comes back, as for a company that
+  lost its licence); a cashout and the choice of a destination; a deposit
+  announcement; a wallet being linked. A payout routed to a refused bank
+  account stays at the address. Every entry carries a reason, who wrote it
+  and when; lifting keeps it with who lifted it. Entries are in the book on
+  disk; decisions are kept in memory for the operator to read back.
+- `POST /api/policy/check`: the decision the real stage would take, without
+  acting, in the shape Rider asks its Latch for one. A person hears about
+  their own address; the operator and a partner about any; nobody anonymous
+  about anyone. `GET /api/policy` describes the rules and lists every live
+  moratorium, never a denylist entry. `GET /api/operator/policy`,
+  `POST /api/operator/policy/deny`, `POST /api/operator/policy/pause`,
+  `POST /api/operator/policy/{id}/lift` for whoever holds the operator token.
+
+### Storm cover
+- A fifth peril: a home against extreme wind where it stands. The index is
+  the largest daily maximum wind speed at ten metres (NASA POWER, MERRA-2,
+  in km/h) at the nearest provincial centre; the steps are that place's own
+  1 in 10, 25 and 50 year levels, paying 25, 60 and 100 per cent. Pays on
+  the wind, not on the roof; hail, lightning, snow load and flood are named
+  as not covered. Applied for like any home, with the address, and the
+  company decides. Priced against a shared front in the capital model, so a
+  book along one coast settles together. `GET /api/storm` gives the levels
+  at a place; the site has the card, the flow and the translations.
+- The model is built offline, `python -m clause.hazard.wind_build`, with the
+  method and the test the rain model uses (now shared in
+  `clause/hazard/daily_extremes.py`). Until the file exists on a deployment,
+  storm cover is priceable nowhere and the site says so; nothing is sold on
+  a model that has not passed its test.
+
+### Also
+- Contracts and cancellation terms name wind alongside rain and flights as
+  cover that runs to the end of its term once the weather can be seen.
+- Rider knows the fifth peril; `clause quote storm` from the command line.
+
 ## 1.1.1, 19 September 2026
 
 - My profile: a page of the person's own things, written down once. A home

@@ -56,7 +56,7 @@ peril means writing one function.
 
 ---
 
-## 3. The three hazard models
+## 3. The hazard models
 
 ### Earthquake
 
@@ -141,6 +141,38 @@ among late arrivals. Conditional on being late, delay length is heavy tailed
 and is fitted lognormal with `_LOG_SIGMA = 0.86`, calibrated so the ratio of
 the ninetieth percentile to the median sits near three, which is what published
 arrival distributions show.
+
+### Daily extremes: vehicle flood, and storm
+
+Two covers pay on the largest day of a term: the car cover on rain, the
+storm cover on wind, each where the thing insured is kept. Both are built
+the same way, offline, from NASA POWER's daily series (MERRA-2: PRECTOTCORR
+for rain, WS10M_MAX for wind, the latter in km/h) at the nearest of Türkiye's
+81 provincial centres: the largest value in each calendar year, and a Gumbel
+distribution fitted to those maxima by probability weighted moments. The
+exceedance over a term of `t` years is `1 - (1 - p)^t` with `p` the annual
+exceedance, and the steps of the curve are the place's own 1 in 10, 1 in 25
+and 1 in 50 year levels, so a wet coast and a dry plateau, an exposed cape
+and a sheltered valley, each pay on what is extreme where they are.
+
+The test is fixed before the first run and identical for both: fitted on
+1981 to 2010, tested on 2011 onward; the count of test years above each
+place's 1 in 5 year level is judged against what the fit implies, with the
+year to year dispersion measured on the fitting years, because one storm
+raises several neighbouring provinces in the same year and the 81 places are
+not independent. A model that fails its test is written with its failure and
+the peril refuses to price anywhere; where no file has been built at all,
+the same. The rain model's file records the two changes made after its
+first run; the wind model is built by `python -m clause.hazard.wind_build`
+on a machine with network access.
+
+In the capital model the same regional factor makes the day that floods one
+province flood the next (`RAIN_EXTREME_CORRELATION = 0.35`), and the front
+that takes roofs in one province take them in the next
+(`WIND_EXTREME_CORRELATION = 0.45`, higher because a front is wider than a
+downpour). What the reanalysis figure is, and is not, is stated in each
+peril's basis risk: an area average, lower than a gauge; the strongest hour's
+mean, lower than a gust.
 
 ---
 

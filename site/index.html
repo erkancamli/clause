@@ -975,6 +975,35 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
         <p data-i18n>Against flooding from a day of extreme rain where it is kept.</p>
         <span class="from" data-i18n>Pays on the rain, not an assessor</span>
       </button>
+      <button class="pick" type="button" data-peril="storm">
+        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A house in a gale, with wind streaks, a bending tree and a marked extreme wind level" data-i18n-aria>
+          <defs>
+            <linearGradient id="gs-sky" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".2"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity="0"/></linearGradient>
+            <linearGradient id="gs-gust" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--signal)" stop-opacity="0"/><stop offset="1" stop-color="var(--signal)"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="120" fill="url(#gs-sky)"/>
+          <g fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-linecap="round" opacity=".7">
+            <path d="M8 22c40 0 60-8 100-8M20 40c50 0 70-10 130-10M6 58c30 0 50-6 80-6"/>
+          </g>
+          <g fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" opacity=".9">
+            <path d="M120 30c50 0 80-8 140-8M150 48c40 0 70-6 120-6" stroke="url(#gs-gust)"/>
+          </g>
+          <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
+          <g class="a-ink">
+            <path d="M176 98V66l30-24 30 24v32Z" opacity=".92"/>
+            <path d="M164 70 206 36l42 34" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <rect x="198" y="78" width="16" height="20" rx="2" fill="var(--panel)"/>
+          <path d="M224 44l12-10 10 6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M48 98c2-16 4-30 4-44" fill="none" stroke="var(--ink-2)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M52 56c22-18 46-16 62-2-10 4-18 12-20 24-8-8-22-10-42-6 8-6 12-10 0-16Z" fill="var(--ink-2)" opacity=".75"/>
+          <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
+          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 10 YEARS</text>
+        </svg></figure>
+        <h3 data-i18n>My roof</h3>
+        <p data-i18n>Against a storm: a day of extreme wind where the home stands.</p>
+        <span class="from" data-i18n>Pays on the wind, before the next front</span>
+      </button>
     </div>
   </div>
 
@@ -1979,7 +2008,7 @@ function t(en, vars){
    is the binding text, and are translated here by matching them against the
    templates they were written from. Anything that matches nothing is shown as
    it came, in English, which is the correct failure. */
-var VALUE_WORDS={earthquake:N("earthquake"),drought:N("drought"),flight_delay:N("flight delay"),vehicle_flood:N("vehicle flood"),
+var VALUE_WORDS={earthquake:N("earthquake"),drought:N("drought"),flight_delay:N("flight delay"),vehicle_flood:N("vehicle flood"),storm:N("storm"),
                  stablecoin:N("stablecoin"),fiat:N("fiat")};
 function compilePatterns(list){
   return list.map(function(template){
@@ -2308,6 +2337,50 @@ function renderCarInfo(){
     '<p class="fine" style="margin-top:8px">'+esc(t("Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. Accidents, theft and hail are not covered.",{station:v.subject.station,km:f0.format(v.subject.distance_km)}))+'</p>';
 }
 function carReady(){ return flow.peril!=="car" || !flow.subject || (!!flow.vehicle && !flow.vehicleError); }
+/* A home against storm: the place's own extreme wind levels, from the protocol. */
+function stormCurve(){
+  var w=flow.storm; if(!w) return {shape:"step",pts:[[70,.25],[85,.6],[100,1]]};
+  return {shape:"step",pts:w.levels.map(function(l){ return [l.kmh,l.share]; })};
+}
+function stormExc(days){
+  var w=flow.storm; if(!w) return function(){ return 0; };
+  var years=days/365.25, g=w.gumbel;
+  return function(kmh){
+    var p=1-Math.exp(-Math.exp(-(kmh-g.mu)/g.beta));
+    return 1-Math.pow(1-p,years);
+  };
+}
+function loadStorm(){
+  flow.storm=null; flow.stormError=null;
+  var at=coordinates(); if(!at||flow.peril!=="storm"){ return; }
+  if(!link.live){ flow.stormError=t("Storm cover needs the protocol, which is not reachable right now."); renderStormInfo(); setNextLabel(); return; }
+  var seq=++flow.hazardSeq;
+  renderStormInfo();
+  api("/api/storm?latitude="+at.latitude+"&longitude="+at.longitude,{timeout:10000}).then(function(reply){
+    if(seq!==flow.hazardSeq)return;
+    flow.storm=reply; renderStormInfo(); updatePriceBar(); setNextLabel();
+  },function(error){
+    if(seq!==flow.hazardSeq)return;
+    var d=error&&error.payload&&error.payload.detail;
+    flow.stormError=typeof d==="string"?ts(d):t("The protocol did not answer.");
+    renderStormInfo(); updatePriceBar(); setNextLabel();
+  });
+}
+function renderStormInfo(){
+  var box=$("s2-extra");
+  if(flow.peril!=="storm"||!flow.subject){ return; }
+  box.hidden=false;
+  if(flow.stormError){ box.innerHTML='<div class="verdict no"><p>'+esc(flow.stormError)+'</p></div>'; return; }
+  if(!flow.storm){ box.innerHTML='<p class="hint">'+esc(t("Reading the wind record for this place…"))+'</p>'; return; }
+  var w=flow.storm;
+  box.innerHTML='<div class="label">'+esc(t("When it pays, for this place"))+'</div>'+
+    '<div class="tbl-wrap" style="margin-top:8px"><table class="tbl" style="min-width:0"><tbody>'+
+    w.levels.map(function(l){
+      return '<tr><td>'+esc(t("{kmh} km/h in one day",{kmh:f0.format(Math.round(l.kmh))}))+'</td><td class="num">'+esc(t("about once in {n} years",{n:f0.format(l.years)}))+'</td><td class="num">'+pct(l.share,0)+'</td></tr>';
+    }).join("")+'</tbody></table></div>'+
+    '<p class="fine" style="margin-top:8px">'+esc(t("Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.",{station:w.subject.station,km:f0.format(w.subject.distance_km)}))+'</p>';
+}
+function stormReady(){ return flow.peril!=="storm" || !flow.subject || (!!flow.storm && !flow.stormError); }
 function shakingIndex(){ return flow.peril==="quake" && flow.index==="shaking"; }
 /* Shaking at the address comes from the protocol, which turns its rate model
    into intensity at the point; the page interpolates between the levels it
@@ -3195,7 +3268,8 @@ function renderProfile(){
 }
 /* Fill the purchase flow from one of my things. */
 function useAsset(a){
-  var key=a.kind==="home"?"quake":a.kind==="vehicle"?"car":"drought";
+  // A home has two covers; the one already chosen wins, earthquake otherwise.
+  var key=a.kind==="home"?(flow.peril==="storm"&&flow.chosen?"storm":"quake"):a.kind==="vehicle"?"car":"drought";
   if(flow.peril!==key||!flow.chosen)choosePeril(key);
   flow.asset=a.asset_id;
   if(a.latitude!=null&&a.longitude!=null)setPoint(a.latitude,a.longitude,a.place||"",a.country||null);
@@ -3203,14 +3277,14 @@ function useAsset(a){
   if(a.country)flow.interest.country=a.country;
   if(a.address)flow.interest.address=Object.assign({},a.address);
   var z=a.size||{};
-  if(a.kind==="home")flow.size={peril:"quake",kind:"home",building:z.building||"flat",area:String(z.area_m2||""),built:String(z.built||""),valid:false};
+  if(a.kind==="home")flow.size={peril:flow.peril,kind:"home",building:z.building||"flat",area:String(z.area_m2||""),built:String(z.built||""),valid:false};
   if(a.kind==="field")flow.size={peril:"drought",kind:"field",crop:z.crop||"wheat",area:String(z.area_ha||""),unit:"hectare",valid:false};
   if(a.kind==="vehicle")flow.interest.modelYear=z.model_year||null;
   if(flow.step<2)flow.step=2;
   location.hash="#/cover"; renderStep();
 }
 function assetChipsHtml(){
-  var kind=flow.peril==="quake"?"home":flow.peril==="car"?"vehicle":flow.peril==="drought"?"field":null;
+  var kind=(flow.peril==="quake"||flow.peril==="storm")?"home":flow.peril==="car"?"vehicle":flow.peril==="drought"?"field":null;
   if(!kind||!identity.token)return "";
   var mine=ASSETS.list.filter(function(a){return a.kind===kind;});
   if(!mine.length)return "";
@@ -3383,7 +3457,7 @@ function bindPayoutPanel(p){
     }).then(function(){ renderMineExtras(); },function(e){ go.disabled=false; $("pay-msg").textContent=refusalText(e); });
   });
 }
-var MANDATE_PERILS=[["flight_delay",N("Flight delay")],["earthquake",N("Earthquake")],["drought",N("Drought")],["vehicle_flood",N("Vehicle flood")]];
+var MANDATE_PERILS=[["flight_delay",N("Flight delay")],["earthquake",N("Earthquake")],["drought",N("Drought")],["vehicle_flood",N("Vehicle flood")],["storm",N("Storm")]];
 function mandatePanel(m){
   if(!m)return "";
   var inner;
@@ -3462,14 +3536,14 @@ function quakePriced(country){
 }
 function searchAddress(query){
   var key=String(query||"").trim();
-  if((flow.peril!=="quake"&&flow.peril!=="car")||!link.live||key.length<3||parseCoordinate(key)){
+  if((flow.peril!=="quake"&&flow.peril!=="car"&&flow.peril!=="storm")||!link.live||key.length<3||parseCoordinate(key)){
     ADDR.hits=[]; ADDR.query=key; return;
   }
   if(ADDR.query===key)return;
   clearTimeout(addrTimer);
   addrTimer=setTimeout(function(){
     var seq=++ADDR.seq, at=coordinates();
-    var near=at?("&lat="+at.latitude.toFixed(3)+"&lon="+at.longitude.toFixed(3)):(flow.peril==="car"?"&lat=39&lon=35":"");
+    var near=at?("&lat="+at.latitude.toFixed(3)+"&lon="+at.longitude.toFixed(3)):((flow.peril==="car"||flow.peril==="storm")?"&lat=39&lon=35":"");
     api("/api/geocode?q="+encodeURIComponent(key.slice(0,120))+"&lang="+LANG+near,{timeout:9000}).then(function(reply){
       if(seq!==ADDR.seq)return;
       ADDR.query=key; ADDR.hits=reply.places||[];
@@ -3540,6 +3614,7 @@ function showMap(){
 function movePin(latlng){
   var lat=latlng.lat, lon=latlng.lng;
   if(flow.peril==="car"&&!inTurkeyBox(lat,lon)){ $("locate-msg").textContent=t("Vehicle cover is written only in Türkiye for now."); updateMap(); return; }
+  if(flow.peril==="storm"&&!inTurkeyBox(lat,lon)){ $("locate-msg").textContent=t("Storm cover is written only in Türkiye for now."); updateMap(); return; }
   setPoint(lat,lon,null,null);
   api("/api/reverse?latitude="+lat.toFixed(5)+"&longitude="+lon.toFixed(5)+"&lang="+LANG,{timeout:9000}).then(function(r){
     var p=r.place||{};
@@ -3793,6 +3868,8 @@ var PERILS={
          term:150,limits:[100,1000000],presets:[25000,50000,80000,150000]},
   car:{where:N("Where is the car kept?"),hint:N("Cover pays when a single day's rain there is extreme for that place: the once in ten, twenty five or fifty years level."),
          term:365,limits:[500,250000],presets:[5000,10000,20000,40000]},
+  storm:{where:N("Where is the home?"),hint:N("Cover pays when a single day's wind there is extreme for that place: the once in ten, twenty five or fifty years level."),
+         term:365,limits:[2000,1000000],presets:[20000,50000,100000,250000]},
   flight:{where:N("Which flight?"),hint:N("Cover pays on how late the flight lands, and in full if it is cancelled."),
          term:2,limits:[200,5000],presets:[500,1000,1500,3000]}};
 var flow={
@@ -4006,7 +4083,7 @@ function subjectPayload(){
   if (flow.peril === "flight"){ flightDefaults(); return {route: flow.subject,
     flight_number: flow.flightNumber, departure_date: flow.flightDate}; }
   var at = coordinates();
-  if (flow.peril === "car"){
+  if (flow.peril === "car" || flow.peril === "storm"){
     return {latitude: at.latitude, longitude: at.longitude, place: placeLabel()};
   }
   if (flow.peril === "drought"){
@@ -4044,12 +4121,14 @@ function structure(){
   }
   if(flow.peril==="flight")return CURVES.flight;
   if(flow.peril==="car")return carCurve();
+  if(flow.peril==="storm")return stormCurve();
   var st=STATIONS[nearestStation(coordinates())];
   return {shape:"ramp",pts:CURVES.drought.pts.map(function(pt){return [pt[0]*st.normal,pt[1]];})};
 }
 function exceedance(){
   if(flow.peril==="flight")return flightExc(flow.subject);
   if(flow.peril==="car")return carExc(PERILS.car.term);
+  if(flow.peril==="storm")return stormExc(PERILS.storm.term);
   var at = coordinates();
   if(flow.peril==="quake")
     return quakeExcAt(at.latitude, at.longitude, flow.radius, PERILS.quake.term);
@@ -4061,7 +4140,7 @@ function quote(){return priceIt(structure(),exceedance(),flow.limit,PERILS[flow.
    against. priced() is what the confirm step shows, which is the protocol's own
    figure whenever the protocol answered. The two are never mixed inside one
    panel, and the bar at the top of the page says which you are looking at. */
-var PERIL_KEYS={quake:"earthquake",drought:"drought",flight:"flight_delay",car:"vehicle_flood"};
+var PERIL_KEYS={quake:"earthquake",drought:"drought",flight:"flight_delay",car:"vehicle_flood",storm:"storm"};
 
 var COUNTRIES=[["AF","Afghanistan"],["AL","Albania"],["DZ","Algeria"],["AS","American Samoa"],["AD","Andorra"],["AO","Angola"],["AI","Anguilla"],["AQ","Antarctica"],["AG","Antigua and Barbuda"],["AR","Argentina"],["AM","Armenia"],["AW","Aruba"],["AU","Australia"],["AT","Austria"],["AZ","Azerbaijan"],["BS","Bahamas"],["BH","Bahrain"],["BD","Bangladesh"],["BB","Barbados"],["BY","Belarus"],["BE","Belgium"],["BZ","Belize"],["BJ","Benin"],["BM","Bermuda"],["BT","Bhutan"],["BO","Bolivia"],["BQ","Bonaire, Sint Eustatius and Saba"],["BA","Bosnia and Herzegovina"],["BW","Botswana"],["BV","Bouvet Island"],["BR","Brazil"],["IO","British Indian Ocean Territory"],["BN","Brunei Darussalam"],["BG","Bulgaria"],["BF","Burkina Faso"],["BI","Burundi"],["CV","Cabo Verde"],["KH","Cambodia"],["CM","Cameroon"],["CA","Canada"],["KY","Cayman Islands"],["CF","Central African Republic"],["TD","Chad"],["CL","Chile"],["CN","China"],["CX","Christmas Island"],["CC","Cocos (Keeling) Islands"],["CO","Colombia"],["KM","Comoros"],["CG","Congo"],["CD","Congo, The Democratic Republic of the"],["CK","Cook Islands"],["CR","Costa Rica"],["HR","Croatia"],["CU","Cuba"],["CW","Curaçao"],["CY","Cyprus"],["CZ","Czechia"],["CI","Côte d'Ivoire"],["DK","Denmark"],["DJ","Djibouti"],["DM","Dominica"],["DO","Dominican Republic"],["EC","Ecuador"],["EG","Egypt"],["SV","El Salvador"],["GQ","Equatorial Guinea"],["ER","Eritrea"],["EE","Estonia"],["SZ","Eswatini"],["ET","Ethiopia"],["FK","Falkland Islands (Malvinas)"],["FO","Faroe Islands"],["FJ","Fiji"],["FI","Finland"],["FR","France"],["GF","French Guiana"],["PF","French Polynesia"],["TF","French Southern Territories"],["GA","Gabon"],["GM","Gambia"],["GE","Georgia"],["DE","Germany"],["GH","Ghana"],["GI","Gibraltar"],["GR","Greece"],["GL","Greenland"],["GD","Grenada"],["GP","Guadeloupe"],["GU","Guam"],["GT","Guatemala"],["GG","Guernsey"],["GN","Guinea"],["GW","Guinea-Bissau"],["GY","Guyana"],["HT","Haiti"],["HM","Heard Island and McDonald Islands"],["VA","Holy See (Vatican City State)"],["HN","Honduras"],["HK","Hong Kong"],["HU","Hungary"],["IS","Iceland"],["IN","India"],["ID","Indonesia"],["IR","Iran"],["IQ","Iraq"],["IE","Ireland"],["IM","Isle of Man"],["IL","Israel"],["IT","Italy"],["JM","Jamaica"],["JP","Japan"],["JE","Jersey"],["JO","Jordan"],["KZ","Kazakhstan"],["KE","Kenya"],["KI","Kiribati"],["KP","North Korea"],["KR","South Korea"],["KW","Kuwait"],["KG","Kyrgyzstan"],["LA","Laos"],["LV","Latvia"],["LB","Lebanon"],["LS","Lesotho"],["LR","Liberia"],["LY","Libya"],["LI","Liechtenstein"],["LT","Lithuania"],["LU","Luxembourg"],["MO","Macao"],["MG","Madagascar"],["MW","Malawi"],["MY","Malaysia"],["MV","Maldives"],["ML","Mali"],["MT","Malta"],["MH","Marshall Islands"],["MQ","Martinique"],["MR","Mauritania"],["MU","Mauritius"],["YT","Mayotte"],["MX","Mexico"],["FM","Micronesia, Federated States of"],["MD","Moldova"],["MC","Monaco"],["MN","Mongolia"],["ME","Montenegro"],["MS","Montserrat"],["MA","Morocco"],["MZ","Mozambique"],["MM","Myanmar"],["NA","Namibia"],["NR","Nauru"],["NP","Nepal"],["NL","Netherlands"],["NC","New Caledonia"],["NZ","New Zealand"],["NI","Nicaragua"],["NE","Niger"],["NG","Nigeria"],["NU","Niue"],["NF","Norfolk Island"],["MK","North Macedonia"],["MP","Northern Mariana Islands"],["NO","Norway"],["OM","Oman"],["PK","Pakistan"],["PW","Palau"],["PS","Palestine, State of"],["PA","Panama"],["PG","Papua New Guinea"],["PY","Paraguay"],["PE","Peru"],["PH","Philippines"],["PN","Pitcairn"],["PL","Poland"],["PT","Portugal"],["PR","Puerto Rico"],["QA","Qatar"],["RO","Romania"],["RU","Russian Federation"],["RW","Rwanda"],["RE","Réunion"],["BL","Saint Barthélemy"],["SH","Saint Helena, Ascension and Tristan da Cunha"],["KN","Saint Kitts and Nevis"],["LC","Saint Lucia"],["MF","Saint Martin (French part)"],["PM","Saint Pierre and Miquelon"],["VC","Saint Vincent and the Grenadines"],["WS","Samoa"],["SM","San Marino"],["ST","Sao Tome and Principe"],["SA","Saudi Arabia"],["SN","Senegal"],["RS","Serbia"],["SC","Seychelles"],["SL","Sierra Leone"],["SG","Singapore"],["SX","Sint Maarten (Dutch part)"],["SK","Slovakia"],["SI","Slovenia"],["SB","Solomon Islands"],["SO","Somalia"],["ZA","South Africa"],["GS","South Georgia and the South Sandwich Islands"],["SS","South Sudan"],["ES","Spain"],["LK","Sri Lanka"],["SD","Sudan"],["SR","Suriname"],["SJ","Svalbard and Jan Mayen"],["SE","Sweden"],["CH","Switzerland"],["SY","Syria"],["TW","Taiwan"],["TJ","Tajikistan"],["TZ","Tanzania"],["TH","Thailand"],["TL","Timor-Leste"],["TG","Togo"],["TK","Tokelau"],["TO","Tonga"],["TT","Trinidad and Tobago"],["TN","Tunisia"],["TM","Turkmenistan"],["TC","Turks and Caicos Islands"],["TV","Tuvalu"],["TR","Türkiye"],["UG","Uganda"],["UA","Ukraine"],["AE","United Arab Emirates"],["GB","United Kingdom"],["US","United States"],["UM","United States Minor Outlying Islands"],["UY","Uruguay"],["UZ","Uzbekistan"],["VU","Vanuatu"],["VE","Venezuela"],["VN","Vietnam"],["VG","Virgin Islands, British"],["VI","Virgin Islands, U.S."],["WF","Wallis and Futuna"],["EH","Western Sahara"],["YE","Yemen"],["ZM","Zambia"],["ZW","Zimbabwe"],["AX","Åland Islands"]];
 
@@ -4101,7 +4180,7 @@ function loadCoverage(force){
    two different answers. */
 function riskCountry(){
   if(flow.peril==="quake") return flow.pointCountry||flow.placeCountry||"TR";
-  if(flow.peril==="car") return "TR";
+  if(flow.peril==="car"||flow.peril==="storm") return "TR";
   if(flow.peril==="drought"){
     var code=nearestStation(coordinates());
     return code ? code.split("-")[0] : flow.interest.country;
@@ -4183,11 +4262,12 @@ function sourceName(){
   if(flow.peril==="quake")return t("the national seismic network");
   if(flow.peril==="drought")return t("the meteorological station");
   if(flow.peril==="car")return t("the rainfall record for the place");
+  if(flow.peril==="storm")return t("the wind record for the place");
   return t("the airline's published arrival time");
 }
 function deadlineText(){
   return t("Premium returned in full after {days} days",
-    {days:flow.peril==="quake"?7:flow.peril==="drought"?21:flow.peril==="car"?14:3});
+    {days:flow.peril==="quake"?7:flow.peril==="drought"?21:(flow.peril==="car"||flow.peril==="storm")?14:3});
 }
 
 function plainSentence(){
@@ -4204,6 +4284,11 @@ function plainSentence(){
     var cc=structure().pts;
     return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. You pay <b>{premium} USDC</b> now, and nothing else ever.",
       {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(.25*l), full:money(l), top:f1.format(cc[2][0]), premium:money(q.premium)});
+  }
+  if(flow.peril==="storm"){
+    var sc=structure().pts;
+    return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+      {kmh:f0.format(Math.round(sc[0][0])), place:esc(subjectLabel()), first:money(.25*l), full:money(l), top:f0.format(Math.round(sc[2][0])), premium:money(q.premium)});
   }
   if(flow.peril==="drought"){
     var s=stationFor();
@@ -4233,6 +4318,12 @@ function payRows(){
     rows.push([t("{mm} mm or more in a day",{mm:f1.format(cp[0][0])}),shareAt(c,cp[0][0])*l]);
     rows.push([t("{mm} mm or more in a day",{mm:f1.format(cp[1][0])}),shareAt(c,cp[1][0])*l]);
     rows.push([t("{mm} mm or more in a day",{mm:f1.format(cp[2][0])}),l]);
+  } else if(flow.peril==="storm"){
+    var sp=c.pts;
+    rows.push([t("Less than {kmh} km/h in a day",{kmh:f0.format(Math.round(sp[0][0]))}),0]);
+    rows.push([t("{kmh} km/h or more in a day",{kmh:f0.format(Math.round(sp[0][0]))}),shareAt(c,sp[0][0])*l]);
+    rows.push([t("{kmh} km/h or more in a day",{kmh:f0.format(Math.round(sp[1][0]))}),shareAt(c,sp[1][0])*l]);
+    rows.push([t("{kmh} km/h or more in a day",{kmh:f0.format(Math.round(sp[2][0]))}),l]);
   } else if(flow.peril==="drought"){
     var s=stationFor();
     rows.push([t("A normal season, at or above {mm} mm",{mm:f0.format(Math.round(.8*s.normal))}),0]);
@@ -4266,6 +4357,12 @@ function hazardRows(){
       rows+='<tr><td>'+f1.format(pt[0])+' mm</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
             '</td><td>'+money(pt[1]*flow.limit)+'</td></tr>';
     });
+  } else if(flow.peril==="storm"){
+    c.pts.forEach(function(pt){
+      var p=exc(pt[0]);
+      rows+='<tr><td>'+f0.format(Math.round(pt[0]))+' km/h</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
+            '</td><td>'+money(pt[1]*flow.limit)+'</td></tr>';
+    });
   } else if(flow.peril==="drought"){
     var s=stationFor();
     [.8,.7,.6,.5,.4].forEach(function(f){
@@ -4293,6 +4390,10 @@ function reference(){
     var ca=coordinates();
     return "api.rain.example/v1/daily-max?lat="+(+ca.latitude)+"&lon="+(+ca.longitude);
   }
+  if(flow.peril==="storm"){
+    var sa=coordinates();
+    return "api.wind.example/v1/daily-max?lat="+(+sa.latitude)+"&lon="+(+sa.longitude);
+  }
   flightDefaults(); return "api.flightstatus.example/v1/"+flow.subject+"/"+flow.flightDate;
 }
 
@@ -4307,6 +4408,9 @@ function predicateHtml(){
   } else if(flow.peril==="car"){
     body='<b>'+T+'</b> <em>'+ref+'</em> · rain_24h_mm<br>'+
          '<b>'+W+'</b> rain_24h_mm &gt;= '+structure().pts[0][0].toFixed(1);
+  } else if(flow.peril==="storm"){
+    body='<b>'+T+'</b> <em>'+ref+'</em> · wind_24h_kmh<br>'+
+         '<b>'+W+'</b> wind_24h_kmh &gt;= '+structure().pts[0][0].toFixed(1);
   } else if(flow.peril==="drought"){
     var s=stationFor();
     body='<b>'+T+'</b> <em>'+ref+'</em> · rainfall_mm<br>'+
@@ -4351,6 +4455,12 @@ function drawCurve(){
     xlabel=t("RAIN IN ONE DAY, MM");
     ticks=[x0,Math.round(cps[0][0]),Math.round(cps[1][0]),Math.round(cps[2][0]),x1];
     note=t("Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.");
+  } else if(flow.peril==="storm"){
+    var sps=structure().pts;
+    x0=Math.max(0,Math.floor(sps[0][0]*0.6/10)*10); x1=Math.ceil(sps[2][0]*1.2/10)*10;
+    xlabel=t("WIND IN ONE DAY, KM/H");
+    ticks=[x0,Math.round(sps[0][0]),Math.round(sps[1][0]),Math.round(sps[2][0]),x1];
+    note=t("Steps at this place's own once in ten, twenty five and fifty years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.");
   } else if(flow.peril==="drought"){
     var st=stationFor();
     x0=Math.round(st.normal*.30);x1=Math.round(st.normal*1.05);
@@ -4441,7 +4551,7 @@ function renderStep(){
     }
     renderResults($("place").value);
     renderRadius();
-    var byAddress=flow.peril==="quake"||flow.peril==="car";
+    var byAddress=flow.peril==="quake"||flow.peril==="car"||flow.peril==="storm";
     $("s2-locate").hidden=!byAddress;
     $("where-map").hidden=!byAddress; $("map-note").hidden=!byAddress;
     if(byAddress){
@@ -4459,6 +4569,7 @@ function renderStep(){
       ? t("This is the most the policy can pay you. What it would cost to rebuild is the usual guide.")
       : flow.peril==="drought" ? t("A season's income is the usual guide.")
       : flow.peril==="car" ? t("What the car is worth is the most it can carry.")
+      : flow.peril==="storm" ? t("This is the most the policy can pay you. What it would cost to make the home weathertight again is the usual guide.")
       : t("Enough for a hotel, a meal and a missed connection is the usual guide.");
     $("cover-range").value=sliderFromLimit(flow.limit);
     $("cover-presets").innerHTML=coverPresets().map(function(v){
@@ -4498,7 +4609,7 @@ function setNextLabel(){
   var button=$("next");
   if(flow.step!==CONFIRM_STEP){
     button.textContent=t("Continue");
-    button.disabled=(flow.step===1&&!flow.chosen)||(flow.step===2&&(!flow.subject||!quakeReady()||!carReady()||!flightReady()))||
+    button.disabled=(flow.step===1&&!flow.chosen)||(flow.step===2&&(!flow.subject||!quakeReady()||!carReady()||!stormReady()||!flightReady()))||
                     (flow.step===RISK_STEP&&(!flow.interest.what||!flow.interest.inside||
                                      !sizeOk()||!addressOk()||!localRuling().allowed));
     return;
@@ -4805,7 +4916,7 @@ function parseCoordinate(text){
   var lat = parseFloat(m[1]), lon = parseFloat(m[2]);
   if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
   // Rain is measured at stations in Türkiye, so drought stays there.
-  if ((flow.peril === "drought" || flow.peril === "car") && !inTurkeyBox(lat, lon)) return null;
+  if ((flow.peril === "drought" || flow.peril === "car" || flow.peril === "storm") && !inTurkeyBox(lat, lon)) return null;
   return {name: lat.toFixed(3) + ", " + lon.toFixed(3), latitude: lat, longitude: lon,
           region: t("a coordinate you gave"), kind: "point"};
 }
@@ -4857,7 +4968,7 @@ function renderResults(query){
   var addresses = (!coordinate && ADDR.query === key) ? ADDR.hits.filter(function(a){
     return !hits.some(function(h){ return Math.abs(h.latitude-a.latitude)<0.01&&Math.abs(h.longitude-a.longitude)<0.01; });
   }).map(function(a){
-    var priced = flow.peril === "car" ? a.country === "TR" : quakePriced(a.country);
+    var priced = (flow.peril === "car" || flow.peril === "storm") ? a.country === "TR" : quakePriced(a.country);
     return Object.assign({}, a, {priced: priced});
   }) : [];
   if (world.length){
@@ -4881,6 +4992,8 @@ function renderResults(query){
     var abroad = place.country && place.country !== "TR";
     var sub = off ? (flow.peril === "car"
                       ? t("Vehicle cover is written only in Türkiye for now.")
+                      : flow.peril === "storm"
+                      ? t("Storm cover is written only in Türkiye for now.")
                       : t("No tested earthquake model covers {country} yet, so cover cannot be priced here.",
                       {country:regionName(place.country)}))
             : abroad ? [place.region, regionName(place.country)].filter(Boolean).join(", ")
@@ -4953,6 +5066,7 @@ function loadHazard(){
   flow.grid = null; flow.gridError = null; flow.quoted = null; flow.shaking = null;
   var at = coordinates();
   if (at && flow.peril === "car"){ loadVehicle(); hazardChanged(); return; }
+  if (at && flow.peril === "storm"){ loadStorm(); hazardChanged(); return; }
   if (!at || flow.peril !== "quake"){ hazardChanged(); return; }
   var local = flow.placeCountry === "TR" || (!flow.placeCountry && inTurkeyBox(at.latitude, at.longitude));
   flow.pointCountry = local ? "TR" : null;
@@ -5016,6 +5130,7 @@ function bindSubjectOptions(){
 function renderRadius(){
   var box=$("s2-extra");
   if(flow.peril==="car"){ renderCarInfo(); if(!flow.subject){box.hidden=true;box.innerHTML="";} return; }
+  if(flow.peril==="storm"){ renderStormInfo(); if(!flow.subject){box.hidden=true;box.innerHTML="";} return; }
   if(flow.peril!=="quake"||!flow.subject){box.hidden=true;box.innerHTML="";return;}
   box.hidden=false;
   if(flow.gridError){
@@ -5084,7 +5199,7 @@ setInterval(function(){
    a new contract at today's price; what they insured is filled in for them. */
 function renewFrom(policy){
   var pk=policy.peril_key||policy.peril;
-  var key={earthquake:"quake",drought:"drought",vehicle_flood:"car",flight_delay:"flight"}[pk]||pk;
+  var key={earthquake:"quake",drought:"drought",vehicle_flood:"car",flight_delay:"flight",storm:"storm"}[pk]||pk;
   if(!PERILS[key])return;
   choosePeril(key);
   flow.limit=policy.limit; flow.renewing=policy.policy_id;
@@ -5101,7 +5216,7 @@ function choosePeril(key){
     flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null;
     flow.place=null; flow.quoted=null; flow.refusal=null;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false;
-    flow.shaking=null; flow.vehicle=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
+    flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
     if($("place"))$("place").value="";
   }
   flow.peril=key; flow.chosen=true; flow.subject=null; flow.radius=50; flow.asset=null;
@@ -5132,7 +5247,7 @@ function resetFlow(){
   flow.step=1; flow.chosen=false; flow.subject=null; flow.place=null;
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
   flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
-  flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.shaking=null; flow.vehicle=null;
+  flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
   flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
   flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null;
   CONTRACT={key:"",text:"",hash:""};
@@ -5184,6 +5299,8 @@ function areaSentence(){
   }
   if(flow.peril==="car")
     return t("the place where the car is kept, read at {station}",{station:flow.vehicle?flow.vehicle.subject.station:subjectLabel()});
+  if(flow.peril==="storm")
+    return t("the place where the home stands, read at {station}",{station:flow.storm?flow.storm.subject.station:subjectLabel()});
   return t("the flight itself");
 }
 
@@ -5193,6 +5310,7 @@ function renderInterest(){
   $("what").value=interest.what;
   if(!interest.what&&flow.peril==="car")interest.what=t("my car");
   $("what").placeholder = flow.peril==="car" ? t("my car") : flow.peril==="quake" ? t("A flat in {place}",{place:subjectLabel()})
+    : flow.peril==="storm" ? t("A house in {place}",{place:subjectLabel()})
     : flow.peril==="drought" ? t("40 hectares of wheat") : t("one flight, and what missing it costs");
   // Start from the cover, because that is the common case, but stop adjusting
   // it the moment the buyer sets a figure: a value at risk the page chose for
@@ -5211,7 +5329,7 @@ function renderInterest(){
   } else {
     renderSize();
   }
-  var needsAddr=flow.peril==="quake"||flow.peril==="car";
+  var needsAddr=flow.peril==="quake"||flow.peril==="car"||flow.peril==="storm";
   $("addr-box").hidden=!needsAddr;
   if(needsAddr){
     $("addr-title").textContent=flow.peril==="car"?t("Where the car is kept"):t("The address of the home");
@@ -5236,7 +5354,7 @@ function renderInterest(){
   // the buyer's own country is asked only for the checks that are about them.
   var code=riskCountry();
   $("country-why").textContent = tiedToPlace()
-    ? (flow.peril==="quake"
+    ? ((flow.peril==="quake"||flow.peril==="storm"||flow.peril==="car")
         ? t("Asked for the checks that are about you. The policy itself is issued where the property is, in {country}, whoever owns it and wherever they live.",{country:countryName(code)})
         : t("Asked for the checks that are about you. The policy itself is issued where the land is, in {country}, whoever owns it and wherever they live.",{country:countryName(code)}))
     : t("A flight follows you, so the company issuing this must be licensed where you live.");
@@ -5305,8 +5423,8 @@ var UNIT_WORDS={decare:N("decares"),hectare:N("hectares"),m2:N("square metres")}
 
 function sizeState(){
   if(!flow.size||flow.size.peril!==flow.peril){
-    flow.size = flow.peril==="quake"
-      ? {peril:"quake", kind:"home", building:"flat", area:"", built:"", valid:false}
+    flow.size = (flow.peril==="quake"||flow.peril==="storm")
+      ? {peril:flow.peril, kind:"home", building:"flat", area:"", built:"", valid:false}
       : {peril:"drought", kind:"field", crop:"wheat", area:"", unit:"decare", valid:false};
   }
   return flow.size;
@@ -5439,7 +5557,7 @@ function bindCarYear(){
   applyCarCap();
 }
 function addressOk(){
-  if(flow.peril!=="quake"&&flow.peril!=="car")return true;
+  if(flow.peril!=="quake"&&flow.peril!=="car"&&flow.peril!=="storm")return true;
   var a=flow.interest.address||{};
   return !!(a.street&&a.street.trim().length>=3&&a.city&&a.city.trim().length>=2);
 }
@@ -6289,6 +6407,7 @@ function bindCarrierForm(){
     drought:[N("Drought"),N("cumulative rainfall over a growing season at a station")],
     flight_delay:[N("Flight delay"),N("arrival delay in minutes, and cancellation")],
     vehicle_flood:[N("Vehicle flood"),N("largest daily rainfall where the vehicle is kept")],
+    storm:[N("Storm"),N("largest daily wind speed where the home stands")],
   };
   $("co-perils").innerHTML=Object.keys(PERIL_LABELS).map(function(key){
     return '<button class="opt" type="button" data-peril="'+key+'" aria-pressed="true">'+

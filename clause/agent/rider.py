@@ -339,12 +339,12 @@ TOOLS: list[dict[str, Any]] = [
             "premium broken into expected loss, cost of capital and expenses, "
             "the chance of a payout over the term, what the index has to reach, "
             "and whether the pool will carry it. Use this before stating any "
-            "number. Perils: earthquake, drought, flight_delay, vehicle_flood."
+            "number. Perils: earthquake, drought, flight_delay, vehicle_flood, storm."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "peril": {"type": "string", "enum": ["earthquake", "drought", "flight_delay", "vehicle_flood"]},
+                "peril": {"type": "string", "enum": ["earthquake", "drought", "flight_delay", "vehicle_flood", "storm"]},
                 "subject": {
                     "type": "object",
                     "description": (
@@ -354,7 +354,10 @@ TOOLS: list[dict[str, Any]] = [
                         "flight_delay: {route, flight_number, departure_date}. "
                         "vehicle_flood: {latitude, longitude} of where the car is kept, "
                         "Türkiye only; it covers flooding from extreme daily rain and "
-                        "never accidents, theft or hail."
+                        "never accidents, theft or hail. "
+                        "storm: {latitude, longitude} of the home, Türkiye only; it pays "
+                        "on the day's wind at the place, never on the damage, and never "
+                        "on hail, lightning, snow or flood."
                     ),
                 },
                 "limit": {"type": "number", "description": "the most the policy can pay"},
@@ -446,7 +449,7 @@ BUY_TOOL: dict[str, Any] = {
     "input_schema": {
         "type": "object",
         "properties": {
-            "peril": {"type": "string", "enum": ["earthquake", "drought", "flight_delay", "vehicle_flood"]},
+            "peril": {"type": "string", "enum": ["earthquake", "drought", "flight_delay", "vehicle_flood", "storm"]},
             "subject": {"type": "object"},
             "limit": {"type": "number"},
             "term_days": {"type": "number"},

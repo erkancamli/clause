@@ -22,6 +22,7 @@ from .eligibility import (
     EligibilityError,
     Verifier,
 )
+from .pipeline import Action, Decision, Match, PolicyError, PolicyPipeline, Rule
 from .policy import Policy, PolicyStatus, build_policy, settle_index
 from .pool import Pool, PoolError, PriceMoved, Provider, LedgerEntry, EntryKind
 from .wallet import Account, Movement, Wallets, WalletError, derive_address, shorten
@@ -45,6 +46,12 @@ __all__ = [
     "EligibilityEngine",
     "EligibilityError",
     "Verifier",
+    "Action",
+    "Decision",
+    "Match",
+    "PolicyError",
+    "PolicyPipeline",
+    "Rule",
     "Policy",
     "PolicyStatus",
     "build_policy",

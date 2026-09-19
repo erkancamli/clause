@@ -107,7 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
     serve.set_defaults(func=_serve)
 
     quote = sub.add_parser("quote", help="price one policy from the command line")
-    quote.add_argument("peril", choices=["earthquake", "drought", "flight_delay", "vehicle_flood"])
+    quote.add_argument("peril", choices=["earthquake", "drought", "flight_delay", "vehicle_flood", "storm"])
     quote.add_argument("subject", help="JSON, for example '{\"location\":\"IST-KADIKOY\",\"radius_km\":50}'")
     quote.add_argument("--limit", type=float, default=100_000)
     quote.add_argument("--term", type=float, default=365)

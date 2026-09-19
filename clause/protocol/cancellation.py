@@ -126,7 +126,7 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
                 "reason": (f"the unexpired {left:.0%} of the term comes back: an earthquake cannot be "
                            f"seen coming, so leaving early tells the pool nothing")}
     return {**out, "allowed": False, "refund": 0.0, "basis": "none",
-            "reason": ("cover on rain and on flights runs to the end of its term once the first "
+            "reason": ("cover on rain, on wind and on flights runs to the end of its term once the first "
                        "hour and any cooling off period have passed: a buyer can see how the "
-                       "season or the flight is going, and refunds then would leave the pool "
+                       "season, the weather or the flight is going, and refunds then would leave the pool "
                        "with only the risks that turned out badly")}

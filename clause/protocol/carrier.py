@@ -657,7 +657,7 @@ class Registry:
 # ---------------------------------------------------------------------------
 
 YEAR = 365 * 86400
-EVERY_PERIL = frozenset({"earthquake", "drought", "flight_delay", "vehicle_flood"})
+EVERY_PERIL = frozenset({"earthquake", "drought", "flight_delay", "vehicle_flood", "storm"})
 BOTH_ASSETS = frozenset({Settlement.STABLECOIN, Settlement.FIAT})
 FIAT_ONLY = frozenset({Settlement.FIAT})
 

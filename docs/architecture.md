@@ -44,6 +44,13 @@ How a policy becomes a predicate, and how a predicate becomes a payment.
 Nothing sits between the last two steps. There is no keeper, no relayer, no
 claims process, and no moment at which anyone decides whether to pay.
 
+What does sit before `settle()` is re-evaluation: the compliance ruling on
+the registry as it now stands, the eligibility of the holder, and the
+operator's policy pipeline (a denylisted address, a refused destination).
+Each runs again in the block that would pay, and a refusal there unwinds the
+policy on the terms of a source that never published: the premium comes
+back, the payout does not go out.
+
 ---
 
 ## Modules
@@ -53,11 +60,13 @@ claims process, and no moment at which anyone decides whether to pay.
 | `clause/mathx.py` | Special functions, written out rather than imported |
 | `clause/predicate.py` | Predicate grammar, dependency extraction, evaluation |
 | `clause/perils/base.py` | Payout curves, data sources, the `Peril` interface |
-| `clause/perils/{quake,weather,flight}.py` | One exceedance function each |
+| `clause/perils/{quake,weather,flight,vehicle,storm}.py` | One exceedance function each |
+| `clause/hazard/daily_extremes.py` | The offline build for daily rain and wind extremes, and their test |
 | `clause/pricing/simulation.py` | The simulated world and policy settlement in it |
 | `clause/pricing/engine.py` | Capital, marginal allocation, the quote |
 | `clause/protocol/policy.py` | Policy record and lifecycle states |
 | `clause/protocol/pool.py` | Capital, underwriting rules, the ledger |
+| `clause/protocol/pipeline.py` | The operator's policy: denylist and moratoria, first to deny stops it |
 | `clause/chain/world.py` | Rialo shaped chain, Edge readings, settlement |
 | `clause/rpc/client.py` | The published Rialo RPC |
 | `clause/api/app.py` | HTTP surface and the event stream |
@@ -186,9 +195,13 @@ them import from `clause.chain`.
 | --- | --- | --- |
 | GET | `/api/perils` | Perils, their subjects and default structures |
 | GET | `/api/hazard` | The hazard table for a subject |
+| GET | `/api/vehicle`, `/api/storm` | A place's own extreme rain and wind levels |
 | POST | `/api/quote` | Price a policy, with the reasoning |
 | POST | `/api/policies` | Bind cover, subject to the pool's rules |
 | GET | `/api/policies` | The book |
+| GET | `/api/policy` | The policy pipeline: its rules, and every live moratorium |
+| POST | `/api/policy/check` | The decision a stage would take, without acting |
+| GET, POST | `/api/operator/policy`, `/deny`, `/pause`, `/{id}/lift` | The operator's book of refusals |
 | GET | `/api/pool`, `/api/pool/risk` | Capital, exposure, solvency |
 | GET | `/api/pool/ledger` | Every movement, replayable |
 | POST | `/api/pool/deposit`, `/withdraw` | Liquidity provision |

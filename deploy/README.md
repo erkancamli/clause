@@ -291,6 +291,32 @@ It downloads the catalogues into `hazard_build/`, fits, backtests, and rewrites
 the model files. Ship the new files like any other code change. A country whose
 model now fails stops being sold the moment the new files are deployed.
 
+## Rain and wind models
+
+Vehicle cover (extreme rain) and storm cover (extreme wind) are priced from
+one model file each, `clause/hazard/models/rain_TR.json` and `wind_TR.json`,
+fitted at Türkiye's 81 provincial centres from NASA POWER's daily series and
+backtested the same way. The rain file ships; the wind file is built on a
+machine with network access and shipped with the code:
+
+    python -m clause.hazard.wind_build        # writes clause/hazard/models/wind_TR.json
+    python -m clause.hazard.rain_build        # the rain file again, when a year has passed
+
+Each build fetches 81 series into `hazard_build/`, fits, tests and writes
+the file with its result, pass or fail. Until `wind_TR.json` exists and
+passed, storm cover is priceable nowhere: `/api/storm` says so and the site
+shows the cover as not written here yet.
+
+## The operator's policy
+
+`POST /api/operator/policy/deny` refuses an address, a wallet on another
+chain, a country or a payout destination at every stage that moves value;
+`POST /api/operator/policy/pause` stops new cover on a peril, in a country or
+inside a circle, until a date. Both take a reason and record who wrote them;
+`POST /api/operator/policy/{id}/lift` ends one and keeps it in the book.
+`GET /api/operator/policy` shows every entry and the latest decisions. The
+entries are in the book on disk with everything else.
+
 ## What nginx is doing
 
 Terminating TLS, and rate limiting before the application spends anything on a

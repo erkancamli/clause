@@ -167,7 +167,7 @@ def value_of(size: dict[str, Any], *, country: str | None = None) -> Valuation:
 
 # Which description each peril needs.
 KIND_FOR = {"earthquake": "home", "drought": "field", "flight_delay": "trip",
-            "vehicle_flood": "vehicle"}
+            "vehicle_flood": "vehicle", "storm": "home"}
 
 
 def schedule() -> dict[str, Any]:

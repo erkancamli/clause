@@ -343,6 +343,8 @@ def settle(exposure: Exposure, draws: WorldDraws) -> list[float]:
         return _settle_flight(exposure, draws, own)
     if exposure.peril_key == "vehicle_flood":
         return _settle_vehicle(exposure, draws)
+    if exposure.peril_key == "storm":
+        return _settle_storm(exposure, draws)
     raise ValueError(f"no settlement rule for peril {exposure.peril_key!r}")
 
 
@@ -522,6 +524,33 @@ def _settle_vehicle(exposure: Exposure, draws: WorldDraws) -> list[float]:
         u_term = u ** (1.0 / max(years, 1e-6))
         largest = mu - beta * math.log(-math.log(u_term))
         losses.append(exposure.curve.payout(largest, exposure.limit))
+    return losses
+
+
+# A windstorm is a front, and a front is hundreds of kilometres wide: the day
+# that takes roofs in Çanakkale takes them in Balıkesir too. Higher than the
+# rain figure, because a convective downpour is local and a front is not.
+WIND_EXTREME_CORRELATION = 0.45
+
+
+def _settle_storm(exposure: Exposure, draws: WorldDraws) -> list[float]:
+    from ..perils.storm import nearest
+
+    place, _ = nearest(float(exposure.subject["latitude"]), float(exposure.subject["longitude"]))
+    if place is None:
+        return [0.0] * draws.trials
+    common = draws.shared_normals("wind-extreme")
+    local = random.Random(f"{draws.seed}:windx:{place['name']}")
+    loading = math.sqrt(WIND_EXTREME_CORRELATION)
+    residual = math.sqrt(1.0 - WIND_EXTREME_CORRELATION)
+    mu, beta = place["gumbel"]["mu"], place["gumbel"]["beta"]
+    years = exposure.term_years
+    losses = []
+    for trial in range(draws.trials):
+        u = min(max(normal_cdf(loading * common[trial] + residual * local.gauss(0.0, 1.0)), 1e-12), 1 - 1e-12)
+        u_term = u ** (1.0 / max(years, 1e-6))
+        strongest = mu - beta * math.log(-math.log(u_term))
+        losses.append(exposure.curve.payout(strongest, exposure.limit))
     return losses
 
 

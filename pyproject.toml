@@ -1,6 +1,6 @@
 [project]
 name = "clause"
-version = "1.1.1"
+version = "1.2.0"
 description = "Parametric cover that settles itself, on Rialo"
 readme = "README.md"
 requires-python = ">=3.10"

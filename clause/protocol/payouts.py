@@ -56,6 +56,9 @@ import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Callable
+import logging
+
+logger = logging.getLogger("clause.payouts")
 
 METHODS = ("wallet", "bank", "mobile_money", "rialo", "solana", "evm")
 MIN_CASHOUT = 10.0
@@ -173,6 +176,17 @@ class PayoutPreference:
         if self.method in ("rialo", "solana", "evm"):
             return self.rialo_address
         return self.account
+
+    def key(self) -> str:
+        """The destination alone, the way a policy entry names it: the IBAN,
+        the phone number or the wallet, with nothing else attached."""
+        if self.method == "bank":
+            return self.iban
+        if self.method == "mobile_money":
+            return self.phone
+        if self.method in ("rialo", "solana", "evm"):
+            return self.rialo_address
+        return ""
 
     def masked(self) -> str:
         if self.method == "bank":
@@ -297,6 +311,10 @@ class Payouts:
         self.lock = lock or threading.RLock()
         self.preferences: dict[str, PayoutPreference] = {}
         self.orders: dict[str, PayoutOrder] = {}
+        # The operator's policy, asked before money leaves for a destination:
+        # (account, destination, amount) -> a reason to refuse, or None. A
+        # refused payout stays at the address; a refused cashout is an error.
+        self.gate: Callable[[str, str, float], str | None] | None = None
 
     # -- choosing ----------------------------------------------------------
 
@@ -346,6 +364,12 @@ class Payouts:
         pref = self.preferences.get(account)
         if pref is None or pref.method == "wallet" or amount <= 0:
             return None
+        refused = self.gate(account, pref.key(), amount) if self.gate else None
+        if refused:
+            # The money has landed at the address and stays there: nothing
+            # leaves the protocol for a destination the policy refuses.
+            logger.warning("payout of %.2f for %s kept at the address: %s", amount, account, refused)
+            return None
         return self._order(account, pref, amount, reference, kind, now)
 
     def cashout(self, account: str, amount: float, *, now: float | None = None) -> PayoutOrder:
@@ -365,6 +389,9 @@ class Payouts:
             raise PayoutError("say how much") from error
         if not MIN_CASHOUT <= amount <= MAX_CASHOUT:
             raise PayoutError(f"an amount between {MIN_CASHOUT:,.0f} and {MAX_CASHOUT:,.0f}")
+        refused = self.gate(account, pref.key(), amount) if self.gate else None
+        if refused:
+            raise PayoutError(refused)
         with self.lock:
             waiting = [o for o in self.orders.values()
                        if o.account == account and o.kind == "withdrawal" and o.status in ("queued", "sent")]

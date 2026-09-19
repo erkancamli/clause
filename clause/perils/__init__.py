@@ -13,6 +13,7 @@ from .flight import FlightDelay, ROUTES
 from .quake import Earthquake, LOCATIONS, ZONES
 from .weather import Drought, STATIONS
 from .vehicle import VehicleFlood
+from .storm import Storm
 
 # One instance each: perils are stateless, and everything that varies between
 # policies travels in the subject.
@@ -20,12 +21,14 @@ FLIGHT_DELAY = FlightDelay()
 DROUGHT = Drought()
 EARTHQUAKE = Earthquake()
 VEHICLE_FLOOD = VehicleFlood()
+STORM = Storm()
 
 REGISTRY: dict[str, Peril] = {
     FLIGHT_DELAY.key: FLIGHT_DELAY,
     DROUGHT.key: DROUGHT,
     EARTHQUAKE.key: EARTHQUAKE,
     VEHICLE_FLOOD.key: VEHICLE_FLOOD,
+    STORM.key: STORM,
 }
 
 
@@ -50,9 +53,13 @@ __all__ = [
     "FlightDelay",
     "Drought",
     "Earthquake",
+    "Storm",
+    "VehicleFlood",
     "FLIGHT_DELAY",
     "DROUGHT",
     "EARTHQUAKE",
+    "VEHICLE_FLOOD",
+    "STORM",
     "REGISTRY",
     "get_peril",
     "ROUTES",

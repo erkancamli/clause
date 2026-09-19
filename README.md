@@ -8,13 +8,14 @@ that measurement; when the validators agree the index has crossed your trigger,
 the payout runs in that block. No claim is filed, no adjuster is appointed, and
 nobody decides whether you are paid.
 
-Four perils ship in this build:
+Five perils ship in this build:
 
 | Peril | Index | Source |
 | --- | --- | --- |
 | Earthquake | shaking intensity at the insured address, or the largest magnitude inside a radius | seismic catalogue and shaking maps, read through REX |
 | Drought | cumulative rainfall over a growing season at a station | meteorological station, read through REX |
 | Vehicle flood | one day's rainfall where the car is kept, against its return periods | meteorological reanalysis, read through REX |
+| Storm | one day's wind where the home stands, against its return periods | meteorological reanalysis, read through REX |
 | Flight delay | arrival delay in minutes for one flight | airline status feed, read through REX |
 
 Behind them sits a real underwriting pool: capital from liquidity providers, an
@@ -119,6 +120,21 @@ calls IPC, and the property it claims is the one this is built around:
 than being discovered afterwards. A carrier suspended by its own regulator, a
 licence that lapsed, a screening that went stale: all of them stop the payout
 here, because the gate runs again before the money leaves.
+
+**The operator's own refusals are a rule in the path, not a note in a file.**
+The compliance gate answers from the registry and the eligibility check from
+what a buyer proved; neither can say "not this address, whatever it proves" or
+"nothing on this fault this week". A policy pipeline, in the shape of the one
+Rialo's Latch puts in front of a credential, can: a denylist of addresses,
+wallets on other chains, countries and payout destinations, and moratoria on
+a peril in a country or inside a circle until a date. Every stage that moves
+value asks it (a purchase by any route, a payout leaving, a cashout, a
+deposit, a wallet being linked); the first rule to deny stops it; every entry
+carries a reason and who wrote it, and a lifted one stays in the book with who
+lifted it. `POST /api/policy/check` returns the decision the real stage would
+take without acting, to the address it is about, the operator or a partner,
+so a page or an agent hears the refusal before anyone signs. A moratorium is
+public; the denylist never is.
 
 **Rider spends only what a person signed for.** The assistant prices cover,
 explains what a policy will not pay for, and reads a settlement's record off
@@ -262,8 +278,8 @@ clause/
   perils/
     geo.py          fault geometry and the hazard surface
     places.py       names to coordinates, for search only
-    quake.py weather.py flight.py    one exceedance function each
-  hazard/           building the earthquake models from catalogues
+    quake.py weather.py flight.py vehicle.py storm.py    one exceedance function each
+  hazard/           building the models: earthquakes from catalogues, daily rain and wind from NASA POWER
   pricing/          Monte Carlo world, capital allocation, the quote
   protocol/
     pool.py         capital in three tranches, underwriting rules, the ledger
@@ -272,6 +288,7 @@ clause/
     carrier.py      the registry of licensed insurers, and the matching
     kyb.py          what anchors a company's registration: LEI, domain, register
     compliance.py   insurable interest, indemnity, placement, the settlement recheck
+    pipeline.py     the operator's policy: denylist and moratoria, asked at every stage that moves value
     eligibility.py  attestations: proved, not held
     applications.py the insurer's review before a policy is written
     contract.py     the policy document, and its hash

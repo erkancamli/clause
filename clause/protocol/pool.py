@@ -1023,6 +1023,10 @@ def _accumulation_key(policy: Policy) -> str:
         return f"drought at {subject['station']}"
     if policy.peril_key == "flight_delay":
         return f"flights on {subject['route']}"
+    if policy.peril_key == "storm":
+        # One front takes the roofs of a whole province; two provinces apart
+        # share less, and the capital model carries that as correlation.
+        return f"storm at {subject.get('station', '')}"
     return policy.peril_key
 
 
