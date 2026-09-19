@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.2, 19 September 2026
+
+- A book saved by an earlier build carries the stand in companies with the
+  perils that build knew, so storm cover was refused everywhere with "a
+  company is registered here, but not for this risk". On restore the stand
+  ins' licences and appetite are brought up to this build's; a real
+  company's licence is left exactly as it registered it, and a suspended
+  stand in stays suspended.
+
 ## 1.2.1, 19 September 2026
 
 - `deploy/install.sh` on a server that already has a reverse proxy: with

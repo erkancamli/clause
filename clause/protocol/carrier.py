@@ -895,6 +895,35 @@ def add_world_specimens(registry: "Registry", *, now: float | None = None) -> in
     return added
 
 
+def refresh_specimens(registry: "Registry", *, now: float | None = None) -> int:
+    """Bring a stand in's licences up to this build's, keeping its record.
+
+    A book saved by an earlier build carries the stand ins with the perils
+    that build knew. A new peril would then be refused everywhere with "a
+    company is registered here, but not for this risk", which is true of the
+    file and false of the demonstration. Only specimens are touched, and only
+    their licences and appetite: a real company's licence is what it
+    registered, and nothing here rewrites that. Status and reviews stay as
+    they are, so a stand in a reviewer suspended stays suspended.
+    """
+    now = time.time() if now is None else now
+    current = {c.carrier_id: c for c in specimen_registry(now=now).carriers.values()}
+    current.update({c.carrier_id: c for c in world_specimens(now=now)})
+    refreshed = 0
+    for carrier_id, fresh in current.items():
+        have = registry.carriers.get(carrier_id)
+        if have is None or not have.specimen:
+            continue
+        same = (tuple(l.perils for l in have.licences) == tuple(l.perils for l in fresh.licences)
+                and have.appetite.perils == fresh.appetite.perils)
+        if same:
+            continue
+        have.licences = fresh.licences
+        have.appetite = fresh.appetite
+        refreshed += 1
+    return refreshed
+
+
 def retire_world_specimens(registry: "Registry", *, now: float | None = None) -> int:
     """The switch turned off: suspend every stand in carrier still active.
 

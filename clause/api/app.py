@@ -61,6 +61,7 @@ from ..protocol.carrier import (
     Settlement as SettlementAsset,
     specimen_registry,
     add_world_specimens,
+    refresh_specimens,
     retire_world_specimens,
 )
 from ..protocol.compliance import ComplianceEngine, Interest
@@ -736,6 +737,11 @@ def create_app(
                              pipeline=pipeline)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
+            # Stand ins saved by an earlier build know only that build's
+            # perils; a real company's licence is left exactly as registered.
+            refreshed = refresh_specimens(registry)
+            if refreshed:
+                logger.info("brought %s stand in companies' licences up to this build", refreshed)
             if settings.specimens:
                 # A book saved before the stand ins existed gets them now; one
                 # saved after keeps its own, including any a reviewer suspended.

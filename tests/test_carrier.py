@@ -422,3 +422,42 @@ def test_stand_in_companies_open_every_inhabited_country_and_say_what_they_are()
     assert retire_world_specimens(registry) > 200
     assert not [r for r in ComplianceEngine(registry).coverage(include_closed=True)
                 if r["open"] and r["country"] == "KE"]
+
+
+def test_a_stand_in_saved_by_an_earlier_build_learns_the_new_peril_and_a_real_company_does_not() -> None:
+    """A book written before storm cover existed carries the stand ins with
+    four perils; restored under this build they would refuse the fifth with
+    "registered here, but not for this risk". Only specimens are brought up
+    to date; a real company's licence is what it registered."""
+    import dataclasses
+
+    from clause.protocol.carrier import EVERY_PERIL, refresh_specimens, specimen_registry
+
+    registry = specimen_registry()
+    old = frozenset(EVERY_PERIL - {"storm"})
+    for carrier in registry.carriers.values():
+        carrier.licences = tuple(dataclasses.replace(l, perils=l.perils & old) for l in carrier.licences)
+        carrier.appetite = dataclasses.replace(carrier.appetite, perils=carrier.appetite.perils & old)
+    real = Carrier(
+        carrier_id="real-tr", name="A Real Company", role=Role.CARRIER, domicile="TR",
+        contact="x@example.com",
+        licences=(Licence(country="TR", authority="SEDDK", reference="TR-1", perils=frozenset({"earthquake"}),
+                          reach=Reach.RETAIL, settlement=frozenset({Settlement.FIAT}), expires_at=time.time() + YEAR),),
+        appetite=Appetite(max_limit=100_000, max_term_days=400, perils=frozenset({"earthquake"})),
+        capacity=1_000_000,
+    )
+    registry.register(real)
+    assert not any("storm" in l.perils for c in registry.carriers.values() for l in c.licences)
+    refreshed = refresh_specimens(registry)
+    assert refreshed > 0
+    assert refresh_specimens(registry) == 0, "running it again changes nothing"
+    # Each stand in is back to exactly this build's definition: the ones
+    # licensed for every peril now carry storm, the one licensed for
+    # earthquake and drought alone is still that.
+    fresh = specimen_registry().carriers
+    for carrier_id, carrier in registry.carriers.items():
+        if carrier.specimen:
+            assert [l.perils for l in carrier.licences] == [l.perils for l in fresh[carrier_id].licences]
+    assert any("storm" in l.perils for c in registry.carriers.values() if c.specimen and c.domicile == "TR"
+               for l in c.licences)
+    assert registry.carriers["real-tr"].licences[0].perils == frozenset({"earthquake"})
