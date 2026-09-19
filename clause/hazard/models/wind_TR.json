@@ -1,0 +1,1572 @@
+{
+ "code": "TR",
+ "name": "Türkiye",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-19",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 243.0,
+   "observed": 268,
+   "place_years": 1215,
+   "dispersion": 7.39,
+   "p_at_most_observed": 0.7379,
+   "p_at_least_observed": 0.2694
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Adana",
+   "latitude": 37.0,
+   "longitude": 35.32,
+   "gumbel": {
+    "mu": 40.916,
+    "beta": 4.374
+   },
+   "levels_kmh": {
+    "2": 42.5,
+    "5": 47.5,
+    "10": 50.8,
+    "25": 54.9,
+    "50": 58.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.0
+  },
+  {
+   "name": "Adıyaman",
+   "latitude": 37.76,
+   "longitude": 38.28,
+   "gumbel": {
+    "mu": 51.505,
+    "beta": 5.45
+   },
+   "levels_kmh": {
+    "2": 53.5,
+    "5": 59.7,
+    "10": 63.8,
+    "25": 68.9,
+    "50": 72.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.4
+  },
+  {
+   "name": "Afyonkarahisar",
+   "latitude": 38.76,
+   "longitude": 30.54,
+   "gumbel": {
+    "mu": 54.267,
+    "beta": 4.565
+   },
+   "levels_kmh": {
+    "2": 55.9,
+    "5": 61.1,
+    "10": 64.5,
+    "25": 68.9,
+    "50": 72.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 68.8
+  },
+  {
+   "name": "Ağrı",
+   "latitude": 39.72,
+   "longitude": 43.05,
+   "gumbel": {
+    "mu": 47.684,
+    "beta": 4.47
+   },
+   "levels_kmh": {
+    "2": 49.3,
+    "5": 54.4,
+    "10": 57.7,
+    "25": 62.0,
+    "50": 65.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.8
+  },
+  {
+   "name": "Aksaray",
+   "latitude": 38.37,
+   "longitude": 34.03,
+   "gumbel": {
+    "mu": 51.796,
+    "beta": 5.732
+   },
+   "levels_kmh": {
+    "2": 53.9,
+    "5": 60.4,
+    "10": 64.7,
+    "25": 70.1,
+    "50": 74.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 71.2
+  },
+  {
+   "name": "Amasya",
+   "latitude": 40.65,
+   "longitude": 35.83,
+   "gumbel": {
+    "mu": 45.67,
+    "beta": 4.192
+   },
+   "levels_kmh": {
+    "2": 47.2,
+    "5": 52.0,
+    "10": 55.1,
+    "25": 59.1,
+    "50": 62.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.4
+  },
+  {
+   "name": "Ankara",
+   "latitude": 39.93,
+   "longitude": 32.86,
+   "gumbel": {
+    "mu": 46.929,
+    "beta": 4.896
+   },
+   "levels_kmh": {
+    "2": 48.7,
+    "5": 54.3,
+    "10": 57.9,
+    "25": 62.6,
+    "50": 66.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.9
+  },
+  {
+   "name": "Antalya",
+   "latitude": 36.9,
+   "longitude": 30.69,
+   "gumbel": {
+    "mu": 44.248,
+    "beta": 3.037
+   },
+   "levels_kmh": {
+    "2": 45.4,
+    "5": 48.8,
+    "10": 51.1,
+    "25": 54.0,
+    "50": 56.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.8
+  },
+  {
+   "name": "Ardahan",
+   "latitude": 41.11,
+   "longitude": 42.7,
+   "gumbel": {
+    "mu": 39.945,
+    "beta": 4.577
+   },
+   "levels_kmh": {
+    "2": 41.6,
+    "5": 46.8,
+    "10": 50.2,
+    "25": 54.6,
+    "50": 57.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.0
+  },
+  {
+   "name": "Artvin",
+   "latitude": 41.18,
+   "longitude": 41.82,
+   "gumbel": {
+    "mu": 30.263,
+    "beta": 4.15
+   },
+   "levels_kmh": {
+    "2": 31.8,
+    "5": 36.5,
+    "10": 39.6,
+    "25": 43.5,
+    "50": 46.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 48.6
+  },
+  {
+   "name": "Aydın",
+   "latitude": 37.85,
+   "longitude": 27.84,
+   "gumbel": {
+    "mu": 40.831,
+    "beta": 2.879
+   },
+   "levels_kmh": {
+    "2": 41.9,
+    "5": 45.1,
+    "10": 47.3,
+    "25": 50.0,
+    "50": 52.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 49.9
+  },
+  {
+   "name": "Balıkesir",
+   "latitude": 39.65,
+   "longitude": 27.89,
+   "gumbel": {
+    "mu": 51.433,
+    "beta": 4.537
+   },
+   "levels_kmh": {
+    "2": 53.1,
+    "5": 58.2,
+    "10": 61.6,
+    "25": 65.9,
+    "50": 69.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.7
+  },
+  {
+   "name": "Bartın",
+   "latitude": 41.64,
+   "longitude": 32.34,
+   "gumbel": {
+    "mu": 22.028,
+    "beta": 2.602
+   },
+   "levels_kmh": {
+    "2": 23.0,
+    "5": 25.9,
+    "10": 27.9,
+    "25": 30.3,
+    "50": 32.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 31.6
+  },
+  {
+   "name": "Batman",
+   "latitude": 37.88,
+   "longitude": 41.13,
+   "gumbel": {
+    "mu": 32.2,
+    "beta": 2.668
+   },
+   "levels_kmh": {
+    "2": 33.2,
+    "5": 36.2,
+    "10": 38.2,
+    "25": 40.7,
+    "50": 42.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.7
+  },
+  {
+   "name": "Bayburt",
+   "latitude": 40.26,
+   "longitude": 40.23,
+   "gumbel": {
+    "mu": 57.073,
+    "beta": 6.858
+   },
+   "levels_kmh": {
+    "2": 59.6,
+    "5": 67.4,
+    "10": 72.5,
+    "25": 79.0,
+    "50": 83.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.4
+  },
+  {
+   "name": "Bilecik",
+   "latitude": 40.14,
+   "longitude": 29.98,
+   "gumbel": {
+    "mu": 43.671,
+    "beta": 4.802
+   },
+   "levels_kmh": {
+    "2": 45.4,
+    "5": 50.9,
+    "10": 54.5,
+    "25": 59.0,
+    "50": 62.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.8
+  },
+  {
+   "name": "Bingöl",
+   "latitude": 38.89,
+   "longitude": 40.5,
+   "gumbel": {
+    "mu": 42.71,
+    "beta": 3.364
+   },
+   "levels_kmh": {
+    "2": 43.9,
+    "5": 47.8,
+    "10": 50.3,
+    "25": 53.5,
+    "50": 55.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 51.9
+  },
+  {
+   "name": "Bitlis",
+   "latitude": 38.4,
+   "longitude": 42.11,
+   "gumbel": {
+    "mu": 45.21,
+    "beta": 2.761
+   },
+   "levels_kmh": {
+    "2": 46.2,
+    "5": 49.4,
+    "10": 51.4,
+    "25": 54.0,
+    "50": 56.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.7
+  },
+  {
+   "name": "Bolu",
+   "latitude": 40.74,
+   "longitude": 31.61,
+   "gumbel": {
+    "mu": 45.232,
+    "beta": 5.083
+   },
+   "levels_kmh": {
+    "2": 47.1,
+    "5": 52.9,
+    "10": 56.7,
+    "25": 61.5,
+    "50": 65.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.6
+  },
+  {
+   "name": "Burdur",
+   "latitude": 37.72,
+   "longitude": 30.29,
+   "gumbel": {
+    "mu": 45.752,
+    "beta": 4.52
+   },
+   "levels_kmh": {
+    "2": 47.4,
+    "5": 52.5,
+    "10": 55.9,
+    "25": 60.2,
+    "50": 63.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.0
+  },
+  {
+   "name": "Bursa",
+   "latitude": 40.19,
+   "longitude": 29.06,
+   "gumbel": {
+    "mu": 47.592,
+    "beta": 5.183
+   },
+   "levels_kmh": {
+    "2": 49.5,
+    "5": 55.4,
+    "10": 59.3,
+    "25": 64.2,
+    "50": 67.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.4
+  },
+  {
+   "name": "Çanakkale",
+   "latitude": 40.15,
+   "longitude": 26.41,
+   "gumbel": {
+    "mu": 59.757,
+    "beta": 4.296
+   },
+   "levels_kmh": {
+    "2": 61.3,
+    "5": 66.2,
+    "10": 69.4,
+    "25": 73.5,
+    "50": 76.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 74.2
+  },
+  {
+   "name": "Çankırı",
+   "latitude": 40.6,
+   "longitude": 33.62,
+   "gumbel": {
+    "mu": 42.06,
+    "beta": 5.177
+   },
+   "levels_kmh": {
+    "2": 44.0,
+    "5": 49.8,
+    "10": 53.7,
+    "25": 58.6,
+    "50": 62.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.6
+  },
+  {
+   "name": "Çorum",
+   "latitude": 40.55,
+   "longitude": 34.95,
+   "gumbel": {
+    "mu": 47.175,
+    "beta": 4.808
+   },
+   "levels_kmh": {
+    "2": 48.9,
+    "5": 54.4,
+    "10": 58.0,
+    "25": 62.6,
+    "50": 65.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 70.4
+  },
+  {
+   "name": "Denizli",
+   "latitude": 37.78,
+   "longitude": 29.09,
+   "gumbel": {
+    "mu": 41.115,
+    "beta": 4.03
+   },
+   "levels_kmh": {
+    "2": 42.6,
+    "5": 47.2,
+    "10": 50.2,
+    "25": 54.0,
+    "50": 56.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.8
+  },
+  {
+   "name": "Diyarbakır",
+   "latitude": 37.91,
+   "longitude": 40.24,
+   "gumbel": {
+    "mu": 34.742,
+    "beta": 2.309
+   },
+   "levels_kmh": {
+    "2": 35.6,
+    "5": 38.2,
+    "10": 39.9,
+    "25": 42.1,
+    "50": 43.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.7
+  },
+  {
+   "name": "Düzce",
+   "latitude": 40.84,
+   "longitude": 31.16,
+   "gumbel": {
+    "mu": 27.727,
+    "beta": 3.439
+   },
+   "levels_kmh": {
+    "2": 29.0,
+    "5": 32.9,
+    "10": 35.5,
+    "25": 38.7,
+    "50": 41.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.9
+  },
+  {
+   "name": "Edirne",
+   "latitude": 41.68,
+   "longitude": 26.56,
+   "gumbel": {
+    "mu": 50.546,
+    "beta": 3.728
+   },
+   "levels_kmh": {
+    "2": 51.9,
+    "5": 56.1,
+    "10": 58.9,
+    "25": 62.5,
+    "50": 65.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.5
+  },
+  {
+   "name": "Elazığ",
+   "latitude": 38.68,
+   "longitude": 39.22,
+   "gumbel": {
+    "mu": 40.913,
+    "beta": 3.715
+   },
+   "levels_kmh": {
+    "2": 42.3,
+    "5": 46.5,
+    "10": 49.3,
+    "25": 52.8,
+    "50": 55.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.0
+  },
+  {
+   "name": "Erzincan",
+   "latitude": 39.75,
+   "longitude": 39.49,
+   "gumbel": {
+    "mu": 47.106,
+    "beta": 5.148
+   },
+   "levels_kmh": {
+    "2": 49.0,
+    "5": 54.8,
+    "10": 58.7,
+    "25": 63.6,
+    "50": 67.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.8
+  },
+  {
+   "name": "Erzurum",
+   "latitude": 39.9,
+   "longitude": 41.27,
+   "gumbel": {
+    "mu": 48.396,
+    "beta": 4.663
+   },
+   "levels_kmh": {
+    "2": 50.1,
+    "5": 55.4,
+    "10": 58.9,
+    "25": 63.3,
+    "50": 66.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.8
+  },
+  {
+   "name": "Eskişehir",
+   "latitude": 39.78,
+   "longitude": 30.52,
+   "gumbel": {
+    "mu": 43.758,
+    "beta": 4.535
+   },
+   "levels_kmh": {
+    "2": 45.4,
+    "5": 50.6,
+    "10": 54.0,
+    "25": 58.3,
+    "50": 61.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.2
+  },
+  {
+   "name": "Gaziantep",
+   "latitude": 37.07,
+   "longitude": 37.38,
+   "gumbel": {
+    "mu": 41.99,
+    "beta": 3.78
+   },
+   "levels_kmh": {
+    "2": 43.4,
+    "5": 47.7,
+    "10": 50.5,
+    "25": 54.1,
+    "50": 56.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 58.7
+  },
+  {
+   "name": "Giresun",
+   "latitude": 40.91,
+   "longitude": 38.39,
+   "gumbel": {
+    "mu": 43.096,
+    "beta": 5.695
+   },
+   "levels_kmh": {
+    "2": 45.2,
+    "5": 51.6,
+    "10": 55.9,
+    "25": 61.3,
+    "50": 65.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.7
+  },
+  {
+   "name": "Gümüşhane",
+   "latitude": 40.46,
+   "longitude": 39.48,
+   "gumbel": {
+    "mu": 53.18,
+    "beta": 6.694
+   },
+   "levels_kmh": {
+    "2": 55.6,
+    "5": 63.2,
+    "10": 68.2,
+    "25": 74.6,
+    "50": 79.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.2
+  },
+  {
+   "name": "Hakkâri",
+   "latitude": 37.57,
+   "longitude": 43.74,
+   "gumbel": {
+    "mu": 38.175,
+    "beta": 3.618
+   },
+   "levels_kmh": {
+    "2": 39.5,
+    "5": 43.6,
+    "10": 46.3,
+    "25": 49.7,
+    "50": 52.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.2
+  },
+  {
+   "name": "Hatay",
+   "latitude": 36.2,
+   "longitude": 36.16,
+   "gumbel": {
+    "mu": 43.679,
+    "beta": 3.182
+   },
+   "levels_kmh": {
+    "2": 44.8,
+    "5": 48.5,
+    "10": 50.8,
+    "25": 53.9,
+    "50": 56.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.3
+  },
+  {
+   "name": "Iğdır",
+   "latitude": 39.92,
+   "longitude": 44.04,
+   "gumbel": {
+    "mu": 49.597,
+    "beta": 5.362
+   },
+   "levels_kmh": {
+    "2": 51.6,
+    "5": 57.6,
+    "10": 61.7,
+    "25": 66.7,
+    "50": 70.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.7
+  },
+  {
+   "name": "Isparta",
+   "latitude": 37.77,
+   "longitude": 30.55,
+   "gumbel": {
+    "mu": 47.458,
+    "beta": 5.734
+   },
+   "levels_kmh": {
+    "2": 49.6,
+    "5": 56.1,
+    "10": 60.4,
+    "25": 65.8,
+    "50": 69.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.1
+  },
+  {
+   "name": "İstanbul",
+   "latitude": 41.01,
+   "longitude": 28.98,
+   "gumbel": {
+    "mu": 55.179,
+    "beta": 4.118
+   },
+   "levels_kmh": {
+    "2": 56.7,
+    "5": 61.4,
+    "10": 64.4,
+    "25": 68.4,
+    "50": 71.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 69.4
+  },
+  {
+   "name": "İzmir",
+   "latitude": 38.42,
+   "longitude": 27.14,
+   "gumbel": {
+    "mu": 50.603,
+    "beta": 3.877
+   },
+   "levels_kmh": {
+    "2": 52.0,
+    "5": 56.4,
+    "10": 59.3,
+    "25": 63.0,
+    "50": 65.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.3
+  },
+  {
+   "name": "Kahramanmaraş",
+   "latitude": 37.58,
+   "longitude": 36.93,
+   "gumbel": {
+    "mu": 39.764,
+    "beta": 4.024
+   },
+   "levels_kmh": {
+    "2": 41.2,
+    "5": 45.8,
+    "10": 48.8,
+    "25": 52.6,
+    "50": 55.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.9
+  },
+  {
+   "name": "Karabük",
+   "latitude": 41.2,
+   "longitude": 32.63,
+   "gumbel": {
+    "mu": 45.553,
+    "beta": 6.016
+   },
+   "levels_kmh": {
+    "2": 47.8,
+    "5": 54.6,
+    "10": 59.1,
+    "25": 64.8,
+    "50": 69.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.5
+  },
+  {
+   "name": "Karaman",
+   "latitude": 37.18,
+   "longitude": 33.22,
+   "gumbel": {
+    "mu": 50.301,
+    "beta": 3.968
+   },
+   "levels_kmh": {
+    "2": 51.8,
+    "5": 56.3,
+    "10": 59.2,
+    "25": 63.0,
+    "50": 65.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.6
+  },
+  {
+   "name": "Kars",
+   "latitude": 40.6,
+   "longitude": 43.1,
+   "gumbel": {
+    "mu": 50.507,
+    "beta": 5.663
+   },
+   "levels_kmh": {
+    "2": 52.6,
+    "5": 59.0,
+    "10": 63.2,
+    "25": 68.6,
+    "50": 72.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 68.0
+  },
+  {
+   "name": "Kastamonu",
+   "latitude": 41.39,
+   "longitude": 33.78,
+   "gumbel": {
+    "mu": 43.619,
+    "beta": 5.403
+   },
+   "levels_kmh": {
+    "2": 45.6,
+    "5": 51.7,
+    "10": 55.8,
+    "25": 60.9,
+    "50": 64.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.4
+  },
+  {
+   "name": "Kayseri",
+   "latitude": 38.73,
+   "longitude": 35.49,
+   "gumbel": {
+    "mu": 52.536,
+    "beta": 4.451
+   },
+   "levels_kmh": {
+    "2": 54.2,
+    "5": 59.2,
+    "10": 62.6,
+    "25": 66.8,
+    "50": 69.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 71.9
+  },
+  {
+   "name": "Kilis",
+   "latitude": 36.72,
+   "longitude": 37.12,
+   "gumbel": {
+    "mu": 39.658,
+    "beta": 3.188
+   },
+   "levels_kmh": {
+    "2": 40.8,
+    "5": 44.4,
+    "10": 46.8,
+    "25": 49.9,
+    "50": 52.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.7
+  },
+  {
+   "name": "Kırıkkale",
+   "latitude": 39.85,
+   "longitude": 33.52,
+   "gumbel": {
+    "mu": 46.021,
+    "beta": 5.748
+   },
+   "levels_kmh": {
+    "2": 48.1,
+    "5": 54.6,
+    "10": 59.0,
+    "25": 64.4,
+    "50": 68.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.6
+  },
+  {
+   "name": "Kırklareli",
+   "latitude": 41.74,
+   "longitude": 27.22,
+   "gumbel": {
+    "mu": 45.431,
+    "beta": 3.743
+   },
+   "levels_kmh": {
+    "2": 46.8,
+    "5": 51.0,
+    "10": 53.9,
+    "25": 57.4,
+    "50": 60.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.4
+  },
+  {
+   "name": "Kırşehir",
+   "latitude": 39.15,
+   "longitude": 34.16,
+   "gumbel": {
+    "mu": 48.92,
+    "beta": 5.55
+   },
+   "levels_kmh": {
+    "2": 51.0,
+    "5": 57.2,
+    "10": 61.4,
+    "25": 66.7,
+    "50": 70.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.4
+  },
+  {
+   "name": "Kocaeli",
+   "latitude": 40.77,
+   "longitude": 29.92,
+   "gumbel": {
+    "mu": 42.072,
+    "beta": 3.415
+   },
+   "levels_kmh": {
+    "2": 43.3,
+    "5": 47.2,
+    "10": 49.8,
+    "25": 53.0,
+    "50": 55.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.3
+  },
+  {
+   "name": "Konya",
+   "latitude": 37.87,
+   "longitude": 32.49,
+   "gumbel": {
+    "mu": 51.921,
+    "beta": 5.634
+   },
+   "levels_kmh": {
+    "2": 54.0,
+    "5": 60.4,
+    "10": 64.6,
+    "25": 69.9,
+    "50": 73.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.4
+  },
+  {
+   "name": "Kütahya",
+   "latitude": 39.42,
+   "longitude": 29.99,
+   "gumbel": {
+    "mu": 51.424,
+    "beta": 4.743
+   },
+   "levels_kmh": {
+    "2": 53.2,
+    "5": 58.5,
+    "10": 62.1,
+    "25": 66.6,
+    "50": 69.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.4
+  },
+  {
+   "name": "Malatya",
+   "latitude": 38.36,
+   "longitude": 38.31,
+   "gumbel": {
+    "mu": 42.999,
+    "beta": 3.327
+   },
+   "levels_kmh": {
+    "2": 44.2,
+    "5": 48.0,
+    "10": 50.5,
+    "25": 53.6,
+    "50": 56.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.2
+  },
+  {
+   "name": "Manisa",
+   "latitude": 38.62,
+   "longitude": 27.43,
+   "gumbel": {
+    "mu": 46.15,
+    "beta": 3.671
+   },
+   "levels_kmh": {
+    "2": 47.5,
+    "5": 51.7,
+    "10": 54.4,
+    "25": 57.9,
+    "50": 60.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.0
+  },
+  {
+   "name": "Mardin",
+   "latitude": 37.31,
+   "longitude": 40.74,
+   "gumbel": {
+    "mu": 32.603,
+    "beta": 2.649
+   },
+   "levels_kmh": {
+    "2": 33.6,
+    "5": 36.6,
+    "10": 38.6,
+    "25": 41.1,
+    "50": 42.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.8
+  },
+  {
+   "name": "Mersin",
+   "latitude": 36.81,
+   "longitude": 34.64,
+   "gumbel": {
+    "mu": 58.33,
+    "beta": 6.639
+   },
+   "levels_kmh": {
+    "2": 60.8,
+    "5": 68.3,
+    "10": 73.3,
+    "25": 79.6,
+    "50": 84.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 80.2
+  },
+  {
+   "name": "Muğla",
+   "latitude": 37.22,
+   "longitude": 28.36,
+   "gumbel": {
+    "mu": 50.716,
+    "beta": 3.016
+   },
+   "levels_kmh": {
+    "2": 51.8,
+    "5": 55.2,
+    "10": 57.5,
+    "25": 60.4,
+    "50": 62.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.6
+  },
+  {
+   "name": "Muş",
+   "latitude": 38.73,
+   "longitude": 41.49,
+   "gumbel": {
+    "mu": 42.249,
+    "beta": 3.171
+   },
+   "levels_kmh": {
+    "2": 43.4,
+    "5": 47.0,
+    "10": 49.4,
+    "25": 52.4,
+    "50": 54.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.0
+  },
+  {
+   "name": "Nevşehir",
+   "latitude": 38.62,
+   "longitude": 34.71,
+   "gumbel": {
+    "mu": 51.851,
+    "beta": 4.827
+   },
+   "levels_kmh": {
+    "2": 53.6,
+    "5": 59.1,
+    "10": 62.7,
+    "25": 67.3,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.2
+  },
+  {
+   "name": "Niğde",
+   "latitude": 37.97,
+   "longitude": 34.68,
+   "gumbel": {
+    "mu": 51.203,
+    "beta": 4.765
+   },
+   "levels_kmh": {
+    "2": 52.9,
+    "5": 58.3,
+    "10": 61.9,
+    "25": 66.4,
+    "50": 69.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.1
+  },
+  {
+   "name": "Ordu",
+   "latitude": 40.98,
+   "longitude": 37.88,
+   "gumbel": {
+    "mu": 43.096,
+    "beta": 5.695
+   },
+   "levels_kmh": {
+    "2": 45.2,
+    "5": 51.6,
+    "10": 55.9,
+    "25": 61.3,
+    "50": 65.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.7
+  },
+  {
+   "name": "Osmaniye",
+   "latitude": 37.07,
+   "longitude": 36.25,
+   "gumbel": {
+    "mu": 34.542,
+    "beta": 3.458
+   },
+   "levels_kmh": {
+    "2": 35.8,
+    "5": 39.7,
+    "10": 42.3,
+    "25": 45.6,
+    "50": 48.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.3
+  },
+  {
+   "name": "Rize",
+   "latitude": 41.02,
+   "longitude": 40.52,
+   "gumbel": {
+    "mu": 42.324,
+    "beta": 7.452
+   },
+   "levels_kmh": {
+    "2": 45.1,
+    "5": 53.5,
+    "10": 59.1,
+    "25": 66.2,
+    "50": 71.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 68.2
+  },
+  {
+   "name": "Sakarya",
+   "latitude": 40.78,
+   "longitude": 30.4,
+   "gumbel": {
+    "mu": 32.69,
+    "beta": 2.765
+   },
+   "levels_kmh": {
+    "2": 33.7,
+    "5": 36.8,
+    "10": 38.9,
+    "25": 41.5,
+    "50": 43.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.2
+  },
+  {
+   "name": "Samsun",
+   "latitude": 41.29,
+   "longitude": 36.33,
+   "gumbel": {
+    "mu": 48.612,
+    "beta": 3.968
+   },
+   "levels_kmh": {
+    "2": 50.1,
+    "5": 54.6,
+    "10": 57.5,
+    "25": 61.3,
+    "50": 64.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.0
+  },
+  {
+   "name": "Siirt",
+   "latitude": 37.93,
+   "longitude": 41.94,
+   "gumbel": {
+    "mu": 38.242,
+    "beta": 3.891
+   },
+   "levels_kmh": {
+    "2": 39.7,
+    "5": 44.1,
+    "10": 47.0,
+    "25": 50.7,
+    "50": 53.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 49.3
+  },
+  {
+   "name": "Sinop",
+   "latitude": 42.03,
+   "longitude": 35.15,
+   "gumbel": {
+    "mu": 43.983,
+    "beta": 2.671
+   },
+   "levels_kmh": {
+    "2": 45.0,
+    "5": 48.0,
+    "10": 50.0,
+    "25": 52.5,
+    "50": 54.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.6
+  },
+  {
+   "name": "Sivas",
+   "latitude": 39.75,
+   "longitude": 37.02,
+   "gumbel": {
+    "mu": 55.448,
+    "beta": 5.433
+   },
+   "levels_kmh": {
+    "2": 57.4,
+    "5": 63.6,
+    "10": 67.7,
+    "25": 72.8,
+    "50": 76.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.4
+  },
+  {
+   "name": "Şanlıurfa",
+   "latitude": 37.17,
+   "longitude": 38.79,
+   "gumbel": {
+    "mu": 42.577,
+    "beta": 3.389
+   },
+   "levels_kmh": {
+    "2": 43.8,
+    "5": 47.7,
+    "10": 50.2,
+    "25": 53.4,
+    "50": 55.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.7
+  },
+  {
+   "name": "Şırnak",
+   "latitude": 37.52,
+   "longitude": 42.46,
+   "gumbel": {
+    "mu": 38.637,
+    "beta": 3.448
+   },
+   "levels_kmh": {
+    "2": 39.9,
+    "5": 43.8,
+    "10": 46.4,
+    "25": 49.7,
+    "50": 52.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.2
+  },
+  {
+   "name": "Tekirdağ",
+   "latitude": 40.98,
+   "longitude": 27.51,
+   "gumbel": {
+    "mu": 50.17,
+    "beta": 3.858
+   },
+   "levels_kmh": {
+    "2": 51.6,
+    "5": 56.0,
+    "10": 58.9,
+    "25": 62.5,
+    "50": 65.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.2
+  },
+  {
+   "name": "Tokat",
+   "latitude": 40.31,
+   "longitude": 36.55,
+   "gumbel": {
+    "mu": 45.28,
+    "beta": 4.955
+   },
+   "levels_kmh": {
+    "2": 47.1,
+    "5": 52.7,
+    "10": 56.4,
+    "25": 61.1,
+    "50": 64.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.3
+  },
+  {
+   "name": "Trabzon",
+   "latitude": 41.0,
+   "longitude": 39.72,
+   "gumbel": {
+    "mu": 53.343,
+    "beta": 8.631
+   },
+   "levels_kmh": {
+    "2": 56.5,
+    "5": 66.3,
+    "10": 72.8,
+    "25": 80.9,
+    "50": 87.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 81.9
+  },
+  {
+   "name": "Tunceli",
+   "latitude": 39.11,
+   "longitude": 39.55,
+   "gumbel": {
+    "mu": 42.887,
+    "beta": 4.777
+   },
+   "levels_kmh": {
+    "2": 44.6,
+    "5": 50.1,
+    "10": 53.6,
+    "25": 58.2,
+    "50": 61.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.3
+  },
+  {
+   "name": "Uşak",
+   "latitude": 38.68,
+   "longitude": 29.41,
+   "gumbel": {
+    "mu": 42.397,
+    "beta": 3.653
+   },
+   "levels_kmh": {
+    "2": 43.7,
+    "5": 47.9,
+    "10": 50.6,
+    "25": 54.1,
+    "50": 56.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.6
+  },
+  {
+   "name": "Van",
+   "latitude": 38.49,
+   "longitude": 43.38,
+   "gumbel": {
+    "mu": 51.866,
+    "beta": 4.131
+   },
+   "levels_kmh": {
+    "2": 53.4,
+    "5": 58.1,
+    "10": 61.2,
+    "25": 65.1,
+    "50": 68.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 81.3
+  },
+  {
+   "name": "Yalova",
+   "latitude": 40.66,
+   "longitude": 29.28,
+   "gumbel": {
+    "mu": 34.562,
+    "beta": 3.887
+   },
+   "levels_kmh": {
+    "2": 36.0,
+    "5": 40.4,
+    "10": 43.3,
+    "25": 47.0,
+    "50": 49.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 49.4
+  },
+  {
+   "name": "Yozgat",
+   "latitude": 39.82,
+   "longitude": 34.81,
+   "gumbel": {
+    "mu": 49.922,
+    "beta": 5.164
+   },
+   "levels_kmh": {
+    "2": 51.8,
+    "5": 57.7,
+    "10": 61.5,
+    "25": 66.4,
+    "50": 70.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.9
+  },
+  {
+   "name": "Zonguldak",
+   "latitude": 41.46,
+   "longitude": 31.79,
+   "gumbel": {
+    "mu": 35.462,
+    "beta": 3.709
+   },
+   "levels_kmh": {
+    "2": 36.8,
+    "5": 41.0,
+    "10": 43.8,
+    "25": 47.3,
+    "50": 49.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 47.0
+  }
+ ]
+}
