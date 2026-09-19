@@ -1,0 +1,14 @@
+{
+  "name": "clause-privy-bundle",
+  "private": true,
+  "description": "Privy's sign in window, packed into one file the site loads only when someone chooses to sign in with it.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "^3.44.0",
+    "esbuild": "^0.28.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

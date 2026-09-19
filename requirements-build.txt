@@ -1,0 +1,4 @@
+# Building the earthquake models (python -m clause.hazard.build). Offline only:
+# the server reads the model files the build wrote and never imports this.
+-r requirements.txt
+numpy>=1.26

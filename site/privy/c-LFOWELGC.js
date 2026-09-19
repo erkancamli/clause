@@ -1,0 +1,1 @@
+import{L as t}from"./c-F2M6QL3Y.js";import{b as r,g as s,h as i}from"./c-4BLT7WQF.js";import{b as e}from"./c-3POUIAFT.js";import{e as c}from"./c-7SW4JVF5.js";var o=c(e(),1);var p=({onClick:a,text:m})=>(0,o.jsxs)(s,{onClick:a,children:[(0,o.jsx)(i,{children:(0,o.jsx)(t,{})}),(0,o.jsx)(r,{children:m})]});export{p as a};

@@ -1,0 +1,608 @@
+<title>Clause Kurulum Gecesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  color-scheme: light dark;
+  --ground:#F2F4F6; --panel:#FFFFFF; --sunk:#E8EBEF; --term:#12171D;
+  --edge:#DDE2E8; --edge-2:#C6CEd6;
+  --ink:#141A20; --ink-2:#4E5A66; --ink-3:#7B8794;
+  --signal:#D4491B; --signal-wash:#FBEBE5;
+  --ok:#0E7C63; --ok-wash:#E2F3EE;
+  --warn:#8A5A00; --warn-wash:#FBF0DA;
+  --term-ink:#DCE3EA; --term-dim:#68757F; --term-ok:#4ED4AC; --term-sig:#FF8A55;
+  --display:"Archivo",system-ui,-apple-system,sans-serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --ground:#0D1116; --panel:#151B22; --sunk:#1D242C; --term:#080B0F;
+  --edge:#242C35; --edge-2:#33404C;
+  --ink:#E7EDF3; --ink-2:#98A5B2; --ink-3:#6B7884;
+  --signal:#FF7A45; --signal-wash:rgba(255,122,69,.12);
+  --ok:#3FD3A8; --ok-wash:rgba(63,211,168,.12);
+  --warn:#F0B429; --warn-wash:rgba(240,180,41,.12);
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1116; --panel:#151B22; --sunk:#1D242C; --term:#080B0F;
+  --edge:#242C35; --edge-2:#33404C;
+  --ink:#E7EDF3; --ink-2:#98A5B2; --ink-3:#6B7884;
+  --signal:#FF7A45; --signal-wash:rgba(255,122,69,.12);
+  --ok:#3FD3A8; --ok-wash:rgba(63,211,168,.12);
+  --warn:#F0B429; --warn-wash:rgba(240,180,41,.12);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding-inline:20px;padding-block:0 72px}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.022em;text-wrap:balance}
+a{color:var(--signal)}
+p{margin:0 0 14px}
+code{font-family:var(--mono);font-size:.9em;background:var(--sunk);padding:1px 5px;
+  border-radius:5px;word-break:break-word}
+
+/* --- masthead --- */
+header.top{padding-block:44px 30px;border-bottom:1px solid var(--edge);margin-bottom:34px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--signal);margin-bottom:12px}
+header.top h1{font-size:clamp(30px,6vw,42px);line-height:1.08}
+header.top p{margin-top:14px;color:var(--ink-2);max-width:56ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.meta span{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);
+  background:var(--panel);border:1px solid var(--edge);border-radius:999px;padding:5px 11px}
+
+/* --- steps --- */
+.step{margin-bottom:38px}
+.step > .head{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;
+  margin-bottom:14px}
+.num{width:30px;height:30px;border-radius:50%;background:var(--signal);color:#fff;
+  font-family:var(--mono);font-size:13px;font-weight:500;display:grid;place-items:center;
+  flex:none;margin-top:2px}
+.step h2{font-size:21px;line-height:1.25}
+.step .sub{color:var(--ink-3);font-size:13.5px;margin-top:3px}
+.body{padding-left:44px}
+@media (max-width:560px){ .body{padding-left:0} }
+
+/* --- command blocks --- */
+.cmd{position:relative;background:var(--term);border-radius:var(--r);margin:0 0 14px;
+  border:1px solid var(--edge)}
+.cmd pre{margin:0;padding:15px 52px 15px 16px;overflow-x:auto;
+  font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--term-ink)}
+.cmd .p{color:var(--term-sig);user-select:none}
+.cmd .c{color:var(--term-dim)}
+.cmd .o{color:var(--term-ok)}
+.cmd button{position:absolute;top:9px;right:9px;border:1px solid #2A343E;background:#1A222A;
+  color:#9AA7B3;font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:6px;
+  cursor:pointer}
+.cmd button:hover{color:#E7EDF3;border-color:#3D4A57}
+.cmd button.done{color:var(--term-ok);border-color:var(--term-ok)}
+
+/* --- callouts --- */
+.note{border-radius:var(--r);padding:13px 16px;margin:0 0 14px;font-size:14.5px;
+  line-height:1.58}
+.note.warn{background:var(--warn-wash);box-shadow:inset 3px 0 0 var(--warn)}
+.note.trap{background:var(--signal-wash);box-shadow:inset 3px 0 0 var(--signal)}
+.note.ok{background:var(--ok-wash);box-shadow:inset 3px 0 0 var(--ok)}
+.note b{font-weight:600}
+.note .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.note.warn .lbl{color:var(--warn)}
+.note.trap .lbl{color:var(--signal)}
+.note.ok .lbl{color:var(--ok)}
+
+/* --- form field tables, for the Latch screens --- */
+.fields{border:1px solid var(--edge);border-radius:var(--r);overflow:hidden;
+  margin:0 0 14px;background:var(--panel)}
+.fields > div{display:grid;grid-template-columns:minmax(120px,1fr) 1.5fr;gap:14px;
+  padding:11px 15px;border-top:1px solid var(--edge);font-size:14px;align-items:baseline}
+.fields > div:first-child{border-top:0;background:var(--sunk);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3)}
+.fields .k{color:var(--ink-2)}
+.fields .v{font-family:var(--mono);font-size:13px;color:var(--ink);word-break:break-word}
+.fields .v em{font-family:var(--sans);font-style:normal;color:var(--ink-3);font-size:12.5px;
+  display:block;margin-top:3px}
+@media (max-width:560px){ .fields > div{grid-template-columns:1fr;gap:4px} }
+
+/* --- checklist --- */
+.check{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
+  padding:6px 18px 14px;margin-top:8px}
+.check label{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+  padding:11px 0;border-top:1px solid var(--edge);cursor:pointer;font-size:14.5px}
+.check label:first-of-type{border-top:0}
+.check input{margin:4px 0 0;width:17px;height:17px;accent-color:var(--ok);flex:none}
+.check .why{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
+.check input:checked + span{color:var(--ink-3);text-decoration:line-through;
+  text-decoration-color:var(--edge-2)}
+.check input:checked + span .why{text-decoration:none}
+
+hr.rule{border:0;border-top:1px solid var(--edge);margin:44px 0 34px}
+h2.section{font-size:24px;margin-bottom:8px}
+p.section-sub{color:var(--ink-2);margin-bottom:26px;max-width:58ch}
+footer{border-top:1px solid var(--edge);margin-top:48px;padding-top:22px;
+  color:var(--ink-3);font-size:13px}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Clause · kurulum</div>
+  <h1>Bu akşam sunucuya kurmak</h1>
+  <p>Hiçbir şey bilmediğin varsayılarak yazıldı. Sırayla git, her komutu olduğu
+     gibi kopyala, sadece kendi alan adını ve e-postanı değiştir. Baştan sona
+     yaklaşık kırk dakika, çoğu beklemek.</p>
+  <div class="meta">
+    <span>Ubuntu 22.04 veya 24.04</span>
+    <span>root erişimi</span>
+    <span>bir alt alan adı</span>
+    <span>~40 dakika</span>
+  </div>
+</header>
+
+<div class="note ok">
+  <span class="lbl">Önce şunu bil</span>
+  İki ayrı parça kuruyorsun. <b>Site</b> Netlify'da duruyor, zaten orada.
+  <b>Protokol</b> senin sunucuna kuruluyor ve <code>api.clause.insure</code>
+  adresinden cevap veriyor. Site protokolü kendiliğinden buluyor: sen hiçbir yere
+  adres yazmıyorsun, sadece DNS kaydını açıyorsun ve site canlıya geçiyor.
+</div>
+
+<hr class="rule">
+
+<h2 class="section">Bölüm 1 · Sunucu</h2>
+<p class="section-sub">Protokolü ayağa kaldırmak. Bu bölüm bitince
+   <code>https://api.clause.insure/api/health</code> cevap veriyor olacak.</p>
+
+<div class="step">
+  <div class="head"><span class="num">1</span>
+    <div><h2>DNS kaydını aç</h2>
+      <div class="sub">Sertifika bu kayıt olmadan alınamaz, o yüzden ilk iş bu</div></div>
+  </div>
+  <div class="body">
+    <p>Netlify'da <b>clause.insure</b> alan adına gir, <b>Domain management</b> →
+       <b>DNS records</b> → <b>Add new record</b>:</p>
+    <div class="fields">
+      <div><span>Alan</span><span>Ne yazacaksın</span></div>
+      <div><span class="k">Record type</span><span class="v">A</span></div>
+      <div><span class="k">Name</span><span class="v">api<em>Sadece "api". Netlify gerisini
+        ekliyor, tam adı yazma.</em></span></div>
+      <div><span class="k">Value</span><span class="v">sunucunun IP adresi
+        <em>Örneğin 203.0.113.45. Sunucu sağlayıcının panelinde yazıyor.</em></span></div>
+      <div><span class="k">TTL</span><span class="v">3600<em>Varsayılan neyse bırak.</em></span></div>
+    </div>
+    <p>Kaydettikten sonra kendi bilgisayarından kontrol et. Sunucunun IP'sini
+       görene kadar devam etme:</p>
+    <div class="cmd"><pre><span class="p">$</span> dig +short api.clause.insure
+<span class="o">203.0.113.45</span></pre></div>
+    <p>Boş dönerse birkaç dakika bekle ve tekrar dene. Netlify DNS'i genelde beş
+       dakikada yayılır.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="head"><span class="num">2</span>
+    <div><h2>Dosyayı sunucuya at</h2>
+      <div class="sub">clause-1.0.1.tar.gz, sohbetten indirdiğin dosya</div></div>
+  </div>
+  <div class="body">
+    <p>Kendi bilgisayarında, dosyanın bulunduğu klasörde. <code>YOUR-SERVER</code>
+       yerine sunucunun IP adresini yaz:</p>
+    <div class="cmd"><pre><span class="p">$</span> scp clause-1.0.1.tar.gz root@YOUR-SERVER:/root/</pre></div>
+    <p>Sonra sunucuya bağlan:</p>
+    <div class="cmd"><pre><span class="p">$</span> ssh root@YOUR-SERVER</pre></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="head"><span class="num">3</span>
+    <div><h2>Kur</h2>
+      <div class="sub">Tek komut. Python, nginx, sertifika, servis, hepsi</div></div>
+  </div>
+  <div class="body">
+    <p>Artık sunucudasın. Sondaki e-posta sertifika yenileme uyarıları için,
+       kendi adresini yaz:</p>
+    <div class="cmd"><pre><span class="p">#</span> tar xzf clause-1.0.1.tar.gz
+<span class="p">#</span> cd clause
+<span class="p">#</span> bash deploy/install.sh api.clause.insure <span class="c">senin@mailin.com</span></pre></div>
+    <p>Üç dört dakika sürer. Ekranda sırayla <code>==&gt; packages</code>,
+       <code>==&gt; code</code>, <code>==&gt; python environment</code>,
+       <code>==&gt; service</code>, <code>==&gt; nginx</code> göreceksin, sonra
+       certbot sertifikayı alacak.</p>
+    <div class="note warn">
+      <span class="lbl">Burada durursa</span>
+      Certbot hata verirse neredeyse her zaman sebep DNS'tir. Adım 1'e dön,
+      <code>dig</code> cevap veriyor mu bak, sonra aynı komutu tekrar çalıştır.
+      Betik tekrar çalıştırılmak üzere yazıldı, hiçbir şeyi bozmaz.
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="head"><span class="num">4</span>
+    <div><h2>Çalıştığını gör</h2>
+      <div class="sub">Blok numarası her çağrıda artmalı</div></div>
+  </div>
+  <div class="body">
+    <div class="cmd"><pre><span class="p">#</span> curl -s https://api.clause.insure/api/health
+<span class="o">{"status":"ok","version":"0.1.0","chain":{"height":412149,...</span></pre></div>
+    <p>Komutu ikinci kez çalıştır. <code>height</code> büyümüş olmalı: zincir
+       çalışıyor demektir. Cevap gelmezse:</p>
+    <div class="cmd"><pre><span class="p">#</span> systemctl status clause
+<span class="p">#</span> journalctl -u clause -n 50 --no-pager</pre></div>
+  </div>
+</div>
+
+<hr class="rule">
+
+<h2 class="section">Bölüm 2 · Ayarlar</h2>
+<p class="section-sub">Tehlikeli olan her şey kapalı kuruldu. Şimdi sunum için
+   neyin açılacağına sen karar veriyorsun.</p>
+
+<div class="step">
+  <div class="head"><span class="num">5</span>
+    <div><h2>Ayar dosyasını aç</h2>
+      <div class="sub">/etc/clause/clause.env, sadece root okuyabiliyor</div></div>
+  </div>
+  <div class="body">
+    <div class="cmd"><pre><span class="p">#</span> nano /etc/clause/clause.env</pre></div>
+    <p>Dosyanın içinde her ayarın ne yaptığı yazılı. Değiştirmen gerekenler:</p>
+
+    <div class="fields">
+      <div><span>Satır</span><span>Ne yapacaksın</span></div>
+      <div><span class="k">CLAUSE_ORIGINS</span><span class="v">
+        https://clause.insure,https://www.clause.insure
+        <em>Hangi sitelerin tarayıcıdan bu API'yi çağırabileceği. Netlify'ın geçici
+        adresi (transcendent-stroopwafel...netlify.app) zaten listede; alan adı
+        yayıldıktan sonra onu silebilirsin. Asla yıldız yazma.</em></span></div>
+      <div><span class="k">CLAUSE_FAUCET=1</span><span class="v">başındaki # işaretini sil
+        <em>Yeni bağlanan her adrese 250.000 bakiye veriyor. Sunumda şart, çünkü
+        kimse önce para göndermek zorunda kalmıyor. Kamuya açık bırakacaksan kapat:
+        bu bedava para.</em></span></div>
+      <div><span class="k">CLAUSE_DEMO=1</span><span class="v">isteğe bağlı
+        <em>Zinciri elle sürmeni sağlıyor: deprem enjekte etmek, kaynağı susturmak.
+        Sunumda etkileyici. Açarsan bir alttaki token zorunlu, yoksa servis
+        başlamıyor.</em></span></div>
+      <div><span class="k">CLAUSE_OPERATOR_TOKEN</span><span class="v">aşağıdaki komutla üret
+        <em>Hem demo uçlarını hem de taşıyıcı onaylamayı koruyan şifre.</em></span></div>
+    </div>
+
+    <p>Token'ı şöyle üretip dosyaya yapıştır:</p>
+    <div class="cmd"><pre><span class="p">#</span> openssl rand -hex 32
+<span class="o">7f3a91c2...</span></pre></div>
+
+    <div class="note trap">
+      <span class="lbl">Bunu mutlaka yap</span>
+      <b>CLAUSE_OPERATOR_TOKEN'ı bir yere kaydet.</b> Sicile kaydolan bir sigorta
+      şirketini onaylamak için tek yol o. Onsuz yeni bir ülke açamazsın.
+    </div>
+
+    <p>Kaydet (<code>Ctrl+O</code>, <code>Enter</code>, <code>Ctrl+X</code>) ve
+       servisi yeniden başlat:</p>
+    <div class="cmd"><pre><span class="p">#</span> systemctl restart clause
+<span class="p">#</span> systemctl status clause --no-pager</pre></div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="head"><span class="num">6</span>
+    <div><h2>Siteyi Netlify'a at</h2>
+      <div class="sub">clause-site-1.0.1.zip, sohbetten indirdiğin diğer dosya</div></div>
+  </div>
+  <div class="body">
+    <p>Netlify'da projeye gir, <b>Deploys</b> sekmesi, sayfanın altındaki
+       <b>Drag and drop your site output folder here</b> alanına
+       <code>clause-site-1.0.1.zip</code> dosyasını sürükle. Zip'i açmana gerek yok.</p>
+    <p>Bir dakika sonra <code>https://clause.insure</code> adresini aç. Sayfanın
+       en üstünde yeşil noktalı bir çubuk çıkmalı:</p>
+    <div class="note ok">
+      <span class="lbl">Görmen gereken</span>
+      <b>Live.</b> Prices, policies and settlement come from the protocol at
+      api.clause.insure.
+    </div>
+    <p>"Not connected" yazıyorsa sebep neredeyse her zaman
+       <code>CLAUSE_ORIGINS</code>'tir: tarayıcı, API'ye tanıtılmamış bir adresten
+       çağırıyordur. Tarayıcıda <code>F12</code> → Console, kırmızı satır sana
+       hangi adresten geldiğini söyler; o adresi <code>CLAUSE_ORIGINS</code>'e ekle
+       ve servisi yeniden başlat.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<h2 class="section">Bölüm 3 · Rider</h2>
+<p class="section-sub">Asistan. İki kurulum yolu var: kolay olan ve doğru olan.
+   Kolay olanla başla, çalıştığını gör, sonra doğru olana geç.</p>
+
+<div class="step">
+  <div class="head"><span class="num">7</span>
+    <div><h2>Kolay yol: sadece anahtar</h2>
+      <div class="sub">On dakika, ama anahtar sunucuda duruyor</div></div>
+  </div>
+  <div class="body">
+    <p><a href="https://console.anthropic.com" target="_blank" rel="noreferrer noopener">console.anthropic.com</a>
+       → Settings → API Keys → Create Key. Çıkan <code>sk-ant-...</code> değerini
+       kopyala; bir daha gösterilmiyor.</p>
+    <div class="cmd"><pre><span class="p">#</span> nano /etc/clause/clause.env</pre></div>
+    <p>Dosyanın sonundaki Rider bölümünde şu satırı bul, başındaki <code>#</code>
+       işaretini sil ve anahtarı yapıştır:</p>
+    <div class="cmd"><pre>ANTHROPIC_API_KEY=sk-ant-...</pre></div>
+    <div class="cmd"><pre><span class="p">#</span> systemctl restart clause
+<span class="p">#</span> curl -s https://api.clause.insure/api/rider
+<span class="o">{"available":true,"constrained":false,...</span></pre></div>
+    <p>Sitede sağ altta <b>Ask Rider</b> düğmesi çalışır hale geldi. Bir soru sor,
+       cevap veriyorsa bu bölüm bitti.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="head"><span class="num">8</span>
+    <div><h2>Doğru yol: Latch</h2>
+      <div class="sub">Sunucuda hiç anahtar durmuyor, ve günlük harcama tavanı var</div></div>
+  </div>
+  <div class="body">
+    <p>Latch, Rialo'nun kendi ajan yetkilendirme katmanı. Anahtarı sen değil o
+       tutuyor; sunucuda sadece kapsamı daraltılmış bir jeton duruyor ve her çağrı
+       anahtar kullanılmadan önce bir politika hattından geçiyor. Sunumda anlatacak
+       hikâyen de bu: <b>ajanın yetkisi bir anahtar değil, bir politika.</b></p>
+
+    <div class="note warn">
+      <span class="lbl">Şunu bilerek gir</span>
+      Latch'in panelini göremedim, giriş istiyor. Aşağıdaki alan adlarını sitenin
+      dokümantasyonundan ve arayüzün kendi kodundan çıkardım, o yüzden birebir
+      tutmalı. Yine de ekranda farklı bir şey görürsen bana yaz, düzeltelim.
+    </div>
+
+    <p><b>8.1 · Hesap aç.</b>
+       <a href="https://onlatch.com" target="_blank" rel="noreferrer noopener">onlatch.com</a>
+       → sağ üstteki <b>Get started</b>. Google veya GitHub ile giriş yapabilirsin,
+       davet kodu istemiyor. Eğer "size döneceğiz" gibi bir ekranla karşılaşırsan
+       kapalı beta'ya düşmüşsündür, hata yaptığın için değil: o durumda Adım 7'deki
+       kolay yolda kal.</p>
+
+    <p><b>8.2 · Anahtarı Latch'e ver.</b> Menüden <b>Secrets</b> → <b>New secret</b>:</p>
+    <div class="fields">
+      <div><span>Alan</span><span>Ne seçeceksin</span></div>
+      <div><span class="k">Name</span><span class="v">anthropic-clause</span></div>
+      <div><span class="k">Type</span><span class="v">api_key</span></div>
+      <div><span class="k">Credential</span><span class="v">sk-ant-...
+        <em>Anthropic anahtarının kendisi. Bir daha okunamıyor, sadece yazılıyor.</em></span></div>
+      <div><span class="k">Inject as</span><span class="v">API key header
+        <em>Bearer değil. Anthropic anahtarı başlıkta bekliyor.</em></span></div>
+      <div><span class="k">Header name</span><span class="v">x-api-key
+        <em>Küçük harfle, tam böyle.</em></span></div>
+    </div>
+    <div class="note trap">
+      <span class="lbl">Tuzak 1</span>
+      <b>Inject as</b> yanlışsa Anthropic 401 döner ve sen politikada hata ararsın.
+      Latch'in kendi dokümanı bunu "ilk bakılacak yer" diye yazmış. Bearer değil,
+      <b>API key header</b> ve <code>x-api-key</code>.
+    </div>
+
+    <p><b>8.3 · Latch'i oluştur.</b> <b>Latches</b> → <b>New latch</b>. Sihirbaz üç
+       adım: Basics, Credentials, Policy.</p>
+    <div class="fields">
+      <div><span>Alan</span><span>Ne seçeceksin</span></div>
+      <div><span class="k">Name</span><span class="v">clause-rider</span></div>
+      <div><span class="k">Secret</span><span class="v">anthropic-clause
+        <em>Az önce oluşturduğun.</em></span></div>
+      <div><span class="k">Upstream base URL</span><span class="v">https://api.anthropic.com
+        <em>Sonuna yol ekleme, sadece bu. Anthropic için hazır şablon yok, elle yazacaksın.</em></span></div>
+      <div><span class="k">Venue</span><span class="v">Standard proxy</span></div>
+      <div><span class="k">Policy</span><span class="v">Start from scratch
+        <em>Hazır şablonlar OpenAI'ye göre. Üç filtreyi elle ekleyeceğiz.</em></span></div>
+    </div>
+
+    <p><b>8.4 · Üç filtre ekle.</b> <b>Add filter</b> menüsünden sırayla. Her birine
+       isim ver: bir istek reddedildiğinde ajanın gördüğü tek şey o isim.</p>
+
+    <div class="fields">
+      <div><span>Filtre</span><span>Ayarı</span></div>
+      <div><span class="k">endpoint</span><span class="v">Allowlist · /v1/messages
+        <em>Bu jeton anahtarın açtığı başka hiçbir uca gidemesin.</em></span></div>
+      <div><span class="k">method</span><span class="v">POST
+        <em>Eklediğinde varsayılan sadece GET oluyor. POST'a tıklamayı unutma.</em></span></div>
+      <div><span class="k">spend_limit</span><span class="v">Max spend per day: 5
+        <em>Dolar cinsinden. Sonra "+ Model" ile bir satır ekle.</em></span></div>
+    </div>
+
+    <p>spend_limit'e model satırını şöyle doldur:</p>
+    <div class="fields">
+      <div><span>Sütun</span><span>Değer</span></div>
+      <div><span class="k">model id</span><span class="v">claude-sonnet-4-5
+        <em>Rider'ın gövdede gönderdiği tam değer. Farklı model kullanacaksan onu yaz.</em></span></div>
+      <div><span class="k">in $/M</span><span class="v">3
+        <em>Milyon giriş jetonu başına dolar.</em></span></div>
+      <div><span class="k">out $/M</span><span class="v">15
+        <em>Milyon çıkış jetonu başına dolar.</em></span></div>
+    </div>
+
+    <div class="note trap">
+      <span class="lbl">Tuzak 2</span>
+      <b>Model satırı olmadan harcama tavanı hiçbir şey yapmıyor.</b> Arayüz bunu
+      kendi de uyarıyor: fiyatlandırma girilmemiş bir tavan harcamayı ölçmüyor.
+      Tavan koyup model satırını atlamak, tavan koymamakla aynı şey.
+    </div>
+
+    <div class="note warn">
+      <span class="lbl">Bir filtreye dokunma</span>
+      <b>identity</b> filtresini <b>ekleme.</b> Latch'in henüz donanım doğrulayıcısı
+      yok, o yüzden "Any enrolled device" dışındaki her seçenek isteklerin
+      <b>tamamını</b> reddediyor. Arayüz bunu kırmızı uyarıyla söylüyor.
+    </div>
+
+    <p><b>8.5 · Jetonu al.</b> <b>Review &amp; activate</b> → <b>Create</b>. Çıkan
+       <code>lat_...</code> değerini hemen kopyala, bir daha gösterilmiyor.</p>
+
+    <p><b>8.6 · Sunucuya yaz.</b></p>
+    <div class="cmd"><pre><span class="p">#</span> nano /etc/clause/clause.env</pre></div>
+    <p>Anthropic anahtarı satırının başına <code>#</code> koy (artık sunucuda
+       durmasına gerek yok) ve şunu ekle:</p>
+    <div class="cmd"><pre><span class="c"># ANTHROPIC_API_KEY=sk-ant-...</span>
+CLAUSE_RIDER_LATCH=lat_...
+CLAUSE_LATCH_PROXY=https://onlatch.com</pre></div>
+    <div class="cmd"><pre><span class="p">#</span> systemctl restart clause
+<span class="p">#</span> curl -s https://api.clause.insure/api/rider
+<span class="o">{"available":true,"constrained":true,...</span></pre></div>
+    <p><code>"constrained":true</code> gördüysen tamam: artık sunucuda model
+       anahtarı yok. Sitede Rider'a bir soru sor ve cevap geldiğini gör.</p>
+
+    <div class="note ok">
+      <span class="lbl">Şunu deneyerek göster</span>
+      Latch panelinde harcama tavanını <b>0.01</b> yapıp Rider'a bir soru sor.
+      Rider "bugünkü bütçe doldu" diye cevap verecek, çünkü davranmadan önce izin
+      soruyor. Sunumda bunu canlı yapmak, anlatmaktan daha etkili. Sonra tavanı
+      geri al.
+    </div>
+  </div>
+</div>
+
+<hr class="rule">
+
+<h2 class="section">Bölüm 4 · Son kontrol</h2>
+<p class="section-sub">Kurulum bitti. Sunumdan önce bunların hepsinin çalıştığını
+   bir kez kendin gör. Kutucuklar sadece senin için, kimseye gitmiyor.</p>
+
+<div class="check">
+  <label><input type="checkbox">
+    <span>Sağlık ucu cevap veriyor ve blok numarası artıyor
+      <span class="why">curl -s https://api.clause.insure/api/health, iki kez</span></span></label>
+  <label><input type="checkbox">
+    <span>Sitenin üstündeki çubuk yeşil ve "Live" diyor
+      <span class="why">clause.insure adresinden, kendi telefonundan da bak</span></span></label>
+  <label><input type="checkbox">
+    <span>Bir poliçe satın alabiliyorsun
+      <span class="why">Get cover → yer ara → doğrulama adımlarını tamamla → imzala</span></span></label>
+  <label><input type="checkbox">
+    <span>Kanıt ekranı validatör turlarını gösteriyor
+      <span class="why">Aldığın poliçede "See its record on chain"</span></span></label>
+  <label><input type="checkbox">
+    <span>For insurers sayfası şirketleri ve kapsama haritasını gösteriyor
+      <span class="why">Beş ülke, dört şirket, kapasite toplamı</span></span></label>
+  <label><input type="checkbox">
+    <span>Japonya'yı kod yazmadan açabiliyorsun
+      <span class="why">For insurers → Register a company → sonra operator token ile onayla</span></span></label>
+  <label><input type="checkbox">
+    <span>Rider cevap veriyor
+      <span class="why">Sağ alttaki Ask Rider, bir fiyat sorusu sor</span></span></label>
+  <label><input type="checkbox">
+    <span>Operator token'ı güvenli bir yere kaydettin
+      <span class="why">Onsuz yeni taşıyıcı onaylayamazsın</span></span></label>
+</div>
+
+<div class="step" style="margin-top:34px">
+  <div class="head"><span class="num">9</span>
+    <div><h2>Bir ülkeyi canlıda açmak</h2>
+      <div class="sub">Sunumda göstereceğin şey. İki komut</div></div>
+  </div>
+  <div class="body">
+    <p>Sitede <b>For insurers</b> → <b>Register a company</b> formunu doldur ve
+       kaydet. Şirket "pending" gelir ve hiçbir şey yazamaz. Onaylamak için,
+       sunucuda ya da kendi bilgisayarında:</p>
+    <div class="cmd"><pre><span class="p">$</span> curl -s -X POST \
+  -H "x-operator-token: <span class="c">SENIN_TOKENIN</span>" \
+  https://api.clause.insure/api/carriers/<span class="c">sirket-id</span>/activate</pre></div>
+    <p>Şirket id'sini form kaydettiğinde ekranda gösteriyor. Onayladıktan sonra
+       sayfayı yenile: o ülke kapsama haritasında belirdi ve orada poliçe
+       yazılabiliyor. Askıya almak için aynı komut, sonu
+       <code>/suspend</code>.</p>
+  </div>
+</div>
+
+<hr class="rule">
+
+<h2 class="section">Bir şeyler ters giderse</h2>
+<div class="fields" style="margin-top:20px">
+  <div><span>Belirti</span><span>Bak</span></div>
+  <div><span class="k">Site "Not connected" diyor</span><span class="v">
+    CLAUSE_ORIGINS<em>Tarayıcı konsolunda hangi adresten çağırdığı yazıyor.
+    Onu listeye ekle, servisi yeniden başlat.</em></span></div>
+  <div><span class="k">Servis başlamıyor</span><span class="v">
+    journalctl -u clause -n 50 --no-pager<em>CLAUSE_DEMO=1 koyup token koymadıysan
+    servis bilerek başlamaz, günlükte bunu yazar.</em></span></div>
+  <div><span class="k">Sertifika alınamadı</span><span class="v">
+    dig +short api.clause.insure<em>DNS yayılmadan certbot çalışamaz. Bekle, install.sh'ı
+    tekrar çalıştır.</em></span></div>
+  <div><span class="k">Rider cevap vermiyor</span><span class="v">
+    curl -s .../api/rider<em>available false ise anahtar veya latch okunmamış.
+    Satırın başında # kalmış olabilir.</em></span></div>
+  <div><span class="k">Latch 401 döndürüyor</span><span class="v">
+    Inject as<em>Bearer seçilmişse Anthropic anahtarı görmez. API key header,
+    x-api-key.</em></span></div>
+  <div><span class="k">Latch 403 döndürüyor</span><span class="v">
+    method filtresi<em>POST işaretlenmemişse her istek reddedilir. Cevabın içindeki
+    deniedBy alanı hangi filtrenin reddettiğini söyler.</em></span></div>
+</div>
+
+<h2 class="section" style="margin-top:44px">Güncelleme</h2>
+<p class="section-sub">Sana yeni bir tar.gz gönderdiğimde, aynı üç komut. Ayarların
+   ve sertifikan korunur; defter <code>/var/lib/clause/clause.sqlite</code> dosyasından
+   geri yüklenir: poliçeler, bakiyeler, şirketler ve başvurular olduğu gibi kalır.</p>
+<div class="cmd"><pre><span class="p">$</span> scp clause-1.0.1.tar.gz root@YOUR-SERVER:/root/
+<span class="p">$</span> ssh root@YOUR-SERVER
+<span class="p">#</span> tar xzf clause-1.0.1.tar.gz &amp;&amp; cd clause &amp;&amp; bash deploy/install.sh api.clause.insure senin@mailin.com</pre></div>
+
+<footer>
+  Bu sayfa kurulum için. Protokolün nasıl çalıştığı <code>README.md</code> içinde,
+  sunucu tarafının ayrıntıları <code>deploy/README.md</code> içinde.
+</footer>
+
+</div>
+
+<script>
+// Copy buttons on every command block. The sandbox may refuse the clipboard, so
+// the fallback selects the text instead of pretending it worked.
+document.querySelectorAll(".cmd").forEach(function(block){
+  var pre = block.querySelector("pre");
+  var button = document.createElement("button");
+  button.type = "button";
+  button.textContent = "kopyala";
+  button.addEventListener("click", function(){
+    // Drop the prompt characters and the sample output: what gets copied is
+    // what you would actually type.
+    var lines = [];
+    pre.childNodes.forEach && pre.childNodes.forEach(function(){});
+    var clone = pre.cloneNode(true);
+    clone.querySelectorAll(".p, .o").forEach(function(n){ n.remove(); });
+    clone.textContent.split("\n").forEach(function(line){
+      if (line.trim()) lines.push(line.replace(/^\s+/, ""));
+    });
+    var text = lines.join("\n");
+    var done = function(){
+      button.textContent = "kopyalandı";
+      button.classList.add("done");
+      setTimeout(function(){
+        button.textContent = "kopyala";
+        button.classList.remove("done");
+      }, 1600);
+    };
+    try {
+      navigator.clipboard.writeText(text).then(done, function(){ select(); });
+    } catch (e) { select(); }
+    function select(){
+      var range = document.createRange();
+      range.selectNodeContents(pre);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = "seçildi, kopyala";
+    }
+  });
+  block.appendChild(button);
+});
+
+// The checklist is for one person on one evening, so it remembers itself here
+// and goes no further.
+document.querySelectorAll(".check input").forEach(function(box, i){
+  box.id = "chk" + i;
+  try {
+    if (localStorage.getItem(box.id) === "1") box.checked = true;
+  } catch (e) {}
+  box.addEventListener("change", function(){
+    try { localStorage.setItem(box.id, box.checked ? "1" : "0"); } catch (e) {}
+  });
+});
+</script>

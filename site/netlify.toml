@@ -1,0 +1,27 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Privy's sign in window, fetched only when someone presses the button. The
+# chunks are named by their content, so they can be kept forever; the entry
+# file is not, so it is always checked.
+[[headers]]
+  for = "/privy/c-*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/privy/privy.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

@@ -1,0 +1,21 @@
+Clause: parametric cover that settles itself, on Rialo
+Copyright (c) 2026 Erkan Çamlı. All rights reserved.
+
+This software and its accompanying files (the "Software"), including the
+protocol, the pricing models, the site, the documents and the data files,
+are the proprietary work of the copyright holder.
+
+No licence is granted. Without the prior written permission of the
+copyright holder, no part of the Software may be copied, modified, merged,
+published, distributed, sublicensed, sold, reverse engineered, used to
+train a model, or used to build a competing product or service. Viewing the
+public site at clause.insure grants the right to use the service as offered
+there and nothing else.
+
+Third party components bundled with the Software (Leaflet, the Privy SDK
+bundle, the earthquake catalogues and the other data sources named in the
+documentation) remain under their own licences and notices, which are
+reproduced in the places where those components live.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. It is not
+legal, financial or actuarial advice, and not a hazard assessment.

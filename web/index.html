@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Clause</title>
+<meta name="description" content="Parametric cover that settles itself. A policy is a predicate onchain, priced against the pool's own book." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232C4E9E'/%3E%3Cpath d='M9 16h14M16 9v14' stroke='%2312897F' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="rail">
+    <div class="brand">
+      <span class="seal" aria-hidden="true">C</span>
+      <span class="brand-text">
+        <strong>Clause</strong>
+        <em>parametric cover</em>
+      </span>
+    </div>
+
+    <nav class="nav" aria-label="Sections">
+      <a class="nav-item" href="#/cover" data-view="cover"><span>Take cover</span></a>
+      <a class="nav-item" href="#/pool" data-view="pool"><span>The pool</span><span class="nav-count" id="nav-pool">0</span></a>
+      <a class="nav-item" href="#/chain" data-view="chain"><span>Onchain</span><span class="nav-count" id="nav-chain">0</span></a>
+      <a class="nav-item" href="#/policies" data-view="policies"><span>Policies</span><span class="nav-count" id="nav-policies">0</span></a>
+      <a class="nav-item" href="#/method" data-view="method"><span>Method</span></a>
+    </nav>
+
+    <div class="rail-foot">
+      <div class="chain-chip">
+        <span><i class="pulse" aria-hidden="true"></i>block</span>
+        <span class="num" id="chain-height">0</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button">
+        <span id="theme-label">Dark</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============================================ take cover -->
+    <section class="view" id="view-cover" hidden>
+      <div class="head">
+        <h1>Take cover</h1>
+        <p>Pick what you are exposed to. The price is worked out against the pool's own book, so the same risk costs differently depending on what the pool already carries.</p>
+      </div>
+
+      <div class="quote-grid">
+        <div class="card">
+          <h2>What are you covering</h2>
+          <p class="card-note">Every cover here settles on a measured index, never on an assessment of your loss.</p>
+
+          <div class="peril-picker" id="peril-picker" role="group" aria-label="Peril"></div>
+
+          <div class="form-rows" id="subject-form"></div>
+
+          <div class="form-two" style="margin-top:14px">
+            <div class="field">
+              <label class="label" for="limit-input">Cover limit</label>
+              <input id="limit-input" type="number" min="1000" step="1000" value="100000" />
+            </div>
+            <div class="field">
+              <label class="label" for="term-input">Term, days</label>
+              <input id="term-input" type="number" min="1" step="1" value="365" />
+            </div>
+          </div>
+
+          <button class="btn" id="quote-btn" type="button" style="width:100%;margin-top:18px">Price it</button>
+        </div>
+
+        <div id="quote-panel">
+          <div class="card">
+            <div class="empty">Choose a cover and price it to see how the premium is put together.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ pool -->
+    <section class="view" id="view-pool" hidden>
+      <div class="head">
+        <h1>The pool</h1>
+        <p>Capital that stands behind every live policy, and the rules that stop it writing more than it can pay.</p>
+      </div>
+      <div class="stats" id="pool-stats"></div>
+      <div class="grid-2">
+        <div class="card">
+          <h2>What pays together</h2>
+          <p class="card-note">Exposure grouped by the event that would settle it. One earthquake pays every policy in its circle at once, so this is the number that matters, not the total limit written.</p>
+          <div class="meter-list" id="accumulation"></div>
+        </div>
+        <div class="card">
+          <h2>Loss exceedance</h2>
+          <p class="card-note">How bad a year gets, and how often. Read across: a loss of this size or worse arrives about once every so many years.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Return period</th><th>Loss at or above</th><th>Share of pool</th></tr></thead>
+              <tbody id="exceedance"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="declined-card" hidden>
+        <h2>Turned away</h2>
+        <p class="card-note">Cover the pool refused to write. A protocol that only shows what it sold is hiding the half of underwriting that keeps it solvent.</p>
+        <div class="notes" id="declined"></div>
+      </div>
+      <div class="card">
+        <h2>Ledger</h2>
+        <p class="card-note">Every movement of value, in order. The pool replays this on demand and refuses to run if it does not reconcile.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Kind</th><th>Account</th><th>Reference</th><th>Amount</th><th>Balance after</th></tr></thead>
+            <tbody id="ledger"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ chain -->
+    <section class="view" id="view-chain" hidden>
+      <div class="head">
+        <h1>Onchain</h1>
+        <p>Each policy is a predicate the chain holds open. Validators attest the outside world, the chain re-evaluates only the policies whose inputs moved, and the ones that hold are paid without anyone filing anything.</p>
+      </div>
+      <div class="stats" id="chain-stats"></div>
+      <div class="chain-grid">
+        <div class="card">
+          <h2>Waiting on their index</h2>
+          <p class="card-note">What the chain is holding open right now. An amber policy is reading a source that has stopped publishing, and will be expired with its premium returned rather than left armed forever.</p>
+          <ul class="pending-list" id="pending"></ul>
+        </div>
+        <div>
+          <div class="card">
+            <h2>Blocks</h2>
+            <p class="card-note">Height is transactions in the block; the lit part is settlement the protocol did by itself.</p>
+            <div class="blockstrip" id="blockstrip" role="img" aria-label="Recent blocks"></div>
+          </div>
+          <div class="card">
+            <h2>Demonstrate an event</h2>
+            <p class="card-note">Waiting for a real catastrophe is the honest way to watch this and a poor way to show it. This attests a reading the way the world would, and everything downstream runs untouched: the chain evaluates, the pool checks it can pay, the structure decides the amount.</p>
+            <div class="stack-sm">
+              <div class="field">
+                <label class="label" for="inject-pick">Event</label>
+                <select id="inject-pick"></select>
+              </div>
+              <button class="btn ghost" id="inject-btn" type="button">Attest it</button>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Settled</h2>
+            <ul class="feed" id="feed"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ policies -->
+    <section class="view" id="view-policies" hidden>
+      <div class="head">
+        <h1>Policies</h1>
+        <p>The whole book, including everything that has already settled.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Policy</th><th>Cover</th><th>Limit</th><th>Premium</th><th>Rate</th><th>Status</th><th>Outcome</th></tr>
+          </thead>
+          <tbody id="policies"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================ method -->
+    <section class="view" id="view-method" hidden>
+      <div class="head">
+        <h1>Method</h1>
+        <p>What the prices are built from, and where this kind of cover is weakest.</p>
+      </div>
+      <div id="method-body"></div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast-stack" id="toasts" aria-live="polite"></div>
+
+<script src="/static/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Hazard model build workspace
+hazard_build/
+
+# Built site and Privy bundle inputs
+site/dist/
+privy-bundle/node_modules/
+
+# Local book and configuration
+*.sqlite
+clause.env
+
+# Release packages
+clause-*.tar.gz
+clause-site-*.zip
+RELEASE-*.md

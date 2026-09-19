@@ -1,0 +1,179 @@
+# Changelog
+
+## 1.1.1, 19 September 2026
+
+- My profile: a page of the person's own things, written down once. A home
+  (building, floor area, year built, address, pinned on the map), a car
+  (model year, make, plate, where it is kept) or a field (crop, area). On
+  the "where" step of a purchase they appear as chips and fill the whole
+  form: place, size, year, address, name; with two cars, the person picks
+  which. After an application, "Save this home to my profile" writes it
+  down from what was just entered. Kept behind the session, seen by the
+  owner alone, removable at any time. `GET/POST /api/assets`,
+  `POST /api/assets/{id}/remove`. The wallet and X links moved to this page
+  from My cover.
+
+## 1.1.0, 19 September 2026
+
+### Standing instructions
+- A person can sign a purchase in advance and let the protocol make it when
+  its moment comes: "keep this policy in force" applies for the same cover
+  again a day before the policy ends; "buy this from a date" or "when the
+  home (or the car) reaches an age" buys on that day. Each carries the most
+  one purchase may cost; a price over the cap, a short balance or a refusal
+  is written on the instruction and tried again a day later. A home or a
+  car is still applied for and the company still decides; the statements a
+  purchase would ask for are asked when the instruction is signed and
+  remembered by name. Listed on My cover with every attempt; cancellable at
+  any time. `POST /api/instructions`, `GET /api/instructions`,
+  `POST /api/instructions/{id}/cancel`.
+- On a policy card: "Renew automatically". On the confirm step, under the
+  contract: "Not now: buy it later, when a condition comes true".
+
+### Money out
+- Balance can be taken out to the destination chosen for payouts (a bank
+  account, a mobile wallet, a Rialo, Solana or Ethereum wallet): capital
+  taken back from the pool, its returns, a payout that landed at the
+  address. The amount leaves the address at once; the operator makes the
+  transfer and marks the order, and a failed one comes back.
+  `POST /api/payouts/cashout`, signed over the amount.
+- The operator's payout list shows, for a company's withdrawal, the
+  registered company and whether the name on the bank account matches it.
+
+### The profile
+- Wallets on other chains are linked by proof: a Solana wallet signs a short
+  text (Phantom's signMessage), an Ethereum wallet signs it with
+  personal_sign, both checked here; a Rialo address is written down as
+  stated until Rialo wallets can sign in a browser. A deposit from a linked
+  Solana or Ethereum wallet is credited by the chain watcher with no
+  reference and no announcement.
+- An X account is linked through Privy (X's own sign in, inside the sign in
+  window) and proved by Privy's identity token; the server keeps the handle
+  and nothing else. Needs X and identity tokens turned on in the Privy
+  dashboard; no app secret anywhere.
+- `GET /api/profile`, `POST /api/profile/links/start`, `POST /api/profile/links`,
+  `POST /api/profile/links/{id}/remove`, `POST /api/profile/x`.
+
+### Live bands
+- Flight delays worldwide from AirLabs (`CLAUSE_AIRLABS_KEY`; a free key,
+  read once an hour): every departure 45 minutes late or more, grouped by
+  airport, with the flights named. The world view uses it; the United
+  States keeps the FAA feed.
+
+### Fixes
+- The 0x to Rialo address migration rewrote every string of that shape,
+  including an Ethereum address somebody had chosen as a payout destination
+  or given as a deposit's sender. It now rewrites only addresses that are
+  accounts here.
+- The Rialo mark next to "Rialo" on the home page, in the footer and on the
+  wallet choices. The car cover reads "flooding" rather than "water damage"
+  in Turkish.
+
+## 1.0.2, 19 September 2026
+
+- Accounts created by an earlier build with an Ethereum shaped address
+  (`0x...`) are rewritten to Rialo's shape (32 bytes, base58) when the
+  server starts; the account, its balance, policies and applications are
+  kept. Signing in by e-mail now shows the same shape of address as the
+  Rialo playground.
+- The live bands colour readings by severity: an earthquake at M 4.5 or
+  above is amber, at M 5.5 or with a tsunami notice red; heavy rain or
+  strong gusts amber then red; 35 °C and above amber, 0 °C and below blue;
+  a flight delay past an hour amber, past two hours or a closed airport
+  red.
+- The weather band lists cities worldwide when no country is chosen, and
+  the forecast includes the day's minimum.
+- The four cover cards carry new illustrations.
+- Header and page spacing tightened; the page uses a wider column on large
+  screens.
+
+## 1.0.1, 19 September 2026
+
+- The pool page and its "put capital behind the book" form are for capital
+  providers, companies and the operator: a person signed in as a buyer no
+  longer sees "The pool" in the header. Visitors reach it from the footer
+  under "For capital providers".
+
+## 1.0.0, 19 September 2026
+
+The first release built as one piece rather than as a chain of patches. Every
+module was audited for seams left by incremental changes; what follows is
+what changed as a result, and what is new.
+
+### Money and accounting
+- The pool books premium as it is received. With an instalment plan the
+  tranches are credited with the first instalment, then with each one as it
+  arrives; what is still owed is written off when the policy ends. Before,
+  the whole premium was booked at once and instalments were booked again.
+- Instalment plans carry explicit parts (premium, issuing fee, financing
+  surcharge) per instalment, cents exact, the last absorbing rounding. The
+  fee is taken with each instalment, not all at once; the surcharge is
+  income to the pool. Due dates run from approval.
+- Approval of an application is atomic: the application is claimed before
+  the escrow is released, a failure re-holds the money or closes the
+  application with a note, and the refund of escrow can only happen once.
+- Refunds (cancellation, expiry) return what was paid, less any commission,
+  never the whole premium of a plan partly paid. Pro rata uses the policy's
+  own start and end.
+- A commission is paid once, only out of premium received.
+- Income that accrued in a tranche with no shareholders stays with the pool.
+- Rider's mandate counts premium and fee; the fee cannot exceed it.
+- Buying a home or vehicle policy outright at `/api/policies` is off in a
+  deployment (`CLAUSE_DIRECT_BUY=1` turns it on); the site always applies.
+
+### Chain and settlement
+- Cover a person bought runs on the clock: its term is real, its source moves
+  at the clock's pace even when shared with the demonstration book, and a
+  restart neither lapses it nor loses a triggered payout.
+- The compliance rules run again before any payout leaves; a company
+  suspended mid term stops the payout and the premium comes back.
+- A source's running maximum starts again once nothing is armed on it, so a
+  new policy is judged on its own term's events.
+- A pool refusal, a refund it cannot fund, or a block failure no longer stops
+  the chain silently; each is recorded and logged.
+- The rainfall closing round retries instead of stranding the season.
+
+### The book on disk
+- Every record is written whenever any field changes (content addressed),
+  and encoded under the protocol's locks, so nothing is lost or torn.
+- A book written by a newer build is refused with a clear message.
+- Policies wrongly lapsed by an earlier build's demonstration clock are put
+  back in force on restart.
+
+### Identity and companies
+- Addresses are shown in Rialo's shape (32 bytes, base58). A device key
+  registered under the older 0x form keeps its address and its account.
+- Companies register with an LEI (checked at GLEIF), a domain (proof file
+  fetched, no redirects, no private hosts), documents (kept for the
+  reviewer) and links to the regulator's register; the reviewer records what
+  was confirmed. Evidence is written only once the registration is accepted.
+- On a demonstration any signed in account may take a stand in company's
+  desk and decide its applications.
+
+### Money in and out
+- Adding balance: a bank transfer to the operator's account or a USDC
+  deposit from a Rialo, Solana or Ethereum wallet, announced with a
+  reference; the operator confirms what arrived, or a chain watcher does for
+  Solana and Ethereum deposits when an RPC endpoint is set.
+- Payouts can go to a Rialo, Solana or Ethereum wallet as well as a bank or
+  mobile money.
+
+### Site
+- Flight cover asks for the flight number and departure date.
+- A running price lock survives a language change and a redraw; a refusal
+  from the protocol is shown and nothing is signed on a browser figure.
+- The flow resets completely between purchases; "Renew" works; the done page
+  survives a language change; the operator session is cleared on any sign
+  out; the geolocation prompt waits for the button.
+- Policy cards show the end date and offer renewal in the last thirty days.
+- Published as a minified, obfuscated page (`site/build.py`); the readable
+  source ships only in the server package.
+
+### Deployment
+- nginx: `http2` in the listen line (works on stock Ubuntu nginx), a larger
+  body for `/api/carriers`, the pricing and buying routes in their zones,
+  HTTP/1.1 to the upstream.
+- The service unit limits restart storms and keeps the state directory
+  private; the installer respects a commented out switch, excludes build
+  trees, installs sqlite3.
+- Licence: all rights reserved (see LICENSE).

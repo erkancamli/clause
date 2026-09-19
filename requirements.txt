@@ -1,0 +1,15 @@
+# Runtime.
+fastapi>=0.110
+uvicorn[standard]>=0.27
+pydantic>=2.6
+# Signature verification: P-256 keys, challenges, attestations. Imported by
+# clause.protocol.auth, which everything else imports, so the service does not
+# start without it. It was missing from this file until a clean server proved
+# it, because every machine it had been installed on already had it.
+cryptography>=42.0
+# The RPC client (clause.rpc) and the test client both use it.
+httpx>=0.26
+
+# Tests. Kept here so the suite can be run on the server it is deployed to.
+pytest>=8.0
+pytest-asyncio>=0.23

@@ -1,0 +1,470 @@
+"""The pool: accounting that has to balance, and rules that have to bind.
+
+Two kinds of test here. The accounting ones are ordinary correctness: value
+does not appear or vanish, and the ledger replays to the balance. The rule ones
+are the interesting half, because a pool that never refuses anything is not
+underwriting, it is gambling with other people's capital.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from clause.pricing import PricingEngine
+from clause.protocol import Pool, PoolError, PolicyStatus, build_policy, settle_index
+from conftest import FLIGHT_DATE
+
+TRIALS = 3_000
+
+
+@pytest.fixture()
+def pool() -> Pool:
+    return Pool(engine=PricingEngine(trials=TRIALS, seed=5))
+
+
+def funded(pool: Pool, amount: float = 4_000_000.0) -> Pool:
+    pool.deposit("lp.one", amount * 0.6)
+    pool.deposit("lp.two", amount * 0.4)
+    return pool
+
+
+# ---------------------------------------------------------------------------
+# Capital
+# ---------------------------------------------------------------------------
+
+
+def test_the_first_deposit_prices_shares_at_one(pool: Pool) -> None:
+    shares = pool.deposit("lp.one", 1_000_000)
+    assert shares == pytest.approx(1_000_000)
+    assert pool.share_price == pytest.approx(1.0)
+    assert pool.balance == pytest.approx(1_000_000)
+
+
+def test_later_deposits_buy_in_at_the_current_price(pool: Pool) -> None:
+    pool.deposit("lp.one", 1_000_000)
+    # Premium arriving lifts the value of a share before the next provider.
+    pool.balance += 100_000
+    shares = pool.deposit("lp.two", 1_100_000)
+    assert pool.share_price == pytest.approx(1.1)
+    assert shares == pytest.approx(1_000_000)
+
+
+def test_a_provider_cannot_withdraw_more_than_they_hold(pool: Pool) -> None:
+    pool.deposit("lp.one", 500_000)
+    with pytest.raises(PoolError, match="holds"):
+        pool.withdraw("lp.one", 900_000)
+
+
+def test_an_unknown_account_cannot_withdraw(pool: Pool) -> None:
+    with pytest.raises(PoolError, match="no shares"):
+        pool.withdraw("stranger", 1.0)
+
+
+def test_deposits_and_withdrawals_must_be_positive(pool: Pool) -> None:
+    with pytest.raises(PoolError):
+        pool.deposit("lp.one", 0)
+    pool.deposit("lp.one", 100)
+    with pytest.raises(PoolError):
+        pool.withdraw("lp.one", -1)
+
+
+def test_capital_behind_live_policies_cannot_leave(pool: Pool) -> None:
+    """The rule that makes the pool's capital actually capital.
+
+    The provider here holds most of the pool, so their full stake is larger
+    than what the live book leaves free. A provider holding a small share could
+    walk out without touching the rule, which is correct: their capital is not
+    what the policies are leaning on.
+    """
+    pool.deposit("lp.major", 1_600_000)
+    pool.deposit("lp.minor", 400_000)
+
+    # Write until the book is leaning on a real share of the capital.
+    for index in range(6):
+        try:
+            pool.write(
+                peril_key="earthquake",
+                subject={"location": "IST-KADIKOY", "radius_km": 50},
+                limit=200_000, term_days=365, holder=f"buyer{index}",
+            )
+        except PoolError:
+            break
+
+    free = pool.free_capital()
+    assert 0 < free < pool.balance
+
+    major = pool.providers["lp.major"]
+    assert major.shares * pool.share_price > free, "setup must actually bind"
+
+    with pytest.raises(PoolError, match="standing behind"):
+        pool.withdraw("lp.major", major.shares)
+
+    # What is genuinely free still comes out.
+    released = pool.withdraw("lp.major", (free * 0.5) / pool.share_price)
+    assert released == pytest.approx(free * 0.5, rel=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# Underwriting rules
+# ---------------------------------------------------------------------------
+
+
+def test_a_pool_with_no_capital_writes_nothing(pool: Pool) -> None:
+    allowed, reasons = pool.can_write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=100_000, term_days=365,
+    )
+    assert not allowed
+    assert any("capital" in reason for reason in reasons)
+
+
+def test_the_concentration_limit_stops_a_pile_up(pool: Pool) -> None:
+    """A pool can be solvent on average and one earthquake from nothing."""
+    funded(pool, 2_000_000)
+
+    written = 0
+    for index in range(20):
+        try:
+            pool.write(
+                peril_key="earthquake",
+                subject={"location": "IST-KADIKOY", "radius_km": 50},
+                limit=250_000, term_days=365, holder=f"buyer{index}",
+            )
+            written += 1
+        except PoolError as error:
+            assert "concentration" in str(error)
+            break
+    else:
+        pytest.fail("the concentration limit never bound")
+
+    assert written >= 1
+    worst = pool.largest_single_event_loss()
+    assert worst <= pool.balance * pool.concentration_limit * 1.05
+
+
+def test_spreading_the_book_lets_the_pool_write_more(pool: Pool) -> None:
+    """Diversification is not a slogan here, it buys capacity."""
+    funded(pool, 2_000_000)
+    places = ["IST-KADIKOY", "IZM-KONAK", "ADY-MERKEZ", "ANK-CANKAYA"]
+
+    written = 0
+    for index in range(20):
+        try:
+            pool.write(
+                peril_key="earthquake",
+                subject={"location": places[index % 4], "radius_km": 50},
+                limit=250_000, term_days=365, holder=f"buyer{index}",
+            )
+            written += 1
+        except PoolError:
+            break
+
+    assert written >= 4
+
+
+def test_writing_a_policy_takes_the_premium_in(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    before = pool.balance
+    policy = pool.write(
+        peril_key="drought",
+        subject={"station": "TR-KONYA", "distance_km": 8, "hectares": 50},
+        limit=80_000, term_days=150, holder="farm",
+    )
+    assert pool.balance == pytest.approx(before + policy.premium)
+    assert pool.premiums_earned == pytest.approx(policy.premium)
+    assert policy.status is PolicyStatus.ACTIVE
+
+
+# ---------------------------------------------------------------------------
+# Settlement
+# ---------------------------------------------------------------------------
+
+
+def test_a_triggered_policy_is_paid_from_the_pool(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=200_000, term_days=365, holder="buyer",
+    )
+    before = pool.balance
+
+    paid = pool.pay(policy, 7.2)
+    assert paid == pytest.approx(200_000)
+    assert pool.balance == pytest.approx(before - 200_000)
+    assert policy.status is PolicyStatus.PAID
+    assert policy.settled_index == 7.2
+    assert "without a claim" in policy.settlement_note
+
+
+def test_a_partial_trigger_pays_its_band(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=200_000, term_days=365, holder="buyer",
+    )
+    assert pool.pay(policy, 5.6) == pytest.approx(50_000)
+
+
+def test_an_index_below_attachment_pays_nothing(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=200_000, term_days=365, holder="buyer",
+    )
+    with pytest.raises(PoolError, match="pays nothing"):
+        pool.pay(policy, 4.9)
+
+
+def test_a_policy_settles_once(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=100_000, term_days=365, holder="buyer",
+    )
+    pool.pay(policy, 7.2)
+    with pytest.raises(PoolError, match="already"):
+        pool.pay(policy, 7.2)
+    with pytest.raises(PoolError, match="already"):
+        pool.lapse(policy)
+
+
+def test_lapsing_closes_a_policy_without_paying(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="drought",
+        subject={"station": "TR-EDIRNE", "distance_km": 5, "hectares": 60},
+        limit=70_000, term_days=150, holder="farm",
+    )
+    before = pool.balance
+    pool.lapse(policy)
+    assert policy.status is PolicyStatus.LAPSED
+    assert pool.balance == before
+
+
+def test_a_dead_source_returns_the_premium(pool: Pool) -> None:
+    """The case most parametric designs leave undefined."""
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="drought",
+        subject={"station": "TR-SANLIURFA", "distance_km": 20, "hectares": 40},
+        limit=55_000, term_days=140, holder="farm",
+    )
+    before = pool.balance
+
+    refund = pool.expire(policy)
+    assert refund == pytest.approx(policy.premium)
+    assert pool.balance == pytest.approx(before - policy.premium)
+    assert pool.premiums_earned == pytest.approx(0.0, abs=1e-6)
+    assert policy.status is PolicyStatus.EXPIRED
+    assert "returned in full" in policy.settlement_note
+
+
+def test_the_pool_says_so_when_it_cannot_pay(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=300_000, term_days=365, holder="buyer",
+    )
+    pool.balance = 1_000.0
+    with pytest.raises(PoolError, match="is owed"):
+        pool.pay(policy, 7.2)
+
+
+# ---------------------------------------------------------------------------
+# Accounting
+# ---------------------------------------------------------------------------
+
+
+def test_the_ledger_replays_to_the_balance(pool: Pool) -> None:
+    funded(pool, 4_000_000)
+    written = []
+    for index, (peril, subject, limit, term) in enumerate([
+        ("earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 150_000, 365),
+        ("drought", {"station": "TR-KONYA", "distance_km": 8, "hectares": 50}, 80_000, 150),
+        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1", "departure_date": FLIGHT_DATE}, 1_500, 2),
+    ]):
+        written.append(
+            pool.write(
+                peril_key=peril, subject=subject, limit=limit,
+                term_days=term, holder=f"h{index}",
+            )
+        )
+
+    pool.pay(written[0], 7.2)
+    pool.expire(written[1])
+    pool.lapse(written[2])
+    pool.withdraw("lp.two", 100_000 / pool.share_price)
+
+    pool.check_ledger()
+    assert pool.balance == pytest.approx(pool.ledger[-1].balance_after)
+
+
+def test_a_broken_ledger_is_caught(pool: Pool) -> None:
+    funded(pool, 1_000_000)
+    pool.balance += 12_345  # value from nowhere
+    with pytest.raises(PoolError, match="ledger sums"):
+        pool.check_ledger()
+
+
+def test_the_summary_adds_up(pool: Pool) -> None:
+    funded(pool, 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "IZM-KONAK", "radius_km": 50},
+        limit=120_000, term_days=365, holder="buyer",
+    )
+    summary = pool.summary()
+    assert summary["open_policies"] == 1
+    assert summary["limit_at_risk"] == pytest.approx(120_000)
+    assert summary["premiums_earned"] == pytest.approx(policy.premium)
+    assert summary["free_capital"] <= summary["balance"]
+    assert summary["solvency_ratio"] > 0
+
+
+def test_the_risk_view_groups_what_pays_together(pool: Pool) -> None:
+    funded(pool, 4_000_000)
+    pool.write(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=100_000, term_days=365, holder="b0",
+    )
+    # Düzce is a hundred and eighty kilometres away and on the same fault. The
+    # grouping has to see that, because one rupture sequence is one exposure
+    # however far apart the towns are.
+    pool.write(
+        peril_key="earthquake",
+        subject={"latitude": 40.84, "longitude": 31.16, "radius_km": 50},
+        limit=100_000, term_days=365, holder="b1",
+    )
+    pool.write(
+        peril_key="drought",
+        subject={"station": "TR-KONYA", "distance_km": 8, "hectares": 50},
+        limit=60_000, term_days=150, holder="farm",
+    )
+
+    view = pool.risk_view()
+    assert view["accumulation"]["earthquake on North Anatolian Fault"] == pytest.approx(
+        200_000
+    )
+    assert view["accumulation"]["drought at TR-KONYA"] == pytest.approx(60_000)
+    assert view["exceedance_curve"]
+
+
+# ---------------------------------------------------------------------------
+# Policies
+# ---------------------------------------------------------------------------
+
+
+def test_a_policy_carries_its_predicate_and_its_deadline() -> None:
+    policy = build_policy(
+        peril_key="drought",
+        subject={"station": "TR-KONYA", "distance_km": 8, "hectares": 50},
+        limit=80_000, term_days=150, holder="farm",
+        premium=1000, expected_loss=800, risk_load=150,
+        expense_load=50, marginal_capital=5000,
+        now=1_800_000_000.0,
+    )
+    assert "window_closed" in policy.predicate
+    assert policy.data_reference in policy.predicate
+    assert policy.settlement_deadline_days == 14
+    assert policy.deadline_at == pytest.approx(policy.ends_at + 14 * 86400)
+
+
+def test_policy_identifiers_are_distinct() -> None:
+    made = [
+        build_policy(
+            peril_key="earthquake",
+            subject={"location": "IST-KADIKOY", "radius_km": 50},
+            limit=100_000, term_days=365, holder=f"h{i}",
+            premium=1, expected_loss=1, risk_load=0,
+            expense_load=0, marginal_capital=0, now=1_800_000_000.0 + i,
+        )
+        for i in range(8)
+    ]
+    assert len({policy.policy_id for policy in made}) == 8
+
+
+def test_settle_index_uses_the_converted_curve_for_drought() -> None:
+    """A drought curve is written in shares of normal and settled in millimetres."""
+    policy = build_policy(
+        peril_key="drought",
+        subject={"station": "TR-KONYA", "distance_km": 8, "hectares": 50},
+        limit=100_000, term_days=150, holder="farm",
+        premium=1, expected_loss=1, risk_load=0,
+        expense_load=0, marginal_capital=0,
+    )
+    # Konya's normal is 118 mm, so forty percent of normal is about 47 mm.
+    assert settle_index(policy, 47.2) == pytest.approx(100_000, rel=1e-3)
+    assert settle_index(policy, 200.0) == 0.0
+
+
+# ---------------------------------------------------------------------------
+# The price the buyer was shown
+# ---------------------------------------------------------------------------
+
+
+def test_a_policy_is_refused_rather_than_bound_above_the_agreed_price() -> None:
+    """A quote and a bind are two different moments, and the book moves between.
+
+    Pricing again at bind time is correct: the premium depends on what the pool
+    already carries, and that changes while a buyer is deciding. But it is also
+    a way to charge more than the figure on the screen, which is the oldest
+    trick in the trade. So a buyer names the most they agreed to pay, and a
+    price that has moved past it refuses the policy instead of writing it.
+    """
+    pool = funded(Pool(engine=PricingEngine(trials=TRIALS, seed=5)), 3_000_000)
+    terms = dict(
+        peril_key="earthquake",
+        subject={"location": "IST-KADIKOY", "radius_km": 50},
+        limit=200_000, term_days=365, holder="buyer",
+    )
+    shown = pool.quote(**{k: v for k, v in terms.items() if k != "holder"}).premium
+
+    # A price that has moved past what was agreed: refused, and nothing taken.
+    with pytest.raises(PoolError, match="the price moved"):
+        pool.write(**terms, max_premium=shown * 0.5)
+    assert not pool.policies
+    assert pool.balance == pytest.approx(3_000_000)
+
+    # The price the buyer was actually shown: it binds, at no more than that.
+    bound = pool.write(**terms, max_premium=shown)
+    assert bound.premium <= shown + 1e-9
+
+
+def test_naming_no_price_still_binds_at_whatever_the_book_says() -> None:
+    """The guard is the buyer's to raise, not a new requirement on everyone."""
+    pool = funded(Pool(engine=PricingEngine(trials=TRIALS, seed=5)), 3_000_000)
+    policy = pool.write(
+        peril_key="earthquake",
+        subject={"location": "ANK-CANKAYA", "radius_km": 50},
+        limit=100_000, term_days=365, holder="buyer",
+    )
+    assert policy.premium > 0
+
+
+def test_a_price_rounded_down_for_display_is_still_the_price_agreed() -> None:
+    """The quote shows cents; the pool prices to many places. Agreeing to the
+    figure shown must be enough to buy at it."""
+    from clause.protocol.pool import Pool
+    from clause.pricing.engine import PricingEngine
+
+    pool = Pool(engine=PricingEngine(trials=800, seed=3))
+    pool.deposit("lp", 5_000_000)
+    subject = {"location": "IST-KADIKOY", "radius_km": 50.0}
+    quote = pool.quote(peril_key="earthquake", subject=subject, limit=50_000, term_days=365) \
+        if hasattr(pool, "quote") else None
+    premium = quote.premium if quote is not None else None
+    if premium is None:
+        return
+    import math
+    shown = math.floor(premium * 100) / 100     # the worst case: displayed rounded down
+    assert shown < premium
+    policy = pool.write(peril_key="earthquake", subject=subject, limit=50_000, term_days=365,
+                        holder="0xbuyer", max_premium=shown)
+    assert abs(policy.premium - premium) < 0.01

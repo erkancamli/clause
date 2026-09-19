@@ -1,0 +1,37 @@
+[project]
+name = "clause"
+version = "1.1.1"
+description = "Parametric cover that settles itself, on Rialo"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.6",
+    "cryptography>=42.0",
+    "httpx>=0.26",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23"]
+# Building the earthquake models; the server never needs it.
+build = ["numpy>=1.26"]
+
+[project.scripts]
+clause = "clause.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["clause*"]
+
+# The earthquake models the build wrote. The server prices from these.
+[tool.setuptools.package-data]
+"clause.hazard" = ["models/*.json"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

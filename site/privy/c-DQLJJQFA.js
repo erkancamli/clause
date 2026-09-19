@@ -1,0 +1,20 @@
+import{d as R,f as U,k as W,m as E,n as H}from"./c-2XUI4TIA.js";import{a as T}from"./c-LVONV7CB.js";import"./c-UVPP2K7Y.js";import{h as _}from"./c-LZ25EMVC.js";import{a as o}from"./c-MB24CLN6.js";import"./c-G7QKMXDE.js";import{d as I}from"./c-EOAJVKNP.js";import{da as N}from"./c-TUUPII4V.js";import"./c-TFXIZIPD.js";import"./c-3RWNX7T6.js";import"./c-4I3SX4H3.js";import"./c-4BLT7WQF.js";import"./c-ZHAQSROJ.js";import"./c-CI4Y2PA4.js";import"./c-BDOXXWKK.js";import{a as Y}from"./c-TY233LCP.js";import"./c-5BKC3C2P.js";import"./c-HT5VPXS6.js";import"./c-4CVEF6WY.js";import"./c-BLX4OB5V.js";import"./c-35MSG53D.js";import"./c-TCALT4TQ.js";import"./c-R2JM2JIB.js";import"./c-IR2Q2AZQ.js";import"./c-RROTPPQ4.js";import"./c-2Z7ML7DV.js";import"./c-TEZKH2R4.js";import"./c-3ZJETHS3.js";import{j as C}from"./c-TK45UUBT.js";import"./c-5AQXWU74.js";import"./c-FKNR4ZMH.js";import{b as S}from"./c-65SYQ2BY.js";import{a as P,b as m}from"./c-LC7NBPXT.js";import{Ab as A,Ca as x,La as k}from"./c-Z3FRICV3.js";import"./c-FYFAMDSG.js";import{a as K,b as L}from"./c-3POUIAFT.js";import"./c-K6YWNVGO.js";import"./c-K4BTFUAC.js";import"./c-DBE6YW6D.js";import"./c-F3P6SX6T.js";import"./c-4ERX45K7.js";import{e as c}from"./c-7SW4JVF5.js";var e=c(L(),1);var i=c(K(),1);var de=c(Y(),1);var he={component:()=>{let[a,h]=(0,i.useState)(!0),{authenticated:u,user:O}=A(),{walletProxy:y,closePrivyModal:v,createAnalyticsEvent:f,client:V}=x(),{navigate:$,data:j,onUserCloseViaDialogOrKeybindRef:F}=S(),[n,M]=(0,i.useState)(void 0),[w,p]=(0,i.useState)(""),[l,g]=(0,i.useState)(!1),{entropyId:d,entropyIdVerifier:q,onCompleteNavigateTo:b,onSuccess:z,onFailure:B}=j.recoverWallet,s=(r="User exited before their wallet could be recovered")=>{v({shouldCallAuthOnSuccess:!1}),B(typeof r=="string"?new C(r):r)};return F.current=s,(0,i.useEffect)((()=>{if(!u)return s("User must be authenticated and have a Privy wallet before it can be recovered")}),[u]),(0,e.jsxs)(o,{children:[(0,e.jsx)(o.Header,{icon:T,title:"Enter your password",subtitle:"Please provision your account on this new device. To continue, enter your recovery password.",showClose:!0,onClose:s}),(0,e.jsx)(o.Body,{children:(0,e.jsx)(G,{children:(0,e.jsxs)("div",{children:[(0,e.jsxs)(U,{children:[(0,e.jsx)(R,{type:a?"password":"text",onChange:r=>(t=>{t&&M(t)})(r.target.value),disabled:l,style:{paddingRight:"2.3rem"}}),(0,e.jsx)(W,{style:{right:"0.75rem"},children:a?(0,e.jsx)(E,{onClick:()=>h(!1)}):(0,e.jsx)(H,{onClick:()=>h(!0)})})]}),!!w&&(0,e.jsx)(J,{children:w})]})})}),(0,e.jsxs)(o.Footer,{children:[(0,e.jsx)(o.HelpText,{children:(0,e.jsxs)(_,{children:[(0,e.jsx)("h4",{children:"Why is this necessary?"}),(0,e.jsx)("p",{children:"You previously set a password for this wallet. This helps ensure only you can access it"})]})}),(0,e.jsx)(o.Actions,{children:(0,e.jsx)(Q,{loading:l||!y,disabled:!n,onClick:async()=>{g(!0);let r=await V.getAccessToken(),t=k(O,d);if(!r||!t||n===null)return s("User must be authenticated and have a Privy wallet before it can be recovered");try{f({eventName:"embedded_wallet_recovery_started",payload:{walletAddress:t.address}}),await y?.recover({accessToken:r,entropyId:d,entropyIdVerifier:q,recoveryPassword:n}),p(""),b?$(b):v({shouldCallAuthOnSuccess:!1}),z?.(t),f({eventName:"embedded_wallet_recovery_completed",payload:{walletAddress:t.address}})}catch(D){N(D)?p("Invalid recovery password, please try again."):p("An error has occurred, please try again.")}finally{g(!1)}},$hideAnimations:!d&&l,children:"Recover your account"})}),(0,e.jsx)(o.Watermark,{})]})]})}},G=m.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`,J=m.div`
+  line-height: 20px;
+  height: 20px;
+  font-size: 13px;
+  color: var(--privy-color-error);
+  text-align: left;
+  margin-top: 0.5rem;
+`,Q=m(I)`
+  ${({$hideAnimations:a})=>a&&P`
+      && {
+        /* Remove animations because the recoverWallet task on the iframe partially
+           blocks the renderer, so the animation stutters and doesn't look good */
+        transition: none;
+      }
+    `}
+`;export{he as PasswordRecoveryScreen,he as default};

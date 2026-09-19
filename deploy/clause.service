@@ -1,0 +1,73 @@
+# The protocol, as a service. Installed at /etc/systemd/system/clause.service.
+#
+# Every hardening line here is answering something an audit found, so none of it
+# is decoration. The service holds money and faces the internet: it runs as its
+# own user, it cannot write outside its own directory, and it cannot see the
+# rest of the filesystem.
+
+[Unit]
+Description=Clause parametric cover protocol
+Documentation=https://clause.insure
+After=network-online.target
+Wants=network-online.target
+# A configuration that cannot start (a demo build without its token) stops
+# retrying after five tries in a minute instead of filling the journal.
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=clause
+Group=clause
+WorkingDirectory=/opt/clause
+# Where the book is kept between restarts: policies, the pool's ledger,
+# balances, settlements, companies and their reviews, sign in keys. The same
+# directory systemd creates and lets this service write (StateDirectory).
+Environment=CLAUSE_STATE_DIR=/var/lib/clause
+EnvironmentFile=/etc/clause/clause.env
+ExecStart=/opt/clause/.venv/bin/python -m clause serve --host 127.0.0.1 --port 8080
+Restart=always
+RestartSec=3
+
+# The audit found a stream that held the process open past shutdown, so the
+# stop path is bounded and the whole group is signalled.
+TimeoutStopSec=20
+KillMode=mixed
+
+# Nothing outside its own directory is writable, and most of the system is not
+# even visible.
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @obsolete
+# It only ever needs to listen locally; nginx is the only thing in front of it.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+ReadWritePaths=/var/lib/clause
+StateDirectory=clause
+# The book, and the documents companies upload, are not for other local users.
+StateDirectoryMode=0750
+
+# A runaway simulation should take the service down, not the machine.
+MemoryMax=2G
+TasksMax=256
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=clause
+
+[Install]
+WantedBy=multi-user.target
