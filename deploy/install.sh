@@ -91,6 +91,27 @@ CHECK="$(cd "$APP_DIR" && setpriv --reuid=clause --regid=clause --clear-groups \
   exit 1
 }
 
+echo "==> wind model"
+# Storm cover is priced from clause/hazard/models/wind_TR.json, built from
+# NASA POWER the way the rain model was. The file is not in the source until
+# somebody commits one, so the first install builds it here, once, as the
+# service user; the fetched series are kept in hazard_build/ (never deleted
+# by the sync above), so a later run rebuilds from the cache in seconds. A
+# build that cannot reach NASA, or that fails its own test, leaves storm
+# cover unpriceable everywhere and the install goes on: nothing is sold on a
+# model that has not passed.
+if [[ ! -f "$APP_DIR/clause/hazard/models/wind_TR.json" ]]; then
+  echo "    building clause/hazard/models/wind_TR.json from NASA POWER (81 places; minutes on a first run)"
+  if (cd "$APP_DIR" && setpriv --reuid=clause --regid=clause --clear-groups \
+        "$APP_DIR/.venv/bin/python" -m clause.hazard.wind_build > "$STATE_DIR/wind_build.log" 2>&1); then
+    tail -n 12 "$STATE_DIR/wind_build.log" | sed 's/^/    /'
+  else
+    echo "    the wind build did not finish (see $STATE_DIR/wind_build.log); storm cover stays off until it does" >&2
+  fi
+else
+  echo "    clause/hazard/models/wind_TR.json is present"
+fi
+
 echo "==> configuration"
 if [[ ! -f "$ENV_DIR/clause.env" ]]; then
   sed "s/api\.clause\.insure/$DOMAIN/g" "$SOURCE/deploy/clause.env.example" \

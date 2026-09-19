@@ -40,6 +40,18 @@
   storm cover is priceable nowhere and the site says so; nothing is sold on
   a model that has not passed its test.
 
+### Deployment
+- A push to `main` is live. `.github/workflows/deploy.yml` installs the
+  requirements, runs the tests and, only if they pass, connects to the
+  server over SSH (`DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY` from the
+  repository's secrets; no value in the file) and runs `deploy/install.sh`
+  on a fresh clone of `main`, made with the server's own deploy key. Netlify
+  publishes the site.
+- `deploy/install.sh` builds `clause/hazard/models/wind_TR.json` from NASA
+  POWER when the file is missing, once, as the service user; a build that
+  cannot finish leaves storm cover off and the install goes on. The README
+  has the secrets and the deploy key steps.
+
 ### Also
 - Contracts and cancellation terms name wind alongside rain and flights as
   cover that runs to the end of its term once the weather can be seen.

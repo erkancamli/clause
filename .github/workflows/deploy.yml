@@ -1,0 +1,44 @@
+# Push to main = live. The tests run first; only a green run reaches the
+# server. Nothing secret is in this file: the host, the user and the key
+# come from the repository's Actions secrets (DEPLOY_HOST, DEPLOY_USER,
+# DEPLOY_SSH_KEY), and the server clones with its own deploy key.
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q -p no:cacheprovider
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: install on the server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          # The wind model is fetched from NASA POWER on the first install, which
+          # takes a few minutes; the installer is silent while it does.
+          command_timeout: 40m
+          script: |
+            set -euo pipefail
+            mkdir -p ~/.ssh && ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null
+            cd /root && rm -rf clause-next && git clone --depth 1 --branch main git@github.com:erkancamli/clause.git clause-next && cd clause-next && sudo bash deploy/install.sh api.clause.insure erkancamli@gmail.com

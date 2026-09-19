@@ -176,6 +176,39 @@ no app secret on the server.
 
 ---
 
+## Deploy
+
+A push to `main` is live. Netlify builds and publishes the site from the
+repository; GitHub Actions (`.github/workflows/deploy.yml`) runs the tests
+and, only if they pass, connects to the server over SSH and runs
+`deploy/install.sh` on a fresh clone of `main`. The workflow file holds no
+values of its own; everything it needs is a secret or on the server.
+
+Secrets, under the repository's Settings → Secrets and variables → Actions:
+
+| Secret | What it is |
+| --- | --- |
+| `DEPLOY_HOST` | the server's hostname or IP |
+| `DEPLOY_USER` | the user Actions signs in as; it needs `sudo` |
+| `DEPLOY_SSH_KEY` | the private half of a key whose public half is in that user's `~/.ssh/authorized_keys` |
+
+The repository is private, so the server clones with its own deploy key
+rather than with a token:
+
+```bash
+# on the server, as root
+ssh-keygen -t ed25519 -C "clause deploy" -f /root/.ssh/id_ed25519 -N ""
+cat /root/.ssh/id_ed25519.pub     # add this on GitHub: repository Settings → Deploy keys (read only is enough)
+ssh-keyscan -H github.com >> /root/.ssh/known_hosts
+ssh -T git@github.com            # "Hi erkancamli/clause!" means the key is in
+```
+
+The private half stays in `/root/.ssh`; the workflow's clone runs as root
+through `sudo`, so that is the key it uses. On the first install the server
+also builds the storm cover's wind model from NASA POWER (see
+`deploy/README.md`); until that has passed its test, storm cover is
+priceable nowhere and the site says so.
+
 ## Running it
 
 ```bash
