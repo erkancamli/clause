@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.1, 19 September 2026
+
+- `deploy/install.sh` on a server that already has a reverse proxy: with
+  `/etc/caddy/Caddyfile` present nginx is neither installed nor tried; when
+  something else holds port 80, nginx is stood down with "reverse proxy
+  already present, nginx skipped" and the install goes on rather than
+  failing. At the end the installer asks `127.0.0.1:8080/api/health` for
+  the version it is running and fails, with the log to read, if it is not
+  the version just installed.
+
 ## 1.2.0, 19 September 2026
 
 ### The policy pipeline

@@ -37,11 +37,24 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-echo "==> installing from $SOURCE for $DOMAIN"
+EXPECTED="$("$SYSTEM_PYTHON" -c "import re,pathlib; print(re.search(r'__version__ = \"([^\"]+)\"', pathlib.Path('$SOURCE/clause/__init__.py').read_text()).group(1))")"
+echo "==> installing clause $EXPECTED from $SOURCE for $DOMAIN"
+
+# A server that already runs Caddy has its own front door and its own
+# certificates; nginx is not installed on it at all, let alone started, and
+# deploy/README.md has the Caddyfile block that proxies to 127.0.0.1:8080.
+NGINX=1
+if [[ -f /etc/caddy/Caddyfile ]]; then
+  NGINX=0
+  echo "    /etc/caddy/Caddyfile found: reverse proxy already present, nginx skipped"
+fi
 
 echo "==> packages"
 apt-get update -qq
-apt-get install -y -qq python3-venv python3-pip rsync nginx certbot python3-certbot-nginx sqlite3
+apt-get install -y -qq python3-venv python3-pip rsync curl sqlite3
+if [[ $NGINX -eq 1 ]]; then
+  apt-get install -y -qq nginx certbot python3-certbot-nginx
+fi
 
 echo "==> user and directories"
 id -u clause >/dev/null 2>&1 || useradd --system --home "$APP_DIR" --shell /usr/sbin/nologin clause
@@ -142,25 +155,25 @@ systemctl daemon-reload
 systemctl enable clause.service
 systemctl restart clause.service
 
+front_door() {
+if [[ $NGINX -eq 0 ]]; then
+  echo "==> nginx: reverse proxy already present, nginx skipped"
+  return 0
+fi
 echo "==> nginx"
-# nginx will not start if something already holds port 80, and the failure that
-# follows is three steps downstream: no certificate, no https, and a curl that
-# returns nothing. Name the occupant here instead.
+# nginx will not start if something already holds port 80. That is not a
+# fault: it is another proxy (Caddy, Apache, a container) that already fronts
+# this server, and the protocol is reachable behind it on 127.0.0.1:8080.
+# Name the occupant, stand nginx down, and carry on; deploy/README.md has the
+# block to add to that proxy.
 if ! systemctl is-active --quiet nginx; then
   HOLDER="$(ss -ltnpH '( sport = :80 )' 2>/dev/null | head -1 || true)"
   if [[ -n "$HOLDER" ]]; then
-    echo >&2
-    echo "port 80 is already taken, so nginx cannot start:" >&2
-    echo "  $HOLDER" >&2
-    echo >&2
-    echo "That is something else you are already running, so nothing here will" >&2
-    echo "touch it. Put this domain on the proxy that is already there instead:" >&2
-    echo "deploy/README.md has the block to add, for Caddy, Apache and Docker." >&2
-    echo >&2
-    echo "Nothing has been broken. The protocol itself is installed, enabled" >&2
-    echo "and listening on 127.0.0.1:8080; all it lacks is a front door." >&2
+    echo "    port 80 is already taken, so nginx cannot start:"
+    echo "      $HOLDER"
+    echo "    reverse proxy already present, nginx skipped"
     systemctl disable --now nginx >/dev/null 2>&1 || true
-    exit 1
+    return 0
   fi
 fi
 [[ -f /etc/nginx/proxy_params ]] || install -m 644 "$SOURCE/deploy/proxy_params" /etc/nginx/proxy_params
@@ -191,6 +204,27 @@ fi
 
 nginx -t
 systemctl reload nginx 2>/dev/null || systemctl restart nginx
+}
+front_door
+
+echo "==> health"
+# The service was restarted above; give it a moment, then ask it what it is.
+# A version other than the one just installed means the unit is running
+# something else (an old checkout, a failed restart), and that is a failure
+# whatever the front door says.
+RUNNING=""
+for _ in $(seq 1 30); do
+  RUNNING="$(curl -fsS --max-time 3 http://127.0.0.1:8080/api/health 2>/dev/null | "$SYSTEM_PYTHON" -c 'import json,sys; print(json.load(sys.stdin).get("version",""))' 2>/dev/null || true)"
+  [[ -n "$RUNNING" ]] && break
+  sleep 2
+done
+if [[ "$RUNNING" != "$EXPECTED" ]]; then
+  echo >&2
+  echo "the service at 127.0.0.1:8080 answers with version '${RUNNING:-nothing}', not $EXPECTED" >&2
+  echo "logs:  journalctl -u clause -n 50" >&2
+  exit 1
+fi
+echo "    127.0.0.1:8080/api/health: clause $RUNNING"
 
 echo
 echo "==> done"
