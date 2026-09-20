@@ -1605,7 +1605,8 @@
     "{kmh} km/h or more in a day": "{kmh} km/h oder mehr an einem Tag",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Die Deckung zahlt, wenn der Wind eines einzelnen Tages dort für diesen Ort extrem ist: das Niveau, das einmal in fünfundzwanzig, fünfzig oder hundert Jahren erreicht wird.",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Stufen auf den ortseigenen Niveaus von einmal in fünfundzwanzig, fünfzig und hundert Jahren, sodass eine exponierte Küste und ein geschütztes Tal jeweils nach dem zahlen, was für sie extrem ist.",
-    "1 IN 25 YEARS": "1 IN 25 JAHREN"
+    "1 IN 25 YEARS": "1 IN 25 JAHREN",
+    "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "Das Protokoll war nicht erreichbar oder antwortete mit einem Fehler, den die Seite nicht lesen konnte. Nichts wurde abgebucht."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

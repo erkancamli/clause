@@ -715,3 +715,25 @@ def test_a_price_lock_only_fits_the_cover_it_was_given_for(client, buyer) -> Non
     # A lock for 10,000 of cover does not price 50,000 of it at that premium.
     if reply.status_code == 200:
         assert reply.json()["policy"]["premium"] > lock["premium"] * 2
+
+
+def test_an_unexpected_error_is_json_the_page_can_read_from_its_own_origin() -> None:
+    """The default 500 is plain text from outside the CORS layer, so a page
+    on another origin cannot even read it and can only say "refused". The
+    answer is JSON with a reference, and carries the origin header when the
+    origin is one the operator named."""
+    app = create_app(trials=200, seed=3, run_chain=False, seed_book=False,
+                     settings=Settings(faucet=True, allowed_origins=("https://clause.insure",)))
+
+    @app.get("/api/_boom")
+    async def boom() -> dict:
+        raise RuntimeError("something the code did not foresee")
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        reply = client.get("/api/_boom", headers={"origin": "https://clause.insure"})
+        assert reply.status_code == 500
+        assert reply.headers.get("access-control-allow-origin") == "https://clause.insure"
+        assert "reference ERR-" in reply.json()["detail"] and "nothing was charged" in reply.json()["detail"]
+        assert "foresee" not in reply.text
+        stranger = client.get("/api/_boom", headers={"origin": "https://evil.example"})
+        assert stranger.status_code == 500 and "access-control-allow-origin" not in stranger.headers

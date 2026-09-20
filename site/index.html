@@ -5979,6 +5979,7 @@ function showBuyError(error){
     html=payload.detail.reasons.map(tsHtml).join(" ");
   else if(payload&&payload.reasons)html=payload.reasons.map(tsHtml).join(" ");
   else if(payload&&typeof payload.detail==="string")html=tsHtml(payload.detail);
+  else if(!payload)html=esc(t("The protocol could not be reached, or answered with an error the page could not read. Nothing was charged."));
   else html=esc(t("The protocol did not accept this. Nothing was charged."));
   var box=$("compliance-box");
   box.hidden=false; box.className="verdict no";

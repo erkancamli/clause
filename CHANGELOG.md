@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1, 20 September 2026
+
+- An error the code did not foresee is answered as JSON with a reference
+  (`ERR-…`, with the traceback under it in the log) and, for an origin the
+  operator named, with the CORS header; before, the answer was plain text
+  from outside the CORS layer, which a browser on another origin was not
+  allowed to read, so the page could only say "the protocol did not accept
+  this". The page now also says when it could not read the answer at all.
+
 ## 1.3.0, 20 September 2026
 
 - Storm cover steps one level rarer: the place's own 1 in 25, 1 in 50 and

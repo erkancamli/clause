@@ -820,6 +820,29 @@ def create_app(
                 await run_in_threadpool(keeper.save)
             return response
 
+    @app.exception_handler(Exception)
+    async def unexpected(request: Request, error: Exception) -> Response:
+        """A failure the code did not foresee, answered as JSON the page can
+        read. The default answer is plain text from outside the CORS layer,
+        so a browser on another origin is not even allowed to see it and the
+        page can only say "refused"; the traceback is in the log under a
+        reference the person can quote."""
+        import secrets as _secrets
+
+        reference = "ERR-" + _secrets.token_hex(4).upper()
+        logger.exception("unexpected error %s on %s %s", reference, request.method, request.url.path)
+        headers = {}
+        origin = request.headers.get("origin", "")
+        if origin and origin in settings.allowed_origins:
+            headers["access-control-allow-origin"] = origin
+            headers["vary"] = "Origin"
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            {"detail": f"the protocol hit an error it did not expect; nothing was charged "
+                       f"(reference {reference}, in the server log)"},
+            status_code=500, headers=headers,
+        )
+
     if settings.allowed_origins:
         # Named origins only. A wildcard here, with every write being a POST,
         # would let any page on the internet act through a visitor's browser.

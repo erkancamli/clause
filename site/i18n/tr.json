@@ -1605,7 +1605,8 @@
     "{kmh} km/h or more in a day": "Bir günde {kmh} km/sa veya daha fazla",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Teminat, oradaki tek bir günün rüzgârı o yer için aşırı olduğunda öder: yirmi beş, elli ya da yüz yılda bir görülen seviye.",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Basamaklar bu yerin kendi yirmi beş, elli ve yüz yılda bir seviyelerindedir; böylece açık bir kıyı da korunaklı bir vadi de kendisi için aşırı olana göre öder.",
-    "1 IN 25 YEARS": "25 YILDA 1"
+    "1 IN 25 YEARS": "25 YILDA 1",
+    "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "Protokole ulaşılamadı ya da sayfanın okuyamadığı bir hata döndü. Hiçbir ücret alınmadı."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
