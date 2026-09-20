@@ -2903,10 +2903,17 @@ function signedCall(purpose, terms, path, extra){
     });
   });
 }
+/* A body the protocol could not read comes back as a list of fields; said
+   as "field: what is wrong", so the fault can be named rather than guessed. */
+function malformedText(d){
+  return d.map(function(e){ return (Array.isArray(e.loc)?e.loc.filter(function(x){return x!=="body";}).join("."):"")+": "+String(e.msg||""); }).join("; ");
+}
 function refusalText(error, fallback){
   var d=error&&error.payload&&error.payload.detail;
   if(d&&d.reasons)return d.reasons.map(ts).join(" ");
   if(typeof d==="string")return ts(d);
+  if(Array.isArray(d)&&d.length)return t("The protocol could not read what the page sent:")+" "+malformedText(d);
+  if(error&&!error.payload)return t("The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.");
   return t(fallback||"The protocol refused that.");
 }
 function renderTranches(){
@@ -5979,6 +5986,7 @@ function showBuyError(error){
     html=payload.detail.reasons.map(tsHtml).join(" ");
   else if(payload&&payload.reasons)html=payload.reasons.map(tsHtml).join(" ");
   else if(payload&&typeof payload.detail==="string")html=tsHtml(payload.detail);
+  else if(payload&&Array.isArray(payload.detail)&&payload.detail.length)html=esc(t("The protocol could not read what the page sent:")+" "+malformedText(payload.detail));
   else if(!payload)html=esc(t("The protocol could not be reached, or answered with an error the page could not read. Nothing was charged."));
   else html=esc(t("The protocol did not accept this. Nothing was charged."));
   var box=$("compliance-box");

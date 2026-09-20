@@ -302,18 +302,24 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
             "chain": {"height": chain.height, "timestamp": chain.timestamp, "genesis": chain.genesis},
             "session_secret": auth._secret.hex(),
         }
-        # Encoded here, under the locks, so the snapshot is one moment.
+        # Encoded here, under the locks, so the snapshot is one moment. Each
+        # book is copied before it is walked: the money lock covers the pool
+        # and the chain, but a key being registered or an account being
+        # joined on a request thread holds no lock, and a dict that grows
+        # while it is iterated raises and loses the whole save. The copy is
+        # one atomic step; the walk is over something nobody else holds.
         books: dict[str, dict[str, Any]] = {
-            "policy": pool.policies, "provider": pool.providers, "wallet": wallets.accounts,
-            "carrier": registry.carriers,
-            "key": {a: _pem(k) for a, k in auth.keys.items()},
-            "signers": {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()},
-            "privy": accounts._by_user,
+            "policy": dict(pool.policies), "provider": dict(pool.providers), "wallet": dict(wallets.accounts),
+            "carrier": dict(registry.carriers),
+            "key": {a: _pem(k) for a, k in dict(auth.keys).items()},
+            "signers": {a: [_pem(k) for k in list(ks)] for a, ks in dict(auth.signers).items()},
+            "privy": dict(accounts._by_user),
         }
-        books.update(_books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline))
+        books.update({kind: dict(book) for kind, book in
+                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline).items()})
         docs = {kind: {str(id_): _text(item) for id_, item in book.items()} for kind, book in books.items()}
-        logs = {"ledger": [_text(e) for e in pool.ledger],
-                "settlement": [_text(e) for e in chain.settlements]}
+        logs = {"ledger": [_text(e) for e in list(pool.ledger)],
+                "settlement": [_text(e) for e in list(chain.settlements)]}
     store.write(meta=meta, docs=docs, logs=logs)
 
 

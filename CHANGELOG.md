@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.2, 20 September 2026
+
+- The book on disk: a save that ran while a key was being registered or an
+  account joined lost the whole save with "dictionary changed size during
+  iteration", every half minute on a busy server. Each book is copied in one
+  step before it is walked.
+- A body a route cannot read (a 422) is logged with the fields at fault,
+  and the page says "the protocol could not read what the page sent" with
+  those fields, instead of "the protocol did not accept this".
+
 ## 1.3.1, 20 September 2026
 
 - An error the code did not foresee is answered as JSON with a reference

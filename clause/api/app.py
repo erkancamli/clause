@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, AsyncIterator
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response, StreamingResponse
@@ -820,6 +821,21 @@ def create_app(
                 await run_in_threadpool(keeper.save)
             return response
 
+    @app.exception_handler(RequestValidationError)
+    async def malformed(request: Request, error: RequestValidationError) -> Response:
+        """A body the route could not read. Answered the way FastAPI answers
+        it, and logged, because a page that sent a shape this build does not
+        expect is a fault somebody has to find, and the person in front of it
+        sees only that they were refused."""
+        from fastapi.exception_handlers import request_validation_exception_handler
+
+        where = "; ".join(
+            ".".join(str(part) for part in e.get("loc", ())) + ": " + str(e.get("msg", ""))
+            for e in error.errors()[:6]
+        )
+        logger.warning("malformed %s %s: %s", request.method, request.url.path, where)
+        return await request_validation_exception_handler(request, error)
+
     @app.exception_handler(Exception)
     async def unexpected(request: Request, error: Exception) -> Response:
         """A failure the code did not foresee, answered as JSON the page can
@@ -918,6 +934,7 @@ def create_app(
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
+    app.state.accounts = accounts
     app.state.auth = auth
     app.state.settings = settings
     app.state.rules = rules

@@ -190,3 +190,38 @@ def test_old_0x_addresses_are_rewritten_in_rialo_form_everywhere() -> None:
     # Running it again changes nothing.
     assert migrate_legacy_addresses(pool=pool, wallets=wallets, chain=Chain(), registry=Registry(), auth=Auth(),
                                     accounts=Accounts(), payouts=payouts) == 0
+
+
+def test_a_key_registered_while_the_book_is_being_saved_does_not_lose_the_save(tmp_path, monkeypatch) -> None:
+    """Registering a key holds no lock, and a dict that grows while it is
+    walked raises: every save between one key and the next was lost that
+    way. The books are copied before they are walked, so a key that arrives
+    in the middle of a save is simply in the next one."""
+    from clause import store as store_mod
+    from clause.store import checkpoint
+    from test_api_security import Device
+
+    with TestClient(app_on(tmp_path / "clause.sqlite")) as client:
+        app = client.app
+        auth = app.state.auth
+        first = auth.register(Device().public)
+        arrived = []
+        original = store_mod._text
+
+        def text_and_a_new_key(item):
+            # The first item walked: a device registers while the save runs.
+            if not arrived:
+                arrived.append(auth.register(Device().public))
+            return original(item)
+
+        monkeypatch.setattr(store_mod, "_text", text_and_a_new_key)
+        target = Store(tmp_path / "again.sqlite")
+        checkpoint(target, pool=app.state.pool, wallets=app.state.wallets, chain=app.state.chain,
+                   registry=app.state.rules.registry, auth=auth, accounts=app.state.accounts,
+                   pipeline=app.state.pipeline)
+        assert arrived and first in target.docs("key")
+        monkeypatch.setattr(store_mod, "_text", original)
+        checkpoint(target, pool=app.state.pool, wallets=app.state.wallets, chain=app.state.chain,
+                   registry=app.state.rules.registry, auth=auth, accounts=app.state.accounts,
+                   pipeline=app.state.pipeline)
+        assert arrived[0] in target.docs("key")

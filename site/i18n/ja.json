@@ -1606,7 +1606,8 @@
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "その場所で一日の風がその土地にとって極端な水準、つまり二十五年、五十年、百年に一度の水準に達したときに支払われます。",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "この場所自身の二十五年、五十年、百年に一度の水準に段があるため、風当たりの強い海岸も守られた谷も、それぞれにとって極端な風で支払われます。",
     "1 IN 25 YEARS": "25年に1度",
-    "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "プロトコルに接続できないか、ページが読み取れないエラーが返されました。請求は発生していません。"
+    "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "プロトコルに接続できないか、ページが読み取れないエラーが返されました。請求は発生していません。",
+    "The protocol could not read what the page sent:": "プロトコルはページが送信した内容を読み取れませんでした："
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
