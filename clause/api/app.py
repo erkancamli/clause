@@ -67,6 +67,7 @@ from ..protocol.carrier import (
 )
 from ..protocol.compliance import ComplianceEngine, Interest
 from ..protocol.pipeline import Action, Match, PolicyError, PolicyPipeline
+from ..protocol.documents import OPERATOR as READER_OPERATOR, DocumentError, Documents
 from ..protocol.mandates import COOLING_OFF_HOURS, MandateError, Mandates, parse_terms
 from ..protocol.partners import (
     PARTNER_SCREENED_LIMIT,
@@ -494,6 +495,27 @@ class SpecimenDesk(BaseModel):
     release: bool = False
 
 
+class ReadingKey(BaseModel):
+    """A P-256 point the deciding party's browser made and never exported."""
+    public_key: str = Field(min_length=80, max_length=120)
+
+
+class SealedDocument(BaseModel):
+    """One document, encrypted in the applicant's browser to the reading key;
+    see clause.protocol.documents for the envelope."""
+    filename: str = Field(default="", max_length=120)
+    content_type: str = Field(max_length=40)
+    bytes: int = Field(gt=0, le=4_000_000)
+    ephemeral: str = Field(min_length=80, max_length=120)
+    salt: str = Field(min_length=20, max_length=32)
+    iv: str = Field(min_length=14, max_length=24)
+    data: str = Field(min_length=1, max_length=5_500_000)
+
+
+class SealedDocuments(BaseModel):
+    documents: list[SealedDocument] = Field(min_length=1, max_length=4)
+
+
 class ApplicationDecision(BaseModel):
     decision: str = Field(max_length=8)
     note: str = Field(default="", max_length=400)
@@ -597,7 +619,8 @@ def create_app(
             store, pool=pool, wallets=wallets, chain=chain, registry=registry,
             auth=auth, accounts=accounts, payouts=payouts, partners=partners,
             mandates=mandates, applications=applications, funding=funding,
-            links=links, instructions=instructions, assets=assets, pipeline=pipeline))
+            links=links, instructions=instructions, assets=assets, pipeline=pipeline,
+            documents=documents))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -660,6 +683,9 @@ def create_app(
     mandates = Mandates()
     from ..protocol.applications import ApplicationError, Applications
     applications = Applications()
+    # What applicants send the deciding company, sealed to its reading key;
+    # the bytes live beside the book, the protocol never sees them open.
+    documents = Documents(store.path.parent if store is not None else None)
     from ..protocol.instructions import InstructionError, Instructions
     instructions = Instructions()
     from ..protocol.assets import AssetError, Assets
@@ -735,7 +761,7 @@ def create_app(
                              payouts=payouts, partners=partners, mandates=mandates,
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
-                             pipeline=pipeline)
+                             pipeline=pipeline, documents=documents)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -931,6 +957,7 @@ def create_app(
     payouts.gate = lambda account_, destination_, amount_: pipeline.refusal(Action(
         stage="cashout", address=account_, destination=destination_, amount=amount_))
     app.state.pipeline = pipeline
+    app.state.documents = documents
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -2833,6 +2860,7 @@ def create_app(
                 applications.close(app, "lapsed", by="protocol",
                                    note="not decided within three days; premium returned")
                 refund_escrow(app, "lapsed")
+                documents.purge(app.app_id)
                 n += 1
         return n
 
@@ -2963,7 +2991,7 @@ def create_app(
             raise Refused(422, safe_detail(error, fallback="that application was refused")) from error
         except PoolError as error:
             raise Refused(409, safe_detail(error, fallback="the pool cannot write this cover")) from error
-        return {"application": app_.to_dict(), "wallet": wallets.require(holder).as_dict(),
+        return {"application": with_documents(app_), "wallet": wallets.require(holder).as_dict(),
                 "session": auth.issue_session(holder)}
 
     @app.get("/api/applications/{app_id}/contract")
@@ -3189,9 +3217,134 @@ def create_app(
         if address is None:
             raise Refused(401, "sign in first")
         names = {c.carrier_id: c.name for c in registry.carriers.values()}
-        return {"applications": [{**a.to_dict(), "carrier": names.get(a.carrier_id or "")}
+        return {"applications": [{**with_documents(a), "carrier": names.get(a.carrier_id or "")}
                                  for a in applications.mine(address)[:50]],
                 "demo": settings.specimens}
+
+    def with_documents(app_: Any, *, private: bool = False) -> dict[str, Any]:
+        """An application as the page sees it, with what was sent for it:
+        names, sizes, who opened what and when; never the bytes."""
+        out = app_.to_dict(private=private)
+        out["documents"] = [d.to_dict() for d in documents.for_application(app_.app_id)]
+        return out
+
+    def recipient_of(carrier_id: str | None) -> dict[str, Any]:
+        carrier = registry.carriers.get(carrier_id or "")
+        found = documents.recipient_for(carrier)
+        return {"carrier_id": carrier.carrier_id if carrier else None,
+                "name": carrier.name if carrier else None,
+                "recipient": found[0] if found else None,
+                "reading_key": found[1] if found else None}
+
+    @app.post("/api/auth/reading-key")
+    async def register_reading_key(request: ReadingKey, http: Request,
+                                   token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The key documents to this account are sealed to. Made in its
+        browser, non extractable; only the public point comes here."""
+        guard(http, "reading-key", limit=10, window=60.0)
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        try:
+            key = documents.register_key(address, request.public_key)
+        except DocumentError as error:
+            raise Refused(422, str(error)) from error
+        return {"address": address, "reading_key": key}
+
+    @app.post("/api/operator/reading-key")
+    async def register_operator_reading_key(
+        request: ReadingKey, http: Request, token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        """The operator decides for stand in companies, so documents sent to
+        one are sealed to the operator's browser. One key: the last browser
+        to register wins, and what was sealed to an earlier one stays shut."""
+        guard(http, "reading-key", limit=10, window=60.0)
+        who = reviewer_of(operator, token)
+        try:
+            key = documents.register_key(READER_OPERATOR, request.public_key)
+        except DocumentError as error:
+            raise Refused(422, str(error)) from error
+        logger.info("operator reading key registered by %r", who)
+        return {"address": READER_OPERATOR, "reading_key": key}
+
+    @app.get("/api/applications/recipient")
+    async def document_recipient(carrier_id: str = Query("", max_length=80)) -> dict[str, Any]:
+        """Who will be able to open documents sent with an application to
+        this company, and the key to seal them to; nobody, when neither the
+        company nor, for a stand in, the operator has a reading key yet."""
+        return recipient_of(carrier_id)
+
+    @app.post("/api/applications/{app_id}/documents")
+    async def application_documents_send(
+        app_id: str, request: SealedDocuments, http: Request,
+        token: str | None = Depends(bearer),
+    ) -> dict[str, Any]:
+        """Documents for the company's checks, sealed in the applicant's
+        browser to that company's reading key. Sent after the application,
+        while it is still open; the protocol keeps the ciphertext and a
+        record, and cannot read either document."""
+        guard(http, "documents", limit=12, window=60.0)
+        address = session_of(token)
+        try:
+            app_ = applications.require(app_id)
+        except ApplicationError as error:
+            raise HTTPException(404, str(error)) from error
+        if address is None or app_.holder != address:
+            raise HTTPException(404, "no such application")
+        if not app_.open:
+            raise Refused(409, f"that application is already {app_.status}; nothing more can be sent for it")
+        recipient = recipient_of(app_.carrier_id)
+        if not recipient["reading_key"]:
+            raise Refused(409, "the company that will decide this application has no reading key yet, "
+                               "so nothing can be sealed to it; it will ask for its documents by other means")
+        try:
+            added = documents.add(app_id=app_.app_id, holder=address,
+                                  items=[d.model_dump() for d in request.documents],
+                                  recipient=recipient["recipient"], recipient_key=recipient["reading_key"])
+        except DocumentError as error:
+            raise Refused(422, str(error)) from error
+        return {"documents": [d.to_dict() for d in added], "application": with_documents(app_)}
+
+    @app.delete("/api/applications/{app_id}/documents/{doc_id}")
+    async def application_document_remove(app_id: str, doc_id: str,
+                                          token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The applicant takes a document back, while the application is open."""
+        address = session_of(token)
+        try:
+            app_ = applications.require(app_id)
+            doc = documents.require(app_id, doc_id)
+        except (ApplicationError, DocumentError) as error:
+            raise HTTPException(404, str(error)) from error
+        if address is None or app_.holder != address:
+            raise HTTPException(404, "no such application")
+        if not app_.open:
+            raise Refused(409, f"that application is already {app_.status}")
+        documents.remove(doc)
+        return {"application": with_documents(app_)}
+
+    @app.get("/api/applications/{app_id}/documents/{doc_id}")
+    async def application_document_open(
+        app_id: str, doc_id: str, http: Request,
+        token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        """The sealed envelope, to whoever may decide the application. Opening
+        is recorded, and the applicant sees who opened what and when. The
+        bytes come out as they went in: sealed, for that party's browser."""
+        guard(http, "documents", limit=60, window=60.0)
+        try:
+            app_ = applications.require(app_id)
+            doc = documents.require(app_id, doc_id)
+        except (ApplicationError, DocumentError) as error:
+            raise HTTPException(404, str(error)) from error
+        who = can_decide(app_, operator, token)
+        try:
+            data = documents.ciphertext(doc)
+        except DocumentError as error:
+            raise Refused(410, str(error)) from error
+        documents.mark_opened(doc, who)
+        return doc.envelope(data)
 
     @app.post("/api/applications/{app_id}/withdraw")
     async def application_withdraw(app_id: str, token: str | None = Depends(bearer)) -> dict[str, Any]:
@@ -3209,7 +3362,8 @@ def create_app(
             except ApplicationError as error:
                 raise Refused(409, str(error)) from error
             refund_escrow(app_, "withdrawn")
-        return {"application": app_.to_dict()}
+            documents.purge(app_.app_id)
+        return {"application": with_documents(app_)}
 
     @app.get("/api/review/applications")
     async def review_list(
@@ -3230,7 +3384,7 @@ def create_app(
             ids = {c.carrier_id for c in registry.carriers.values() if c.address == address}
         names = {c.carrier_id: c.name for c in registry.carriers.values()}
         rows = applications.for_carriers(ids)
-        return {"applications": [{**a.to_dict(private=True), "carrier": names.get(a.carrier_id or "")}
+        return {"applications": [{**with_documents(a, private=True), "carrier": names.get(a.carrier_id or "")}
                                  for a in rows[:200]],
                 "waiting": sum(1 for a in rows if a.open)}
 
@@ -3265,7 +3419,8 @@ def create_app(
             with money:
                 applications.close(app_, "rejected", by=reviewer, note=request.note)
                 refund_escrow(app_, "rejected")
-            return {"application": app_.to_dict()}
+                documents.purge(app_.app_id)
+            return {"application": with_documents(app_)}
 
         declared = InterestDeclaration(**app_.declared)
 
@@ -3335,7 +3490,8 @@ def create_app(
         with money:
             applications.close(app_, "approved", by=reviewer, note=request.note,
                                checked=list(request.checked), policy_id=policy.policy_id)
-        return {"application": app_.to_dict(), "policy": policy.to_dict()}
+            documents.purge(app_.app_id)
+        return {"application": with_documents(app_), "policy": policy.to_dict()}
 
     # -- payouts off the protocol -------------------------------------------
 

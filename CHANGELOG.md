@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.4.0, 20 September 2026
+
+- Documents for the company's check, sealed to it alone. The application
+  path for a home or a vehicle asked the company to confirm ownership (a
+  title deed, a lease, a registration) and gave the applicant nowhere to
+  hand the paper over. The address step now takes up to four files; each
+  is encrypted in the applicant's browser to the reading key of the party
+  that will decide (the company's account, or the operator for a stand in),
+  and the protocol keeps the ciphertext, which it cannot open, and a record
+  it can: what was sent and who opened it, shown to the applicant on My
+  cover. A reading key is an ECDH P-256 pair made non extractable in the
+  deciding party's browser when it first sits at its desk; its public half
+  is registered (`/api/auth/reading-key`, `/api/operator/reading-key`).
+  The reviewer's card lists the documents and opens them in that browser;
+  the applicant can take one back while the application is open; on the
+  decision the sealed copies are deleted. Where no reading key exists yet
+  the applicant is told the company will ask by other means, and nothing
+  is sent. The envelope (ephemeral P-256, HKDF-SHA256, AES-256-GCM, the
+  application id as additional data) is written out in
+  `clause/protocol/documents.py` and reproduced in the tests with another
+  library.
+
 ## 1.3.3, 20 September 2026
 
 - An earthquake quote on shaking, the index the page chooses for a home,
