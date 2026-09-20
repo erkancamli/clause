@@ -68,6 +68,7 @@ back, the payout does not go out.
 | `clause/protocol/pool.py` | Capital, underwriting rules, the ledger |
 | `clause/protocol/pipeline.py` | The operator's policy: denylist and moratoria, first to deny stops it |
 | `clause/protocol/documents.py` | Reading keys, and the documents sealed to them: envelope, record, deletion on decision |
+| `clause/protocol/vetting.py` | The operator's checklist for letting a company in: items by domicile and role, registers to read, documents by kind, the record per item, activation gated on it, review due a year on |
 | `clause/protocol/fees.py` | The platform's fee (1% of premium, out of the company's fronting fee, returned with refunds) and monthly statements |
 | `clause/protocol/desk.py` | The company's book worked: search, filters, renewals due, exposure by province, CSV |
 | `clause/chain/world.py` | Rialo shaped chain, Edge readings, settlement |
@@ -144,6 +145,28 @@ the operator cannot open a document sealed to a company, and the database
 alone opens nothing. On the decision, withdrawal or lapse, the ciphertext is
 deleted and the record stays. The envelope is written out in
 `clause/protocol/documents.py`, so another client can make or open one.
+
+---
+
+## Letting a company in
+
+A registration is a claim. Two checks run on their own (the LEI record at
+GLEIF, and a proof file on the company's own domain); the rest is a person
+reading registers the protocol cannot read for them, and
+`clause/protocol/vetting.py` gives that work a shape. Each company gets a
+checklist by domicile and role: the legal entity, control of the domain,
+the licence and the classes it must name (Türkiye: the branch for each
+peril, and membership of the insurers' association), the signatory's
+authority, sanctions screening, live enforcement, and two recommended
+items (solvency, a data processing agreement). Every item says what to
+confirm and links the register to read; the company's documents sit
+beside the item they support, by kind, and are never proof on their own.
+The operator records each item with where they looked and what they saw;
+activation is refused until every required item is confirmed, and the
+review records the checklist as it stood. A year on the checks are due
+again, and the operator's page says so, along with licences about to
+lapse. The company sees the same list on its own page, so it knows what
+it still owes and can add the documents asked for.
 
 ---
 
@@ -242,6 +265,8 @@ them import from `clause.chain`.
 | POST | `/api/auth/reading-key`, `/api/operator/reading-key` | The public half of a browser's reading key, so documents can be sealed to it |
 | GET | `/api/applications/recipient` | Who could open documents sent with an application to a company, and the key to seal them to |
 | POST, GET, DELETE | `/api/applications/{id}/documents[/{doc}]` | Send sealed documents; the deciding party fetches the envelope, which is recorded; the applicant takes one back |
+| GET, POST | `/api/carriers/{id}/vetting` | The checklist for one company; the operator records an item (confirmed, failed, set aside) with where they looked and what they saw |
+| POST | `/api/company/{id}/evidence` | The company adds documents after registering, by kind |
 | GET | `/api/company/statements`, `/api/operator/statements` | A company's month of fee movements and what it was left with; every company's, and the platform's totals, for the operator; CSV |
 | GET | `/api/company/policies`, `/api/operator/policies` | The book worked: search, status, peril, province, due within N days, sort, paging, CSV |
 | GET | `/api/pool`, `/api/pool/risk` | Capital, exposure, solvency |

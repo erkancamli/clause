@@ -61,7 +61,9 @@ LEI_PATTERN = re.compile(r"^[A-Z0-9]{18}[0-9]{2}$")
 DOMAIN_PATTERN = re.compile(r"^(?=.{4,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$")
 WELL_KNOWN = "/.well-known/clause-insurer.txt"
 
-EVIDENCE_KINDS = ("licence_certificate", "register_extract", "authorisation_letter", "other")
+EVIDENCE_KINDS = ("licence_certificate", "register_extract", "authorisation_letter", "trade_registry_gazette",
+                  "signature_circular", "membership_proof", "solvency_report", "data_agreement", "other")
+EVIDENCE_MAX_TOTAL = 12
 EVIDENCE_TYPES = {"application/pdf": ".pdf", "image/png": ".png", "image/jpeg": ".jpg"}
 EVIDENCE_MAX_BYTES = 3_000_000
 EVIDENCE_MAX_FILES = 4
@@ -275,14 +277,14 @@ def verify(*, name: str, lei: str, domain: str, address: str | None, country: st
 # Evidence: documents the company uploads, kept for the reviewer
 # ---------------------------------------------------------------------------
 
-def store_evidence(root: Path | None, carrier_id: str, files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def store_evidence(root: Path | None, carrier_id: str, files: list[dict[str, Any]], *, start: int = 0) -> list[dict[str, Any]]:
     """Save uploaded documents and return their records.
 
     With no state directory (a test) the bytes are dropped and only the
     record is kept, which is enough for the reviewer to see what was claimed.
     """
     out: list[dict[str, Any]] = []
-    for n, item in enumerate(files[:EVIDENCE_MAX_FILES]):
+    for n, item in enumerate(files[:EVIDENCE_MAX_FILES], start=start):
         kind = item.get("kind") if item.get("kind") in EVIDENCE_KINDS else "other"
         content_type = str(item.get("content_type", ""))
         ext = EVIDENCE_TYPES.get(content_type)

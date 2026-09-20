@@ -320,6 +320,7 @@ clause/
     auth.py address.py   P-256 keys, challenges, signatures, sessions, addresses
     carrier.py      the registry of licensed insurers, and the matching
     kyb.py          what anchors a company's registration: LEI, domain, register
+    vetting.py      the operator's checklist per company: what to confirm, where, the record, when it is due again
     compliance.py   insurable interest, indemnity, placement, the settlement recheck
     pipeline.py     the operator's policy: denylist and moratoria, asked at every stage that moves value
     eligibility.py  attestations: proved, not held

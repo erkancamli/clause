@@ -70,6 +70,7 @@ from ..protocol.pipeline import Action, Match, PolicyError, PolicyPipeline
 from ..protocol.documents import OPERATOR as READER_OPERATOR, DocumentError, Documents
 from ..protocol.fees import PLATFORM_ACCOUNT, Fees, month_of, platform_share
 from ..protocol import desk
+from ..protocol import vetting
 from ..protocol.mandates import COOLING_OFF_HOURS, MandateError, Mandates, parse_terms
 from ..protocol.partners import (
     PARTNER_SCREENED_LIMIT,
@@ -216,6 +217,8 @@ class CarrierRequest(BaseModel):
     capacity: float
     fronting_fee: float = 0.0
     contact: str = Field(default="", max_length=120)
+    mersis: str = Field(default="", max_length=16)        # Türkiye: 16 digits
+    tax_number: str = Field(default="", max_length=10)    # Türkiye: 10 digits
     excluded_countries: list[str] = Field(default_factory=list, max_length=64)
     # The company signs its own registration, so the row has an owner who can
     # come back and change it.
@@ -233,6 +236,18 @@ class SessionRequest(BaseModel):
     """
 
     reviewer: str = Field(default="", max_length=80)
+
+
+class VettingItem(BaseModel):
+    """One item of the operator's checklist, as the reviewer records it."""
+    key: str = Field(max_length=32)
+    ok: bool | None = None            # confirmed, failed, or not applicable
+    source: str = Field(default="", max_length=300)   # where they looked
+    note: str = Field(default="", max_length=400)     # what they saw
+
+
+class MoreEvidence(BaseModel):
+    evidence: list[EvidenceBody] = Field(min_length=1, max_length=4)
 
 
 class ReviewRequest(BaseModel):
@@ -2286,6 +2301,13 @@ def create_app(
                     error, fallback="that licence cannot be recorded as stated"
                 )) from error
 
+        mersis = "".join(ch for ch in request.mersis if ch.isdigit())
+        tax_number = "".join(ch for ch in request.tax_number if ch.isdigit())
+        if request.domicile.upper() == "TR":
+            if mersis and len(mersis) != 16:
+                raise Refused(422, "a MERSİS number is 16 digits")
+            if tax_number and len(tax_number) != 10:
+                raise Refused(422, "a vergi kimlik numarası is 10 digits")
         holder = None
         if request.address and request.nonce and request.signature:
             holder = signed(
@@ -2335,6 +2357,7 @@ def create_app(
                 capacity=bounded(request.capacity, "capacity", MIN_LIMIT, MAX_LIMIT * 200),
                 fronting_fee=bounded(request.fronting_fee, "fronting_fee", 0.0, 0.49),
                 contact=request.contact,
+                mersis=mersis, tax_number=tax_number,
                 address=holder,
             ))
         except CarrierError as error:
@@ -2683,8 +2706,16 @@ def create_app(
                 "carrier": names.get((p.metadata or {}).get("carrier", ""), None),
                 "country": ((p.metadata or {}).get("interest") or {}).get("country"),
             } for p in policies[:100]]
+            attention = []
+            for c in registry.carriers.values():
+                if c.specimen:
+                    continue
+                d = vetting.due(c)
+                if d["review_overdue"] or d["review_due_soon"] or d["licences_expiring"] or d["licences_lapsed"]:
+                    attention.append({"carrier_id": c.carrier_id, "name": c.name, "status": c.status.value, **d})
             return {
                 "reviewer": reviewer,
+                "attention": attention,
                 "totals": {
                     "buyers": len(holders), "policies": len(policies),
                     "open": sum(1 for p in policies if p.is_open),
@@ -2764,6 +2795,79 @@ def create_app(
             ),
         }
 
+    def may_see_vetting(carrier: Any, operator: str | None, token: str | None) -> str:
+        """The operator, or the company's own account: the company sees what
+        is confirmed and what it still owes, the operator records it."""
+        session = sessions.of(token)
+        if session is not None:
+            return session.reviewer or "operator"
+        if operator:
+            settings.require_admin(operator)
+            return "operator"
+        address = session_of(token)
+        if address and carrier.address == address:
+            return "company"
+        raise Refused(401, "the operator or the company itself")
+
+    @app.get("/api/carriers/{carrier_id}/vetting")
+    async def carrier_vetting(carrier_id: str, token: str | None = Depends(bearer),
+                              operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        """The operator's checklist for one company: each item, what to
+        confirm, where, the documents that bear on it, and who confirmed
+        it when. The company sees the same list, so it knows what is owed."""
+        try:
+            carrier = registry.require(carrier_id[:64])
+        except CarrierError as error:
+            raise Refused(404, str(error)) from error
+        who = may_see_vetting(carrier, operator, token)
+        return {"carrier_id": carrier.carrier_id, "viewer": who, **vetting.summary(carrier),
+                "can_activate": carrier.specimen or not vetting.missing(carrier)}
+
+    @app.post("/api/carriers/{carrier_id}/vetting")
+    async def carrier_vetting_record(carrier_id: str, request: VettingItem,
+                                     token: str | None = Depends(bearer),
+                                     operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        """One item confirmed, failed or set aside, with where the reviewer
+        looked and what they saw. Written on the company's record."""
+        reviewer = reviewer_of(operator, token)
+        try:
+            carrier = registry.require(carrier_id[:64])
+            with money:
+                vetting.record(carrier, key=request.key, ok=request.ok, source=request.source,
+                               note=request.note, by=reviewer)
+        except CarrierError as error:
+            raise Refused(404, str(error)) from error
+        except ValueError as error:
+            raise Refused(422, str(error)) from error
+        logger.info("vetting %s on %s by %r: %s", request.key, carrier.carrier_id, reviewer, request.ok)
+        return {"carrier_id": carrier.carrier_id, **vetting.summary(carrier),
+                "can_activate": carrier.specimen or not vetting.missing(carrier)}
+
+    @app.post("/api/company/{carrier_id}/evidence")
+    async def company_more_evidence(carrier_id: str, request: MoreEvidence,
+                                    token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The company adds documents after registering, when the operator
+        asks for one the checklist needs."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        carrier = registry.carriers.get(carrier_id[:64])
+        if carrier is None or carrier.address != address:
+            raise HTTPException(404, "no such company on this account")
+        if len(carrier.evidence) + len(request.evidence) > kyb.EVIDENCE_MAX_TOTAL:
+            raise Refused(422, f"at most {kyb.EVIDENCE_MAX_TOTAL} documents on one company")
+        evidence_root = store.path.parent if store is not None else None
+        bodies = [e.model_dump() for e in request.evidence]
+        try:
+            kyb.store_evidence(None, carrier.carrier_id, bodies, start=len(carrier.evidence))
+        except ValueError as error:
+            raise Refused(422, str(error)) from error
+        added = await run_in_threadpool(kyb.store_evidence, evidence_root, carrier.carrier_id, bodies,
+                                        start=len(carrier.evidence))
+        with money:
+            carrier.evidence = list(carrier.evidence) + added
+        return {"carrier": carrier.to_dict(private=True), **vetting.summary(carrier)}
+
     @app.post("/api/carriers/{carrier_id}/activate")
     async def carrier_activate(
         carrier_id: str,
@@ -2779,8 +2883,17 @@ def create_app(
         """
         reviewer = reviewer_of(operator, token)
         try:
+            found = registry.require(carrier_id[:64])
+        except CarrierError as error:
+            raise Refused(404, str(error)) from error
+        left = [] if found.specimen else vetting.missing(found)
+        if left:
+            names = {i["key"]: i["title"] for i in vetting.checklist_for(found)}
+            raise Refused(422, "confirm each required check before activating: " +
+                          "; ".join(names[k] for k in left))
+        try:
             carrier = registry.activate(
-                carrier_id[:64], reviewer=reviewer,
+                carrier_id[:64], reviewer=reviewer, checks=found.vetting,
                 note=((request.note if request else "") +
                       (" [confirmed: " + ", ".join(sorted(set(request.checked))) + "]" if request and request.checked else "")),
             )

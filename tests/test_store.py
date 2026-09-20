@@ -76,8 +76,11 @@ def test_a_review_decision_survives_a_restart(tmp_path) -> None:
         reply = client.post("/api/carriers", json=registration())
         assert reply.status_code == 200, reply.text
         carrier_id = reply.json()["carrier"]["carrier_id"]
-        act = client.post(f"/api/carriers/{carrier_id}/activate", json={"note": "checked the register"},
-                          headers=auth(sign_in(client, "Erkan")))
+        hdr = auth(sign_in(client, "Erkan"))
+        for item in client.get(f"/api/carriers/{carrier_id}/vetting", headers=hdr).json()["items"]:
+            if item["required"]:
+                client.post(f"/api/carriers/{carrier_id}/vetting", headers=hdr, json={"key": item["key"], "ok": True})
+        act = client.post(f"/api/carriers/{carrier_id}/activate", json={"note": "checked the register"}, headers=hdr)
         assert act.status_code == 200, act.text
 
     with TestClient(app_on(path, token=True)) as client:
