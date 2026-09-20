@@ -197,16 +197,25 @@ class Anchor:
         return None
 
     def backfill(self) -> int:
-        """Mint intents for tokens that exist but were never told to the
-        chain: the policies from before anchoring. A token burned before then
-        was never minted on the chain, so there is nothing to burn; and
-        settlements are told from now on, not the seeded past."""
+        """Mint intents for the open policies from before anchoring: cover
+        in force whose token was never told to the chain. Cover that has
+        already ended is history, in the root but not minted after the
+        fact; a token burned before then was never on the chain, so there
+        is nothing to burn; settlements are told from now on."""
         with self.lock:
+            # A mint queued by an earlier build for a policy this one would
+            # not queue (the demonstration's, or cover already ended) is
+            # dropped before it is ever sent; nothing sent is ever dropped.
+            for intent in [i for i in self.intents.values() if i.kind == "mint" and i.status == "pending" and not i.tx_hash]:
+                policy = self.pool.policies.get(intent.policy_id)
+                if policy is None or self.synthetic(policy) or not getattr(policy, "is_open", True):
+                    del self.intents[intent.intent_id]
             have = {i.policy_id for i in self.intents.values() if i.kind == "mint"}
         added = 0
         for policy in list(self.pool.policies.values()):
             token = (policy.metadata or {}).get("token")
-            if not token or token.get("burned_at") or policy.policy_id in have or self.synthetic(policy):
+            if (not token or token.get("burned_at") or policy.policy_id in have
+                    or not getattr(policy, "is_open", True) or self.synthetic(policy)):
                 continue
             if self.on_token("minted", policy) is not None:
                 added += 1

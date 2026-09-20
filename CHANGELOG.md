@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.7.2, 20 September 2026
+
+- The backfill queues only open policies, and a book from before the
+  demonstration's policies were marked recognises them by their holder
+  having nobody behind it (no device key, no Privy account, no linked
+  wallet, not bound by a partner). The live book had queued two thousand
+  mints for the demonstration's own history; mints queued by an earlier
+  build for such policies are dropped before they are ever sent.
+
 ## 1.7.1, 20 September 2026
 
 - The anchor's first cycle runs on its own thread, not on the startup
