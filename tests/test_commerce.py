@@ -269,6 +269,12 @@ def test_cover_rider_bought_can_be_cancelled_for_a_day(client) -> None:
                         f"/api/policies/{policy['policy_id']}/cancel", {"account": address})
     assert reply.status_code == 200, reply.text
     assert reply.json()["policy"]["status"] == "cancelled"
+    # The token leaves the wallet: burned on chain, no owner, the burn on record.
+    burned = reply.json()["policy"]["metadata"]["token"]
+    assert burned["owner"] is None and burned["burned_from"] == address and burned["burned_at"]
+    assert burned["burned_block"] >= burned["minted_block"]
+    card = client.get(f"/api/policies/{policy['policy_id']}/token").json()
+    assert card["burned"] and card["token"]["owner"] is None
     after = client.get("/api/wallet", headers={
         "authorization": f"Bearer {session_for(client, device, address)}"}).json()["wallet"]["balance"]
     # Within the day, the premium and the issuer's fee both come back.
@@ -277,6 +283,29 @@ def test_cover_rider_bought_can_be_cancelled_for_a_day(client) -> None:
     token_s = session_for(client, device, address)
     mandate = client.get("/api/mandate", headers={"authorization": f"Bearer {token_s}"}).json()["mandate"]
     assert mandate["spent"] == pytest.approx(0, abs=0.01)
+
+
+def test_a_token_cancelled_before_burning_existed_is_burned_on_restart(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("CLAUSE_RIDER_PURCHASE_KEY_SHA256", hashlib.sha256(RIDER_KEY.encode()).hexdigest())
+    monkeypatch.setenv("CLAUSE_STATE_DIR", str(tmp_path))
+    settings = Settings(faucet=True, operator_token=TOKEN)
+    app = create_app(trials=400, seed=11, run_chain=False, seed_book=True, settings=settings)
+    with TestClient(app) as c:
+        device, address = register(c)
+        token = sign_mandate(c, device, address).json()["token"]
+        policy = rider_buy(c, token).json()["policy"]
+        reply = signed_post(c, device, address, "cancel", {"policy_id": policy["policy_id"]},
+                            f"/api/policies/{policy['policy_id']}/cancel", {"account": address})
+        assert reply.status_code == 200, reply.text
+        # As the earlier build left it: cancelled, token still owned.
+        kept = app.state.pool.policies[policy["policy_id"]].metadata["token"]
+        for key in ("burned_at", "burned_block", "burned_from", "burned_because"):
+            kept.pop(key, None)
+        kept["owner"] = address
+    again = create_app(trials=400, seed=11, run_chain=False, seed_book=True, settings=settings)
+    with TestClient(again) as c:
+        card = c.get(f"/api/policies/{policy['policy_id']}/token").json()
+        assert card["burned"] and card["token"]["owner"] is None and card["token"]["burned_from"] == address
 
 
 def test_cover_bought_by_a_person_is_not_cancellable_here(client) -> None:

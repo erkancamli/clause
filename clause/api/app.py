@@ -769,6 +769,17 @@ def create_app(
             refreshed = refresh_specimens(registry)
             if refreshed:
                 logger.info("brought %s stand in companies' licences up to this build", refreshed)
+            # Tokens of policies cancelled by an earlier build, which kept
+            # them in the wallet, are burned now, as a cancellation burns
+            # them today.
+            burned = 0
+            for policy in list(pool.policies.values()):
+                token = (policy.metadata or {}).get("token")
+                if policy.status.value == "cancelled" and token and not token.get("burned_at"):
+                    chain.withdraw(policy)
+                    burned += 1
+            if burned:
+                logger.info("burned the tokens of %s policies cancelled before burning existed", burned)
             if settings.specimens:
                 # A book saved before the stand ins existed gets them now; one
                 # saved after keeps its own, including any a reviewer suspended.
@@ -4563,7 +4574,8 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         + t(W-48, 140, policy.policy_id, 13, "#0b0d11", "700", anchor="end")
         + f'<rect x="{W-200}" y="196" width="160" height="30" rx="15" fill="{colour}22" stroke="{colour}"/>'
         + t(W-120, 216, status.upper(), 11, colour, "700", anchor="middle", spacing=2)
-        + t(40, 216, f"minted in block {token['minted_block']:,}", 11, "#8a8f98")
+        + t(40, 216, (f"minted in block {token['minted_block']:,}"
+                      + (f", burned in block {token['burned_block']:,}" if token.get("burned_at") else "")), 11, "#8a8f98")
         + "".join(body)
         + f'<line x1="40" y1="{H-96}" x2="{W-40}" y2="{H-96}" stroke="#2a2e37"/>'
         + t(40, H-72, "CONTRACT", 9, "#8a8f98", spacing=2)
@@ -4579,6 +4591,7 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         "locked": True,
         "transferable": False,
         "token": token,
+        "burned": bool(token.get("burned_at")),
         "attributes": [
             {"trait_type": "Peril", "value": title},
             {"trait_type": "Limit (USDC)", "value": round(policy.limit, 2)},

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.1, 20 September 2026
+
+- A cancelled policy's token leaves the wallet. It stayed on My cover among
+  the policy tokens, marked cancelled, as if cover that was undone were
+  still something held. The chain now burns the token when it withdraws
+  the policy: no owner, the burn block and time on the token, "burned in
+  block …" on the certificate, and the wallet view lists live tokens only.
+  The cancelled policy itself stays in the list below, as the record it is.
+
 ## 1.4.0, 20 September 2026
 
 - Documents for the company's check, sealed to it alone. The application
