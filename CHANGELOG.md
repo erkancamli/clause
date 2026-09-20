@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.5.1, 20 September 2026
+
+- The confirm step, shorter by a quarter on a phone. The chosen company is
+  shown in full and the others sit behind "compare n other companies"; the
+  legal ruling is one line with the law behind a click; the DASK
+  comparison folds; and "read and accept the contract" is a live button
+  that takes the buyer to the contract instead of a dead one.
+- The interest step asks less. A home is named after its place ("A flat in
+  Kadıköy"), which the buyer can change, and the place they chose is where
+  it stands, so "inside the area" is confirmed by construction and left
+  for the buyer to undo rather than to find.
+- Rider is alive: a pulse runs its line, the figure rides it, and the panel
+  carries a wave that quickens while Rider thinks.
+- Readings behind the hero: small clusters of marks appear, drift and
+  dissolve behind the home page's opening, more of them where the pointer
+  goes and when Rider is reading; drawn on a canvas a dozen at a time,
+  paused when unseen. All of the motion stops for anyone whose browser
+  asks for less of it.
+
 ## 1.5.0, 20 September 2026
 
 - The platform is paid, by the companies and not the buyers. One per cent

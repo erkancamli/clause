@@ -1688,7 +1688,10 @@
     "provinces": "il",
     "renewal": "yenileme",
     "showing the first {n}": "ilk {n} gösteriliyor",
-    "{n} policies": "{n} poliçe"
+    "{n} policies": "{n} poliçe",
+    "Keep this company and hide the others": "Bu şirkette kal, diğerlerini gizle",
+    "Compare {n} other companies": "{n} şirketi daha karşılaştır",
+    "Why this can be written here, and by whom": "Bu neden burada ve kim tarafından yazılabilir"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
