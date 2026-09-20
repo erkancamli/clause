@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.2, 20 September 2026
+
+- On the Proof page the signer's address is shown short, with the full
+  one on the explorer, and a value never runs over the column beside it.
+
 ## 1.12.1, 20 September 2026
 
 - The theme button has three positions, in a cycle: the device's own

@@ -615,7 +615,8 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .ans .v small{color:var(--ink-3)}
 @media (max-width:520px){.ans{grid-template-columns:1fr auto}.ans .k{grid-column:1/-1}}
 .kv .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
-.kv .v{font-size:14.5px;font-variant-numeric:tabular-nums;margin-top:2px}
+.kv{min-width:0}
+.kv .v{font-size:14.5px;font-variant-numeric:tabular-nums;margin-top:2px;overflow-wrap:anywhere}
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
@@ -8375,7 +8376,7 @@ function renderAnchorStatus(box){
     var h='<div class="label">'+esc(t("On a public chain"))+' · '+esc(chain.name||"")+'</div>'+
       '<p style="font-size:14.5px;color:var(--ink-2)">'+esc(t("The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer."))+'</p>';
     if(a.mode!=="live")h+='<p class="fine">'+esc(t("Recorded here, not yet sent: the chain will be told the day the signer is funded."))+'</p>';
-    else h+='<div class="kvs">'+kv(t("Signer"),'<span class="mono">'+anchorLink(a.signer_url,a.signer)+'</span>'+(a.balance_eth!=null?' · '+esc(Number(a.balance_eth).toFixed(4))+' ETH':''))+
+    else h+='<div class="kvs">'+kv(t("Signer"),'<span class="mono">'+anchorLink(a.signer_url,anchorShort(a.signer))+'</span>'+(a.balance_eth!=null?' · '+esc(Number(a.balance_eth).toFixed(4))+' ETH':''))+
       kv(t("Contracts"),'<span class="mono">'+anchorLink(a.contracts.policy_url,anchorShort(a.contracts.policy))+' · '+anchorLink(a.contracts.book_url,anchorShort(a.contracts.book))+'</span>')+'</div>';
     if(lr)h+='<div class="kvs">'+kv(t("Last root"),'<span class="mono" style="overflow-wrap:anywhere">'+esc(lr.payload.root)+'</span><br>'+esc(t("{n} policies, epoch {e}",{n:f0.format(lr.payload.count),e:lr.payload.epoch}))+' · '+esc(anchorState(lr.status))+(lr.tx_url?' · '+anchorLink(lr.tx_url,anchorShort(lr.tx_hash)):''))+'</div>';
     h+='<p class="fine">'+esc(t("Sent {s} · confirmed {c} · waiting {p} · failed {f}",{s:f0.format(c.sent||0),c:f0.format(c.confirmed||0),p:f0.format(c.pending||0),f:f0.format(c.failed||0)}))+'</p>';
