@@ -1906,7 +1906,16 @@
     "Archive": "Archive",
     "Rulebook version {v}": "Version du règlement {v}",
     "How is the reading decided, and what if the source is silent?": "Comment le relevé est-il décidé, et si la source se tait ?",
-    "By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.": "Par les règles de calcul, écrites avant que rien n'arrive et imprimées en section 10 de votre contrat : quelle source est lue et laquelle la remplace, ce qui compte comme chiffre final et quand il est gelé, les tests qu'un relevé doit passer, la règle d'attestation de la chaîne et le délai de contestation. La page Règles de calcul les montre péril par péril."
+    "By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.": "Par les règles de calcul, écrites avant que rien n'arrive et imprimées en section 10 de votre contrat : quelle source est lue et laquelle la remplace, ce qui compte comme chiffre final et quand il est gelé, les tests qu'un relevé doit passer, la règle d'attestation de la chaîne et le délai de contestation. La page Règles de calcul les montre péril par péril.",
+    "Bordereaux": "Bordereaux",
+    "What your desk and your reinsurer expect, month by month: the risk bordereau (every policy bound, with its dates, limit, premium and the shares taken from your fee), the claims bordereau (every payout and every premium returned), and the reconciliation against the fee ledger, which says whether they agree and by how much they do not.": "Ce que votre desk et votre réassureur attendent, mois par mois : le bordereau de risques (chaque police souscrite, avec ses dates, sa limite, sa prime et les parts prélevées sur vos frais), le bordereau de sinistres (chaque paiement et chaque prime remboursée) et le rapprochement avec le grand livre des frais, qui dit s'ils concordent et de combien ils diffèrent.",
+    "Reading the bordereaux…": "Lecture des bordereaux…",
+    "Risk bordereau (CSV)": "Bordereau de risques (CSV)",
+    "Claims bordereau (CSV)": "Bordereau de sinistres (CSV)",
+    "Reconciliation (CSV)": "Rapprochement (CSV)",
+    "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "{n} polices souscrites · primes {premiums} · vos frais {fees} · plateforme {platform} · sinistres payés {claims} · primes remboursées {returned}",
+    "The ledger and the bound policies agree to the cent.": "Le grand livre et les polices souscrites concordent au centime.",
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Le grand livre et les polices souscrites diffèrent de {diff} : échéances payées d'autres mois, ou frais remboursés sur des polices souscrites plus tôt."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

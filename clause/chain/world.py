@@ -251,8 +251,10 @@ def sources_for(reading: "EdgeReading") -> tuple[str, ...]:
             country = "TR"
         return ("USGS ShakeMap", NATIONAL_SEISMIC.get(country, "national network"),
                 "nearest strong motion station")
-    if reading.index_field == "rain_24h_mm":
-        return ("NASA POWER (MERRA-2)", "national meteorological service", "ERA5 reanalysis")
+    if reading.index_field in ("rain_24h_mm", "wind_24h_kmh"):
+        # Observation first: the station is what a person can look up, and a
+        # reanalysis under-reads the strong days; the reanalyses stand in.
+        return ("national meteorological service station", "NASA POWER (MERRA-2)", "ERA5 reanalysis")
     if reading.index_field == "rainfall_mm":
         return ("national meteorological service", "CHIRPS satellite estimate", "ERA5 reanalysis")
     if reading.index_field == "arrival_delay_minutes":

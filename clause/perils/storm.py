@@ -148,7 +148,7 @@ class Storm(Peril):
                        f"&lon={subject['longitude']:g}"),
             field="wind_24h_kmh",
             unit=self.unit,
-            publisher="NASA POWER (MERRA-2), the national meteorological service and ERA5, attested by validators",
+            publisher="the national meteorological service's nearest station first; NASA POWER (MERRA-2) and ERA5, quantile-mapped to the station, standing in; attested by validators",
             resolution="daily maxima, final within a few days",
             settlement_deadline_days=14,
             on_missing_data=("If no daily maximum for the place is published within fourteen days "

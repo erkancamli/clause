@@ -3276,6 +3276,34 @@ function bindComplaintActions(root){
     });
   });
 }
+/* The three bordereaux for a month, and the reconciliation in one line. */
+function bindBordereaux(root, auth){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-bordereaux-for]"),function(holder){
+    var id=holder.dataset.bordereauxFor;
+    function load(month){
+      var o={timeout:20000}; for(var k in auth)o[k]=auth[k];
+      api("/api/company/bordereaux?carrier_id="+encodeURIComponent(id)+"&kind=reconciliation"+(month?"&month="+encodeURIComponent(month):""),o).then(function(r){
+        var b=r.bordereau, items={}; (b.items||[]).forEach(function(i){ items[i.item]=i.amount; });
+        var months=r.months||[]; if(months.indexOf(b.month)<0)months.unshift(b.month);
+        holder.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'+
+          '<select class="dlg-input" style="width:auto" data-bx-month>'+months.map(function(m){ return '<option value="'+esc(m)+'"'+(m===b.month?' selected':'')+'>'+esc(m)+'</option>'; }).join("")+'</select>'+
+          ['risk','claims','reconciliation'].map(function(k){ return '<button class="btn btn-line btn-sm" type="button" data-bx-csv="'+k+'">'+esc(t({risk:"Risk bordereau (CSV)",claims:"Claims bordereau (CSV)",reconciliation:"Reconciliation (CSV)"}[k]))+'</button>'; }).join(" ")+'</div>'+
+          '<p class="fine">'+esc(t("{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}",
+            {n:f0.format(items.policies_bound||0),premiums:money(items.gross_premiums_bound||0),fees:money(items.fronting_fees_on_bound_policies||0),platform:money(items.platform_fees_on_bound_policies||0),claims:money(items.claims_paid||0),returned:money(items.premiums_returned||0)}))+'</p>'+
+          '<p class="fine">'+(b.reconciled?esc(t("The ledger and the bound policies agree to the cent.")):esc(t("Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.",{diff:money(items.difference_ledger_less_bound||0)})))+'</p>';
+        holder.querySelector("[data-bx-month]").addEventListener("change",function(e){ load(e.target.value); });
+        Array.prototype.forEach.call(holder.querySelectorAll("[data-bx-csv]"),function(btn){
+          btn.addEventListener("click",function(){
+            btn.disabled=true;
+            downloadCsv("/api/company/bordereaux?carrier_id="+encodeURIComponent(id)+"&month="+encodeURIComponent(b.month)+"&kind="+btn.dataset.bxCsv+"&format=csv",auth,id+"-"+b.month+"-"+btn.dataset.bxCsv+".csv")
+              .then(function(){ btn.disabled=false; },function(e){ btn.disabled=false; btn.textContent=refusalText(e); });
+          });
+        });
+      },function(e){ holder.innerHTML='<p class="fine">'+esc(refusalText(e))+'</p>'; });
+    }
+    load("");
+  });
+}
 /* The company's side of the same threads: its clock, its answer, its close. */
 function bindCompanyComplaints(root, auth){
   Array.prototype.forEach.call(root.querySelectorAll("[data-complaints-for]"),function(holder){
@@ -7512,6 +7540,7 @@ function renderCompany(){
       esc(t("Applications for your paper"))+'</h3><div id="company-apps"></div>'+demo;
     bindStatements(box,{token:identity.token});
     bindCompanyComplaints(box,{token:identity.token});
+    bindBordereaux(box,{token:identity.token});
     bindVetting(box,{token:identity.token},renderCompany);
     bindMoreDocs(box,{token:identity.token},renderCompany);
     Array.prototype.forEach.call(box.querySelectorAll("[data-desk-for]"),function(h){
@@ -7613,6 +7642,9 @@ function companyHtml(c){
     (reinsurer?'':'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Monthly statement"))+'</h3>'+
       '<p class="fine">'+esc(t("Every fee movement on your paper, month by month: the fees buyers paid you, what came back to them, and the platform's {rate} of premium taken out of your fee. The buyer's price is the pool's price; the platform is paid by you, never by them.",{rate:pct(b.platform_rate||0.01,0)}))+'</p>'+
       '<div data-statement-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the statement…"))+'</p></div>')+
+    (reinsurer?'':'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Bordereaux"))+'</h3>'+
+      '<p class="fine">'+esc(t("What your desk and your reinsurer expect, month by month: the risk bordereau (every policy bound, with its dates, limit, premium and the shares taken from your fee), the claims bordereau (every payout and every premium returned), and the reconciliation against the fee ledger, which says whether they agree and by how much they do not."))+'</p>'+
+      '<div data-bordereaux-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the bordereaux…"))+'</p></div>')+
     (reinsurer?'':'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Complaints"))+'</h3>'+
       '<p class="fine">'+esc(t("Raised on your policies, with your time to answer counted from the day they were raised. Answer on the thread; your first message stops the clock. Close one when it is settled."))+'</p>'+
       '<div data-complaints-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the complaints…"))+'</p></div>')+
