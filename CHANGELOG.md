@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.10.0, 20 September 2026
+
+- Three bordereaux for the company's desk and its reinsurer, month by
+  month: the risk bordereau (every policy bound, with its dates, limit,
+  gross premium, the fronting fee and the platform's share paid to date,
+  the net to the carrier), the claims bordereau (every payout with its
+  date of loss and index, and every premium returned on cancellation),
+  and the reconciliation against the fee ledger, which says whether they
+  agree and by how much they do not. Field logic after Lloyd's
+  Coverholder Reporting Standards; CSV in the shape a bordereau desk
+  loads. On the Company page, and for the operator across every carrier.
+  `clause/protocol/bordereaux.py`, `/api/company/bordereaux`,
+  `/api/operator/bordereaux`.
+- Storm and vehicle flood read the station first. The validators' source
+  chain for wind and rain now starts at the national meteorological
+  service's nearest station and falls back to NASA POWER and ERA5, in
+  that order, as the rulebook says; the data source names the order and
+  the quantile mapping the fallbacks get. The simulated chain still
+  draws its readings; what changed is the order the record names and
+  the contract states.
+
 ## 1.9.0, 20 September 2026
 
 - The whole price from the first place chosen. The moment there is a

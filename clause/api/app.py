@@ -5064,6 +5064,67 @@ def create_app(
         rows = complaints.for_carrier(carrier_id)
         return {"complaints": [complaint_view(c) for c in rows], "summary": complaints.summary(rows)}
 
+    # -- bordereaux: what was written, what was paid, whether it adds up ------
+
+    def bordereau_for(kind: str, carrier_id: str | None, month: str, *, private: bool) -> dict[str, Any]:
+        from ..protocol import bordereaux
+        names = {c.carrier_id: c.name for c in registry.carriers.values()}
+        month = month or fees.months(carrier_id)[:1][0] if fees.months(carrier_id) else (month or month_of_now())
+        with money:
+            policies_ = list(pool.policies.values())
+            risk = bordereaux.risk_bordereau(policies_, carrier_id=carrier_id, month=month, names=names, private=private)
+            claims = bordereaux.claims_bordereau(policies_, list(chain.settlements), carrier_id=carrier_id, month=month)
+        if kind == "risk":
+            return risk
+        if kind == "claims":
+            return claims
+        statement = fees.statement(carrier_id, month, names=names) if carrier_id else None
+        if not carrier_id:
+            rows = fees.statements(month, names=names)
+            statement = {k: round(sum(float(r.get(k, 0.0)) for r in rows), 2) for k in
+                         ("fronting_fees", "fronting_fees_returned", "platform_fees", "platform_fees_returned", "net_to_company")}
+        return bordereaux.reconciliation(risk, claims, statement)
+
+    def month_of_now() -> str:
+        from ..protocol.fees import month_of
+        return month_of(time.time())
+
+    def bordereau_reply(kind: str, carrier_id: str | None, month: str, format_: str, *, private: bool):
+        from ..protocol import bordereaux
+        if kind not in ("risk", "claims", "reconciliation"):
+            raise Refused(422, "kind is risk, claims or reconciliation")
+        book = bordereau_for(kind, carrier_id, month, private=private)
+        if format_ == "csv":
+            from fastapi.responses import PlainTextResponse
+            name = f"{carrier_id or 'all'}-{book['month']}-{kind}.csv"
+            return PlainTextResponse(bordereaux.to_csv(book), media_type="text/csv; charset=utf-8",
+                                     headers={"content-disposition": f'attachment; filename="{name}"'})
+        return {"bordereau": book, "months": fees.months(carrier_id)}
+
+    @app.get("/api/company/bordereaux")
+    async def company_bordereaux(carrier_id: str = Query(..., max_length=80), month: str = Query("", max_length=7),
+                                 kind: str = Query("risk", max_length=16), format: str = Query("json", max_length=4),
+                                 token: str | None = Depends(bearer)):
+        """The company's three bordereaux for a month: risk (what was bound),
+        claims (what was paid, what was returned) and the reconciliation
+        against the fee ledger. JSON, or CSV in the shape a bordereau desk
+        loads."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        carrier = registry.carriers.get(carrier_id)
+        if carrier is None or carrier.address != address:
+            raise HTTPException(404, "no such company on this account")
+        return bordereau_reply(kind, carrier_id, month, format, private=carrier.role is not Role.REINSURER)
+
+    @app.get("/api/operator/bordereaux")
+    async def operator_bordereaux(carrier_id: str = Query("", max_length=80), month: str = Query("", max_length=7),
+                                  kind: str = Query("risk", max_length=16), format: str = Query("json", max_length=4),
+                                  token: str | None = Depends(bearer),
+                                  operator: str | None = Header(None, alias="x-operator-token")):
+        reviewer_of(operator, token)
+        return bordereau_reply(kind, carrier_id or None, month, format, private=False)
+
     @app.get("/api/operator/complaints")
     async def operator_complaints(token: str | None = Depends(bearer),
                                   operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:

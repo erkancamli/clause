@@ -1914,7 +1914,16 @@
     "Archive": "Arşiv",
     "Rulebook version {v}": "Kural kitabı sürümü {v}",
     "How is the reading decided, and what if the source is silent?": "Ölçüm nasıl belirlenir, kaynak susarsa ne olur?",
-    "By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.": "Her şeyden önce yazılmış ve sözleşmenizin 10. bölümü olarak basılmış hesaplama kurallarıyla: hangi kaynak okunur ve hangisi yerine geçer, nihai rakam nedir ve ne zaman dondurulur, bir ölçümün geçmesi gereken testler, zincirin tasdik kuralı ve itiraz süresi. Hesaplama kuralları sayfası bunları tehlike tehlike gösterir."
+    "By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.": "Her şeyden önce yazılmış ve sözleşmenizin 10. bölümü olarak basılmış hesaplama kurallarıyla: hangi kaynak okunur ve hangisi yerine geçer, nihai rakam nedir ve ne zaman dondurulur, bir ölçümün geçmesi gereken testler, zincirin tasdik kuralı ve itiraz süresi. Hesaplama kuralları sayfası bunları tehlike tehlike gösterir.",
+    "Bordereaux": "Bordrolar",
+    "What your desk and your reinsurer expect, month by month: the risk bordereau (every policy bound, with its dates, limit, premium and the shares taken from your fee), the claims bordereau (every payout and every premium returned), and the reconciliation against the fee ledger, which says whether they agree and by how much they do not.": "Masanızın ve reasürörünüzün ay ay beklediği: risk bordrosu (bağlanan her poliçe; tarihleri, limiti, primi ve ücretinizden alınan paylar), hasar bordrosu (her ödeme ve iade edilen her prim) ve ücret defteriyle mutabakat; uyuşup uyuşmadıklarını, uyuşmuyorsa ne kadar farkla olduğunu söyler.",
+    "Reading the bordereaux…": "Bordrolar okunuyor…",
+    "Risk bordereau (CSV)": "Risk bordrosu (CSV)",
+    "Claims bordereau (CSV)": "Hasar bordrosu (CSV)",
+    "Reconciliation (CSV)": "Mutabakat (CSV)",
+    "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "{n} poliçe bağlandı · primler {premiums} · ücretleriniz {fees} · platform {platform} · ödenen hasarlar {claims} · iade edilen primler {returned}",
+    "The ledger and the bound policies agree to the cent.": "Defter ile bağlanan poliçeler kuruşuna kadar uyuşuyor.",
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Defter ile bağlanan poliçeler arasında {diff} fark var: başka aylarda ödenen taksit parçaları ya da daha önce bağlanan poliçelerde iade edilen ücretler."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

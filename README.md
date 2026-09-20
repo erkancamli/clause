@@ -176,6 +176,14 @@ no app secret on the server.
 
 ---
 
+## What a company gets for its paper
+
+A desk (search, filters, renewals due, exposure by province), a monthly
+fee statement, and the three bordereaux its reinsurer expects: risk,
+claims and a reconciliation that says whether the ledger and the bound
+book agree (`clause/protocol/bordereaux.py`). Complaints raised on its
+policies arrive on its page with the clock running.
+
 ## What a buyer can hold the protocol to
 
 Three things a person can point at. The whole price, premium and company

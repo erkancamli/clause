@@ -71,6 +71,7 @@ back, the payout does not go out.
 | `clause/protocol/vetting.py` | The operator's checklist for letting a company in: items by domicile and role, registers to read, documents by kind, the record per item, activation gated on it, review due a year on |
 | `clause/protocol/fees.py` | The platform's fee (1% of premium, out of the company's fronting fee, returned with refunds) and monthly statements |
 | `clause/protocol/desk.py` | The company's book worked: search, filters, renewals due, exposure by province, CSV |
+| `clause/protocol/bordereaux.py` | The risk, claims and reconciliation bordereaux per carrier and month, read off the book, the settlements and the fee ledger; CSV |
 | `clause/protocol/complaints.py` | Complaints as threads on the policy with the company's clock, the ombudsman route by country, and the application file assembled from the record |
 | `clause/protocol/rulebook.py` | The calculation agent's rulebook per peril: sources and fallbacks, final data and freeze, criteria, objection window, successor and archive rules; section 10 of every contract |
 | `clause/anchor/service.py` | The public chain beside this one: intents (mint, burn, settle, root) recorded as things happen, sent as signed transactions when a key is set, receipts read back; proofs of a policy's place in the book |
@@ -273,6 +274,7 @@ them import from `clause.chain`.
 | GET | `/api/applications/recipient` | Who could open documents sent with an application to a company, and the key to seal them to |
 | POST, GET, DELETE | `/api/applications/{id}/documents[/{doc}]` | Send sealed documents; the deciding party fetches the envelope, which is recorded; the applicant takes one back |
 | GET, POST | `/api/carriers/{id}/vetting` | The checklist for one company; the operator records an item (confirmed, failed, set aside) with where they looked and what they saw |
+| GET | `/api/company/bordereaux`, `/api/operator/bordereaux` | `kind=risk|claims|reconciliation`, `month`, `format=csv`: the three bordereaux for a carrier, or every carrier for the operator |
 | POST | `/api/policies/{id}/complaints` | The holder raises a complaint; the company's time to answer starts |
 | GET, POST | `/api/complaints`, `/api/complaints/{id}/messages`, `/close`, `/escalate`, `/package` | The thread, the answer, the close, the escalation to the ombudsman and its file (JSON or text) |
 | GET | `/api/company/complaints`, `/api/operator/complaints` | The company's complaints with the clock; every complaint for the operator |

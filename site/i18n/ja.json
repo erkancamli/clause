@@ -1906,7 +1906,16 @@
     "Archive": "アーカイブ",
     "Rulebook version {v}": "ルールブック版 {v}",
     "How is the reading decided, and what if the source is silent?": "観測値はどう決まり、ソースが沈黙したら？",
-    "By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.": "計算ルールによって決まります。事前に書かれ、契約の第10条として印字されています。どのソースを読みどれが代わるか、何が最終値でいつ確定するか、観測値が満たすべきテスト、チェーンの認証ルール、異議期間。「計算ルール」ページに危険ごとに示されています。"
+    "By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.": "計算ルールによって決まります。事前に書かれ、契約の第10条として印字されています。どのソースを読みどれが代わるか、何が最終値でいつ確定するか、観測値が満たすべきテスト、チェーンの認証ルール、異議期間。「計算ルール」ページに危険ごとに示されています。",
+    "Bordereaux": "ボルドロー",
+    "What your desk and your reinsurer expect, month by month: the risk bordereau (every policy bound, with its dates, limit, premium and the shares taken from your fee), the claims bordereau (every payout and every premium returned), and the reconciliation against the fee ledger, which says whether they agree and by how much they do not.": "デスクと再保険者が毎月求めるもの。リスクボルドロー（締結された各証券とその日付、限度額、保険料、手数料からの控除）、クレームボルドロー（各支払いと返還された保険料）、手数料台帳との照合（一致しているか、差額はいくらか）。",
+    "Reading the bordereaux…": "ボルドローを読み込み中…",
+    "Risk bordereau (CSV)": "リスクボルドロー（CSV）",
+    "Claims bordereau (CSV)": "クレームボルドロー（CSV）",
+    "Reconciliation (CSV)": "照合（CSV）",
+    "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "締結 {n}件 · 保険料 {premiums} · 手数料 {fees} · プラットフォーム {platform} · 支払クレーム {claims} · 返還保険料 {returned}",
+    "The ledger and the bound policies agree to the cent.": "台帳と締結済み証券は1セント単位で一致しています。",
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "台帳と締結済み証券に {diff} の差があります。他の月に支払われた分割分、または以前に締結された証券で返還された手数料です。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
