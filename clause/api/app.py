@@ -779,8 +779,29 @@ def create_app(
     # transactions when a key is configured; without one they are recorded
     # here, marked as not sent, and the proof page still works.
     from ..anchor import Anchor, AnchorConfig
+
+    def synthetic_policy(policy: Any) -> bool:
+        """The demonstration's own policy, marked or recognised by its holder;
+        or, in a book from before the marker and the address migration, a
+        policy with nobody behind it: no device key, no Privy account, no
+        linked wallet, not bound by a partner for a customer."""
+        if is_synthetic(policy):
+            return True
+        meta = policy.metadata or {}
+        if meta.get("partner") or meta.get("synthetic") is False:
+            return False
+        holder = policy.holder
+        if holder in auth.keys or holder in accounts._by_user.values():
+            return False
+        try:
+            if links.mine(holder):
+                return False
+        except Exception:
+            pass
+        return True
+
     anchor = Anchor(anchor_config or AnchorConfig.from_env(), pool=pool, links=links, rpc=anchor_rpc,
-                    synthetic=is_synthetic)
+                    synthetic=synthetic_policy)
     chain.token_listeners.append(anchor.on_token)
     chain.listeners.append(anchor.on_settlement)
 

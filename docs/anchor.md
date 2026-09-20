@@ -60,9 +60,13 @@ buyers that keep arriving) are in the root, since the root is the book as
 it is, but get no token, burn or settlement of their own: the public chain
 is for cover people bought.
 
-Tokens minted before anchoring existed are queued at startup (the
-backfill). Tokens burned before then were never on the chain, so nothing
-is burned for them; settlements are told from the day anchoring starts.
+Open policies from before anchoring existed are queued at startup (the
+backfill); cover that had already ended is in the root but not minted
+after the fact. Tokens burned before then were never on the chain, so
+nothing is burned for them; settlements are told from the day anchoring
+starts. In a book from before the demonstration's policies were marked,
+a policy with nobody behind its holder (no device key, no Privy account,
+no linked wallet, not bound by a partner) is taken as the demonstration's.
 
 ## Going live
 

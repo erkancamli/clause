@@ -288,10 +288,15 @@ def test_the_backfill_queues_tokens_from_before_anchoring_but_not_burned_ones() 
             self.policy_id = pid; self.holder = "h"; self.limit = 1.0; self.starts_at = 0; self.ends_at = 1
             self.status = type("S", (), {"value": "active"})()
             self.metadata = {"token": {"terms_hash": "0x" + "ab" * 32, "burned_at": time.time() if burned else None}}
-    pool = type("Pool", (), {"policies": {"A": P("A"), "B": P("B", burned=True), "C": P("C")}})()
+    ended = P("D"); ended.is_open = False; ended.status = type("S", (), {"value": "lapsed"})()
+    pool = type("Pool", (), {"policies": {"A": P("A"), "B": P("B", burned=True), "C": P("C"), "D": ended}})()
     anchor = Anchor(AnchorConfig(), pool=pool)
     assert anchor.backfill() == 2 and anchor.backfill() == 0
-    assert sorted(i.policy_id for i in anchor.intents.values()) == ["A", "C"]
+    assert sorted(i.policy_id for i in anchor.intents.values()) == ["A", "C"]   # not the burned one, not the ended one
     root = anchor.anchor_root()
-    assert root is not None and root.payload["count"] == 3 and anchor.anchor_root() is None
+    assert root is not None and root.payload["count"] == 4 and anchor.anchor_root() is None
+    assert anchor.proof("D")["verified"]                                           # ended cover is still in the root
+    # A mint an earlier build queued for cover that has since ended is dropped unsent.
+    pool.policies["A"].is_open = False
+    assert anchor.backfill() == 0 and sorted(i.policy_id for i in anchor.intents.values() if i.kind == "mint") == ["C"]
     assert anchor.proof("A")["verified"]
