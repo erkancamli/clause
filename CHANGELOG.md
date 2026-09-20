@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.12.0, 20 September 2026
+
+- The site moves like something finished. The hero arrives in order,
+  headline, sentence, buttons, marks, under a light that drifts slowly
+  across it; the five perils sit in one row and lift toward the pointer
+  with their art leaning in; cards, steps and columns rise into place as
+  the page is scrolled, each a beat after the one before; the primary
+  button has depth, a highlight and a lift, and presses down; the step
+  line fills as a purchase advances and the current step breathes; the
+  price counts to its new figure instead of jumping; every press that
+  moves you on fires the trigger, rings spreading from the point pressed
+  and a light crossing the button; dialogs arrive over
+  a blurred page; a page still being read shows a shimmer, not a word.
+  The insurers page opens with four figures. On a phone the state bar is
+  one line. All of it is off for a browser that asks for less motion,
+  where every element is simply there.
+
 ## 1.11.0, 20 September 2026
 
 - Check your answers. The confirm step opens with what was chosen, line
