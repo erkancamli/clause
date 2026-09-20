@@ -1688,7 +1688,10 @@
     "provinces": "provincias",
     "renewal": "renovación",
     "showing the first {n}": "se muestran los primeros {n}",
-    "{n} policies": "{n} pólizas"
+    "{n} policies": "{n} pólizas",
+    "Keep this company and hide the others": "Quedarse con esta compañía y ocultar las demás",
+    "Compare {n} other companies": "Comparar {n} compañías más",
+    "Why this can be written here, and by whom": "Por qué puede emitirse aquí, y quién"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

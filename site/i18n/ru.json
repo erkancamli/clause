@@ -1688,7 +1688,10 @@
     "provinces": "провинций",
     "renewal": "продление",
     "showing the first {n}": "показаны первые {n}",
-    "{n} policies": "{n} полисов"
+    "{n} policies": "{n} полисов",
+    "Keep this company and hide the others": "Оставить эту компанию и скрыть остальные",
+    "Compare {n} other companies": "Сравнить ещё {n} компаний",
+    "Why this can be written here, and by whom": "Почему это можно оформить здесь и кто это делает"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

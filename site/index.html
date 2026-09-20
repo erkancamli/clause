@@ -246,6 +246,24 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
   color:var(--ink);font:inherit;font-size:14px;font-weight:500}
 .rider-open:hover{border-color:var(--signal)}
 .rider-open .mascot{width:30px;height:24px}
+/* Rider is alive: a pulse runs the line, the figure rides it, and the
+   header carries a wave that quickens while Rider is thinking. All of it
+   is CSS, none of it blocks anything, and it stops for anyone who asked
+   the browser for less motion. */
+.mascot .pulse{fill:none;stroke:var(--signal);stroke-dasharray:14 100;stroke-dashoffset:114;animation:ride 2.6s linear infinite}
+@keyframes ride{to{stroke-dashoffset:0}}
+.mascot .figure{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}40%{transform:translateY(-1.4px)}60%{transform:translateY(.7px)}}
+.rider-open:hover .pulse,.rider.thinking .pulse{animation-duration:.9s}
+.rider-open:hover .figure,.rider.thinking .figure{animation-duration:.9s}
+.rider header .wave{position:relative;flex:0 0 auto;margin-left:auto;height:30px;width:96px;opacity:.55;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
+.rider header .tag{margin-left:0}
+.rider header .wave i{display:block;position:absolute;bottom:3px;width:2px;height:26px;background:var(--signal);border-radius:1px;
+  transform-origin:bottom;transform:scaleY(.2);animation:swell 2.6s ease-in-out infinite}
+@keyframes swell{0%,100%{transform:scaleY(.15)}50%{transform:scaleY(1)}}
+.rider.thinking header .wave i{animation-duration:.85s}
+.rider.thinking header .wave{opacity:.85}
 @media (max-width:760px){.rider-open{bottom:calc(64px + env(safe-area-inset-bottom,0px));right:12px;padding:9px 12px 9px 10px}
   .rider-open span{display:none}}
 .rider{position:fixed;right:20px;bottom:20px;z-index:90;width:min(430px,calc(100vw - 32px));
@@ -384,6 +402,13 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
   -webkit-mask-image:radial-gradient(760px 380px at 28% 12%,#000,transparent 74%);
   mask-image:radial-gradient(760px 380px at 28% 12%,#000,transparent 74%)}
 .home-hero .wrap{position:relative;z-index:1}
+/* Readings arriving: small clusters of marks that appear, drift and
+   dissolve behind the hero, the way data reaches the protocol. Drawn on a
+   canvas, a dozen at a time, paused when unseen, absent for anyone who
+   asked the browser for less motion. */
+.home-hero{position:relative;overflow:hidden}
+.home-hero>.wrap{position:relative;z-index:1}
+.home-hero .readings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(20px,4vw,48px)}
 .hero-text{display:grid;gap:12px;justify-items:start;text-align:left}
 .hero-text h1{max-width:13ch}
@@ -670,7 +695,8 @@ dialog::backdrop{background:rgba(3,5,8,.72)}
 @media (max-width:700px){.sizegrid.addr{grid-template-columns:1fr 1fr}}
 .contract{max-height:340px;overflow:auto;white-space:pre-wrap;font-family:var(--mono,monospace);font-size:12.5px;line-height:1.55;
   padding:14px;border-radius:12px;background:var(--sunk);color:var(--ink-2)}
-.accept{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:12px}
+.accept{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:12px;border-radius:8px;padding:6px;margin-left:-6px;transition:box-shadow .3s}
+.accept.nudge{box-shadow:0 0 0 3px var(--signal)}
 .accept input{margin-top:3px}
 .nfts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:16px}
 .nft{border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
@@ -798,6 +824,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 <!-- ============================== HOME ============================== -->
 <section class="view" id="view-home">
   <div class="home-hero">
+    <canvas class="readings" id="hero-fx" aria-hidden="true"></canvas>
     <div class="wrap hero-grid">
       <div class="hero-text">
       <h1 data-i18n>Cover that <span>pays itself</span>.</h1>
@@ -1867,6 +1894,8 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
   <svg class="mascot" viewBox="0 0 40 32" fill="none" aria-hidden="true">
   <path class="line" d="M1 25h5.4l2.6-9.5 3.9 19 3.4-14.5 2.2 5H39"
         stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="pulse" pathLength="100" d="M1 25h5.4l2.6-9.5 3.9 19 3.4-14.5 2.2 5H39"
+        stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
   <g class="figure">
     <circle cx="27.4" cy="9.6" r="3.1" fill="currentColor"/>
     <path d="M27.4 13.2v5.1M27.4 14.8l3.6-1.9M27.4 18.3l-2.1 3.5M27.4 18.3l2.6 3.3"
@@ -1881,12 +1910,15 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
     <span class="who"><svg class="mascot" viewBox="0 0 40 32" fill="none" aria-hidden="true">
   <path class="line" d="M1 25h5.4l2.6-9.5 3.9 19 3.4-14.5 2.2 5H39"
         stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+  <path class="pulse" pathLength="100" d="M1 25h5.4l2.6-9.5 3.9 19 3.4-14.5 2.2 5H39"
+        stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
   <g class="figure">
     <circle cx="27.4" cy="9.6" r="3.1" fill="currentColor"/>
     <path d="M27.4 13.2v5.1M27.4 14.8l3.6-1.9M27.4 18.3l-2.1 3.5M27.4 18.3l2.6 3.3"
           stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
   </g>
 </svg><b data-i18n>Rider</b></span>
+    <span class="wave" id="rider-wave" aria-hidden="true"></span>
     <span class="tag" id="rider-tag">reads and prices, cannot spend</span>
     <button class="icon-btn" id="rider-close" type="button" aria-label="Close" data-i18n-aria>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -3756,7 +3788,11 @@ function renderOffers(){
   var box=$("offers-box"), list=flow.offers||[];
   if(!link.live||!list.length){ box.hidden=true; return; }
   box.hidden=false;
-  $("offers").innerHTML=list.map(function(o){
+  // The chosen company in full; the others behind one line, so the page
+  // is not three cards long before the buyer has read the price.
+  var chosenId=flow.carrier||(list[0]&&list[0].carrier_id);
+  var shown=(flow.offersOpen||list.length<2)?list:list.filter(function(o){return o.carrier_id===chosenId;});
+  $("offers").innerHTML=shown.map(function(o){
     return '<button class="offer" type="button" data-carrier="'+esc(o.carrier_id)+'" aria-pressed="'+(o.carrier_id===flow.carrier)+'">'+
       '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>'+
       '<span><span class="nm">'+esc(ts(o.name))+'</span>'+(o.cheapest?'<span class="tag">'+esc(t("cheapest"))+'</span>':'')+(o.fastest&&!o.cheapest?'<span class="tag">'+esc(t("fastest payout"))+'</span>':'')+
@@ -3764,10 +3800,12 @@ function renderOffers(){
       '<span class="price">'+money(o.total)+' <small>'+esc(o.fee>0?t("{premium} + {fee} fee",{premium:money(o.premium),fee:money(o.fee)}):t("no fee"))+'</small></span>'+
       '<ul>'+o.plus.map(function(x){return '<li class="p">'+esc(ts(x))+'</li>';}).join("")+o.minus.map(function(x){return '<li class="m">'+esc(ts(x))+'</li>';}).join("")+'</ul>'+
       '</button>';
-  }).join("");
+  }).join("")+(list.length>1?'<button class="btn btn-ghost btn-sm" type="button" id="offers-toggle" aria-expanded="'+(!!flow.offersOpen)+'">'+
+    esc(flow.offersOpen?t("Keep this company and hide the others"):t("Compare {n} other companies",{n:list.length-1}))+'</button>':'');
   Array.prototype.forEach.call($("offers").querySelectorAll(".offer"),function(b){
     b.addEventListener("click",function(){ flow.carrier=b.dataset.carrier; renderPrice(); updatePriceBar(); });
   });
+  var toggle=$("offers-toggle"); if(toggle)toggle.addEventListener("click",function(){ flow.offersOpen=!flow.offersOpen; renderOffers(); });
 }
 /* Paying in parts, where the buyer's country does that. */
 var PLANS={key:"",plans:[]};
@@ -3856,9 +3894,9 @@ function marketHtml(){
   var type="concrete";
   var insured=Math.min(DASK.max, z.area_m2*DASK.unit[type]);
   var lo=insured*DASK.rate[type][6]/1000, hi=insured*DASK.rate[type][0]/1000;
-  return '<div class="verdict" style="margin:0"><p><b>'+esc(t("For comparison: Türkiye's compulsory earthquake insurance"))+'</b></p><p>'+
+  return '<details class="more" style="margin:0"><summary>'+esc(t("For comparison: Türkiye's compulsory earthquake insurance"))+'</summary><div class="inner"><p>'+
     esc(t("DASK would charge about {low} to {high} lira a year for {area} m² in a reinforced concrete building, depending on the risk zone (tariff of 1 September 2025). It pays after an assessor has seen the damage, above a 2% deductible, up to {cap} lira. This cover pays from the reading alone, with no assessor and no deductible, which is why it costs more.",
-      {low:f0.format(Math.round(lo)),high:f0.format(Math.round(hi)),area:f0.format(z.area_m2),cap:f0.format(DASK.max)}))+'</p></div>';
+      {low:f0.format(Math.round(lo)),high:f0.format(Math.round(hi)),area:f0.format(z.area_m2),cap:f0.format(DASK.max)}))+'</p></div></details>';
 }
 
 
@@ -4774,7 +4812,9 @@ function setNextLabel(){
   var priced=!link.live||!!flow.quoted;
   var proved=verified();
   var accepted=!link.live||(CONTRACT.hash&&CONTRACT.key===contractKey()&&$("accept").checked);
-  button.disabled=!ruling.allowed||!carried||!priced||!proved||!accepted;
+  // Not yet accepted is not a dead end: the button is live and takes the
+  // buyer to the contract, where the one thing left to do is.
+  button.disabled=!ruling.allowed||!carried||!priced||!proved;
   button.textContent=!ruling.allowed ? t("Cannot be written")
     : !carried ? t("The pool cannot carry this")
     : !priced ? (flow.refusal?t("The protocol did not price this"):t("Pricing…"))
@@ -4894,12 +4934,31 @@ function cashName(code,asset){
   return t((note&&note.cash)||"local currency");
 }
 
-function verdictHtml(ruling){
+function verdictHtml(ruling, compact){
   var out="";
   out+='<div class="vrow"><span class="pill '+(ruling.allowed?"ok":"no")+'">'+
        esc(ruling.offline?t("Unverified"):ruling.allowed?t("May be written"):t("Refused"))+'</span>'+
        '<span>'+esc(ruling.name||"")+
        (ruling.cover?' · '+esc(listText(ruling.cover.authorities.map(ts))):"")+'</span></div>';
+  // Allowed: the one line above says it; the law behind it is a click
+  // away. Refused: every reason, in full, because the buyer is stopped.
+  if(compact&&ruling.allowed){
+    var rest="";
+    ruling.reasons.forEach(function(reason){ rest+='<p>'+esc(reason)+'</p>'; });
+    if(ruling.cover&&ruling.cover.specimen)rest+='<p>'+t("<b>The company named here is a stand in, not a company.</b> It "+
+      "holds no licence, no regulator supervises it, and nothing written "+
+      "against it is cover. This deployment is a demonstration of how the "+
+      "protocol works, not a place to buy insurance.")+'</p>';
+    if(ruling.cover){
+      var ours2=ruling.cover.carriers.some(function(n){return /^Clause /.test(n);});
+      rest+='<p><b>'+esc(ours2?t("The insurer is Clause's own licensed entity."):t("Clause is not the insurer."))+'</b> '+
+        t("The policy is issued by {carriers}, supervised by {authorities}, and this pool stands behind it as capital. Every figure on this page is in the protocol's unit of account; your premium and any payout move in {cash}.",
+          {carriers:esc(listText(ruling.cover.carriers.map(ts))),authorities:esc(listText(ruling.cover.authorities.map(ts))),
+           cash:esc(cashName(riskCountry(),ruling.asset))})+'</p>';
+    }
+    if(ruling.note)rest+='<p class="fine">'+esc(t(ruling.note.note))+'</p>';
+    return out+'<details class="more" style="margin-top:8px"><summary>'+esc(t("Why this can be written here, and by whom"))+'</summary><div class="inner">'+rest+'</div></details>';
+  }
   ruling.reasons.forEach(function(reason){ out+='<p>'+esc(reason)+'</p>'; });
 
   if(ruling.allowed&&ruling.cover&&ruling.cover.specimen){
@@ -5012,7 +5071,7 @@ function renderVerdict(){
   var box=$("compliance-box"),ruling=localRuling();
   box.hidden=false;
   box.className="verdict "+(ruling.allowed?"ok":"no");
-  box.innerHTML=verdictHtml(ruling);
+  box.innerHTML=verdictHtml(ruling,true);
   if(flow.quoted&&flow.quoted.can_write===false){
     box.className="verdict no";
     box.innerHTML+='<p><b>'+esc(t("The pool will not carry this."))+'</b> '+
@@ -5368,7 +5427,7 @@ function choosePeril(key){
   if(key!==flow.peril||!flow.chosen){
     // A different thing to protect starts its own declaration: "a flat in
     // Kadıköy" is not what is at risk on a flight.
-    flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[];
+    flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
     flow.place=null; flow.quoted=null; flow.refusal=null;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
@@ -5404,7 +5463,7 @@ function resetFlow(){
   flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
   flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
   flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
-  flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[];
+  flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
   CONTRACT={key:"",text:"",hash:""};
   if($("place"))$("place").value="";
 }
@@ -5420,6 +5479,15 @@ document.addEventListener("click",function(e){
 });
 $("next").addEventListener("click",function(){
   if(flow.step<CONFIRM_STEP){flow.step++;renderStep();return;}
+  var accepted=!link.live||(CONTRACT.hash&&CONTRACT.key===contractKey()&&$("accept").checked);
+  if(!accepted){
+    var box=$("contract-box"); box.hidden=false;
+    box.scrollIntoView({behavior:"smooth",block:"center"});
+    var label=$("accept").parentNode; label.classList.add("nudge");
+    setTimeout(function(){ label.classList.remove("nudge"); },1800);
+    setTimeout(function(){ $("accept").focus(); },500);
+    return;
+  }
   startPurchase();
 });
 
@@ -5464,6 +5532,12 @@ function renderInterest(){
   if(!interest.what&&flow.peril==="flight")interest.what=t("one flight, and what missing it costs");
   $("what").value=interest.what;
   if(!interest.what&&flow.peril==="car")interest.what=t("my car");
+  // A home is named after its place; the buyer can change the words. And
+  // the place the buyer chose is where the home stands, so it is inside the
+  // area by construction: nothing to confirm that the address did not.
+  if(!interest.what&&flow.peril==="quake"&&flow.place)interest.what=t("A flat in {place}",{place:subjectLabel()});
+  if(!interest.what&&flow.peril==="storm"&&flow.place)interest.what=t("A house in {place}",{place:subjectLabel()});
+  if(!interest.insideTouched&&(flow.peril==="quake"||flow.peril==="storm"||flow.peril==="car"))interest.inside=true;
   $("what").placeholder = flow.peril==="car" ? t("my car") : flow.peril==="quake" ? t("A flat in {place}",{place:subjectLabel()})
     : flow.peril==="storm" ? t("A house in {place}",{place:subjectLabel()})
     : flow.peril==="drought" ? t("40 hectares of wheat") : t("one flight, and what missing it costs");
@@ -5757,6 +5831,7 @@ $("value").addEventListener("input",function(e){
   renderInterest();
 });
 $("inside").addEventListener("click",function(){
+  flow.interest.insideTouched=true;
   flow.interest.inside=!flow.interest.inside;
   $("inside").setAttribute("aria-pressed",String(flow.interest.inside));
   setNextLabel();
@@ -7794,9 +7869,92 @@ function closeRider(){
   $("rider-open").hidden=false;
 }
 
+/* ---------------- readings behind the hero ---------------- */
+(function(){
+  var canvas=$("hero-fx"); if(!canvas||!canvas.getContext)return;
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){ canvas.remove(); return; }
+  var ctx=canvas.getContext("2d"), hero=canvas.parentNode, swarms=[], w=0, h=0, dpr=1, last=0, nextAt=0, seen=true, pointer=null, pointerAt=0;
+  var narrow=function(){ return w<760; };
+  function colours(){
+    var cs=getComputedStyle(document.documentElement);
+    return [cs.getPropertyValue("--signal").trim()||"#FF6A2B", cs.getPropertyValue("--settled").trim()||"#24D3A5", cs.getPropertyValue("--ink-3").trim()||"#5B6875"];
+  }
+  var palette=colours();
+  new MutationObserver(function(){ palette=colours(); }).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+  function size(){
+    var r=hero.getBoundingClientRect(); w=Math.max(1,Math.round(r.width)); h=Math.max(1,Math.round(r.height));
+    dpr=Math.min(2,window.devicePixelRatio||1); canvas.width=w*dpr; canvas.height=h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function spawn(x,y,strong){
+    if(swarms.length>=(narrow()?8:14))return;
+    var bars=Math.random()<0.45, life=3200+Math.random()*2200;
+    swarms.push({x:x,y:y,bars:bars,born:performance.now(),life:life,
+      cols:bars?10+Math.floor(Math.random()*12):5+Math.floor(Math.random()*5),
+      rows:bars?1:3+Math.floor(Math.random()*4),
+      cell:bars?4:5, tall:bars?14+Math.random()*26:0,
+      colour:palette[Math.floor(Math.random()*palette.length)],
+      phase:Math.random()*Math.PI*2, drift:(Math.random()-.5)*6, rise:4+Math.random()*10,
+      seed:Math.random()*1000, alpha:strong?.95:.75});
+  }
+  function place(){
+    // Mostly off the text: the right two thirds on a wide screen, anywhere
+    // when the hero is a single column.
+    var x=narrow()?Math.random()*w:w*(0.42+Math.random()*0.58), y=h*(0.08+Math.random()*0.84);
+    spawn(x,y,false);
+  }
+  var frame=0;
+  function draw(now){
+    if(!seen||document.hidden||hero.offsetParent===null){ last=now; requestAnimationFrame(draw); return; }
+    // Sized when first seen, and again if the hero changes shape: at load
+    // the home view may not be shown yet and would measure as nothing.
+    if(frame++%30===0){ var r=hero.getBoundingClientRect(); if(Math.round(r.width)!==w||Math.round(r.height)!==h)size(); }
+    if(now>=nextAt){ place(); nextAt=now+(narrow()?1400:750)+Math.random()*700; }
+    if(pointer&&now-pointerAt<80&&Math.random()<0.5){ spawn(pointer.x+(Math.random()-.5)*90,pointer.y+(Math.random()-.5)*60,true); pointerAt=0; }
+    ctx.clearRect(0,0,w,h);
+    for(var i=swarms.length-1;i>=0;i--){
+      var s=swarms[i], t=(now-s.born)/s.life;
+      if(t>=1){ swarms.splice(i,1); continue; }
+      var env=Math.sin(Math.PI*t), ox=s.x+s.drift*t*10, oy=s.y-s.rise*t;
+      ctx.fillStyle=s.colour;
+      if(s.bars){
+        for(var c=0;c<s.cols;c++){
+          var k=Math.sin(s.phase+c*0.55+t*6)*0.5+0.5, hh=2+s.tall*k*env;
+          ctx.globalAlpha=s.alpha*env*(0.35+0.65*k);
+          ctx.fillRect(ox+c*s.cell,oy-hh/2,1.6,hh);
+        }
+      }else{
+        for(var r=0;r<s.rows;r++)for(var c2=0;c2<s.cols;c2++){
+          var n=Math.sin(s.seed+r*1.7+c2*2.3+t*5)*0.5+0.5;
+          if(n<0.35)continue;
+          ctx.globalAlpha=s.alpha*env*n;
+          ctx.fillRect(ox+c2*s.cell,oy+r*s.cell,2,2);
+        }
+      }
+    }
+    ctx.globalAlpha=1; last=now;
+    requestAnimationFrame(draw);
+  }
+  size(); window.addEventListener("resize",size);
+  if("IntersectionObserver" in window)new IntersectionObserver(function(es){ seen=es[0].isIntersecting; }).observe(hero);
+  hero.addEventListener("pointermove",function(e){ var r=hero.getBoundingClientRect(); pointer={x:e.clientX-r.left,y:e.clientY-r.top}; pointerAt=performance.now(); },{passive:true});
+  // Rider thinking or hovered: the readings come faster, as if it were reading them.
+  var rider=$("rider"), fab=$("rider-open");
+  if(fab)fab.addEventListener("pointerenter",function(){ for(var i=0;i<3;i++)spawn(w*(0.7+Math.random()*0.3),h*(0.5+Math.random()*0.5),true); });
+  if(rider)new MutationObserver(function(){ if(rider.classList.contains("thinking"))nextAt=0; }).observe(rider,{attributes:true,attributeFilter:["class"]});
+  requestAnimationFrame(draw);
+})();
+(function(){
+  // Twenty eight bars, a wave running through them: each starts a little
+  // later than the one before, so the crest travels right to left.
+  var wave=$("rider-wave"); if(!wave)return;
+  var bars="";
+  for(var i=0;i<24;i++)bars+='<i style="left:'+(i*4)+'px;animation-delay:'+(-(i*0.11)).toFixed(2)+'s"></i>';
+  wave.innerHTML=bars;
+})();
 function askRider(question){
   if(rider.busy||!question)return;
   rider.busy=true;
+  $("rider").classList.add("thinking");
   $("rider-send").disabled=true;
   riderSay("user", question);
   renderThread('<div class="msg it">…</div>');
@@ -7809,7 +7967,7 @@ function askRider(question){
     // Only this browser holds it; the model never sees it.
     mandate_token:mandateToken()||undefined,
   }}).then(function(reply){
-    rider.busy=false; $("rider-send").disabled=false;
+    rider.busy=false; $("rider-send").disabled=false; $("rider").classList.remove("thinking");
     if(reply.bought&&currentRoute()==="/mine")renderMine();
     var used=(reply.tools||[]).map(function(tool){return tool.name;});
     riderSay("assistant", reply.text||t("I could not answer that."));
@@ -7817,7 +7975,7 @@ function askRider(question){
       renderThread('<div class="used">'+esc(t("asked the protocol: {tools}",{tools:used.join(", ")}))+'</div>');
     }
   },function(error){
-    rider.busy=false; $("rider-send").disabled=false;
+    rider.busy=false; $("rider-send").disabled=false; $("rider").classList.remove("thinking");
     var detail=(error&&error.payload&&error.payload.detail)||
       t("Rider could not answer just now.");
     riderSay("assistant", ts(String(detail)));

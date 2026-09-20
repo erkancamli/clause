@@ -1688,7 +1688,10 @@
     "provinces": "県",
     "renewal": "更新",
     "showing the first {n}": "最初の{n}件を表示",
-    "{n} policies": "{n}件の契約"
+    "{n} policies": "{n}件の契約",
+    "Keep this company and hide the others": "この会社のままにして他を隠す",
+    "Compare {n} other companies": "他の{n}社と比較する",
+    "Why this can be written here, and by whom": "なぜここで、誰が引き受けられるのか"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
