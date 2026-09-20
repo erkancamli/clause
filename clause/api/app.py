@@ -830,12 +830,9 @@ def create_app(
         if run_chain:
             chain.start()
             logger.info("chain producing blocks from height %s", chain.height)
-        # Tokens minted before the anchor existed are owed to the chain too;
-        # the first root is built now so the proof page has one from the start.
-        backfilled = anchor.backfill()
-        if backfilled:
-            logger.info("anchor: %s tokens from before anchoring queued for the chain", backfilled)
-        anchor.anchor_root()
+        # The anchor's first cycle (tokens owed from before, the first root)
+        # runs on its own thread: a big book takes seconds to hash and the
+        # service must answer its health check before that.
         if run_chain:
             anchor.start()
 

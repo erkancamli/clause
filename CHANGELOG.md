@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.1, 20 September 2026
+
+- The anchor's first cycle runs on its own thread, not on the startup
+  path: on the live book, hashing every policy into the first root took
+  longer than the install's health window and 1.7.0 was declared down
+  while it was still starting. Keccak is twice as fast (the permutation
+  unrolled), a policy's leaf is hashed once and kept until the policy
+  changes, the tree behind each recent root is kept so a proof is a
+  lookup, and a cycle that finds the same leaves builds nothing.
+
 ## 1.7.0, 20 September 2026
 
 - A public chain beside the protocol's own. Base Sepolia is told of each
