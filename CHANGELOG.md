@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.10.1, 20 September 2026
+
+- The illustrations are alive. On the home page the trigger loop runs:
+  the trace draws itself across the trigger line, the epicentre pulses
+  and its rings ripple, the attestation runs along the arrow, the payout
+  card lands with its tick, and the block the payout settled in keeps
+  counting. On the five cards the weather moves: rings from the
+  epicentre, a turning sun and rising heat over the field with the gauge
+  breathing, the plane arriving as the delay bar grows, rain falling and
+  water lapping at the car, wind and gusts streaming past the bending
+  tree and the lifting tile. All of it is CSS on the SVGs, so it costs
+  nothing to run, and none of it runs for a browser that asks for less
+  motion: the still art stands, whole.
+
 ## 1.10.0, 20 September 2026
 
 - Three bordereaux for the company's desk and its reinsurer, month by

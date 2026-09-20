@@ -641,6 +641,56 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .a-signal{stroke:var(--signal);fill:none}
 .a-signal-f{fill:var(--signal)}
 .a-settled{stroke:var(--settled);fill:none}
+
+/* ---- living illustrations: the trigger loop on the hero, the weather on the
+   cards. All of it is CSS on the SVG, so it costs nothing to run, and none of
+   it runs for a browser that asks for less motion: the still art stands. ---- */
+@media (prefers-reduced-motion:no-preference){
+.art .hx-ring,.art .hx-epi,.art .hx-dot,.art .hx-card,.art .hx-attest,.art .bq-ring,.art .bq-epi,.art .bq-glow,.art .bd-sun,.art .bd-core,.art .bd-heat,.art .bd-fill,.art .bf-plane,.art .bf-late,.art .bf-delay,.art .bc-rain,.art .bc-water,.art .bs-wind,.art .bs-gust,.art .bs-tree,.art .bs-tile{transform-box:fill-box;transform-origin:center}
+.hx-ring{animation:hxRing 3.6s ease-out infinite}.hx-r2{animation-delay:1.2s}.hx-r3{animation-delay:2.4s}
+@keyframes hxRing{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.15);opacity:0}}
+.hx-epi,.bq-epi{animation:hxEpi 1.8s ease-in-out infinite}
+@keyframes hxEpi{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
+.hx-trace{stroke-dasharray:var(--len,900);stroke-dashoffset:var(--len,900);animation:hxTrace 6s linear infinite}
+@keyframes hxTrace{0%{stroke-dashoffset:var(--len,900);opacity:1}38%{stroke-dashoffset:0;opacity:1}92%{stroke-dashoffset:0;opacity:1}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:var(--len,900);opacity:0}}
+.hx-dot{opacity:0;animation:hxDot 6s linear infinite}
+@keyframes hxDot{0%,40%{transform:translateX(0);opacity:0}42%{opacity:1}50%{transform:translateX(34px);opacity:1}52%,100%{transform:translateX(34px);opacity:0}}
+.hx-attest{opacity:.3;animation:hxAttest 6s linear infinite}
+@keyframes hxAttest{0%,44%{opacity:.3}50%,90%{opacity:1}96%,100%{opacity:.3}}
+.hx-card{animation:hxCard 6s ease-out infinite}
+@keyframes hxCard{0%,52%{opacity:0;transform:scale(.94)}58%{opacity:1;transform:scale(1.03)}62%{transform:scale(1)}92%{opacity:1;transform:scale(1)}97%,100%{opacity:0;transform:scale(.98)}}
+.hx-check{stroke-dasharray:22;stroke-dashoffset:22;animation:hxCheck 6s linear infinite}
+@keyframes hxCheck{0%,56%{stroke-dashoffset:22}64%,100%{stroke-dashoffset:0}}
+.bq-ring{animation:bqRing 4.4s ease-out infinite}.bq-2{animation-delay:1.1s}.bq-3{animation-delay:2.2s}.bq-4{animation-delay:3.3s}
+@keyframes bqRing{0%{transform:scale(.72);opacity:.85}100%{transform:scale(1.12);opacity:0}}
+.bq-glow{animation:bqGlow 1.8s ease-in-out infinite}
+@keyframes bqGlow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.35);opacity:1}}
+.bd-sun{stroke-dasharray:7 4;animation:bdSun 16s linear infinite}
+@keyframes bdSun{to{transform:rotate(360deg)}}
+.bd-core{animation:bdCore 3s ease-in-out infinite}
+@keyframes bdCore{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(1.25);opacity:.6}}
+.bd-heat{animation:bdHeat 2.6s ease-out infinite}
+@keyframes bdHeat{0%{transform:translateY(4px);opacity:0}30%{opacity:1}100%{transform:translateY(-10px);opacity:0}}
+.bd-fill{transform-origin:center bottom;animation:bdFill 5s ease-in-out infinite}
+@keyframes bdFill{0%,100%{transform:scaleY(1.18)}50%{transform:scaleY(.95)}}
+.bf-plane{animation:bfPlane 5.5s ease-in-out infinite}
+@keyframes bfPlane{0%{transform:translate(-118px,30px) rotate(-6deg);opacity:0}12%{opacity:1}70%{transform:translate(0,0) rotate(0);opacity:1}92%{transform:translate(0,-2px);opacity:1}100%{transform:translate(0,-2px);opacity:0}}
+.bf-late{transform-origin:left center;animation:bfLate 5.5s ease-in-out infinite}
+@keyframes bfLate{0%,40%{transform:scaleX(0)}75%,100%{transform:scaleX(1)}}
+.bf-delay{animation:bfDelay 5.5s linear infinite}
+@keyframes bfDelay{0%,70%{opacity:0}80%,100%{opacity:1}}
+.bc-rain{animation:bcRain 1.4s linear infinite}.bc-r2{animation-delay:.7s;animation-duration:1.9s}
+@keyframes bcRain{0%{transform:translateY(-14px);opacity:0}25%{opacity:.8}100%{transform:translateY(22px);opacity:0}}
+.bc-water{animation:bcWater 3.4s ease-in-out infinite}
+@keyframes bcWater{0%,100%{transform:translate(0,2px)}50%{transform:translate(28px,-2px)}}
+.bs-wind{animation:bsWind 2.2s linear infinite}.bs-gust{animation:bsGust 2.2s linear infinite;animation-delay:.6s}
+@keyframes bsWind{0%{transform:translateX(-26px);opacity:0}30%{opacity:.7}100%{transform:translateX(30px);opacity:0}}
+@keyframes bsGust{0%{transform:translateX(-40px);opacity:0}30%{opacity:.9}100%{transform:translateX(40px);opacity:0}}
+.bs-tree{transform-origin:0% 100%;animation:bsTree 2.2s ease-in-out infinite}
+@keyframes bsTree{0%,100%{transform:rotate(0)}50%{transform:rotate(7deg)}}
+.bs-tile{animation:bsTile 2.2s ease-in-out infinite}
+@keyframes bsTile{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(6px,-4px) rotate(12deg)}}
+}
 .a-settled-f{fill:var(--settled)}
 .a-settled-w{fill:var(--settled-wash)}
 .a-signal-w{fill:var(--signal-wash)}
@@ -853,19 +903,20 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
           </defs>
 
           <!-- ground rings around the epicentre -->
-          <circle class="a-edge-soft" cx="66" cy="196" r="34"/>
-          <circle class="a-edge-soft" cx="66" cy="196" r="62"/>
-          <circle class="a-edge-soft" cx="66" cy="196" r="92"/>
-          <circle class="a-signal-f" cx="66" cy="196" r="4"/>
+          <circle class="a-edge-soft hx-ring hx-r1" cx="66" cy="196" r="34"/>
+          <circle class="a-edge-soft hx-ring hx-r2" cx="66" cy="196" r="62"/>
+          <circle class="a-edge-soft hx-ring hx-r3" cx="66" cy="196" r="92"/>
+          <circle class="a-signal-f hx-epi" cx="66" cy="196" r="4"/>
 
           <!-- the trace, crossing the trigger -->
           <line class="a-signal a-dash" x1="24" y1="140" x2="286" y2="140"/>
           <text x="24" y="132" font-size="9.5" letter-spacing="1.2" data-i18n>TRIGGER  M5.5</text>
-          <path class="a-settled" stroke-width="1.6" d="M24 196 40 194 52 199 64 193 76 198 88 195 100 197 112 194 124 198 132 196 140 158 146 232 152 118 158 258 164 136 170 226 176 170 184 206 192 186 200 200 210 192 222 198 234 194 248 197 262 195 276 196 286 196"/>
+          <path id="hero-trace" class="a-settled hx-trace" stroke-width="1.6" d="M24 196 40 194 52 199 64 193 76 198 88 195 100 197 112 194 124 198 132 196 140 158 146 232 152 118 158 258 164 136 170 226 176 170 184 206 192 186 200 200 210 192 222 198 234 194 248 197 262 195 276 196 286 196"/>
           <text x="152" y="282" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04</text>
 
           <line class="a-edge" x1="298" y1="196" x2="336" y2="196" marker-end="url(#ah)" stroke-width="1.2"/>
-          <text x="317" y="186" font-size="8.5" text-anchor="middle" letter-spacing="1" data-i18n>ATTESTED</text>
+          <circle class="a-signal-f hx-dot" cx="299" cy="196" r="2.6"/>
+          <text class="hx-attest" x="317" y="186" font-size="8.5" text-anchor="middle" letter-spacing="1" data-i18n>ATTESTED</text>
 
           <!-- the phone -->
           <rect class="a-panel" x="352" y="18" width="192" height="294" rx="26"/>
@@ -874,13 +925,15 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 
           <text x="372" y="72" font-size="9" letter-spacing="1.4" data-i18n>CLAUSE</text>
 
+          <g class="hx-card">
           <rect class="a-settled-w" x="370" y="86" width="156" height="92" rx="12"/>
           <rect class="a-settled" x="370" y="86" width="156" height="92" rx="12" stroke-width="1.1"/>
           <circle class="a-settled-f" cx="392" cy="112" r="11"/>
-          <path d="M387 112.5 390.5 116 397.5 108.5" fill="none" stroke="var(--panel)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="hx-check" d="M387 112.5 390.5 116 397.5 108.5" fill="none" stroke="var(--panel)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
           <text x="411" y="109" font-size="9.5" letter-spacing="1.1" class="t-2" data-i18n>PAID TO YOU</text>
           <text x="411" y="129" font-size="19" class="big">25,000</text>
           <text x="386" y="160" font-size="9.5" class="t-2" data-i18n>no claim was filed</text>
+          </g>
 
           <rect class="a-sunk" x="370" y="194" width="156" height="11" rx="5.5"/>
           <rect class="a-sunk" x="370" y="213" width="118" height="11" rx="5.5"/>
@@ -888,7 +941,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 
           <line class="a-edge-soft" x1="370" y1="262" x2="526" y2="262" stroke-width="1"/>
           <text x="370" y="282" font-size="9" data-i18n>settled in block</text>
-          <text x="526" y="282" font-size="9" text-anchor="end" class="t-2">412,388</text>
+          <text id="hero-block" x="526" y="282" font-size="9" text-anchor="end" class="t-2">412,388</text>
         </svg>
       </figure>
     </div>
@@ -906,9 +959,9 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
           </defs>
           <rect x="0" y="0" width="320" height="120" fill="url(#gq-ground)"/>
           <g fill="none" stroke="var(--signal)" stroke-width="1">
-            <circle cx="232" cy="72" r="26" opacity=".9"/><circle cx="232" cy="72" r="50" opacity=".55"/><circle cx="232" cy="72" r="78" opacity=".3"/><circle cx="232" cy="72" r="108" opacity=".14"/>
+            <circle class="bq-ring bq-1" cx="232" cy="72" r="26" opacity=".9"/><circle class="bq-ring bq-2" cx="232" cy="72" r="50" opacity=".55"/><circle class="bq-ring bq-3" cx="232" cy="72" r="78" opacity=".3"/><circle class="bq-ring bq-4" cx="232" cy="72" r="108" opacity=".14"/>
           </g>
-          <circle cx="232" cy="72" r="18" fill="url(#gq-glow)"/><circle cx="232" cy="72" r="3.5" fill="var(--signal)"/>
+          <circle class="bq-glow" cx="232" cy="72" r="18" fill="url(#gq-glow)"/><circle class="bq-epi" cx="232" cy="72" r="3.5" fill="var(--signal)"/>
           <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
           <g class="a-ink">
             <path d="M58 98V66l30-24 30 24v32Z" opacity=".92"/>
@@ -931,17 +984,17 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
             <linearGradient id="gd-field" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".18"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity=".04"/></linearGradient>
           </defs>
           <rect x="0" y="0" width="320" height="120" fill="url(#gd-sky)"/>
-          <circle cx="60" cy="34" r="16" fill="none" stroke="var(--hold)" stroke-width="1.4" opacity=".9"/>
-          <circle cx="60" cy="34" r="7" fill="var(--hold)" opacity=".35"/>
+          <circle class="bd-sun" cx="60" cy="34" r="16" fill="none" stroke="var(--hold)" stroke-width="1.4" opacity=".9"/>
+          <circle class="bd-core" cx="60" cy="34" r="7" fill="var(--hold)" opacity=".35"/>
           <path d="M0 84c60-18 120-18 180 0s100 14 140 6v30H0Z" fill="url(#gd-field)"/>
           <g fill="none" stroke="var(--ink-3)" stroke-width="1" opacity=".55">
             <path d="M0 92c60-14 120-14 180 2M0 102c60-14 120-14 180 2M0 112c60-14 120-14 180 2"/>
           </g>
-          <g fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round">
+          <g class="bd-heat" fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round">
             <path d="M40 96V80M34 86l6-7 6 7M74 98V78M68 84l6-7 6 7M108 100V84M102 90l6-7 6 7"/>
           </g>
           <rect x="228" y="18" width="30" height="82" rx="8" fill="var(--panel)" stroke="var(--edge-2)" stroke-width="1.2"/>
-          <rect x="231" y="72" width="24" height="25" rx="5" fill="var(--signal)" opacity=".85"/>
+          <rect class="bd-fill" x="231" y="72" width="24" height="25" rx="5" fill="var(--signal)" opacity=".85"/>
           <path d="M218 44h50" stroke="var(--ink-2)" stroke-width="1.1" stroke-dasharray="3 3"/>
           <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-2)">
             <text x="272" y="47" data-i18n>NORMAL</text><text x="272" y="88" fill="var(--signal)" data-i18n>THIS YEAR</text>
@@ -959,17 +1012,17 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
           </defs>
           <rect x="0" y="0" width="320" height="120" fill="url(#gf-sky)"/>
           <path d="M14 78C60 40 110 30 150 42" fill="none" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="2 4"/>
-          <g class="a-ink" transform="translate(150 42) rotate(-18)">
+          <g class="bf-plane"><g class="a-ink" transform="translate(150 42) rotate(-18)">
             <path d="M-30 6 6-2l16-14 6 2-10 16 24 2 4 4-30 8-8 10-6 0 2-10-14 2Z" opacity=".95"/>
-          </g>
+          </g></g>
           <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-3)">
             <text x="180" y="30" data-i18n>SCHEDULED</text><text x="180" y="72" data-i18n>ACTUAL</text>
           </g>
           <rect x="180" y="36" width="70" height="8" rx="4" fill="var(--ink-3)" opacity=".35"/>
           <rect x="180" y="78" width="130" height="8" rx="4" fill="var(--signal)" opacity=".18"/>
-          <rect x="250" y="78" width="60" height="8" rx="4" fill="url(#gf-late)"/>
+          <rect class="bf-late" x="250" y="78" width="60" height="8" rx="4" fill="url(#gf-late)"/>
           <path d="M250 24v70" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".8"/>
-          <text x="310" y="104" font-family="var(--mono)" font-size="9" text-anchor="end" fill="var(--signal)">+2h 40m</text>
+          <text class="bf-delay" x="310" y="104" font-family="var(--mono)" font-size="9" text-anchor="end" fill="var(--signal)">+2h 40m</text>
         </svg></figure>
         <h3 data-i18n>My trip</h3>
         <p data-i18n>Against a flight that lands late or never leaves.</p>
@@ -982,10 +1035,10 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
             <linearGradient id="gc-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".55"/><stop offset="1" stop-color="var(--signal)" stop-opacity=".15"/></linearGradient>
           </defs>
           <rect x="0" y="0" width="320" height="120" fill="url(#gc-rain)"/>
-          <g stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".7">
+          <g class="bc-rain bc-r1" stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".7">
             <path d="M30 10l-6 16M62 6l-6 16M94 12l-6 16M126 6l-6 16M158 12l-6 16M190 6l-6 16M222 12l-6 16M254 8l-6 16M286 12l-6 16"/>
           </g>
-          <g stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".35">
+          <g class="bc-rain bc-r2" stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".35">
             <path d="M46 34l-6 16M110 30l-6 16M174 34l-6 16M238 30l-6 16M302 34l-6 16"/>
           </g>
           <g class="a-ink">
@@ -994,7 +1047,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
           </g>
           <circle cx="76" cy="94" r="9" fill="var(--ink)"/><circle cx="76" cy="94" r="4" fill="var(--panel)"/>
           <circle cx="160" cy="94" r="9" fill="var(--ink)"/><circle cx="160" cy="94" r="4" fill="var(--panel)"/>
-          <path d="M0 96c20-6 40-6 60 0s40 6 60 0 40-6 60 0 40 6 60 0 40-6 80 0v24H0Z" fill="url(#gc-water)"/>
+          <path class="bc-water" d="M-40 96c20-6 40-6 60 0s40 6 60 0 40-6 60 0 40 6 60 0 40-6 60 0 40 6 60 0 40-6 80 0v24H-40Z" fill="url(#gc-water)"/>
           <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
           <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 10 YEARS</text>
         </svg></figure>
@@ -1009,10 +1062,10 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
             <linearGradient id="gs-gust" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--signal)" stop-opacity="0"/><stop offset="1" stop-color="var(--signal)"/></linearGradient>
           </defs>
           <rect x="0" y="0" width="320" height="120" fill="url(#gs-sky)"/>
-          <g fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-linecap="round" opacity=".7">
+          <g class="bs-wind" fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-linecap="round" opacity=".7">
             <path d="M8 22c40 0 60-8 100-8M20 40c50 0 70-10 130-10M6 58c30 0 50-6 80-6"/>
           </g>
-          <g fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" opacity=".9">
+          <g class="bs-gust" fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" opacity=".9">
             <path d="M120 30c50 0 80-8 140-8M150 48c40 0 70-6 120-6" stroke="url(#gs-gust)"/>
           </g>
           <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
@@ -1021,9 +1074,11 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
             <path d="M164 70 206 36l42 34" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </g>
           <rect x="198" y="78" width="16" height="20" rx="2" fill="var(--panel)"/>
-          <path d="M224 44l12-10 10 6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path class="bs-tile" d="M224 44l12-10 10 6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="bs-tree">
           <path d="M48 98c2-16 4-30 4-44" fill="none" stroke="var(--ink-2)" stroke-width="3" stroke-linecap="round"/>
           <path d="M52 56c22-18 46-16 62-2-10 4-18 12-20 24-8-8-22-10-42-6 8-6 12-10 0-16Z" fill="var(--ink-2)" opacity=".75"/>
+          </g>
           <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
           <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 25 YEARS</text>
         </svg></figure>
@@ -8437,6 +8492,16 @@ function closeRider(){
 
 /* ---------------- readings behind the hero ---------------- */
 (function(){
+  // The trigger loop: the trace draws itself over its own length, and the
+  // block the payout settled in keeps counting, the way a chain does.
+  (function(){
+    var trace=$("hero-trace");
+    if(trace&&trace.getTotalLength){ try{ trace.style.setProperty("--len",String(Math.ceil(trace.getTotalLength()))); }catch(e){} }
+    var block=$("hero-block");
+    if(!block||(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches))return;
+    var n=412388;
+    setInterval(function(){ if(document.hidden)return; n+=1; block.textContent=n.toLocaleString("en-US"); },1300);
+  })();
   var canvas=$("hero-fx"); if(!canvas||!canvas.getContext)return;
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){ canvas.remove(); return; }
   var ctx=canvas.getContext("2d"), hero=canvas.parentNode, swarms=[], w=0, h=0, dpr=1, last=0, nextAt=0, seen=true, pointer=null, pointerAt=0;
