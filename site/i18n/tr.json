@@ -1589,12 +1589,10 @@
     "Pays on the wind, before the next front": "Rüzgâra göre öder, bir sonraki cephe gelmeden",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "Fırtınada bir ev; rüzgâr çizgileri, eğilen bir ağaç ve işaretli aşırı rüzgâr seviyesi",
     "A house in {place}": "{place} içinde bir ev",
-    "Cover pays when a single day's wind there is extreme for that place: the once in ten, twenty five or fifty years level.": "Teminat, oradaki tek bir günün rüzgârı o yer için aşırı olduğunda öder: on, yirmi beş ya da elli yılda bir görülen seviye.",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "Önümüzdeki yıl {place} konumunda rüzgâr tek bir günde <b>{kmh} km/sa veya daha fazlasına</b> ulaşırsa <em>{first} USDC</em> alırsınız; {top} km/sa'te bu <em>{full}</em> olur. Şimdi <b>{premium} USDC</b> ödersiniz, bir daha asla başka bir şey ödemezsiniz.",
     "Less than {kmh} km/h in a day": "Bir günde {kmh} km/sa'ten az",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "{km} km uzaktaki {station} için NASA POWER'dan okunur; ulusal servis ve ERA5 ile karşılaştırılır. Değer, bölge üzerinde günün en kuvvetli saatidir ve bir istasyondaki hamleden düşüktür. Dolu, yıldırım, kar ve sel kapsam dışıdır.",
     "Reading the wind record for this place…": "Bu yerin rüzgâr kaydı okunuyor…",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Basamaklar bu yerin kendi on, yirmi beş ve elli yılda bir seviyelerindedir; böylece açık bir kıyı da korunaklı bir vadi de kendisi için aşırı olana göre öder.",
     "Storm cover is written only in Türkiye for now.": "Fırtına teminatı şimdilik yalnızca Türkiye'de yazılıyor.",
     "Storm cover needs the protocol, which is not reachable right now.": "Fırtına teminatı protokole ihtiyaç duyar; protokole şu anda ulaşılamıyor.",
     "This is the most the policy can pay you. What it would cost to make the home weathertight again is the usual guide.": "Bu, poliçenin size ödeyebileceği en yüksek tutardır. Evi yeniden hava geçirmez hale getirmenin maliyeti olağan ölçüdür.",
@@ -1604,7 +1602,10 @@
     "the place where the home stands, read at {station}": "evin bulunduğu yer, {station} istasyonundan okunur",
     "the wind record for the place": "yerin rüzgâr kaydı",
     "{kmh} km/h in one day": "bir günde {kmh} km/sa",
-    "{kmh} km/h or more in a day": "Bir günde {kmh} km/sa veya daha fazla"
+    "{kmh} km/h or more in a day": "Bir günde {kmh} km/sa veya daha fazla",
+    "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Teminat, oradaki tek bir günün rüzgârı o yer için aşırı olduğunda öder: yirmi beş, elli ya da yüz yılda bir görülen seviye.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Basamaklar bu yerin kendi yirmi beş, elli ve yüz yılda bir seviyelerindedir; böylece açık bir kıyı da korunaklı bir vadi de kendisi için aşırı olana göre öder.",
+    "1 IN 25 YEARS": "25 YILDA 1"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -100,10 +100,10 @@ def test_each_place_pays_on_what_is_extreme_there(wind) -> None:
         assert levels == sorted(levels) and [b.share for b in curve.breakpoints] == [0.25, 0.60, 1.00]
 
 
-def test_the_trigger_is_about_a_one_in_ten_year_day(wind) -> None:
+def test_the_trigger_is_about_a_one_in_twenty_five_year_day(wind) -> None:
     subject = STORM.validate_subject(dict(CANAKKALE))
     p = STORM.exceedance(subject, 365.25)(STORM.curve_for(subject).attachment)
-    assert p == pytest.approx(0.10, abs=0.005)
+    assert p == pytest.approx(0.04, abs=0.003)
     assert STORM.exceedance(subject, 182.625)(STORM.curve_for(subject).attachment) < p
 
 
@@ -118,7 +118,7 @@ def test_the_capital_model_agrees_with_the_price(wind) -> None:
     exposure = Exposure("s", "storm", subject, STORM.curve_for(subject), 1000.0, 365.25)
     losses = settle(exposure, WorldDraws.draw(trials=20000, years=1.0, seed=9))
     observed = sum(1 for x in losses if x > 0) / len(losses)
-    assert observed == pytest.approx(0.10, abs=0.01)
+    assert observed == pytest.approx(0.04, abs=0.006)
 
 
 def test_two_homes_under_one_front_settle_together(wind) -> None:
@@ -147,12 +147,12 @@ def test_a_storm_policy_settles_on_the_wind_reading_and_the_price_holds_in_the_b
                      settings=Settings(faucet=True, operator_token=TOKEN))
     with TestClient(app) as client:
         levels = client.get("/api/storm", params=CANAKKALE).json()
-        assert [l["years"] for l in levels["levels"]] == [10, 25, 50]
+        assert [l["years"] for l in levels["levels"]] == [25, 50, 100]
         subject = {**CANAKKALE, "place": "Çanakkale"}
         quoted = client.post("/api/quote", json={"peril": "storm", "subject": subject, "limit": 60_000, "term_days": 365})
         assert quoted.status_code == 200, quoted.text
         assert quoted.json()["can_write"] and quoted.json()["structure"][0].endswith("km/h, pays 25% of the limit")
-        assert 0.0 < quoted.json()["trigger_probability"] < 0.2
+        assert 0.02 < quoted.json()["trigger_probability"] < 0.08
         device = Device()
         address = client.post("/api/auth/register", json={"public_key": device.public}).json()["address"]
         interest = {"what": "a house in Çanakkale", "country": "TR", "inside_trigger_area": True,

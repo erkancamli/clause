@@ -1589,12 +1589,10 @@
     "Pays on the wind, before the next front": "風の記録で支払い、次の前線が来る前に",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "強風の中の家。風の筋、しなる木、極端な風の水準の印",
     "A house in {place}": "{place}の一軒家",
-    "Cover pays when a single day's wind there is extreme for that place: the once in ten, twenty five or fifty years level.": "その場所で一日の風がその土地にとって極端な水準、つまり十年、二十五年、五十年に一度の水準に達したときに支払われます。",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "今後一年のうちに{place}で一日の風が<b>{kmh} km/h 以上</b>に達すると、<em>{first} USDC</em>を受け取り、{top} km/h では<em>{full}</em>まで増えます。いま<b>{premium} USDC</b>を支払うだけで、その後は一切ありません。",
     "Less than {kmh} km/h in a day": "一日で {kmh} km/h 未満",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "{km} km 離れた{station}の NASA POWER から読み取り、国の気象機関と ERA5 で照合します。値は地域全体でのその日の最も強い一時間で、観測所の突風より低くなります。雹、落雷、雪、洪水は補償されません。",
     "Reading the wind record for this place…": "この場所の風の記録を読み込んでいます…",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "この場所自身の十年、二十五年、五十年に一度の水準に段があるため、風当たりの強い海岸も守られた谷も、それぞれにとって極端な風で支払われます。",
     "Storm cover is written only in Türkiye for now.": "暴風の補償は今のところ Türkiye でのみ引き受けています。",
     "Storm cover needs the protocol, which is not reachable right now.": "暴風の補償にはプロトコルが必要ですが、現在接続できません。",
     "This is the most the policy can pay you. What it would cost to make the home weathertight again is the usual guide.": "これはこの保険が支払える上限です。住まいを再び風雨に耐える状態に戻す費用が通常の目安です。",
@@ -1604,7 +1602,10 @@
     "the place where the home stands, read at {station}": "住まいのある場所、{station}で読み取り",
     "the wind record for the place": "その場所の風の記録",
     "{kmh} km/h in one day": "一日で {kmh} km/h",
-    "{kmh} km/h or more in a day": "一日で {kmh} km/h 以上"
+    "{kmh} km/h or more in a day": "一日で {kmh} km/h 以上",
+    "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "その場所で一日の風がその土地にとって極端な水準、つまり二十五年、五十年、百年に一度の水準に達したときに支払われます。",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "この場所自身の二十五年、五十年、百年に一度の水準に段があるため、風当たりの強い海岸も守られた谷も、それぞれにとって極端な風で支払われます。",
+    "1 IN 25 YEARS": "25年に1度"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

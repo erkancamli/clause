@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0, 20 September 2026
+
+- Storm cover steps one level rarer: the place's own 1 in 25, 1 in 50 and
+  1 in 100 year wind day, paying 25, 60 and 100 per cent, instead of 1 in
+  10, 25 and 50. A 1 in 10 year day is one most homes see within a decade
+  and one that takes tiles rather than roofs; paying a quarter of the
+  rebuild cost on it made a year of storm cover cost about twice an
+  Istanbul earthquake policy. The expected loss falls from 4.7% to 2.1% of
+  the limit and the premium roughly halves. Cover already written keeps
+  the steps on its contract.
+
 ## 1.2.2, 19 September 2026
 
 - A book saved by an earlier build carries the stand in companies with the

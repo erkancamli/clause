@@ -1589,12 +1589,10 @@
     "Pays on the wind, before the next front": "Zahlt nach dem Wind, vor der nächsten Front",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "Ein Haus im Sturm, mit Windstreifen, einem sich biegenden Baum und einer markierten Extremwindmarke",
     "A house in {place}": "Ein Haus in {place}",
-    "Cover pays when a single day's wind there is extreme for that place: the once in ten, twenty five or fifty years level.": "Die Deckung zahlt, wenn der Wind eines einzelnen Tages dort für diesen Ort extrem ist: das Niveau, das einmal in zehn, fünfundzwanzig oder fünfzig Jahren erreicht wird.",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "Erreicht der Wind in {place} im kommenden Jahr an einem Tag <b>{kmh} km/h oder mehr</b>, erhalten Sie <em>{first} USDC</em>, ansteigend auf <em>{full}</em> bei {top} km/h. Sie zahlen jetzt <b>{premium} USDC</b> und nie wieder etwas.",
     "Less than {kmh} km/h in a day": "Weniger als {kmh} km/h an einem Tag",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "Aus NASA POWER bei {station} gelesen, {km} km entfernt, und gegen den nationalen Dienst und ERA5 geprüft. Der Wert ist die stärkste Stunde des Tages über dem Gebiet, niedriger als eine Böe an einer Station. Hagel, Blitz, Schnee und Hochwasser sind nicht gedeckt.",
     "Reading the wind record for this place…": "Windaufzeichnung für diesen Ort wird gelesen …",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Stufen auf den ortseigenen Niveaus von einmal in zehn, fünfundzwanzig und fünfzig Jahren, sodass eine exponierte Küste und ein geschütztes Tal jeweils nach dem zahlen, was für sie extrem ist.",
     "Storm cover is written only in Türkiye for now.": "Sturmdeckung wird vorerst nur in Türkiye gezeichnet.",
     "Storm cover needs the protocol, which is not reachable right now.": "Sturmdeckung braucht das Protokoll, das gerade nicht erreichbar ist.",
     "This is the most the policy can pay you. What it would cost to make the home weathertight again is the usual guide.": "Das ist das Höchste, was die Police Ihnen zahlen kann. Was es kosten würde, das Haus wieder wetterdicht zu machen, ist der übliche Maßstab.",
@@ -1604,7 +1602,10 @@
     "the place where the home stands, read at {station}": "der Ort, an dem das Haus steht, gelesen bei {station}",
     "the wind record for the place": "die Windaufzeichnung für den Ort",
     "{kmh} km/h in one day": "{kmh} km/h an einem Tag",
-    "{kmh} km/h or more in a day": "{kmh} km/h oder mehr an einem Tag"
+    "{kmh} km/h or more in a day": "{kmh} km/h oder mehr an einem Tag",
+    "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Die Deckung zahlt, wenn der Wind eines einzelnen Tages dort für diesen Ort extrem ist: das Niveau, das einmal in fünfundzwanzig, fünfzig oder hundert Jahren erreicht wird.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Stufen auf den ortseigenen Niveaus von einmal in fünfundzwanzig, fünfzig und hundert Jahren, sodass eine exponierte Küste und ein geschütztes Tal jeweils nach dem zahlen, was für sie extrem ist.",
+    "1 IN 25 YEARS": "1 IN 25 JAHREN"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

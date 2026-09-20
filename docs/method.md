@@ -151,9 +151,17 @@ for rain, WS10M_MAX for wind, the latter in km/h) at the nearest of Türkiye's
 81 provincial centres: the largest value in each calendar year, and a Gumbel
 distribution fitted to those maxima by probability weighted moments. The
 exceedance over a term of `t` years is `1 - (1 - p)^t` with `p` the annual
-exceedance, and the steps of the curve are the place's own 1 in 10, 1 in 25
-and 1 in 50 year levels, so a wet coast and a dry plateau, an exposed cape
-and a sheltered valley, each pay on what is extreme where they are.
+exceedance, and the steps of the curve are the place's own return levels, so
+a wet coast and a dry plateau, an exposed cape and a sheltered valley, each
+pay on what is extreme where they are. The car cover steps at 1 in 10, 25
+and 50 years. The storm cover steps one level rarer, at 1 in 25, 50 and 100:
+a 1 in 10 year wind day is one most homes see within a decade and one that
+takes tiles rather than roofs, and paying a quarter of the rebuild cost on
+it made the cover cost about twice what an Istanbul earthquake policy does
+(expected loss 4.7% of the limit against 2.4%) for a loss that is a fraction
+of it. At 25/50/100 the expected loss is 2.1% of the limit. The 1 in 100
+level is an extrapolation of a thirty year fit, one step beyond the levels
+the build tests, and the basis risk says so.
 
 The test is fixed before the first run and identical for both: fitted on
 1981 to 2010, tested on 2011 onward; the count of test years above each

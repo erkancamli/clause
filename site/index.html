@@ -998,7 +998,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
           <path d="M48 98c2-16 4-30 4-44" fill="none" stroke="var(--ink-2)" stroke-width="3" stroke-linecap="round"/>
           <path d="M52 56c22-18 46-16 62-2-10 4-18 12-20 24-8-8-22-10-42-6 8-6 12-10 0-16Z" fill="var(--ink-2)" opacity=".75"/>
           <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
-          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 10 YEARS</text>
+          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 25 YEARS</text>
         </svg></figure>
         <h3 data-i18n>My roof</h3>
         <p data-i18n>Against a storm: a day of extreme wind where the home stands.</p>
@@ -3868,7 +3868,7 @@ var PERILS={
          term:150,limits:[100,1000000],presets:[25000,50000,80000,150000]},
   car:{where:N("Where is the car kept?"),hint:N("Cover pays when a single day's rain there is extreme for that place: the once in ten, twenty five or fifty years level."),
          term:365,limits:[500,250000],presets:[5000,10000,20000,40000]},
-  storm:{where:N("Where is the home?"),hint:N("Cover pays when a single day's wind there is extreme for that place: the once in ten, twenty five or fifty years level."),
+  storm:{where:N("Where is the home?"),hint:N("Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level."),
          term:365,limits:[2000,1000000],presets:[20000,50000,100000,250000]},
   flight:{where:N("Which flight?"),hint:N("Cover pays on how late the flight lands, and in full if it is cancelled."),
          term:2,limits:[200,5000],presets:[500,1000,1500,3000]}};
@@ -4460,7 +4460,7 @@ function drawCurve(){
     x0=Math.max(0,Math.floor(sps[0][0]*0.6/10)*10); x1=Math.ceil(sps[2][0]*1.2/10)*10;
     xlabel=t("WIND IN ONE DAY, KM/H");
     ticks=[x0,Math.round(sps[0][0]),Math.round(sps[1][0]),Math.round(sps[2][0]),x1];
-    note=t("Steps at this place's own once in ten, twenty five and fifty years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.");
+    note=t("Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.");
   } else if(flow.peril==="drought"){
     var st=stationFor();
     x0=Math.round(st.normal*.30);x1=Math.round(st.normal*1.05);

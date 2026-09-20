@@ -1589,12 +1589,10 @@
     "Pays on the wind, before the next front": "Paie sur le vent, avant le front suivant",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "Une maison dans un coup de vent, avec des traînées de vent, un arbre qui plie et un niveau de vent extrême marqué",
     "A house in {place}": "Une maison à {place}",
-    "Cover pays when a single day's wind there is extreme for that place: the once in ten, twenty five or fifty years level.": "La couverture paie lorsque le vent d'une seule journée y est extrême pour ce lieu : le niveau atteint une fois tous les dix, vingt-cinq ou cinquante ans.",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "Si le vent à {place} atteint <b>{kmh} km/h ou plus</b> en une journée au cours de l'année à venir, vous recevez <em>{first} USDC</em>, montant à <em>{full}</em> à {top} km/h. Vous payez <b>{premium} USDC</b> maintenant, et plus jamais rien d'autre.",
     "Less than {kmh} km/h in a day": "Moins de {kmh} km/h en une journée",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "Lu dans NASA POWER à {station}, à {km} km, et vérifié contre le service national et ERA5. Le chiffre est l'heure la plus forte de la journée sur la zone, inférieur à une rafale en station. Grêle, foudre, neige et inondation ne sont pas couvertes.",
     "Reading the wind record for this place…": "Lecture du relevé de vent de ce lieu…",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Des paliers aux niveaux propres à ce lieu, une fois tous les dix, vingt-cinq et cinquante ans, de sorte qu'une côte exposée et une vallée abritée paient chacune sur ce qui est extrême pour elles.",
     "Storm cover is written only in Türkiye for now.": "La couverture tempête n'est souscrite qu'en Türkiye pour l'instant.",
     "Storm cover needs the protocol, which is not reachable right now.": "La couverture tempête a besoin du protocole, qui n'est pas joignable en ce moment.",
     "This is the most the policy can pay you. What it would cost to make the home weathertight again is the usual guide.": "C'est le maximum que la police peut vous verser. Ce que coûterait la remise hors d'eau du logement est le repère habituel.",
@@ -1604,7 +1602,10 @@
     "the place where the home stands, read at {station}": "le lieu où se trouve le logement, lu à {station}",
     "the wind record for the place": "le relevé de vent du lieu",
     "{kmh} km/h in one day": "{kmh} km/h en une journée",
-    "{kmh} km/h or more in a day": "{kmh} km/h ou plus en une journée"
+    "{kmh} km/h or more in a day": "{kmh} km/h ou plus en une journée",
+    "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "La couverture paie lorsque le vent d'une seule journée y est extrême pour ce lieu : le niveau atteint une fois tous les vingt-cinq, cinquante ou cent ans.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Des paliers aux niveaux propres à ce lieu, une fois tous les vingt-cinq, cinquante et cent ans, de sorte qu'une côte exposée et une vallée abritée paient chacune sur ce qui est extrême pour elles.",
+    "1 IN 25 YEARS": "1 FOIS EN 25 ANS"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

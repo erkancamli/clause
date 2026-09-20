@@ -3,8 +3,8 @@
 What it is, and what it is not
 ------------------------------
 This pays when the wind on one day where the home stands is extreme for that
-place: stronger than it gets, on average, once in ten, twenty five or fifty
-years. Roofs, chimneys, cladding and glass go in exactly those days, and a
+place: stronger than it gets, on average, once in twenty five, fifty or a
+hundred years. Roofs, chimneys, cladding and glass go in exactly those days, and a
 payout on the day, without an assessor, is what an owner needs to make the
 house weathertight before the next front.
 
@@ -22,7 +22,7 @@ centre nearest the home, read also from the national meteorological service
 and ERA5 by each validator. A reanalysis gives the strongest hour's mean over
 a cell of about fifty kilometres, not a gust at a station: gusts run half as
 much again above it, and more in a squall. The thresholds are that place's
-own 1 in 10, 1 in 25 and 1 in 50 year levels in the same series, so a cover on
+own 1 in 25, 1 in 50 and 1 in 100 year levels in the same series, so a cover on
 the Aegean coast and one in a sheltered valley each pay on what is extreme
 where they are, and the series a policy is priced on is the series it
 settles on.
@@ -41,7 +41,13 @@ from .geo import distance_km
 
 MODEL = Path(__file__).resolve().parents[1] / "hazard" / "models" / "wind_TR.json"
 MAX_DISTANCE_KM = 60.0
-LEVELS = ((10, 0.25), (25, 0.60), (50, 1.00))
+# One step rarer than the car cover's 10, 25 and 50. A 1 in 10 year wind day
+# is one most homes see within a decade and one that takes tiles rather than
+# roofs; paying a quarter of the rebuild cost on it made the cover cost about
+# twice what an Istanbul earthquake policy does, for a loss that is a fraction
+# of it. The 1 in 100 level is an extrapolation of a thirty year fit, one
+# step beyond the levels the build tests, and is stated as such.
+LEVELS = ((25, 0.25), (50, 0.60), (100, 1.00))
 
 
 @lru_cache(maxsize=1)
@@ -121,7 +127,7 @@ class Storm(Peril):
                                shape=Shape.STEP, direction=Direction.ABOVE)
 
     def default_curve(self) -> PayoutCurve:
-        return curve_from_spec([(70.0, 0.25), (85.0, 0.60), (100.0, 1.00)],
+        return curve_from_spec([(75.0, 0.25), (85.0, 0.60), (95.0, 1.00)],
                                shape=Shape.STEP, direction=Direction.ABOVE)
 
     def exceedance(self, subject: dict[str, Any], term_days: float) -> Callable[[float], float]:
