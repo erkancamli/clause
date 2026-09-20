@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.5.0, 20 September 2026
+
+- The platform is paid, by the companies and not the buyers. One per cent
+  of each premium comes out of the issuing company's fronting fee the
+  moment the fee is paid, never more than the fee itself, in proportion
+  when the fee arrives in instalments; the buyer's price stays the pool's
+  price. A fee that goes back to a buyer takes the platform's share back
+  with it. Every movement is an entry, and a company's month of entries is
+  its statement: on its own page (month by month, CSV), and for the
+  operator under a new "Platform and statements" tab with the platform's
+  totals by month and every company's statement (`/api/company/statements`,
+  `/api/operator/statements`).
+- The company's desk works its book. Search by policy number, street, place
+  or buyer (case and accent blind); filter by status, province and peril;
+  the policies ending within thirty days, for renewal; open cover grouped
+  by province; sort; CSV. The operator's "Buyers and policies" tab is the
+  same desk over the whole book (`/api/company/policies`,
+  `/api/operator/policies`).
+
 ## 1.4.1, 20 September 2026
 
 - A cancelled policy's token leaves the wallet. It stayed on My cover among
