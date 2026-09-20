@@ -1820,10 +1820,6 @@
     "The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.": "記録はプロトコル自身のチェーンです。その横で公開チェーン（Base Sepolia）に、発行・焼却された各トークン、各決済、そして一定間隔で台帳全体のルートが伝えられます。「証明」ページは送信内容を表示し、あなたの証券が台帳のどこにあるかをご自身のブラウザで検証できます。",
     "On {chain}: {state}": "{chain}上: {state}",
     "Not on a public chain yet.": "まだ公開チェーンに載っていません。",
-    "token minted": "トークン発行",
-    "token burned": "トークン焼却",
-    "settlement recorded": "決済を記録",
-    "root anchored": "ルートを固定",
     "On a public chain": "公開チェーン上",
     "The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer.": "記録はプロトコル自身のチェーンです。その横の公開チェーンは、ここでは誰も制御できない証人を保持します。各証券トークン、各決済、そして一定間隔で固定される台帳全体のルートです。",
     "Recorded here, not yet sent: the chain will be told the day the signer is funded.": "ここに記録済み、未送信です。署名者に残高が入った日にチェーンへ伝えられます。",
@@ -1843,7 +1839,11 @@
     "Check it in this browser": "このブラウザで検証",
     "The same check on the chain: verify(root, proof, leaf) on the book contract returns true.": "チェーン上でも同じ検証: 台帳コントラクトの verify(root, proof, leaf) が true を返します。",
     "Checks out: this leaf, hashed up through its siblings, gives the root.": "一致しました。このリーフを兄弟ノードとハッシュしていくとルートになります。",
-    "Does not match.": "一致しません。"
+    "Does not match.": "一致しません。",
+    "token mint": "トークン発行",
+    "token burn": "トークン焼却",
+    "settlement record": "決済記録",
+    "book root": "台帳ルート"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

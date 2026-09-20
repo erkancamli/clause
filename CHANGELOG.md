@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.4, 20 September 2026
+
+- A mint recorded before there was a signer carried the zero address as
+  its recipient, and the contract refused it once a signer sent it. The
+  recipient is now decided the moment the transaction is built, and a
+  mint that already failed for that reason is queued again with one.
+
 ## 1.7.3, 20 September 2026
 
 - `scripts/deploy_anchor.py --address` prints the signer's address without

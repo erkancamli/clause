@@ -1029,6 +1029,7 @@ def create_app(
     app.state.pipeline = pipeline
     app.state.documents = documents
     app.state.fees = fees
+    app.state.anchor = anchor
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets

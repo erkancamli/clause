@@ -1820,10 +1820,6 @@
     "The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.": "Das Register ist die eigene Chain des Protokolls. Daneben erfährt eine öffentliche Chain (Base Sepolia) von jedem geprägten oder verbrannten Token, jeder Abwicklung und in festen Abständen von der Wurzel des ganzen Buches. Die Seite Nachweis zeigt, was gesendet wurde, und lässt Sie den Platz Ihrer Police im Buch im eigenen Browser prüfen.",
     "On {chain}: {state}": "Auf {chain}: {state}",
     "Not on a public chain yet.": "Noch auf keiner öffentlichen Chain.",
-    "token minted": "Token geprägt",
-    "token burned": "Token verbrannt",
-    "settlement recorded": "Abwicklung festgehalten",
-    "root anchored": "Wurzel verankert",
     "On a public chain": "Auf einer öffentlichen Chain",
     "The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer.": "Das Register ist die eigene Chain des Protokolls. Eine öffentliche Chain daneben hält einen Zeugen, den hier niemand kontrolliert: jeden Policen-Token, jede Abwicklung und die Wurzel des ganzen Buches, in festen Abständen verankert.",
     "Recorded here, not yet sent: the chain will be told the day the signer is funded.": "Hier festgehalten, noch nicht gesendet: Die Chain erfährt es an dem Tag, an dem der Signierer Guthaben hat.",
@@ -1843,7 +1839,11 @@
     "Check it in this browser": "In diesem Browser prüfen",
     "The same check on the chain: verify(root, proof, leaf) on the book contract returns true.": "Dieselbe Prüfung auf der Chain: verify(root, proof, leaf) auf dem Buch-Vertrag gibt true zurück.",
     "Checks out: this leaf, hashed up through its siblings, gives the root.": "Stimmt: Dieses Blatt, über seine Geschwister gehasht, ergibt die Wurzel.",
-    "Does not match.": "Stimmt nicht überein."
+    "Does not match.": "Stimmt nicht überein.",
+    "token mint": "Token-Prägung",
+    "token burn": "Token-Verbrennung",
+    "settlement record": "Abwicklungseintrag",
+    "book root": "Buchwurzel"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

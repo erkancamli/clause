@@ -300,3 +300,30 @@ def test_the_backfill_queues_tokens_from_before_anchoring_but_not_burned_ones() 
     pool.policies["A"].is_open = False
     assert anchor.backfill() == 0 and sorted(i.policy_id for i in anchor.intents.values() if i.kind == "mint") == ["C"]
     assert anchor.proof("A")["verified"]
+
+
+def test_a_mint_recorded_before_there_was_a_signer_goes_to_the_signer_once_there_is_one(tmp_path, node) -> None:
+    # Recorded without a key: the recipient is nobody yet.
+    with TestClient(app_for(tmp_path, None, live=False)) as client:
+        device, address = register(client)
+        pid = buy_quake(client, device, address, 20_000)["policy_id"]
+        mint = client.get(f"/api/policies/{pid}/anchor").json()["intents"][0]
+        assert mint["payload"]["to"] == "0x" + "00" * 20
+    # The same book, now with a key: the mint goes to the signer, not to nobody.
+    with TestClient(app_for(tmp_path, node, live=True)) as client:
+        client.post("/api/operator/anchor/run", headers=OP)
+        mint = client.get(f"/api/policies/{pid}/anchor").json()["intents"][0]
+        assert mint["status"] == "sent" and mint["payload"]["to"] == SIGNER
+        raw = next(r for r in node.sent if rlp_decode(r[1:])[7][:4] == selector(CALLS["mint"]))
+        assert rlp_decode(raw[1:])[7][16:36] == to_address(SIGNER)
+    # And one that already failed for that reason is queued again with its recipient.
+    with TestClient(app_for(tmp_path, node, live=True)) as client:
+        anchor = client.app.state.anchor
+        device, address = register(client)
+        pid2 = buy_quake(client, device, address, 20_000)["policy_id"]
+        broken = next(i for i in anchor.intents.values() if i.kind == "mint" and i.policy_id == pid2)
+        broken.payload["to"] = "0x" + "00" * 20
+        broken.status, broken.error = "failed", "execution reverted: ZeroAddress()"
+        client.post("/api/operator/anchor/run", headers=OP)
+        again = client.get(f"/api/policies/{pid2}/anchor").json()["intents"][0]
+        assert again["status"] == "sent" and again["payload"]["to"] == SIGNER and again["error"] == ""

@@ -1828,10 +1828,6 @@
     "The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.": "Kayıt, protokolün kendi zinciridir. Yanında herkese açık bir zincire (Base Sepolia) her basılan veya yakılan token, her sonuçlandırma ve belirli aralıklarla tüm defterin kökü bildirilir. Kanıt sayfası neyin gönderildiğini gösterir ve poliçenizin defterdeki yerini kendi tarayıcınızda doğrulamanızı sağlar.",
     "On {chain}: {state}": "{chain} üzerinde: {state}",
     "Not on a public chain yet.": "Henüz herkese açık bir zincirde değil.",
-    "token minted": "token basıldı",
-    "token burned": "token yakıldı",
-    "settlement recorded": "sonuçlandırma kaydedildi",
-    "root anchored": "kök sabitlendi",
     "On a public chain": "Herkese açık bir zincirde",
     "The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer.": "Kayıt, protokolün kendi zinciridir. Yanındaki herkese açık zincir burada kimsenin kontrol etmediği bir tanık tutar: her poliçe tokeni, her sonuçlandırma ve belirli aralıklarla sabitlenen tüm defterin kökü.",
     "Recorded here, not yet sent: the chain will be told the day the signer is funded.": "Burada kaydedildi, henüz gönderilmedi: imzalayıcıya bakiye yüklendiği gün zincire bildirilecek.",
@@ -1851,7 +1847,11 @@
     "Check it in this browser": "Bu tarayıcıda doğrula",
     "The same check on the chain: verify(root, proof, leaf) on the book contract returns true.": "Aynı kontrol zincirde: defter sözleşmesinde verify(root, proof, leaf) true döner.",
     "Checks out: this leaf, hashed up through its siblings, gives the root.": "Doğru: bu yaprak, kardeşleriyle birlikte hashlendiğinde kökü veriyor.",
-    "Does not match.": "Eşleşmiyor."
+    "Does not match.": "Eşleşmiyor.",
+    "token mint": "token basımı",
+    "token burn": "token yakımı",
+    "settlement record": "sonuçlandırma kaydı",
+    "book root": "defter kökü"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

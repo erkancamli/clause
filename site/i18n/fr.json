@@ -1820,10 +1820,6 @@
     "The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.": "Le registre est la chaîne propre du protocole. À côté, une chaîne publique (Base Sepolia) reçoit chaque jeton émis ou brûlé, chaque règlement et, à intervalle régulier, la racine de tout le livre. La page Preuve montre ce qui a été envoyé et vous laisse vérifier dans votre propre navigateur la place de votre police dans le livre.",
     "On {chain}: {state}": "Sur {chain} : {state}",
     "Not on a public chain yet.": "Pas encore sur une chaîne publique.",
-    "token minted": "jeton émis",
-    "token burned": "jeton brûlé",
-    "settlement recorded": "règlement enregistré",
-    "root anchored": "racine ancrée",
     "On a public chain": "Sur une chaîne publique",
     "The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer.": "Le registre est la chaîne propre du protocole. Une chaîne publique à côté tient un témoin que personne ici ne contrôle : chaque jeton de police, chaque règlement et la racine de tout le livre, ancrée à intervalle régulier.",
     "Recorded here, not yet sent: the chain will be told the day the signer is funded.": "Enregistré ici, pas encore envoyé : la chaîne en sera informée le jour où le signataire sera approvisionné.",
@@ -1843,7 +1839,11 @@
     "Check it in this browser": "Vérifier dans ce navigateur",
     "The same check on the chain: verify(root, proof, leaf) on the book contract returns true.": "La même vérification sur la chaîne : verify(root, proof, leaf) sur le contrat du livre renvoie true.",
     "Checks out: this leaf, hashed up through its siblings, gives the root.": "Correct : cette feuille, hachée avec ses frères, donne la racine.",
-    "Does not match.": "Ne correspond pas."
+    "Does not match.": "Ne correspond pas.",
+    "token mint": "émission du jeton",
+    "token burn": "destruction du jeton",
+    "settlement record": "enregistrement du règlement",
+    "book root": "racine du livre"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
