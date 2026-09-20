@@ -188,7 +188,9 @@ policies arrive on its page with the clock running.
 
 Three things a person can point at. The whole price, premium and company
 fee together, is on the screen from the first place chosen, before anything
-personal is asked. The contract they accepted is theirs as a file, and the
+personal is asked, and the confirm step opens with every answer given, each
+with its way back, so a purchase is read over before it is made. The
+contract they accepted is theirs as a file, and the
 right to withdraw runs from the day it reached them (`docs/anchor.md` for
 the chain, `clause/protocol/cancellation.py` for the calendar). A complaint
 is a thread on the policy with the company's clock on it, and when the

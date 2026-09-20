@@ -295,6 +295,39 @@ them import from `clause.chain`.
 | GET | `/api/stream` | Server sent events: blocks, settlements, quotes |
 | GET | `/api/health` | Liveness |
 
+Every answer under `/api` carries `Cache-Control: no-store`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy:
+strict-origin-when-cross-origin`, a `Permissions-Policy` that turns the
+device APIs off, `X-Frame-Options: DENY` and a `Content-Security-Policy` of
+`default-src 'none'; frame-ancestors 'none'`. nginx says the same in front;
+the application says it itself so a deployment without nginx is no less
+careful.
+
+### Rate limits
+
+Two layers. nginx, per client address: 20 pricing requests a minute
+(`/api/quote`, `/api/offers`, `/api/contract`, a partner's quote; burst 5),
+3 purchases in a burst on the same zone, 240 reads a minute (burst 40), and
+12 open connections. The application, per caller (the session's address
+where there is one, otherwise the client address as nginx passes it), per
+class of work, in a fixed window; a refusal is `429` with the wait in the
+body and in `Retry-After`:
+
+| Work | Limit |
+| --- | --- |
+| `quote` (a price, the offers, the contract text) | 20 to 30 a minute |
+| `buy` (a policy, a rider's purchase) | 10 a minute |
+| `policy` (reading one's own cover, its contract, its complaints) | 60 a minute |
+| `auth` (a challenge, a session, a reading key, a profile link) | 20 to 60 a minute |
+| `geocode` | 40 a minute |
+| `rider` | 12 a minute |
+| `faucet` | 10 an hour |
+| `carrier` (registering, re-checking a register) | 5 in five minutes |
+| `operator` (a guessed operator token) | 8 in fifteen minutes |
+
+The limiter is in memory and per process, which is the right size for one
+server; behind several workers the real limit is nginx's.
+
 The interface is three static files and holds no state of its own. Everything
 it shows comes from the stream or from a fetch, so two browsers watching the
 same protocol see the same thing.

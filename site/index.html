@@ -12,7 +12,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 14h3.2l1.7-6 2.6 11 2.3-8 1.6 3h6.6' fill='none' stroke='%23FF6A2B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   color-scheme:dark;
@@ -84,7 +84,8 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;
 .brand svg{width:22px;height:22px;flex:none}
 .mainnav{display:flex;gap:2px;margin-right:auto;min-width:0;overflow-x:auto;scrollbar-width:none}
 .mainnav::-webkit-scrollbar{display:none}
-.brand{flex:none}
+.brand{flex:none;min-height:34px}
+.fine a.pad{display:inline-block;padding-block:5px}
 /* Longer languages: the same menu in less room, one line, scrolling if it
    still does not fit rather than breaking a label over three lines. */
 .mainnav a{white-space:nowrap}
@@ -129,15 +130,21 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
 .langsel:hover,.langsel:focus-within{border-color:var(--signal);color:var(--signal)}
 .langsel svg{width:15px;height:15px;flex:none}
 .langsel select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;
-  font:inherit;font-size:13px;padding:0 2px;cursor:pointer;max-width:92px}
+  font:inherit;font-size:13px;padding:0 2px;min-height:26px;cursor:pointer;max-width:92px}
 .langsel select:focus{outline:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 html.i18n-wait body{visibility:hidden}
 .langnote{background:var(--hold-wash);color:var(--ink-2);padding-block:5px;font-size:12px}
 .note-x{margin-left:auto;border:0;background:none;color:var(--ink-3);font-size:18px;line-height:1;
-  padding:2px 6px;cursor:pointer;border-radius:6px}
+  padding:4px 8px;min-width:28px;min-height:26px;cursor:pointer;border-radius:6px}
 .note-x:hover{background:var(--sunk);color:var(--ink)}
-.linkish{border:0;background:none;padding:0;font:inherit;color:var(--signal);text-decoration:underline;cursor:pointer}
+.linkish{border:0;background:none;padding:2px 0;min-height:24px;font:inherit;color:var(--signal);text-decoration:underline;cursor:pointer}
+.skip{position:absolute;left:-9999px;top:8px;z-index:100;padding:10px 14px;border-radius:9px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--signal);font-weight:600;text-decoration:none}
+.skip:focus{left:16px}
+main:focus{outline:none}
+input[type=file]{font:inherit;font-size:13.5px;padding:4px 0;min-height:28px}
+.leaflet-container .leaflet-control-attribution a{display:inline-block;padding-block:4px}
 details.orig{display:block;margin-top:6px;font-size:12.5px;color:var(--ink-3)}
 details.orig summary{cursor:pointer;color:var(--ink-3)}
 .icon-btn svg{width:15px;height:15px}
@@ -355,7 +362,7 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 .now-where{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3)}
 .now-where select{font:inherit;color:var(--ink);background:var(--raised,var(--bg));border:1px solid var(--edge);
   border-radius:8px;padding:4px 8px;max-width:220px}
-@media (max-width:640px){.now-where{margin-left:0;width:100%}.now-where select{flex:1;max-width:none}}
+@media (max-width:640px){.now-where{margin-left:0;width:100%}.now-where select{flex:1;min-width:0;max-width:none}}
 .band{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:0;
   border:1px solid var(--edge);border-radius:var(--r);background:var(--panel);overflow:hidden;margin-top:8px}
 .band-label{padding:8px 12px;border-right:1px solid var(--edge);display:grid;gap:2px;align-self:stretch;align-content:center}
@@ -485,7 +492,7 @@ h1 span{color:var(--signal)}
 .amount{padding:22px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);display:grid;gap:16px}
 .amount .big{font-family:var(--display);font-weight:700;font-size:clamp(34px,7vw,52px);line-height:1;
   letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-.amount .big small{font-size:.35em;color:var(--ink-3);margin-left:8px;letter-spacing:0;font-weight:500}
+.amount .big small{font-size:.35em;color:var(--ink-3);margin-left:8px;letter-spacing:0;font-weight:600}
 input[type=range]{width:100%;accent-color:var(--signal);background:transparent;height:28px}
 .presets{display:flex;flex-wrap:wrap;gap:8px}
 .presets button{padding:7px 13px;border-radius:999px;border:1px solid var(--edge-2);background:var(--sunk);
@@ -508,7 +515,7 @@ input[type=range]{width:100%;accent-color:var(--signal);background:transparent;h
 @media (max-width:760px){.pricebar{bottom:70px}}
 .pricebar .amt{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.6vw,28px);
   line-height:1;font-variant-numeric:tabular-nums}
-.pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:500}
+.pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:600}
 .pricebar .cap{font-size:12.5px;color:var(--ink-3);margin-top:3px}
 .pricebar .grow{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
 
@@ -521,6 +528,14 @@ details.more summary::before{content:"";width:7px;height:7px;border-right:1.5px 
 details.more[open] summary::before{transform:rotate(45deg)}
 details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+/* Check your answers: what was chosen, each line with its way back. */
+.answers{border:1px solid var(--edge);border-radius:12px;padding:12px 14px 4px;background:var(--panel)}
+.ans{display:grid;grid-template-columns:118px 1fr auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--edge);align-items:baseline;font-size:14px}
+.ans:first-of-type{border-top:0}
+.ans .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.ans .v{overflow-wrap:anywhere}
+.ans .v small{color:var(--ink-3)}
+@media (max-width:520px){.ans{grid-template-columns:1fr auto}.ans .k{grid-column:1/-1}}
 .kv .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .kv .v{font-size:14.5px;font-variant-numeric:tabular-nums;margin-top:2px}
 .tbl-wrap{overflow-x:auto}
@@ -621,8 +636,8 @@ tr:last-child td{border-bottom:0}
 
 footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-3);font-size:13px;margin-top:38px}
 .foot{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.foot nav{margin-left:auto;display:flex;gap:18px}
-.foot a{text-decoration:none}
+.foot nav{margin-left:auto;display:flex;flex-wrap:wrap;gap:4px 18px}
+.foot a{text-decoration:none;display:inline-block;padding-block:4px}
 .foot a:hover{color:var(--signal)}
 
 
@@ -740,6 +755,9 @@ dialog::backdrop{background:rgba(3,5,8,.72)}
 .who.in .dot{background:var(--signal)}
 .who.in{font-family:var(--mono,monospace)}
 @media (max-width:420px){.who{padding:0 10px;font-size:12px}.langsel select{max-width:84px}}
+/* 320 css px (a phone, or a desktop at 400% zoom): the mark alone, so the
+   header holds the account, the language and the theme without scrolling. */
+@media (max-width:400px){.brand span{display:none}.brand{padding:0 6px}.top-in{gap:6px}}
 .whobox{position:relative}
 .sizegrid.addr{grid-template-columns:2fr 1fr 1fr 1fr 2fr}
 @media (max-width:700px){.sizegrid.addr{grid-template-columns:1fr 1fr}}
@@ -825,6 +843,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 </style>
 </head>
 <body data-role="guest">
+<a class="skip" href="#main" data-i18n>Skip to content</a>
 
 <header class="top">
   <div class="wrap top-in">
@@ -869,7 +888,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 <div id="link-state" class="linkstate" hidden></div>
 <div id="lang-note" class="linkstate langnote" hidden></div>
 
-<main>
+<main id="main" tabindex="-1">
 
 <!-- ============================== HOME ============================== -->
 <section class="view" id="view-home">
@@ -1216,6 +1235,11 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <div class="q" id="s4" hidden>
       <h2 data-i18n>Here is the deal, in one sentence.</h2>
       <div class="q-body">
+        <section class="answers" id="answers" aria-labelledby="answers-title">
+          <div class="label" id="answers-title" style="margin-bottom:2px" data-i18n>Check your answers</div>
+          <p class="fine" style="margin-bottom:6px" data-i18n>Everything you chose, in one place. Anything wrong can be changed before you pay.</p>
+          <div id="answers-rows"></div>
+        </section>
         <p class="plain" id="plain"></p>
         <figure class="chart-box">
           <svg class="art" id="curve" viewBox="0 0 540 272" role="img" aria-label="Payout curve" data-i18n-aria></svg>
@@ -1636,7 +1660,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 
     <div id="mine-out" style="margin-top:26px">
       <div class="panel" style="padding:26px;display:grid;gap:16px;max-width:520px" id="mine-signin">
-        <h3 style="font-size:19px" data-i18n>Sign in to see it</h3>
+        <h2 style="font-size:19px" data-i18n>Sign in to see it</h2>
         <p style="font-size:14.5px;color:var(--ink-2)" data-i18n>
           Your cover is held by your address, and only you can open it. Sign in with an
           email, Google, a passkey or a wallet, or with a key made on this device.
@@ -1657,23 +1681,23 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px" data-i18n>What is kept, and by whom</h1>
     <div class="sec" style="margin-top:22px;display:grid;gap:16px;font-size:15px;color:var(--ink-2)">
       <p data-i18n>This page describes the Clause site and protocol as they run today. It is a plain account, not a contract.</p>
-      <h3 style="color:var(--ink)" data-i18n>Signing in with a key on this device</h3>
+      <h2 style="color:var(--ink)" data-i18n>Signing in with a key on this device</h2>
       <p data-i18n>A key is made in your browser and its private half never leaves it. The protocol receives the public half, which is your address. No name, email, phone number or password is asked for or kept.</p>
-      <h3 style="color:var(--ink)" data-i18n>Signing in through Privy</h3>
+      <h2 style="color:var(--ink)" data-i18n>Signing in through Privy</h2>
       <p data-i18n>If you choose email, Google, a passkey or a wallet, the sign in is run by Privy, a separate company. Privy keeps what you signed in with, such as your email address, under its own privacy policy. The protocol receives only a token naming your Privy account, checks it, and records which address that account acts as. It never receives your email.</p>
-      <h3 style="color:var(--ink)" data-i18n>Buying cover</h3>
+      <h2 style="color:var(--ink)" data-i18n>Buying cover</h2>
       <p data-i18n>A policy records its terms, the place or flight it covers, the value you declared as at risk and the address that holds it. Proofs of residency or ownership are checked and not stored: the protocol keeps one answer per claim, yes or no.</p>
-      <h3 style="color:var(--ink)" data-i18n>Payouts to a bank or a mobile wallet</h3>
+      <h2 style="color:var(--ink)" data-i18n>Payouts to a bank or a mobile wallet</h2>
       <p data-i18n>If you choose to be paid at a bank or on a mobile wallet, the protocol keeps the IBAN and the name on the account, or the provider and phone number, because a payment cannot be made without them. They are shown back to you masked, and in full only to whoever makes the transfer: the issuing company, a licensed payment partner or, until one is connected, the operator.</p>
-      <h3 style="color:var(--ink)" data-i18n>Rider's permission to buy</h3>
+      <h2 style="color:var(--ink)" data-i18n>Rider's permission to buy</h2>
       <p data-i18n>If you let Rider buy cover for you, the protocol keeps the limits you signed and a fingerprint of the permission; the permission itself stays in this browser. Your conversations with Rider are not stored.</p>
-      <h3 style="color:var(--ink)" data-i18n>Your location and the map</h3>
+      <h2 style="color:var(--ink)" data-i18n>Your location and the map</h2>
       <p data-i18n>When you are asked where the thing you insure is, the browser asks whether to share your location. If you allow it, the coordinates are sent to this protocol's server, which asks OpenStreetMap's Nominatim service what place they fall in; addresses you type are looked up the same way through Photon. Neither service is told who you are. The map tiles are loaded from OpenStreetMap, which sees your IP address as any website you visit does. Nothing about your location is kept except the point you choose to insure.</p>
-      <h3 style="color:var(--ink)" data-i18n>The contract and the insurer's checks</h3>
+      <h2 style="color:var(--ink)" data-i18n>The contract and the insurer's checks</h2>
       <p data-i18n>The contract you accept is kept with your application and your policy, and its hash is on the policy token. The address of a home or where a car is kept is shown to the company that issues the policy, so it can check that it is yours; the protocol keeps a fingerprint of it, not the address, on the policy record. Weather on the home page comes from Open-Meteo and is shown, not used to settle anything.</p>
-      <h3 style="color:var(--ink)" data-i18n>Companies</h3>
+      <h2 style="color:var(--ink)" data-i18n>Companies</h2>
       <p data-i18n>An insurer or reinsurer that registers gives its name, licence details and a contact address. These are shown to the reviewer who checks them and, once approved, the name and licence are public.</p>
-      <h3 style="color:var(--ink)" data-i18n>What this site stores in your browser</h3>
+      <h2 style="color:var(--ink)" data-i18n>What this site stores in your browser</h2>
       <p data-i18n>Your key, your language, your theme and the country you chose for the live bands. Nothing is used for advertising and no tracking scripts are loaded. The typefaces come from Google Fonts, so Google sees the request for them, as it would for any site that uses them.</p>
       <p data-i18n>You can remove your key from this browser at any time with "Forget this device" on the My cover page.</p>
     </div>
@@ -1694,34 +1718,34 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <div class="label" data-i18n>Questions</div>
     <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px" data-i18n>Questions people ask, and what the messages mean</h1>
     <p style="margin-top:12px;color:var(--ink-2)" data-i18n>Short answers, in plain words. Where a message on the page is quoted, it is quoted exactly, so you can find it here.</p>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Buying cover</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>Buying cover</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>What is parametric cover?</summary><div class="inner"><p data-i18n>It pays on a measurement, not on an assessment of your damage: an earthquake's intensity at your address, the wind at your place, the rain at the station, a flight's delay. When the measurement crosses the line written in the policy, the payout is made on its own. There is no claim to file and nobody to convince.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>What is basis risk, and why does the page keep saying it?</summary><div class="inner"><p data-i18n>The measurement can miss your loss both ways: a roof can go on a day short of the trigger, and a payout can arrive for a day that did no harm. That gap is basis risk. It is stated before you pay because a cover that hides it is not honest about what it is.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Who actually insures me?</summary><div class="inner"><p data-i18n>A licensed company, chosen on the confirm step from those licensed where the thing you insure stands; its name, its supervisor and its fee are shown. The pool stands behind that company as capital. On this demonstration the companies are stand ins, marked as such, and nothing written against them is cover.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Why does it ask what I am protecting and whether it is inside the area?</summary><div class="inner"><p data-i18n>Because that is the line between insurance and a wager. Cover is capped by what you say is at risk, and refused if the thing insured is not where the index is measured. Both are checked here and again by the protocol.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How is the price worked out?</summary><div class="inner"><p data-i18n>Expected loss from the model, plus a load for the capital the risk ties up or for passing it to a reinsurer, plus expenses. The confirm step's "show how this price was worked out" lists each part and the chance of a payout.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Is this instead of DASK?</summary><div class="inner"><p data-i18n>No. In Türkiye DASK is compulsory for dwellings and pays assessed damage up to its cap; this cover pays on the measurement, fast, and sits alongside it. The confirm step shows what the same home would pay DASK, for comparison.</p></div></details>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Price and money</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>Price and money</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>What is USDC, and where does the money on the demonstration come from?</summary><div class="inner"><p data-i18n>USDC is the protocol's unit of account. On this demonstration new addresses are funded with demonstration money and there is a top up button on My cover; none of it is real. Where the law requires it, premiums and payouts settle in the local currency through the issuing company.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Can I pay in instalments?</summary><div class="inner"><p data-i18n>Where your country's rules allow it, the confirm step offers plans. The first payment is held when you apply and taken when the company approves; a payment missed for more than fifteen days ends the policy, and anything still owed is deducted from a payout.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How do refunds and cancellation work?</summary><div class="inner"><p data-i18n>Within an hour of buying, all of it comes back. Within the cooling off period your law gives, all of it comes back. After that, cover that cannot be foreseen (earthquake, storm) returns the unexpired part when you cancel; rain and flights run to the end of their term. Nothing can be cancelled once its trigger has been reached.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Does the platform charge me anything?</summary><div class="inner"><p data-i18n>No. The price you see is the pool's price plus the issuing company's fee. The platform is paid by the company, out of that fee, and a fee that comes back to you takes the platform's share back with it.</p></div></details>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>After buying</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>After buying</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>Where is my policy?</summary><div class="inner"><p data-i18n>On My cover, with its terms, its status and its token. The token is locked to your address and cannot be transferred; a cancelled policy's token is burned and leaves the wallet.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How is the reading decided, and what if the source is silent?</summary><div class="inner"><p data-i18n>By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Is my policy on a public chain?</summary><div class="inner"><p data-i18n>The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How will I know it paid?</summary><div class="inner"><p data-i18n>Settlement happens on chain the moment the reading crosses the trigger; My cover shows the payout and the Proof page shows the reading, the block and the policy it settled. A bank payout, where you chose one, follows within the days the company states.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Can I renew?</summary><div class="inner"><p data-i18n>Yes. From My cover a policy that is ending can be renewed on the same terms, and a standing instruction can renew it on the day without you. The issuing company also sees which policies end within thirty days.</p></div></details>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Applications and documents</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>Applications and documents</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>Why is my purchase "waiting for the insurer"?</summary><div class="inner"><p data-i18n>A home or a vehicle is applied for, not bought on the spot: the issuing company screens you against sanctions lists, confirms who you are above a certain size, and confirms the thing is yours. Your premium is held, not taken. Approved, the policy is written at the price you agreed; rejected or not decided within three days, all of it comes back.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>What documents are asked for, and who sees them?</summary><div class="inner"><p data-i18n>For a home or a vehicle, the paper that shows it is yours: a title deed, a lease or the registration. Each file is sealed in your browser to the one party that will decide, opens nowhere else, and is deleted once the application is decided. My cover shows what you sent and who opened it.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>It says "Not sent: the company has no reading key yet". What now?</summary><div class="inner"><p data-i18n>The company that will decide has not yet opened its desk in a browser, so there is no key to seal your documents to. Nothing was sent. The company will ask for its documents another way, or you can add them from My cover once it has a key.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>On the demonstration, who approves my application?</summary><div class="inner"><p data-i18n>You do. Sign in as a company, take the issuing stand in's desk on the Company page and decide it there; or decide it as the operator, under Applications.</p></div></details>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>For companies</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>For companies</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>How does a company register and start writing?</summary><div class="inner"><p data-i18n>Register with the licence details, the LEI, the company's domain and its documents by kind. The operator then works a checklist: the legal entity, control of the domain, the licence and the classes it names, the signatory's authority, sanctions, live enforcement and, in Türkiye, membership of the insurers' association. Nothing is written until every required item is confirmed, and the checks fall due again a year on.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>What does the platform take from a company?</summary><div class="inner"><p data-i18n>One per cent of each premium, out of the company's own fronting fee, the moment the fee is paid, never more than the fee itself. Every movement is on the company's monthly statement, with CSV, and a fee returned to a buyer returns the platform's share too.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>What does the company's desk show?</summary><div class="inner"><p data-i18n>Its book, worked: search by policy number, street, place or buyer; filters by status, province and peril; the policies ending within thirty days; open cover by province; CSV. And the applications waiting for its decision, with the documents sealed to it.</p></div></details>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Messages on the page, and what they mean</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>Messages on the page, and what they mean</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>"The protocol could not be reached, or answered with an error the page could not read. Nothing was charged."</summary><div class="inner"><p data-i18n>The page asked the protocol and got no readable answer within its patience: a dropped connection, a restart, or a slow reply. Nothing was taken. Reload the page and try again; if it persists, the protocol is down and the Live line at the top will say so.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>The price bar stays on "Pricing…"</summary><div class="inner"><p data-i18n>The protocol has not answered the price request yet. It normally takes a few seconds; a minute or more means it could not be reached. Reload the page; the local figure is only an estimate until the protocol's price replaces it.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"The protocol did not price this" or "The pool will not carry this"</summary><div class="inner"><p data-i18n>The pool's own rules refused: capital, concentration, or a place or peril it does not write. The reasons are shown in the same box, in the protocol's words.</p></div></details>
@@ -1733,7 +1757,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <details class="more" style="margin-top:8px"><summary data-i18n>"Too many requests"</summary><div class="inner"><p data-i18n>Each address and each page is limited in how often it may ask for prices or sign in, to keep the protocol up for everyone. Wait a minute and try again.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"This browser does not hold the key these were sealed to"</summary><div class="inner"><p data-i18n>The applicant sealed the documents to the reading key of the browser that first opened this desk. Open them there, or ask the applicant to send them again from this browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"That session ended" on the operator's page</summary><div class="inner"><p data-i18n>Operator sessions last forty five minutes and are not kept across a restart. Sign in again with the token.</p></div></details>
-    <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Complaints</h3>
+    <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>Complaints</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>Where do I complain?</summary><div class="inner"><p data-i18n>On the policy itself, under My cover: "Raise a complaint" opens a thread with the issuing company, and its time to answer is counted from that moment (fifteen days in Türkiye). If it does not answer in time, or the answer does not settle it, one click takes it to the ombudsman (the Sigorta Tahkim Komisyonu in Türkiye) with the file its form asks for: the policy, every reading and settlement, the whole thread. The Proof page shows the same readings, so a dispute starts from the facts.</p></div></details>
   </div>
 </section>
@@ -1969,8 +1993,8 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
       </div>
     </details>
 
-    <p class="fine" style="margin-top:40px"><a href="#/company" data-i18n>Registered already? Open your company page.</a>
-      · <a href="#/admin" data-i18n>Operator sign in</a></p>
+    <p class="fine" style="margin-top:40px"><a class="pad" href="#/company" data-i18n>Registered already? Open your company page.</a>
+      · <a class="pad" href="#/admin" data-i18n>Operator sign in</a></p>
   </div>
 </section>
 
@@ -2053,9 +2077,9 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
   <p class="foot" id="rider-foot"></p>
 </aside>
 
-<dialog id="token-dlg">
+<dialog id="token-dlg" aria-labelledby="token-dlg-title">
   <form class="dlg" method="dialog" style="max-width:520px">
-    <h3 data-i18n>Your policy token</h3>
+    <h3 id="token-dlg-title" data-i18n>Your policy token</h3>
     <p data-i18n>Minted to your address when the policy was written. It cannot be transferred: cover belongs to the person with an interest in what it insures.</p>
     <img id="token-img" alt="" style="width:100%;max-width:420px;border-radius:18px;justify-self:center">
     <p class="fine mono" id="token-meta" style="overflow-wrap:anywhere;word-break:break-all"></p>
@@ -2065,9 +2089,9 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
   </form>
 </dialog>
 
-<dialog id="signin">
+<dialog id="signin" aria-labelledby="signin-title">
   <form class="dlg" method="dialog">
-    <h3 data-i18n>Sign in to continue</h3>
+    <h3 id="signin-title" data-i18n>Sign in to continue</h3>
     <div class="seg" id="dlg-role" role="radiogroup" hidden>
       <button type="button" role="radio" data-role="person" aria-checked="true" data-i18n>For myself</button>
       <button type="button" role="radio" data-role="company" aria-checked="false" data-i18n>For my company</button>
@@ -3506,6 +3530,13 @@ function walletSign(kind,address,message){
     var bin=""; for(var i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]); return btoa(bin);
   });
 }
+function refreshProfile(){
+  /* The profile page is drawn by renderProfile; the account box is redrawn
+     open, so the link just made is in view instead of behind a summary. */
+  var open=!!($("profile-box")&&$("profile-box").open);
+  var drawn=renderProfile();
+  if(open&&drawn&&drawn.then)drawn.then(function(){ var b=$("profile-box"); if(b)b.open=true; });
+}
 function bindProfilePanel(p){
   if(!p||!$("link-kind"))return;
   var kind="solana";
@@ -3532,13 +3563,13 @@ function bindProfilePanel(p){
       $("link-msg").textContent=t("Signing…");
       return signedCall("link-wallet",{kind:kind,address:address},"/api/profile/links",function(){
         var body={account:identity.address,kind:kind,address:address}; for(var k in extra)body[k]=extra[k]; return body; });
-    }).then(function(){ renderMineExtras(); },function(e){ go.disabled=false; $("link-msg").textContent=e&&e.payload?refusalText(e):(e&&e.message?e.message:t("The wallet did not sign.")); });
+    }).then(function(){ refreshProfile(); },function(e){ go.disabled=false; $("link-msg").textContent=e&&e.payload?refusalText(e):(e&&e.message?e.message:t("The wallet did not sign.")); });
   });
   Array.prototype.forEach.call(document.querySelectorAll("[data-unlink]"),function(b){
     b.addEventListener("click",function(){
       b.disabled=true;
       api("/api/profile/links/"+encodeURIComponent(b.dataset.unlink)+"/remove",{method:"POST",token:identity.token})
-        .then(function(){ renderMineExtras(); },function(e){ b.disabled=false; $("link-msg").textContent=refusalText(e); });
+        .then(function(){ refreshProfile(); },function(e){ b.disabled=false; $("link-msg").textContent=refusalText(e); });
     });
   });
   var x=$("link-x");
@@ -3547,7 +3578,7 @@ function bindProfilePanel(p){
     loadPrivy().then(function(){ return window.ClausePrivy.linkX(); }).then(function(idToken){
       if(!idToken)throw new Error(t("Privy gave no identity token; turn identity tokens on in the Privy dashboard."));
       return api("/api/profile/x",{method:"POST",token:identity.token,body:{identity_token:idToken}});
-    }).then(function(){ renderMineExtras(); },function(e){ x.disabled=false; $("link-msg").textContent=e&&e.payload?refusalText(e):(e&&e.message?e.message:t("X could not be linked.")); });
+    }).then(function(){ refreshProfile(); },function(e){ x.disabled=false; $("link-msg").textContent=e&&e.payload?refusalText(e):(e&&e.message?e.message:t("X could not be linked.")); });
   });
 }
 /* ---------------- the profile page: my things ---------------- */
@@ -3655,12 +3686,12 @@ function renderProfile(){
     return;
   }
   box.innerHTML='<div class="panel" style="padding:24px">'+esc(t("Reading…"))+'</div>';
-  Promise.all([api("/api/profile",{token:identity.token}).catch(function(){return null;}), loadAssets(true)]).then(function(all){
+  return Promise.all([api("/api/profile",{token:identity.token}).catch(function(){return null;}), loadAssets(true)]).then(function(all){
     var profile=all[0], list=all[1]||[];
-    var html='<h3 style="font-size:18px;margin-bottom:10px">'+esc(t("My things"))+'</h3>'+
+    var html='<h2 style="font-size:18px;margin-bottom:10px">'+esc(t("My things"))+'</h2>'+
       (list.length?'<div style="display:grid;gap:12px" id="asset-list">'+list.map(assetCardHtml).join("")+'</div>':'<p class="fine">'+esc(t("Nothing written down yet. Add a home, a car or a field and the next purchase starts filled in."))+'</p>')+
       '<div id="asset-new" style="margin-top:14px"><button class="btn btn-line btn-sm" type="button" id="asset-add">'+esc(t("Add a home, a car or a field"))+'</button></div>'+
-      '<h3 style="font-size:18px;margin:26px 0 10px">'+esc(t("Account"))+'</h3><div class="mine-extras">'+profilePanel(profile)+'</div>';
+      '<h2 style="font-size:18px;margin:26px 0 10px">'+esc(t("Account"))+'</h2><div class="mine-extras">'+profilePanel(profile)+'</div>';
     box.innerHTML=html;
     bindProfilePanel(profile);
     $("asset-add").addEventListener("click",function(){
@@ -5152,8 +5183,46 @@ function setBusy(text){
    Drawn from priced(), which is the protocol's own figure once it has answered
    and this page's model until then. Both are the same mathematics; the bar at
    the top says which one you are reading. */
+/* The confirm step opens with what was chosen, line by line, each with its
+   way back (WCAG 3.3.4: a purchase can be reviewed and corrected before it
+   is made). The peril's name is the card's own, so it reads the same here. */
+function renderAnswers(){
+  var box=$("answers-rows"); if(!box)return;
+  var q=priced(), offer=chosenOffer(), days=PERILS[flow.peril].term, rows=[];
+  function row(label,value,step,id){
+    return '<div class="ans"><span class="k">'+esc(label)+'</span><span class="v">'+value+'</span>'+
+      (step?'<button type="button" class="linkish ans-change" data-step="'+step+'"'+(id?' data-to="'+id+'"':'')+'>'+esc(t("Change"))+'</button>':'<span></span>')+'</div>';
+  }
+  var card=$("home-picks").querySelector('.pick[data-peril="'+flow.peril+'"] h3');
+  rows.push(row(t("What"),esc(card?card.textContent:flow.peril),1));
+  rows.push(row(t("Where"),esc(subjectLabel()),2));
+  var it=flow.interest, ad=it.address, addr=ad?[ad.street,ad.number,ad.flat,ad.postcode,ad.city].filter(Boolean).join(" "):"";
+  if(it.what||addr)rows.push(row(t("At risk"),esc(it.what||"")+(addr?(it.what?"<br>":"")+'<small>'+esc(addr)+'</small>':""),RISK_STEP));
+  if(it.value)rows.push(row(t("Declared at risk"),money(it.value)+" USDC",RISK_STEP));
+  rows.push(row(t("How much"),esc(t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days})),AMOUNT_STEP));
+  if(offer)rows.push(row(t("Company"),esc(ts(offer.name)),CONFIRM_STEP,"offers-box"));
+  var total=offer?q.premium+offer.fee:q.premium, price=money(total)+" USDC";
+  if(offer&&offer.fee>0)price+=' <small>'+esc(t("includes the company's fee of {fee}",{fee:money(offer.fee)}))+'</small>';
+  if(flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
+    price+=' <small>'+esc(t("{n} payments of {amount}",{n:flow.instalments,amount:money(total*(1+pl.surcharge)/flow.instalments)}))+'</small>'; }
+  rows.push(row(t("Price"),price,flow.instalments>1||($("plan-box")&&!$("plan-box").hidden)?CONFIRM_STEP:0,"plan-box"));
+  box.innerHTML=rows.join("");
+  Array.prototype.forEach.call(box.querySelectorAll(".ans-change"),function(b){
+    b.addEventListener("click",function(){
+      var to=b.dataset.to, step=+b.dataset.step;
+      if(step===CONFIRM_STEP&&to){
+        if(to==="offers-box"){ flow.offersOpen=true; renderOffers(); }
+        var target=$(to); if(target){ target.scrollIntoView({behavior:"smooth",block:"start"}); var f=target.querySelector("button,[tabindex]"); if(f)f.focus({preventScroll:true}); }
+        return;
+      }
+      flow.step=step; renderStep(); window.scrollTo({top:0,behavior:"smooth"});
+      var h=$(STEPS[step-1])&&$(STEPS[step-1]).querySelector("h2"); if(h){ h.setAttribute("tabindex","-1"); h.focus({preventScroll:true}); }
+    });
+  });
+}
 function renderPrice(){
   var q=priced(),total=Math.max(q.premium,1e-9);
+  renderAnswers();
   $("plain").innerHTML=plainSentence();
   $("pay-rows").innerHTML=payRows();
   $("bar-el").style.width=(q.el/total*100)+"%";
@@ -6708,7 +6777,7 @@ var MINE_SIGNIN=null;
 
 function minePanel(title,body,action){
   return '<div class="panel" style="padding:26px;display:grid;gap:14px;max-width:560px">'+
-    '<h3 style="font-size:19px">'+esc(title)+'</h3>'+
+    '<h2 style="font-size:19px">'+esc(title)+'</h2>'+
     '<p style="font-size:14.5px;color:var(--ink-2)">'+esc(body)+'</p>'+
     (action||"")+'</div>';
 }
@@ -6929,7 +6998,7 @@ function coverageHtml(payload){
   if(rows.length) out+='</div>';
   if(rows.length>FOLD+2) out+='</div></details>';
   if(waiting.length){
-    out+='<h3 style="font-size:16px;margin:26px 0 10px">'+esc(t("Licensed, not yet open"))+'</h3>'+
+    out+='<h2 style="font-size:16px;margin:26px 0 10px">'+esc(t("Licensed, not yet open"))+'</h2>'+
       '<p class="fine" style="margin-bottom:10px">'+esc(t("A company is licensed in each of these, and something else is still missing. Nothing can be bought here until it is in place."))+'</p><div class="cov">';
     waiting.forEach(function(row){
       out+='<div><b>'+esc(countryName(row.country))+
@@ -7378,7 +7447,7 @@ function opHtml(payload){
       return '<li>'+esc(ts(a.name))+' · '+esc(bits.join(" · "))+'</li>'; }).join("")+'</ul></div>';
   }
 
-  out+='<h3 style="font-size:17px;margin:0 0 12px">'+esc(t("Waiting on you ({n})",{n:pending.length}))+'</h3>';
+  out+='<h2 style="font-size:17px;margin:0 0 12px">'+esc(t("Waiting on you ({n})",{n:pending.length}))+'</h2>';
   out+= pending.length ? pending.map(opCard).join("")
       : '<div class="panel" style="padding:20px"><p>'+esc(t("Nothing pending. Every registration here has been decided."))+'</p></div>';
 
@@ -7386,7 +7455,7 @@ function opHtml(payload){
   var folded=specimenList(stand);
   if(folded) rest=rest.filter(function(c){ return stand.indexOf(c)<0; });
   if(rest.length||folded){
-    out+='<h3 style="font-size:17px;margin:32px 0 12px">'+esc(t("Already decided ({n})",{n:rest.length+stand.length}))+'</h3>'+
+    out+='<h2 style="font-size:17px;margin:32px 0 12px">'+esc(t("Already decided ({n})",{n:rest.length+stand.length}))+'</h2>'+
       rest.map(opCard).join("")+(folded||"");
   }
   return out;
@@ -7434,7 +7503,7 @@ function deskHtml(id,r,st,admin){
     '<button class="btn btn-line btn-sm" type="button" style="flex:0 0 auto" data-desk-csv="'+esc(id)+'">'+esc(t("Download CSV"))+'</button></div>';
   var by=r.by_province||[];
   if(by.length&&!st.q&&!st.status&&!st.province&&!st.due){
-    out+='<h3 style="font-size:16px;margin:16px 0 10px">'+esc(t("Open cover by province"))+'</h3><div class="tbl-wrap"><table class="tbl" style="min-width:0"><thead><tr><th>'+esc(t("Province"))+'</th><th class="num">'+esc(t("Policies"))+'</th><th class="num">'+esc(t("In force"))+'</th><th class="num">'+esc(t("Premiums"))+'</th><th>'+esc(t("Perils"))+'</th></tr></thead><tbody>'+
+    out+='<h2 style="font-size:16px;margin:16px 0 10px">'+esc(t("Open cover by province"))+'</h2><div class="tbl-wrap"><table class="tbl" style="min-width:0"><thead><tr><th>'+esc(t("Province"))+'</th><th class="num">'+esc(t("Policies"))+'</th><th class="num">'+esc(t("In force"))+'</th><th class="num">'+esc(t("Premiums"))+'</th><th>'+esc(t("Perils"))+'</th></tr></thead><tbody>'+
       by.map(function(g){ return '<tr><td><a href="#" data-desk-pick="'+esc(id)+'" data-province="'+esc(g.province)+'">'+esc(g.province||t("not placed"))+'</a></td><td class="num">'+f0.format(g.policies)+'</td><td class="num">'+money(g.in_force)+'</td><td class="num">'+money(g.premiums)+'</td><td class="fine">'+esc(Object.keys(g.perils).map(function(k){return perilWords([k])+" "+g.perils[k];}).join(", "))+'</td></tr>'; }).join("")+
       '</tbody></table></div>';
   }
@@ -8184,7 +8253,7 @@ function renderRules(){
       box.innerHTML=Object.keys(perils).map(function(k){
         var x=perils[k];
         function row(label,html){ return '<div class="kv"><div class="k">'+esc(label)+'</div><div class="v">'+html+'</div></div>'; }
-        return '<div class="panel" style="padding:22px"><h3 style="font-size:18px;margin-bottom:10px">'+esc(t(x.title))+'</h3><div class="kvs">'+
+        return '<div class="panel" style="padding:22px"><h2 style="font-size:18px;margin-bottom:10px">'+esc(t(x.title))+'</h2><div class="kvs">'+
           row(t("Index"),esc(ts(x.index)))+
           row(t("Primary source"),esc(ts(x.primary)))+
           row(t("Fallbacks, in order"),'<ol style="margin:0;padding-left:18px">'+(x.fallbacks||[]).map(function(f){ return '<li>'+esc(ts(f))+'</li>'; }).join("")+'</ol>')+

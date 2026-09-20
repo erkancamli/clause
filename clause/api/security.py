@@ -53,8 +53,8 @@ MAX_STREAM_CLIENTS = 24         # each open stream costs a simulation every tick
 class Refused(HTTPException):
     """A refusal the caller is allowed to see the reason for."""
 
-    def __init__(self, status: int, detail: str) -> None:
-        super().__init__(status_code=status, detail=detail)
+    def __init__(self, status: int, detail: str, headers: dict[str, str] | None = None) -> None:
+        super().__init__(status_code=status, detail=detail, headers=headers)
 
 
 def safe_detail(error: Exception, *, fallback: str) -> str:
@@ -185,7 +185,8 @@ class RateLimiter:
             bucket.hits.popleft()
         if len(bucket.hits) >= limit:
             wait = int(bucket.hits[0] + window - now) + 1
-            raise Refused(429, f"too many requests, try again in {wait}s")
+            # The wait is also in the header a client library reads.
+            raise Refused(429, f"too many requests, try again in {wait}s", headers={"Retry-After": str(wait)})
         bucket.hits.append(now)
 
     def _sweep(self, now: float) -> None:

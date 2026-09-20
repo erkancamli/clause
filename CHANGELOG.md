@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.11.0, 20 September 2026
+
+- Check your answers. The confirm step opens with what was chosen, line
+  by line: the cover, the place, what is at risk and its declared value,
+  the amount and term, the company, and the whole price with the fee and
+  the instalments. Each line has its way back to the step that set it,
+  and the company line opens the other offers. A purchase can be read
+  over and corrected before it is made (WCAG 3.3.4).
+- The API hardens every answer itself: `Cache-Control: no-store` under
+  `/api`, `nosniff`, a referrer policy, a permissions policy with the
+  device APIs off, `X-Frame-Options: DENY` and a content security policy
+  of nothing. nginx says the same in front; now a deployment without it
+  is no less careful. A refusal for haste carries `Retry-After`. The
+  rate limits, both layers, are written down in the architecture note.
+  The site's own headers gain a content security policy against plugins,
+  a rewritten base URL and framing, and a permissions policy.
+- Reachable by keyboard and at any size. A skip link to the content; the
+  two dialogs are named by their headings; each page's sections sit one
+  level under its heading; every control is at least 24 css px tall
+  (the language menu, the note's close, the footer links, the file
+  inputs, the map's attribution, the sign in links on the insurers page);
+  at 320 css px, a phone or a desktop at 400% zoom, the header, the
+  footer and the country menu fit without a sideways scroll.
+- Linking a wallet on the profile page now shows the link the moment it
+  is made. The page had been redrawing the wrong box, so the button sat
+  greyed until a reload.
+- One font weight fewer to fetch.
+
 ## 1.10.1, 20 September 2026
 
 - The illustrations are alive. On the home page the trigger loop runs:

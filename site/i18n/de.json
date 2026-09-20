@@ -1915,7 +1915,12 @@
     "Reconciliation (CSV)": "Abgleich (CSV)",
     "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "{n} Policen gezeichnet · Prämien {premiums} · Ihre Gebühren {fees} · Plattform {platform} · gezahlte Schäden {claims} · zurückgezahlte Prämien {returned}",
     "The ledger and the bound policies agree to the cent.": "Gebührenbuch und gezeichnete Policen stimmen auf den Cent überein.",
-    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Gebührenbuch und gezeichnete Policen weichen um {diff} ab: Raten aus anderen Monaten oder zurückgezahlte Gebühren früher gezeichneter Policen."
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Gebührenbuch und gezeichnete Policen weichen um {diff} ab: Raten aus anderen Monaten oder zurückgezahlte Gebühren früher gezeichneter Policen.",
+    "Skip to content": "Zum Inhalt springen",
+    "Check your answers": "Prüfen Sie Ihre Angaben",
+    "Everything you chose, in one place. Anything wrong can be changed before you pay.": "Alles, was Sie gewählt haben, an einem Ort. Was nicht stimmt, lässt sich vor der Zahlung ändern.",
+    "Change": "Ändern",
+    "Price": "Preis"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
