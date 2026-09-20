@@ -1082,8 +1082,19 @@ class Chain:
                 logging.getLogger("clause.chain").exception("settlement listener failed")
 
     def withdraw(self, policy: Policy) -> bool:
-        """Take a cancelled policy off chain, so nothing settles it later."""
+        """Take a cancelled policy off chain, so nothing settles it later.
+
+        Its token is burned in the same step: a cancelled policy is cover that
+        never was, and a token for it has no business staying in a wallet.
+        The burn is written on the token rather than deleting it, so the
+        wallet's history still says what was minted and when it went.
+        """
         with self.lock:
+            token = (policy.metadata or {}).get("token")
+            if token and not token.get("burned_at"):
+                token.update({"burned_block": self.height, "burned_at": self.timestamp,
+                              "burned_from": token.get("owner"), "owner": None,
+                              "burned_because": "cancelled"})
             for account, armed in list(self.armed.items()):
                 if armed.policy.policy_id == policy.policy_id:
                     self._disarm(account)

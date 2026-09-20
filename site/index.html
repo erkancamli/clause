@@ -3865,7 +3865,9 @@ function marketHtml(){
 /* Your policy tokens, as a wallet would show them: one card per policy. */
 function renderNfts(policies){
   var box=$("mine-nfts"); if(!box)return;
-  var minted=policies.filter(function(p){ return (p.metadata||{}).token; });
+  // A burned token has left the wallet: the cancelled policy stays in the
+  // list below as a record, its token does not.
+  var minted=policies.filter(function(p){ var tk=(p.metadata||{}).token; return tk&&!tk.burned_at; });
   if(!minted.length){ box.innerHTML=""; return; }
   box.innerHTML='<div class="label" style="margin-top:22px">'+esc(t("Your policy tokens ({n})",{n:minted.length}))+'</div><div class="nfts">'+
     minted.map(function(p){ return '<button class="nft" type="button" data-token="'+esc(p.policy_id)+'"><img alt="'+esc(p.policy_id)+'" data-src="'+esc(p.policy_id)+'">'+
