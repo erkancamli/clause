@@ -25,6 +25,18 @@ knows before it tries. The token id is `uint256(keccak256(policyId))`;
 `tokenURI` is the protocol's own metadata for the policy
 (`<base URI><policyId>/token`), which carries the certificate image.
 
+## Whose wallet
+
+A buyer who has linked an Ethereum wallet on their profile (the wallet
+signs a short text; `clause/protocol/links.py`) gets the token minted to
+that wallet. Everyone else's is minted to the signer's address and held
+for them; the token dialog says so. A buyer who links a wallet later can
+ask for the token there (`POST /api/policies/{id}/anchor/claim`): a mint
+not yet sent is pointed at the wallet; one already on the chain is burned
+and minted again to the wallet, the mint held back until the burn is
+mined, because an ERC-5192 token cannot be transferred and the contract
+would refuse a second mint of the same id while the first exists.
+
 ## The Merkle root
 
 One leaf per policy with a token:

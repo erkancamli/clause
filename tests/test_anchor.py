@@ -21,6 +21,7 @@ from clause.anchor.signing import (abi_encode, address_of_key, contract_address,
 from clause.api.app import create_app
 from clause.api.security import Settings
 from clause.protocol.evm import keccak256
+from test_api_security import session_for
 from test_commerce import TOKEN, register, signed_post
 from test_desk import buy_quake
 
@@ -327,3 +328,66 @@ def test_a_mint_recorded_before_there_was_a_signer_goes_to_the_signer_once_there
         client.post("/api/operator/anchor/run", headers=OP)
         again = client.get(f"/api/policies/{pid2}/anchor").json()["intents"][0]
         assert again["status"] == "sent" and again["payload"]["to"] == SIGNER and again["error"] == ""
+
+
+def link_evm(client, device, address, wallet) -> None:
+    """The holder links an Ethereum wallet on their profile, both proofs given."""
+    auth = {"authorization": f"Bearer {session_for(client, device, address)}"}
+    start = client.post("/api/profile/links/start", headers=auth, json={"kind": "evm", "address": wallet.address}).json()
+    challenge = client.post("/api/auth/challenge", json={"address": address, "purpose": "link-wallet",
+                                                         "terms": {"kind": "evm", "address": wallet.address}}).json()
+    made = client.post("/api/profile/links", json={
+        "account": address, "kind": "evm", "address": wallet.address,
+        "wallet_nonce": start["nonce"], "wallet_signature": wallet.sign(start["message"]),
+        "nonce": challenge["nonce"], "signature": device.sign(challenge["message"])})
+    assert made.status_code == 200, made.text
+
+
+def test_the_holder_gets_the_token_in_their_own_wallet(tmp_path, node) -> None:
+    from test_api_security import session_for as _session
+    from test_links import MetaMask
+    with TestClient(app_for(tmp_path, node, live=True)) as client:
+        device, address = register(client)
+        auth = {"authorization": f"Bearer {_session(client, device, address)}"}
+        pid = buy_quake(client, device, address, 20_000)["policy_id"]
+        # Nobody linked: the mint goes to the signer, and the page offers the profile.
+        mine = client.get(f"/api/policies/{pid}/anchor", headers=auth).json()
+        assert mine["held"]["custodial"] and mine["wallets"] == []
+        assert "wallets" not in client.get(f"/api/policies/{pid}/anchor").json()      # a stranger sees no wallets
+        refused = client.post(f"/api/policies/{pid}/anchor/claim", headers=auth, json={})
+        assert refused.status_code == 409 and "link an Ethereum wallet" in refused.text
+        # Linked before the mint is sent: the mint is simply pointed at the wallet.
+        wallet = MetaMask()
+        link_evm(client, device, address, wallet)
+        claimed = client.post(f"/api/policies/{pid}/anchor/claim", headers=auth, json={}).json()
+        assert [i["kind"] for i in claimed["queued"]] == ["mint"] and claimed["held"]["to"].lower() == wallet.address.lower()
+        assert not claimed["held"]["custodial"]
+        client.post("/api/operator/anchor/run", headers=OP)
+        client.post("/api/operator/anchor/run", headers=OP)
+        assert client.get(f"/api/policies/{pid}/anchor", headers=auth).json()["held"]["status"] == "confirmed"
+        # A second policy, minted to the wallet from the start, and one already on the
+        # chain that moves: burn first, then a mint that waits for the burn.
+        pid2 = buy_quake(client, device, address, 20_000)["policy_id"]
+        assert client.get(f"/api/policies/{pid2}/anchor", headers=auth).json()["held"]["to"].lower() == wallet.address.lower()
+        other = MetaMask()
+        link_evm(client, device, address, other)
+        moved = client.post(f"/api/policies/{pid}/anchor/claim", headers=auth, json={"address": other.address}).json()
+        assert [i["kind"] for i in moved["queued"]] == ["burn", "mint"]
+        client.post("/api/operator/anchor/run", headers=OP)
+        rows = {i["intent_id"]: i for i in client.get(f"/api/policies/{pid}/anchor", headers=auth).json()["intents"]}
+        burn, remint = rows[moved["queued"][0]["intent_id"]], rows[moved["queued"][1]["intent_id"]]
+        assert burn["status"] == "sent" and remint["status"] == "pending"                  # the mint waits for the burn
+        client.post("/api/operator/anchor/run", headers=OP)                                # the burn confirms, the mint goes
+        rows = {i["intent_id"]: i for i in client.get(f"/api/policies/{pid}/anchor", headers=auth).json()["intents"]}
+        assert rows[burn["intent_id"]]["status"] == "confirmed" and rows[remint["intent_id"]]["status"] == "sent"
+        held = client.get(f"/api/policies/{pid}/anchor", headers=auth).json()["held"]
+        assert held["to"].lower() == other.address.lower() and held["status"] == "sent"
+        # Not one of the holder's wallets: refused. A stranger: nothing.
+        assert client.post(f"/api/policies/{pid}/anchor/claim", headers=auth, json={"address": SIGNER}).status_code == 409
+        stranger, s_addr = register(client)
+        assert client.post(f"/api/policies/{pid}/anchor/claim", json={},
+                           headers={"authorization": f"Bearer {_session(client, stranger, s_addr)}"}).status_code == 404
+        # Cancelling later burns the re-issued token too: the protocol's own burn is not deduplicated away.
+        signed_post(client, device, address, "cancel", {"policy_id": pid}, f"/api/policies/{pid}/cancel", {"account": address})
+        kinds = [i["kind"] for i in client.get(f"/api/policies/{pid}/anchor", headers=auth).json()["intents"]]
+        assert kinds.count("burn") == 2

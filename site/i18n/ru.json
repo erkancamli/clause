@@ -1843,7 +1843,13 @@
     "token mint": "выпуск токена",
     "token burn": "сожжение токена",
     "settlement record": "запись расчёта",
-    "book root": "корень книги"
+    "book root": "корень книги",
+    "Held for you by the protocol's signer.": "Хранится для вас подписантом протокола.",
+    "In your wallet {address}.": "В вашем кошельке {address}.",
+    "Mint it to my wallet {address}": "Выпустить в мой кошелёк {address}",
+    "The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order.": "Так как токен нельзя передать, тот, что у подписанта, сжигается, а в ваш кошелёк выпускается новый, именно в таком порядке.",
+    "Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it.": "Хотите в свой кошелёк? Привяжите кошелёк Ethereum в профиле; токен будет выпущен туда.",
+    "Queued: {n} transaction(s), sent on the next cycle.": "В очереди: {n} транзакц., отправка в следующем цикле."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

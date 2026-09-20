@@ -1843,7 +1843,13 @@
     "token mint": "émission du jeton",
     "token burn": "destruction du jeton",
     "settlement record": "enregistrement du règlement",
-    "book root": "racine du livre"
+    "book root": "racine du livre",
+    "Held for you by the protocol's signer.": "Détenu pour vous par le signataire du protocole.",
+    "In your wallet {address}.": "Dans votre portefeuille {address}.",
+    "Mint it to my wallet {address}": "L'émettre vers mon portefeuille {address}",
+    "The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order.": "Le jeton ne pouvant être transféré, cela brûle celui que détient le signataire puis en émet un nouveau vers votre portefeuille, dans cet ordre.",
+    "Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it.": "Vous le voulez dans votre propre portefeuille ? Liez un portefeuille Ethereum sur votre profil ; le jeton y sera émis.",
+    "Queued: {n} transaction(s), sent on the next cycle.": "En file : {n} transaction(s), envoyées au prochain cycle."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
