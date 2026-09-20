@@ -325,6 +325,8 @@ clause/
     eligibility.py  attestations: proved, not held
     applications.py the insurer's review before a policy is written
     documents.py    what an applicant sends the deciding company, sealed in the browser to its key alone
+    fees.py         the platform's fee, out of the company's fronting fee, and each company's monthly statement
+    desk.py         a company's book worked: search, filters, renewals due, exposure by province, CSV
     contract.py     the policy document, and its hash
     instalments.py  paying the premium in parts, by country
     cancellation.py cooling off and pro rata, by the buyer's law

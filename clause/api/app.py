@@ -68,6 +68,8 @@ from ..protocol.carrier import (
 from ..protocol.compliance import ComplianceEngine, Interest
 from ..protocol.pipeline import Action, Match, PolicyError, PolicyPipeline
 from ..protocol.documents import OPERATOR as READER_OPERATOR, DocumentError, Documents
+from ..protocol.fees import PLATFORM_ACCOUNT, Fees, month_of, platform_share
+from ..protocol import desk
 from ..protocol.mandates import COOLING_OFF_HOURS, MandateError, Mandates, parse_terms
 from ..protocol.partners import (
     PARTNER_SCREENED_LIMIT,
@@ -620,7 +622,7 @@ def create_app(
             auth=auth, accounts=accounts, payouts=payouts, partners=partners,
             mandates=mandates, applications=applications, funding=funding,
             links=links, instructions=instructions, assets=assets, pipeline=pipeline,
-            documents=documents))
+            documents=documents, fees=fees))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -686,6 +688,9 @@ def create_app(
     # What applicants send the deciding company, sealed to its reading key;
     # the bytes live beside the book, the protocol never sees them open.
     documents = Documents(store.path.parent if store is not None else None)
+    # The platform's fee on each policy, taken from the company's fronting
+    # fee, and the statements that account for it.
+    fees = Fees()
     from ..protocol.instructions import InstructionError, Instructions
     instructions = Instructions()
     from ..protocol.assets import AssetError, Assets
@@ -761,7 +766,7 @@ def create_app(
                              payouts=payouts, partners=partners, mandates=mandates,
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
-                             pipeline=pipeline, documents=documents)
+                             pipeline=pipeline, documents=documents, fees=fees)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -969,6 +974,7 @@ def create_app(
         stage="cashout", address=account_, destination=destination_, amount=amount_))
     app.state.pipeline = pipeline
     app.state.documents = documents
+    app.state.fees = fees
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -1301,11 +1307,25 @@ def create_app(
             return 0.0
         carrier = registry.carriers[carrier_id]
         wallets.debit(payer_, part, policy_.policy_id, kind="fronting_fee")
-        if carrier.address and not carrier.specimen:
-            wallets.credit(carrier.address, part, policy_.policy_id, kind="fronting_fee")
-        carrier.fees_earned += part
+        # The platform's share comes out of the company's fee, in the same
+        # proportion for each part of it, and never out of the premium: the
+        # buyer's price is the pool's price.
+        platform_total = platform_share(policy_.premium, fee, fees.rate)
+        platform_part = min(part, round(part * platform_total / fee, 2)) if fee > 0 else 0.0
+        company_part = round(part - platform_part, 2)
+        if carrier.address and not carrier.specimen and company_part > 0:
+            wallets.credit(carrier.address, company_part, policy_.policy_id, kind="fronting_fee")
+        if platform_part > 0:
+            wallets.credit(PLATFORM_ACCOUNT, platform_part, policy_.policy_id, kind="platform_fee")
+        carrier.fees_earned += company_part
         policy_.metadata["fronting_fee"] = fee
         policy_.metadata["fee_paid"] = round(float(policy_.metadata.get("fee_paid", 0.0)) + part, 2)
+        policy_.metadata["platform_fee"] = platform_total
+        policy_.metadata["platform_fee_paid"] = round(float(policy_.metadata.get("platform_fee_paid", 0.0)) + platform_part, 2)
+        fees.record(carrier_id=carrier_id, policy_id=policy_.policy_id, holder=policy_.holder,
+                    kind="fronting_fee", amount=part, premium=policy_.premium)
+        fees.record(carrier_id=carrier_id, policy_id=policy_.policy_id, holder=policy_.holder,
+                    kind="platform_fee", amount=platform_part, premium=policy_.premium)
         return part
 
     def return_fee(policy_: Any) -> float:
@@ -1315,19 +1335,36 @@ def create_app(
         if fee <= 0 or meta.get("fee_returned"):
             return 0.0
         carrier = registry.carriers.get(meta.get("carrier", ""))
-        recovered = fee
+        # The platform's share goes back too, from the platform's own account.
+        platform_paid = round(float(meta.get("platform_fee_paid", 0.0)), 2)
+        company_paid = round(fee - platform_paid, 2)
+        recovered = company_paid
         if carrier is not None:
             if carrier.address and not carrier.specimen:
                 # Only what the company's address can give back comes back;
                 # a fee it has already spent is not created out of nothing.
-                recovered = min(fee, wallets.require(carrier.address).balance)
+                recovered = min(company_paid, wallets.require(carrier.address).balance)
                 if recovered > 0:
                     wallets.debit(carrier.address, recovered, policy_.policy_id, kind="fronting_fee_returned")
             carrier.fees_earned -= recovered
-        if recovered > 0:
-            wallets.credit(meta.get("paid_by") or policy_.holder, recovered, policy_.policy_id,
+        platform_recovered = 0.0
+        if platform_paid > 0:
+            platform_recovered = min(platform_paid, wallets.connect(PLATFORM_ACCOUNT, fund=False).balance)
+            if platform_recovered > 0:
+                wallets.debit(PLATFORM_ACCOUNT, platform_recovered, policy_.policy_id, kind="platform_fee_returned")
+        payer = meta.get("paid_by") or policy_.holder
+        if recovered + platform_recovered > 0:
+            wallets.credit(payer, round(recovered + platform_recovered, 2), policy_.policy_id,
                            kind="fronting_fee_returned")
-        policy_.metadata["fee_returned"] = round(recovered, 2)
+        if carrier is not None:
+            # The gross fee that went back, the way the fee line was gross when it came in.
+            fees.record(carrier_id=carrier.carrier_id, policy_id=policy_.policy_id, holder=policy_.holder,
+                        kind="fronting_fee_returned", amount=recovered + platform_recovered, premium=policy_.premium)
+            fees.record(carrier_id=carrier.carrier_id, policy_id=policy_.policy_id, holder=policy_.holder,
+                        kind="platform_fee_returned", amount=platform_recovered, premium=policy_.premium)
+        recovered = round(recovered + platform_recovered, 2)
+        policy_.metadata["fee_returned"] = recovered
+        policy_.metadata["platform_fee_returned"] = round(platform_recovered, 2)
         return recovered
 
     async def issue(
@@ -2424,6 +2461,9 @@ def create_app(
             "in_force": round(sum(p.limit for p in open_), 2),
             "premiums": round(premiums, 2),
             "fees": round(premiums * carrier.fronting_fee, 2) if carrier.role is Role.CARRIER else 0.0,
+            "platform_fees": round(sum(float((p.metadata or {}).get("platform_fee_paid", 0.0))
+                                       - float((p.metadata or {}).get("platform_fee_returned", 0.0)) for p in mine), 2),
+            "platform_rate": fees.rate,
             "paid_out": round(sum(p.payout for p in mine), 2),
             "by_country": {k: {"policies": v["policies"], "in_force": round(v["in_force"], 2)}
                            for k, v in sorted(by_country.items())},
@@ -2449,6 +2489,122 @@ def create_app(
                 "companies": [{**c.to_dict(private=True), "book": book_of(c)} for c in companies],
                 "demo": specimen_desks(address),
             }
+
+    def statement_reply(statement: dict[str, Any], format_: str, filename: str) -> Any:
+        if format_ == "csv":
+            from fastapi.responses import Response
+            return Response(content=Fees.csv(statement), media_type="text/csv; charset=utf-8",
+                            headers={"content-disposition": f'attachment; filename="{filename}"'})
+        return statement
+
+    def desk_reply(policies_: list[Any], *, q: str, status: str, peril: str, province: str,
+                   due_within: float | None, sort: str, order: str, format_: str, limit: int, offset: int,
+                   private: bool, filename: str) -> Any:
+        names = {c.carrier_id: c.name for c in registry.carriers.values()}
+        rows = desk.select(policies_, q=q, status=status, peril=peril, province=province, due_within=due_within,
+                           sort=sort, descending=(order != "asc"), names=names, private=private)
+        if format_ == "csv":
+            from fastapi.responses import Response
+            return Response(content=desk.to_csv(rows), media_type="text/csv; charset=utf-8",
+                            headers={"content-disposition": f'attachment; filename="{filename}"'})
+        everything = desk.select(policies_, names=names, private=private)
+        return {"summary": desk.summary(everything), "by_province": desk.by_province(everything),
+                "renewals_due": [r for r in everything if r["renewal_due"]][:200],
+                "provinces": sorted({r["province"] for r in everything if r["province"]}),
+                "total": len(rows), "offset": offset, "limit": limit,
+                "policies": rows[offset:offset + limit]}
+
+    @app.get("/api/company/policies")
+    async def company_policies(carrier_id: str = Query(..., max_length=80), q: str = Query("", max_length=120),
+                               status: str = Query("", max_length=60), peril: str = Query("", max_length=30),
+                               province: str = Query("", max_length=60),
+                               due_within: float | None = Query(None, ge=0, le=400),
+                               sort: str = Query("bought_at", max_length=20), order: str = Query("desc", max_length=4),
+                               format: str = Query("json", max_length=4),
+                               limit: int = Query(100, ge=1, le=1000), offset: int = Query(0, ge=0),
+                               token: str | None = Depends(bearer)) -> Any:
+        """The company's book, worked: found by number, street or place;
+        filtered by status, peril or province; the ones ending within a
+        number of days, for renewal; grouped by province; as CSV."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        carrier = registry.carriers.get(carrier_id)
+        if carrier is None or carrier.address != address:
+            raise HTTPException(404, "no such company on this account")
+        with money:
+            mine = [p for p in pool.policies.values() if (p.metadata or {}).get("carrier") == carrier_id]
+            if carrier.role is Role.REINSURER:
+                mine = [p for p in pool.policies.values() if (p.metadata or {}).get("carrier")]
+            return desk_reply(mine, q=q, status=status, peril=peril, province=province, due_within=due_within,
+                              sort=sort, order=order, format_=format, limit=limit, offset=offset,
+                              private=carrier.role is not Role.REINSURER, filename=f"{carrier_id}-policies.csv")
+
+    @app.get("/api/operator/policies")
+    async def operator_policies(q: str = Query("", max_length=120), status: str = Query("", max_length=60),
+                                peril: str = Query("", max_length=30), province: str = Query("", max_length=60),
+                                carrier_id: str = Query("", max_length=80),
+                                due_within: float | None = Query(None, ge=0, le=400),
+                                sort: str = Query("bought_at", max_length=20), order: str = Query("desc", max_length=4),
+                                format: str = Query("json", max_length=4),
+                                limit: int = Query(100, ge=1, le=1000), offset: int = Query(0, ge=0),
+                                token: str | None = Depends(bearer),
+                                operator: str | None = Header(None, alias="x-operator-token")) -> Any:
+        """The whole book, worked the same way, for whoever runs the protocol."""
+        reviewer_of(operator, token)
+        with money:
+            rows = [p for p in pool.policies.values()
+                    if not carrier_id or (p.metadata or {}).get("carrier") == carrier_id]
+            return desk_reply(rows, q=q, status=status, peril=peril, province=province, due_within=due_within,
+                              sort=sort, order=order, format_=format, limit=limit, offset=offset,
+                              private=False, filename=f"policies-{carrier_id or 'all'}.csv")
+
+    @app.get("/api/company/statements")
+    async def company_statements(carrier_id: str = Query(..., max_length=80), month: str = Query("", max_length=7),
+                                 format: str = Query("json", max_length=4),
+                                 token: str | None = Depends(bearer)) -> Any:
+        """One company's month: every fee movement on its paper, line by
+        line, and what it was left with. As JSON for the page, as CSV for
+        the accountant."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        carrier = registry.carriers.get(carrier_id)
+        if carrier is None or carrier.address != address:
+            raise HTTPException(404, "no such company on this account")
+        months = fees.months(carrier_id)
+        month = month or (months[0] if months else month_of(time.time()))
+        names = {c.carrier_id: c.name for c in registry.carriers.values()}
+        statement = fees.statement(carrier_id, month, names=names)
+        if format == "csv":
+            return statement_reply(statement, "csv", f"{carrier_id}-{month}.csv")
+        return {"months": months, "statement": statement, "rate": fees.rate}
+
+    @app.get("/api/operator/statements")
+    async def operator_statements(month: str = Query("", max_length=7), format: str = Query("json", max_length=4),
+                                  carrier_id: str = Query("", max_length=80),
+                                  token: str | None = Depends(bearer),
+                                  operator: str | None = Header(None, alias="x-operator-token")) -> Any:
+        """Every company's statement for a month, and the platform's own
+        totals: what it took, what it gave back, by month."""
+        reviewer_of(operator, token)
+        months = fees.months()
+        month = month or (months[0] if months else month_of(time.time()))
+        names = {c.carrier_id: c.name for c in registry.carriers.values()}
+        if format == "csv":
+            if carrier_id:
+                return statement_reply(fees.statement(carrier_id, month, names=names), "csv", f"{carrier_id}-{month}.csv")
+            merged = {"carrier": "all companies", "lines": [], **{k: 0 for k in ("policies", "premiums_written",
+                      "fronting_fees", "fronting_fees_returned", "platform_fees", "platform_fees_returned", "net_to_company")}}
+            for st in fees.statements(month, names=names):
+                merged["lines"] += st["lines"]
+                for k in list(merged):
+                    if k not in ("carrier", "lines"):
+                        merged[k] = round(merged[k] + st[k], 2)
+            return statement_reply(merged, "csv", f"all-{month}.csv")
+        platform = wallets.get(PLATFORM_ACCOUNT)
+        return {"months": months, "month": month, "statements": fees.statements(month, names=names),
+                "platform": {**fees.platform_totals(), "balance": round(platform.balance, 2) if platform else 0.0}}
 
     def specimen_desks(address: str) -> dict[str, Any]:
         """The stand in companies a signed in account may act for, in a demonstration.

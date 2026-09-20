@@ -68,6 +68,8 @@ back, the payout does not go out.
 | `clause/protocol/pool.py` | Capital, underwriting rules, the ledger |
 | `clause/protocol/pipeline.py` | The operator's policy: denylist and moratoria, first to deny stops it |
 | `clause/protocol/documents.py` | Reading keys, and the documents sealed to them: envelope, record, deletion on decision |
+| `clause/protocol/fees.py` | The platform's fee (1% of premium, out of the company's fronting fee, returned with refunds) and monthly statements |
+| `clause/protocol/desk.py` | The company's book worked: search, filters, renewals due, exposure by province, CSV |
 | `clause/chain/world.py` | Rialo shaped chain, Edge readings, settlement |
 | `clause/rpc/client.py` | The published Rialo RPC |
 | `clause/api/app.py` | HTTP surface and the event stream |
@@ -142,6 +144,21 @@ the operator cannot open a document sealed to a company, and the database
 alone opens nothing. On the decision, withdrawal or lapse, the ciphertext is
 deleted and the record stays. The envelope is written out in
 `clause/protocol/documents.py`, so another client can make or open one.
+
+---
+
+## What the platform is paid
+
+The buyer pays the pool's premium and, on top, the issuing company's
+fronting fee; the price on the screen is the pool's price and nothing is
+added for the platform. The platform takes one per cent of the premium out
+of the company's fee the moment the fee is paid, never more than the fee
+itself, in proportion when the fee arrives in instalments; a fee that goes
+back to the buyer (a mistake undone within the hour, a cooling off period)
+takes the platform's share back with it, from the platform's own account.
+Every movement is an entry in `clause/protocol/fees.py`, and a company's
+month of entries is its statement, the same statement the operator sees
+for every company, with CSV for the accountant.
 
 ---
 
@@ -225,6 +242,8 @@ them import from `clause.chain`.
 | POST | `/api/auth/reading-key`, `/api/operator/reading-key` | The public half of a browser's reading key, so documents can be sealed to it |
 | GET | `/api/applications/recipient` | Who could open documents sent with an application to a company, and the key to seal them to |
 | POST, GET, DELETE | `/api/applications/{id}/documents[/{doc}]` | Send sealed documents; the deciding party fetches the envelope, which is recorded; the applicant takes one back |
+| GET | `/api/company/statements`, `/api/operator/statements` | A company's month of fee movements and what it was left with; every company's, and the platform's totals, for the operator; CSV |
+| GET | `/api/company/policies`, `/api/operator/policies` | The book worked: search, status, peril, province, due within N days, sort, paging, CSV |
 | GET | `/api/pool`, `/api/pool/risk` | Capital, exposure, solvency |
 | GET | `/api/pool/ledger` | Every movement, replayable |
 | POST | `/api/pool/deposit`, `/withdraw` | Liquidity provision |

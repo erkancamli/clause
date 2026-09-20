@@ -3954,6 +3954,25 @@ function reviewHtml(list, waiting){
       '</div>';
   }).join("")+'</div>';
 }
+/* The statement panels on the company page: one per company, a month at a time. */
+function bindStatements(root, auth){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-statement-for]"),function(holder){
+    var id=holder.dataset.statementFor;
+    function load(month){
+      var o={timeout:20000}; for(var k in auth)o[k]=auth[k];
+      api("/api/company/statements?carrier_id="+encodeURIComponent(id)+(month?"&month="+encodeURIComponent(month):""),o).then(function(r){
+        holder.innerHTML=statementHtml(r.statement,r.months,r.statement.month,id);
+        var sel=holder.querySelector("[data-statement-month]"); if(sel)sel.addEventListener("change",function(){ load(sel.value); });
+        var dl=holder.querySelector("[data-statement-csv]"); if(dl)dl.addEventListener("click",function(){
+          dl.disabled=true;
+          downloadCsv("/api/company/statements?carrier_id="+encodeURIComponent(id)+"&month="+encodeURIComponent(r.statement.month)+"&format=csv",auth,id+"-"+r.statement.month+".csv")
+            .then(function(){ dl.disabled=false; },function(e){ dl.disabled=false; dl.textContent=refusalText(e); });
+        });
+      },function(e){ holder.innerHTML='<p class="fine">'+esc(refusalText(e))+'</p>'; });
+    }
+    load("");
+  });
+}
 function bindReview(root, auth, done){
   Array.prototype.forEach.call(root.querySelectorAll("[data-open-doc]"),function(b){
     b.addEventListener("click",function(){
@@ -6838,8 +6857,9 @@ function opLoad(){
     api("/api/operator/partners",{token:OP.token,timeout:12000}).catch(function(){ return null; }),
     api("/api/review/applications",{token:OP.token,timeout:12000}).catch(function(){ return null; }),
     api("/api/operator/funding",{token:OP.token,timeout:12000}).catch(function(){ return null; }),
+    api("/api/operator/statements"+(OP.month?"?month="+encodeURIComponent(OP.month):""),{token:OP.token,timeout:20000}).catch(function(){ return null; }),
   ]).then(function(both){
-    var payload=both[0]; OP.overview=both[1]; OP.payouts=both[2]; OP.partners=both[3]; OP.apps=both[4]; OP.funding=both[5];
+    var payload=both[0]; OP.overview=both[1]; OP.payouts=both[2]; OP.partners=both[3]; OP.apps=both[4]; OP.funding=both[5]; OP.platform=both[6];
     OP.reviewer=payload.reviewer||OP.reviewer;
     $("op-signin").hidden=true;
     ensureReadingKey("/api/operator/reading-key",{token:OP.token});
@@ -6847,6 +6867,8 @@ function opLoad(){
     opBindCards();
     opBindTabs();
     opBindMoney();
+    opBindPlatform();
+    var opDesk=$("op-desk"); if(opDesk)bindDesk(opDesk,"operator","/api/operator/policies",{token:OP.token},true);
     bindReview($("op-work"),{token:OP.token},opLoad);
   },function(error){
     if(error&&error.status===401){
@@ -6896,8 +6918,10 @@ function opHtml(payload){
     (OP.payouts?'<button role="tab" data-tab="payouts" aria-selected="'+(tab==="payouts")+'">'+esc(t("Payouts to banks ({n})",{n:OP.payouts.open.length}))+'</button>':'')+
     (OP.partners?'<button role="tab" data-tab="partners" aria-selected="'+(tab==="partners")+'">'+esc(t("Partners"))+'</button>':'')+
     (OP.funding?'<button role="tab" data-tab="funding" aria-selected="'+(tab==="funding")+'">'+esc(t("Money in ({n})",{n:OP.funding.waiting.length}))+'</button>':'')+
+    (OP.platform?'<button role="tab" data-tab="platform" aria-selected="'+(tab==="platform")+'">'+esc(t("Platform and statements"))+'</button>':'')+
     '</div>';
-  if(tab==="buyers") return out+(ov?policiesTable(ov.policies,true):'<p>'+esc(t("The protocol did not answer."))+'</p>');
+  if(tab==="platform"&&OP.platform) return out+opPlatformHtml(OP.platform);
+  if(tab==="buyers") return out+'<div id="op-desk"><p class="fine">'+esc(t("Reading the book…"))+'</p></div>';
   if(tab==="payouts"&&OP.payouts) return out+opPayoutsHtml(OP.payouts);
   if(tab==="apps"&&OP.apps) return out+'<div class="verdict" style="margin-bottom:16px"><p>'+
     esc(t("Each application waits for the issuing company's checks. On a demonstration the stand in companies have nobody of their own, so you decide for them here: confirm each check you did, then approve, or reject with a reason the applicant will read."))+
@@ -6921,6 +6945,151 @@ function opHtml(payload){
   return out;
 }
 
+/* ---------------- the desk: a book, worked ----------------
+   Search, filters, the ones ending soon, exposure by province, a file. One
+   renderer for a company's own paper and for the operator's whole book. */
+var DESKS={};
+var DESK_STATUS=[["",N("every status")],["open",N("open")],["paid",N("paid")],["lapsed",N("ended, no trigger")],["expired",N("expired, refunded")],["cancelled",N("cancelled")]];
+var DESK_SORT=[["bought_at",N("newest first")],["ends_at",N("ending soonest")],["limit",N("largest cover")],["premium",N("largest premium")],["policy_id",N("policy number")]];
+function deskTable(rows,admin){
+  if(!rows||!rows.length) return '<div class="panel" style="padding:20px"><p>'+esc(t("Nothing matches."))+'</p></div>';
+  var head='<tr><th>'+esc(t("Policy"))+'</th><th>'+esc(t("Cover"))+'</th><th>'+esc(t("Province"))+'</th><th>'+esc(t("Buyer"))+'</th>'+
+    (admin?'<th>'+esc(t("Issued by"))+'</th>':'')+
+    '<th class="num">'+esc(t("Limit"))+'</th><th class="num">'+esc(t("Premium"))+'</th><th>'+esc(t("Status"))+'</th><th>'+esc(t("Ends"))+'</th></tr>';
+  var body=rows.map(function(p){
+    var ends=p.days_left===null||p.days_left===undefined?esc(opStamp(p.ends_at)):
+      (p.renewal_due?'<b>':'')+esc(t("in {n} days",{n:Math.max(0,Math.round(p.days_left))}))+(p.renewal_due?'</b> <span class="pill">'+esc(t("renewal"))+'</span>':'');
+    return '<tr><td class="mono"><a href="#/proof/'+encodeURIComponent(p.policy_id)+'">'+esc(p.policy_id)+'</a></td>'+
+      '<td><b>'+esc(perilWords([p.peril]))+'</b><br><span class="fine">'+esc(ts(p.subject))+(p.address?'<br>'+esc(p.address):'')+'</span></td>'+
+      '<td>'+esc(p.province||"—")+'</td><td class="mono">'+esc(p.holder)+'</td>'+
+      (admin?'<td>'+esc(p.carrier?ts(p.carrier):t("the pool alone"))+'</td>':'')+
+      '<td class="num">'+money(p.limit)+'</td><td class="num">'+money(p.premium)+'</td>'+
+      '<td>'+esc(t(POLICY_STATUS[p.status]||p.status))+(p.payout?' · '+money(p.payout):'')+'</td>'+
+      '<td>'+ends+'</td></tr>';
+  }).join("");
+  return '<div class="tbl-wrap"><table class="tbl"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+}
+function deskHtml(id,r,st,admin){
+  var sm=r.summary||{};
+  var sel=function(name,opts,value){ return '<select class="dlg-input" style="max-width:220px" data-desk-'+name+'="'+esc(id)+'">'+opts.map(function(o){
+    return '<option value="'+esc(o[0])+'"'+(o[0]===value?' selected':'')+'>'+esc(t(o[1]))+'</option>'; }).join("")+'</select>'; };
+  var provs=[["",N("every province")]].concat((r.provinces||[]).map(function(p){return [p,p];}));
+  var out='<div class="stats">'+
+    statHtml(f0.format(sm.open||0),t("open policies"))+
+    statHtml(money(sm.in_force||0),t("in force, USDC"))+
+    statHtml(f0.format(sm.renewals_due||0),t("ending within 30 days"))+
+    statHtml(money(sm.renewals_in_force||0),t("of cover to renew, USDC"))+
+    statHtml(f0.format(sm.provinces||0),t("provinces"))+'</div>';
+  out+='<div class="vrow" style="gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0">'+
+    '<input class="dlg-input" style="max-width:280px" placeholder="'+esc(t("Find: policy number, street, place, buyer"))+'" value="'+esc(st.q||"")+'" data-desk-q="'+esc(id)+'">'+
+    sel("status",DESK_STATUS,st.status||"")+sel("province",provs,st.province||"")+sel("sort",DESK_SORT,st.sort||"bought_at")+
+    '<label class="fine" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-desk-due="'+esc(id)+'"'+(st.due?' checked':'')+'> '+esc(t("ending within 30 days"))+'</label>'+
+    '<button class="btn btn-line btn-sm" type="button" style="flex:0 0 auto" data-desk-csv="'+esc(id)+'">'+esc(t("Download CSV"))+'</button></div>';
+  var by=r.by_province||[];
+  if(by.length&&!st.q&&!st.status&&!st.province&&!st.due){
+    out+='<h3 style="font-size:16px;margin:16px 0 10px">'+esc(t("Open cover by province"))+'</h3><div class="tbl-wrap"><table class="tbl" style="min-width:0"><thead><tr><th>'+esc(t("Province"))+'</th><th class="num">'+esc(t("Policies"))+'</th><th class="num">'+esc(t("In force"))+'</th><th class="num">'+esc(t("Premiums"))+'</th><th>'+esc(t("Perils"))+'</th></tr></thead><tbody>'+
+      by.map(function(g){ return '<tr><td><a href="#" data-desk-pick="'+esc(id)+'" data-province="'+esc(g.province)+'">'+esc(g.province||t("not placed"))+'</a></td><td class="num">'+f0.format(g.policies)+'</td><td class="num">'+money(g.in_force)+'</td><td class="num">'+money(g.premiums)+'</td><td class="fine">'+esc(Object.keys(g.perils).map(function(k){return perilWords([k])+" "+g.perils[k];}).join(", "))+'</td></tr>'; }).join("")+
+      '</tbody></table></div>';
+  }
+  out+='<h3 style="font-size:16px;margin:16px 0 10px">'+esc(t("{n} policies",{n:f0.format(r.total||0)}))+(r.total>(r.limit||100)?' <span class="fine">'+esc(t("showing the first {n}",{n:r.limit||100}))+'</span>':'')+'</h3>'+deskTable(r.policies,admin);
+  return out;
+}
+function bindDesk(holder,id,base,auth,admin){
+  var st=DESKS[id]||(DESKS[id]={q:"",status:"",province:"",sort:"bought_at",due:false});
+  function query(csv){
+    var qs=[];
+    if(st.q)qs.push("q="+encodeURIComponent(st.q)); if(st.status)qs.push("status="+encodeURIComponent(st.status));
+    if(st.province)qs.push("province="+encodeURIComponent(st.province)); if(st.sort)qs.push("sort="+encodeURIComponent(st.sort));
+    if(st.due)qs.push("due_within=30"); if(csv)qs.push("format=csv");
+    return base+(base.indexOf("?")>=0?"&":"?")+qs.join("&");
+  }
+  function load(){
+    var o={timeout:30000}; for(var k in auth)o[k]=auth[k];
+    api(query(false),o).then(function(r){
+      holder.innerHTML=deskHtml(id,r,st,admin);
+      var q=holder.querySelector("[data-desk-q]"), timer=null;
+      q.addEventListener("input",function(){ clearTimeout(timer); timer=setTimeout(function(){ st.q=q.value.trim(); load(); },350); });
+      ["status","province","sort"].forEach(function(name){
+        var el=holder.querySelector("[data-desk-"+name+"]"); el.addEventListener("change",function(){ st[name]=el.value; load(); });
+      });
+      var due=holder.querySelector("[data-desk-due]"); due.addEventListener("change",function(){ st.due=due.checked; load(); });
+      Array.prototype.forEach.call(holder.querySelectorAll("[data-desk-pick]"),function(a){
+        a.addEventListener("click",function(e){ e.preventDefault(); st.province=a.dataset.province; load(); });
+      });
+      var dl=holder.querySelector("[data-desk-csv]"); dl.addEventListener("click",function(){
+        dl.disabled=true; downloadCsv(query(true),auth,id+"-policies.csv").then(function(){ dl.disabled=false; },function(e){ dl.disabled=false; dl.textContent=refusalText(e); });
+      });
+      var focus=holder.querySelector("[data-desk-q]"); if(st.q&&focus){ focus.focus(); focus.setSelectionRange(focus.value.length,focus.value.length); }
+    },function(e){ holder.innerHTML='<p class="fine">'+esc(refusalText(e))+'</p>'; });
+  }
+  load();
+}
+
+/* A download that needs the session: fetched with it, then handed to the
+   browser as a file, since a plain link cannot carry a bearer token. */
+function downloadCsv(path, opts, filename){
+  var o={raw:true,timeout:30000}; for(var k in opts)o[k]=opts[k];
+  return api(path,o).then(function(blob){
+    var url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1000);
+  });
+}
+function monthLabel(m){
+  var p=String(m||"").split("-"); if(p.length<2)return m||"";
+  return new Date(Date.UTC(+p[0],+p[1]-1,1)).toLocaleDateString(LOCALES[LANG]||"en-US",{year:"numeric",month:"long",timeZone:"UTC"});
+}
+/* One company's month, as a statement: the totals, then the lines. */
+var FEE_KINDS={fronting_fee:N("fronting fee received"),fronting_fee_returned:N("fronting fee returned"),platform_fee:N("platform fee"),platform_fee_returned:N("platform fee returned")};
+function statementHtml(st, months, chosen, who){
+  var sel=months.length?'<select class="dlg-input" style="max-width:220px" data-statement-month="'+esc(who)+'">'+months.map(function(m){
+    return '<option value="'+esc(m)+'"'+(m===chosen?' selected':'')+'>'+esc(monthLabel(m))+'</option>'; }).join("")+'</select>':'';
+  var rows=[[t("Policies written"),f0.format(st.policies)],[t("Premiums written"),money(st.premiums_written)+" USDC"],
+    [t("Fronting fees received"),money(st.fronting_fees)+" USDC"],[t("Fronting fees returned"),money(st.fronting_fees_returned)+" USDC"],
+    [t("Platform fee, deducted"),money(st.platform_fees)+" USDC"],[t("Platform fee, returned"),money(st.platform_fees_returned)+" USDC"],
+    [t("Net to the company"),money(st.net_to_company)+" USDC"]];
+  return '<div class="vrow" style="gap:10px;align-items:center;flex-wrap:wrap">'+sel+
+    '<button class="btn btn-line btn-sm" type="button" style="flex:0 0 auto" data-statement-csv="'+esc(who)+'">'+esc(t("Download CSV"))+'</button></div>'+
+    '<div class="tbl-wrap" style="margin-top:10px"><table class="tbl" style="min-width:0"><tbody>'+rows.map(function(r){
+      return '<tr><td>'+esc(r[0])+'</td><td class="num"><b>'+esc(r[1])+'</b></td></tr>'; }).join("")+'</tbody></table></div>'+
+    (st.lines&&st.lines.length?'<div class="tbl-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>'+esc(t("When"))+'</th><th>'+esc(t("Policy"))+'</th><th>'+esc(t("Entry"))+'</th><th class="num">'+esc(t("Premium"))+'</th><th class="num">'+esc(t("Amount"))+'</th></tr></thead><tbody>'+
+      st.lines.map(function(l){ return '<tr><td class="fine">'+esc(opStamp(l.at))+'</td><td class="mono">'+esc(l.policy_id)+'</td><td>'+esc(t(FEE_KINDS[l.kind]||l.kind))+'</td><td class="num">'+esc(money(l.premium))+'</td><td class="num">'+esc((l.kind.indexOf("returned")>=0?"−":"")+money(l.amount))+'</td></tr>'; }).join("")+
+      '</tbody></table></div>':'<p class="fine">'+esc(t("No entries this month."))+'</p>');
+}
+/* What the platform earned, and every company's statement for the month. */
+function opPlatformHtml(p){
+  var pf=p.platform||{}, months=p.months||[], month=p.month;
+  var out='<div class="stats">'+
+    statHtml(pct(pf.rate||0.01,0),t("of each premium, from the company's fee"))+
+    statHtml(money(pf.platform_fees||0),t("platform fees taken, USDC"))+
+    statHtml(money(pf.platform_fees_returned||0),t("returned with refunds, USDC"))+
+    statHtml(money(pf.net||0),t("net, USDC"))+
+    statHtml(money(pf.balance||0),t("platform account balance, USDC"))+'</div>';
+  out+='<div class="verdict" style="margin-bottom:16px"><p>'+esc(t("The platform is paid by the companies that write here, out of their fronting fee, the moment the fee is paid; buyers pay the pool's price and nothing on top for the platform. A fee that goes back to a buyer takes the platform's share back with it. Each company sees the same statement on its own page."))+'</p></div>';
+  var by=pf.by_month||{};
+  out+='<h3 style="font-size:16px;margin:0 0 10px">'+esc(t("By month"))+'</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>'+esc(t("Month"))+'</th><th class="num">'+esc(t("Policies"))+'</th><th class="num">'+esc(t("Premiums"))+'</th><th class="num">'+esc(t("Platform fees"))+'</th><th class="num">'+esc(t("Returned"))+'</th></tr></thead><tbody>'+
+    Object.keys(by).map(function(m){ var r=by[m]; return '<tr><td>'+esc(monthLabel(m))+'</td><td class="num">'+f0.format(r.policies)+'</td><td class="num">'+money(r.premiums)+'</td><td class="num">'+money(r.platform_fees)+'</td><td class="num">'+money(r.platform_fees_returned)+'</td></tr>'; }).join("")+
+    '</tbody></table></div>';
+  out+='<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Statements for {month}",{month:monthLabel(month)}))+'</h3>'+
+    '<div class="vrow" style="gap:10px;align-items:center;flex-wrap:wrap">'+
+    (months.length?'<select class="dlg-input" style="max-width:220px" id="op-month">'+months.map(function(m){ return '<option value="'+esc(m)+'"'+(m===month?' selected':'')+'>'+esc(monthLabel(m))+'</option>'; }).join("")+'</select>':'')+
+    '<button class="btn btn-line btn-sm" type="button" style="flex:0 0 auto" data-op-csv="">'+esc(t("Download CSV, all companies"))+'</button></div>';
+  var sts=p.statements||[];
+  out+=sts.length?'<div class="tbl-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>'+esc(t("Company"))+'</th><th class="num">'+esc(t("Policies"))+'</th><th class="num">'+esc(t("Premiums"))+'</th><th class="num">'+esc(t("Fronting fees"))+'</th><th class="num">'+esc(t("Platform fee"))+'</th><th class="num">'+esc(t("Net to the company"))+'</th><th></th></tr></thead><tbody>'+
+    sts.map(function(st){ return '<tr><td>'+esc(ts(st.carrier))+'</td><td class="num">'+f0.format(st.policies)+'</td><td class="num">'+money(st.premiums_written)+'</td><td class="num">'+money(st.fronting_fees-st.fronting_fees_returned)+'</td><td class="num">'+money(st.platform_fees-st.platform_fees_returned)+'</td><td class="num"><b>'+money(st.net_to_company)+'</b></td><td><button class="btn btn-ghost btn-sm" type="button" data-op-csv="'+esc(st.carrier_id)+'">CSV</button></td></tr>'; }).join("")+
+    '</tbody></table></div>':'<p class="fine">'+esc(t("No entries this month."))+'</p>';
+  return out;
+}
+function opBindPlatform(){
+  var sel=$("op-month"); if(sel)sel.addEventListener("change",function(){ OP.month=sel.value; opLoad(); });
+  Array.prototype.forEach.call(document.querySelectorAll("#op-work [data-op-csv]"),function(b){
+    b.addEventListener("click",function(){
+      b.disabled=true; var id=b.dataset.opCsv, month=(OP.platform||{}).month||"";
+      downloadCsv("/api/operator/statements?format=csv&month="+encodeURIComponent(month)+(id?"&carrier_id="+encodeURIComponent(id):""),{token:OP.token},(id||"all")+"-"+month+".csv")
+        .then(function(){ b.disabled=false; },function(e){ b.disabled=false; b.textContent=refusalText(e); });
+    });
+  });
+}
 function statHtml(value,label){ return '<div class="stat"><b>'+esc(value)+'</b><span>'+esc(label)+'</span></div>'; }
 function opBindTabs(){
   Array.prototype.forEach.call(document.querySelectorAll('#op-work .tabs button'),function(b){
@@ -6977,6 +7146,10 @@ function renderCompany(){
     }
     box.innerHTML=list.map(companyHtml).join("")+'<h3 style="font-size:17px;margin:30px 0 12px">'+
       esc(t("Applications for your paper"))+'</h3><div id="company-apps"></div>'+demo;
+    bindStatements(box,{token:identity.token});
+    Array.prototype.forEach.call(box.querySelectorAll("[data-desk-for]"),function(h){
+      bindDesk(h,h.dataset.deskFor,"/api/company/policies?carrier_id="+encodeURIComponent(h.dataset.deskFor),{token:identity.token},false);
+    });
     bindSpecimenDesks(box);
     ensureReadingKey("/api/auth/reading-key",{token:identity.token});
     bindVerification(box,{token:identity.token},renderCompany);
@@ -7061,9 +7234,14 @@ function companyHtml(c){
       statHtml(money(b.in_force||0),t("in force, USDC"))+
       statHtml(money(b.premiums||0),t("premiums, USDC"))+
       (reinsurer?'':statHtml(money(b.fees||0),t("your fronting fees, USDC")))+
+      (reinsurer?'':statHtml(money(b.platform_fees||0),t("platform fee, {rate} of premium, USDC",{rate:pct(b.platform_rate||0.01,0)})))+
       statHtml(money(b.paid_out||0),t("paid out, USDC"))+
     '</div>'+byCountry+
-    '<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Most recent policies"))+'</h3>'+policiesTable(b.recent,false)+
+    (reinsurer?'':'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Monthly statement"))+'</h3>'+
+      '<p class="fine">'+esc(t("Every fee movement on your paper, month by month: the fees buyers paid you, what came back to them, and the platform's {rate} of premium taken out of your fee. The buyer's price is the pool's price; the platform is paid by you, never by them.",{rate:pct(b.platform_rate||0.01,0)}))+'</p>'+
+      '<div data-statement-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the statement…"))+'</p></div>')+
+    '<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Your book"))+'</h3>'+
+    (reinsurer?policiesTable(b.recent,false):'<div data-desk-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the book…"))+'</p></div>')+
     (reviews?'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Review record"))+'</h3><ul class="fine" style="display:grid;gap:4px;padding-left:18px">'+reviews+'</ul>':'')+
     verification+
   '</div>';
