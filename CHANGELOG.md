@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.12.1, 20 September 2026
+
+- The theme button has three positions, in a cycle: the device's own
+  (nothing chosen; the page follows the system setting, and follows it
+  when it changes), light, dark. The button shows the mode in force, a
+  half disc for the device's own, and says which in its label, in the
+  language chosen. A choice is kept on the device; the device's own is
+  the absence of one.
+
 ## 1.12.0, 20 September 2026
 
 - The site moves like something finished. The hero arrives in order,

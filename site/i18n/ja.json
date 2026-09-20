@@ -1920,7 +1920,10 @@
     "Check your answers": "入力内容の確認",
     "Everything you chose, in one place. Anything wrong can be changed before you pay.": "選んだ内容を一か所にまとめました。間違いがあれば、お支払い前に変更できます。",
     "Change": "変更",
-    "Price": "価格"
+    "Price": "価格",
+    "Theme: follows your device": "テーマ：端末の設定に従う",
+    "Theme: light": "テーマ：ライト",
+    "Theme: dark": "テーマ：ダーク"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
