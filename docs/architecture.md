@@ -67,6 +67,7 @@ back, the payout does not go out.
 | `clause/protocol/policy.py` | Policy record and lifecycle states |
 | `clause/protocol/pool.py` | Capital, underwriting rules, the ledger |
 | `clause/protocol/pipeline.py` | The operator's policy: denylist and moratoria, first to deny stops it |
+| `clause/protocol/documents.py` | Reading keys, and the documents sealed to them: envelope, record, deletion on decision |
 | `clause/chain/world.py` | Rialo shaped chain, Edge readings, settlement |
 | `clause/rpc/client.py` | The published Rialo RPC |
 | `clause/api/app.py` | HTTP surface and the event stream |
@@ -122,6 +123,25 @@ is what makes the cost of watching a book independent of its size, and it is
 the property the whole economic argument rests on: under conventional
 parametric cover, administration cost sets a floor under the smallest viable
 policy, and that floor is what has kept smallholder agriculture uninsured.
+
+---
+
+## What the company sees, and nobody else
+
+A home or a vehicle is applied for with its address, and the company that
+issues the policy confirms it is the applicant's: a title deed, a lease, a
+registration. Those papers never reach the protocol in the open. The
+applicant's browser seals each one to the reading key of the party that will
+decide (the company's own account, or the operator where a stand in company
+is decided for), with an ephemeral P-256 key, HKDF and AES-256-GCM, the
+application id bound in as additional data. The protocol stores the
+ciphertext beside the book and a record it can read: what was sent, how
+large, and who opened it when, which the applicant sees. The reading key is
+made non extractable in the deciding party's browser and never leaves it;
+the operator cannot open a document sealed to a company, and the database
+alone opens nothing. On the decision, withdrawal or lapse, the ciphertext is
+deleted and the record stays. The envelope is written out in
+`clause/protocol/documents.py`, so another client can make or open one.
 
 ---
 
@@ -202,6 +222,9 @@ them import from `clause.chain`.
 | GET | `/api/policy` | The policy pipeline: its rules, and every live moratorium |
 | POST | `/api/policy/check` | The decision a stage would take, without acting |
 | GET, POST | `/api/operator/policy`, `/deny`, `/pause`, `/{id}/lift` | The operator's book of refusals |
+| POST | `/api/auth/reading-key`, `/api/operator/reading-key` | The public half of a browser's reading key, so documents can be sealed to it |
+| GET | `/api/applications/recipient` | Who could open documents sent with an application to a company, and the key to seal them to |
+| POST, GET, DELETE | `/api/applications/{id}/documents[/{doc}]` | Send sealed documents; the deciding party fetches the envelope, which is recorded; the applicant takes one back |
 | GET | `/api/pool`, `/api/pool/risk` | Capital, exposure, solvency |
 | GET | `/api/pool/ledger` | Every movement, replayable |
 | POST | `/api/pool/deposit`, `/withdraw` | Liquidity provision |

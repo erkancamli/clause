@@ -1088,6 +1088,12 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
             <div class="field"><label class="label" for="addr-city" data-i18n>City</label><input id="addr-city" class="dlg-input" maxlength="60" autocomplete="address-level2"></div>
           </div>
           <p class="fine" id="addr-note" data-i18n>Seen only by the company that issues the policy, which checks that the home is yours or that you live in it (title deed or lease). The protocol keeps a fingerprint of it, not the address.</p>
+          <div class="field" style="margin-top:12px">
+            <label class="label" for="docs" id="docs-label" data-i18n>Documents for that check: title deed, lease or vehicle registration</label>
+            <input id="docs" type="file" accept="application/pdf,image/png,image/jpeg" multiple>
+            <p class="fine" id="docs-note" data-i18n>Optional. Up to 4 files, PDF, PNG or JPEG, 4 MB each. Each is sealed in this browser to the company that will decide your application, and opens nowhere else: not at the protocol, not for its operator. My cover shows what you sent and who opened it; once the application is decided the sealed copies are deleted.</p>
+            <p class="fine" id="docs-picked"></p>
+          </div>
         </div>
         <div class="field" id="value-field">
           <label class="label" for="value"><span id="value-label">What the trip cost</span><span class="val" id="value-val"></span></label>
@@ -2655,6 +2661,84 @@ function idbDelete(key){
   });
 }
 
+function unb64url(text){
+  var s=String(text||"").replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4)s+="=";
+  var bin=atob(s), out=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);
+  return out;
+}
+/* ---------------- sealed documents ----------------
+   A second key, for reading: ECDH rather than ECDSA, because WebCrypto keeps
+   the two apart. Non extractable, kept in this browser, its public half
+   registered with the protocol. A document an applicant sends is sealed in
+   their browser to that public half and opens only here, with the private
+   half that never left. The envelope is written up in
+   clause/protocol/documents.py. */
+var READKEY="clause-reading-key";
+var DOC_INFO="clause application document v1";
+function readingKey(){
+  return idbGet(READKEY).then(function(stored){
+    if(stored&&stored.pair)return stored;
+    return crypto.subtle.generateKey({name:"ECDH",namedCurve:"P-256"},false,["deriveBits"]).then(function(pair){
+      return crypto.subtle.exportKey("raw",pair.publicKey).then(function(raw){
+        var rec={pair:pair,publicKey:b64url(raw)};
+        return idbPut(READKEY,rec).then(function(){return rec;});
+      });
+    });
+  });
+}
+function ensureReadingKey(path, opts){
+  // Registered on every visit to the desk: cheap, idempotent, and the way a
+  // new browser announces itself as the one that reads from now on.
+  return readingKey().then(function(rec){
+    var o={method:"POST",body:{public_key:rec.publicKey},timeout:12000};
+    for(var k in opts)o[k]=opts[k];
+    return api(path,o).then(function(){return rec;});
+  }).catch(function(){return null;});
+}
+function hkdfKey(secret, salt, info, use){
+  return crypto.subtle.importKey("raw",secret,"HKDF",false,["deriveKey"]).then(function(hk){
+    return crypto.subtle.deriveKey({name:"HKDF",hash:"SHA-256",salt:salt,info:new TextEncoder().encode(info)},hk,{name:"AES-GCM",length:256},false,[use]);
+  });
+}
+function sealFile(file, recipientKey, appId){
+  var recipient, ephemeral, salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  return crypto.subtle.importKey("raw",unb64url(recipientKey),{name:"ECDH",namedCurve:"P-256"},false,[]).then(function(k){
+    recipient=k;
+    return crypto.subtle.generateKey({name:"ECDH",namedCurve:"P-256"},false,["deriveBits"]);
+  }).then(function(pair){
+    ephemeral=pair;
+    return crypto.subtle.deriveBits({name:"ECDH",public:recipient},pair.privateKey,256);
+  }).then(function(secret){
+    return hkdfKey(secret,salt,DOC_INFO,"encrypt");
+  }).then(function(aes){
+    return Promise.all([file.arrayBuffer(), crypto.subtle.exportKey("raw",ephemeral.publicKey)]).then(function(parts){
+      return crypto.subtle.encrypt({name:"AES-GCM",iv:iv,additionalData:new TextEncoder().encode(appId)},aes,parts[0]).then(function(sealed){
+        return {filename:file.name.slice(0,120),content_type:file.type,bytes:parts[0].byteLength,
+                ephemeral:b64url(parts[1]),salt:b64url(salt),iv:b64url(iv),data:b64url(sealed)};
+      });
+    });
+  });
+}
+function openSealed(envelope){
+  return readingKey().then(function(rec){
+    return crypto.subtle.importKey("raw",unb64url(envelope.ephemeral),{name:"ECDH",namedCurve:"P-256"},false,[]).then(function(peer){
+      return crypto.subtle.deriveBits({name:"ECDH",public:peer},rec.pair.privateKey,256);
+    });
+  }).then(function(secret){ return hkdfKey(secret,unb64url(envelope.salt),envelope.info||DOC_INFO,"decrypt"); })
+  .then(function(aes){ return crypto.subtle.decrypt({name:"AES-GCM",iv:unb64url(envelope.iv),additionalData:new TextEncoder().encode(envelope.additional_data)},aes,unb64url(envelope.data)); })
+  .then(function(plain){ return new Blob([plain],{type:envelope.content_type||"application/octet-stream"}); });
+}
+function docSize(n){ return n>=1000000?(n/1000000).toFixed(1)+" MB":Math.max(1,Math.round(n/1000))+" KB"; }
+function docWhen(at){ return new Date(at*1000).toLocaleString(LOCALES[LANG]||"en-US"); }
+/* One line per document, for the applicant and for the reviewer alike. */
+function docStateText(d){
+  if(!d.available)return t("sealed copy deleted after the decision");
+  if(!d.opened||!d.opened.length)return t("not opened yet");
+  var last=d.opened[d.opened.length-1];
+  return t("opened by {who}, {when}",{who:last.by,when:docWhen(last.at)});
+}
+
 function b64url(buffer){
   var bytes = new Uint8Array(buffer), binary = "";
   for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
@@ -2794,7 +2878,7 @@ function forgetDevice(){
   identity = {address:null, device:null, token:null, key:null, via:null};
   setTimeout(function(){ if (typeof renderWho === "function") renderWho(); }, 0);
   if (window.ClausePrivy) window.ClausePrivy.logout().catch(function(){});
-  return idbDelete(KEYSTORE);
+  return idbDelete(KEYSTORE).then(function(){ return idbDelete(READKEY); });
 }
 
 /* ---------------- signing in through Privy ----------------
@@ -3809,6 +3893,10 @@ function renderMineApplications(){
           kv(t("Issued by"),esc(ts(a.carrier||"")))+
         '</div>'+
         (a.note?'<p class="fine">'+esc(t("The insurer wrote: {note}",{note:a.note}))+'</p>':'')+
+        ((a.documents||[]).length?'<div class="fine" style="display:grid;gap:4px">'+a.documents.map(function(d){
+          return '<div>'+esc(d.filename)+' ('+esc(docSize(d.bytes))+') · '+esc(docStateText(d))+
+            (a.status==="pending"&&d.available?' <button class="btn btn-ghost btn-sm" type="button" data-doc-remove="'+esc(a.app_id)+'/'+esc(d.doc_id)+'">'+esc(t("Take it back"))+'</button>':'')+'</div>';
+        }).join("")+'</div>':'')+
         (a.status==="pending"&&reply.demo?'<p class="fine">'+esc(t("On this demonstration you approve it yourself: sign out, sign in as a company, take the issuer's desk on the Company page and decide it there; or decide it as the operator, under Applications."))+'</p>':'')+
         (a.status==="pending"?'<div><button class="btn btn-ghost btn-sm" type="button" data-withdraw-app="'+esc(a.app_id)+'">'+
           esc(t("Withdraw the application"))+'</button></div>':'')+
@@ -3819,6 +3907,13 @@ function renderMineApplications(){
         b.disabled=true;
         api("/api/applications/"+encodeURIComponent(b.dataset.withdrawApp)+"/withdraw",{method:"POST",token:identity.token})
           .then(function(){ renderMine(); },function(e){ b.disabled=false; b.textContent=refusalText(e); });
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-doc-remove]"),function(b){
+      b.addEventListener("click",function(){
+        b.disabled=true;
+        api("/api/applications/"+b.dataset.docRemove.split("/").map(encodeURIComponent).join("/documents/"),{method:"DELETE",token:identity.token})
+          .then(function(){ renderMineApplications(); },function(e){ b.disabled=false; b.textContent=refusalText(e); });
       });
     });
   },function(){});
@@ -3842,6 +3937,10 @@ function reviewHtml(list, waiting){
         (a.plan?kv(t("Paid in"),esc(t("{n} instalments of {amount}",{n:a.plan.count,amount:money(a.plan.amount)}))):"")+
         kv(t("Resident in"),esc(regionName(a.country||"")))+
       '</div>'+
+      ((a.documents||[]).length?'<div class="fine" style="display:grid;gap:6px"><div class="label">'+esc(t("Documents, sealed to you"))+'</div>'+a.documents.map(function(d){
+        return '<div data-doc-row="'+esc(d.doc_id)+'">'+esc(d.filename)+' ('+esc(docSize(d.bytes))+') · '+esc(docStateText(d))+
+          (d.available?' <button class="btn btn-line btn-sm" type="button" data-open-doc="'+esc(a.app_id)+'/'+esc(d.doc_id)+'">'+esc(t("Open"))+'</button>':'')+'</div>';
+      }).join("")+'</div>':(open&&a.checks.indexOf("ownership")>=0?'<p class="fine">'+esc(t("No documents were sent with this application; the applicant may still add them from My cover, or you check by other means."))+'</p>':''))+
       (open?'<div class="checks" data-checks="'+esc(a.app_id)+'">'+a.checks.map(function(c){
         return '<label><input type="checkbox" value="'+esc(c)+'"> '+esc(t("Done: {what}",{what:t(CHECK_NAMES[c]||c)}))+'</label>';
       }).join("")+'</div>'+
@@ -3854,6 +3953,25 @@ function reviewHtml(list, waiting){
   }).join("")+'</div>';
 }
 function bindReview(root, auth, done){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-open-doc]"),function(b){
+    b.addEventListener("click",function(){
+      b.disabled=true; b.textContent=t("Opening…");
+      var opts={timeout:60000}; for(var k in auth)opts[k]=auth[k];
+      var parts=b.dataset.openDoc.split("/");
+      api("/api/applications/"+encodeURIComponent(parts[0])+"/documents/"+encodeURIComponent(parts[1]),opts).then(function(envelope){
+        return openSealed(envelope).then(function(blob){
+          var url=URL.createObjectURL(blob), a=document.createElement("a");
+          a.className="btn btn-line btn-sm"; a.href=url; a.target="_blank"; a.rel="noopener"; a.download=envelope.filename||"document";
+          a.textContent=t("Open {name}",{name:envelope.filename||"document"});
+          b.replaceWith(a);
+          if(/^image\//.test(blob.type)){ var img=document.createElement("img"); img.src=url; img.style.cssText="display:block;max-width:100%;max-height:420px;margin-top:6px;border:1px solid var(--line)"; a.parentNode.appendChild(img); }
+        },function(){
+          b.disabled=false; b.textContent=t("Open");
+          var row=b.parentNode; if(row){ var note=document.createElement("span"); note.className="fine"; note.textContent=" "+t("This browser does not hold the key these were sealed to. The applicant sent them to the browser that registered the reading key; open them there, or ask for them again from this one."); row.appendChild(note); }
+        });
+      },function(e){ b.disabled=false; b.textContent=refusalText(e); });
+    });
+  });
   Array.prototype.forEach.call(root.querySelectorAll("[data-decide]"),function(b){
     b.addEventListener("click",function(){
       var id=b.dataset.decide, d=b.dataset.d;
@@ -5229,7 +5347,7 @@ function choosePeril(key){
   if(key!==flow.peril||!flow.chosen){
     // A different thing to protect starts its own declaration: "a flat in
     // Kadıköy" is not what is at risk on a flight.
-    flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null;
+    flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[];
     flow.place=null; flow.quoted=null; flow.refusal=null;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
@@ -5265,7 +5383,7 @@ function resetFlow(){
   flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
   flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
   flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
-  flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null;
+  flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[];
   CONTRACT={key:"",text:"",hash:""};
   if($("place"))$("place").value="";
 }
@@ -5357,6 +5475,19 @@ function renderInterest(){
       el.addEventListener("input",function(e){ (interest.address=interest.address||{})[k]=e.target.value; setNextLabel(); }); }
       if(el&&el.value!==(a[k]||""))el.value=a[k]||""; });
     if(!a.city&&flow.place){ var parts=String(flow.place).split(", "); if(parts.length>=2){ a.city=parts[parts.length-2]; (interest.address=a); $("addr-city").value=a.city; } }
+    $("docs-label").textContent=flow.peril==="car"?t("Documents for that check: the vehicle registration"):t("Documents for that check: title deed, lease or vehicle registration");
+    var docs=$("docs");
+    if(!docs.dataset.bound){ docs.dataset.bound="1"; docs.addEventListener("change",function(){
+      var files=Array.prototype.slice.call(docs.files||[]), bad=null;
+      if(files.length>4)bad=t("At most 4 documents.");
+      files.forEach(function(f){
+        if(f.size>4000000)bad=bad||t("Each document is at most 4 MB.");
+        if(["application/pdf","image/png","image/jpeg"].indexOf(f.type)<0)bad=bad||t("Documents are PDF, PNG or JPEG.");
+      });
+      if(bad){ docs.value=""; flow.interest.documents=[]; $("docs-picked").textContent=bad; return; }
+      flow.interest.documents=files;
+      $("docs-picked").textContent=files.length?t("{n} to send, sealed, with the application: {names}",{n:files.length,names:files.map(function(f){return f.name;}).join(", ")}):"";
+    }); }
   }
   $("inside-sub").textContent=t("It is inside {area}.",{area:areaSentence()});
   $("inside").setAttribute("aria-pressed",String(!!interest.inside));
@@ -6006,6 +6137,28 @@ function showBuyError(error){
 }
 
 var LAST_DONE=null;
+/* The documents chosen at the address step, sealed here to whoever will
+   decide and sent once the application exists to attach them to. */
+function sendDocuments(a){
+  var out=$("done-docs"), files=flow.interest.documents||[];
+  if(!out)return;
+  if(!files.length){ out.textContent=(a.documents||[]).map(function(d){return d.filename;}).join(", "); return; }
+  out.textContent=t("Sealing…");
+  api("/api/applications/recipient?carrier_id="+encodeURIComponent(a.carrier_id||"")).then(function(who){
+    if(!who.reading_key){
+      out.textContent=t("Not sent: {company} has no reading key yet, so nothing can be sealed to it. It will ask for its documents another way.",{company:ts(who.name||"")});
+      return null;
+    }
+    return Promise.all(files.map(function(f){ return sealFile(f,who.reading_key,a.app_id); })).then(function(sealed){
+      out.textContent=t("Sending…");
+      return api("/api/applications/"+encodeURIComponent(a.app_id)+"/documents",{method:"POST",timeout:60000,token:identity.token,body:{documents:sealed}});
+    }).then(function(reply){
+      flow.interest.documents=[]; $("docs").value=""; $("docs-picked").textContent="";
+      out.textContent=t("{n} sent, sealed to {company}. Only that company's browser can open them; you will see on My cover when it does.",
+        {n:reply.documents.length,company:ts(who.name||"")});
+    });
+  }).catch(function(e){ out.textContent=refusalText(e); });
+}
 function showApplied(reply){
   var a=reply.application;
   LAST_DONE=function(){ showApplied(reply); };
@@ -6022,7 +6175,9 @@ function showApplied(reply){
     kv(t("Issued by"),esc(ts((chosenOffer()||{}).name||"")))+
     kv(t("The insurer checks"),esc(a.checks.map(function(c){return t(CHECK_NAMES[c]||c);}).join(", ")))+
     kv(t("Decision due by"),esc(new Date(a.decide_by*1000).toLocaleString(LOCALES[LANG]||"en-US")))+
-    kv(t("Held by"),esc(short(identity.address)),"mono");
+    kv(t("Held by"),esc(short(identity.address)),"mono")+
+    ((flow.interest.documents||[]).length||(a.documents||[]).length?'<div class="kv"><div class="k">'+esc(t("Documents"))+'</div><div class="v" id="done-docs"></div></div>':'');
+  sendDocuments(a);
   $("done-pred").innerHTML="";
   $("done-links").innerHTML=
     '<a class="btn btn-line" href="#/mine">'+esc(t("See it on My cover"))+'</a>'+
@@ -6685,6 +6840,7 @@ function opLoad(){
     var payload=both[0]; OP.overview=both[1]; OP.payouts=both[2]; OP.partners=both[3]; OP.apps=both[4]; OP.funding=both[5];
     OP.reviewer=payload.reviewer||OP.reviewer;
     $("op-signin").hidden=true;
+    ensureReadingKey("/api/operator/reading-key",{token:OP.token});
     work.innerHTML=opHtml(payload);
     opBindCards();
     opBindTabs();
@@ -6820,6 +6976,7 @@ function renderCompany(){
     box.innerHTML=list.map(companyHtml).join("")+'<h3 style="font-size:17px;margin:30px 0 12px">'+
       esc(t("Applications for your paper"))+'</h3><div id="company-apps"></div>'+demo;
     bindSpecimenDesks(box);
+    ensureReadingKey("/api/auth/reading-key",{token:identity.token});
     bindVerification(box,{token:identity.token},renderCompany);
     api("/api/review/applications",{token:identity.token}).then(function(r){
       var holder=$("company-apps"); if(!holder)return;
