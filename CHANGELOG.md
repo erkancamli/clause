@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.3, 20 September 2026
+
+- `scripts/deploy_anchor.py --address` prints the signer's address without
+  touching a node, so it can be funded first; a node that cannot be
+  reached is one line, not a traceback. The anchor's variables are in
+  `deploy/clause.env.example`, commented out.
+
 ## 1.7.2, 20 September 2026
 
 - The backfill queues only open policies, and a book from before the
