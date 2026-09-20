@@ -7842,7 +7842,7 @@ function anchorCheck(p){
   p.proof.forEach(function(sib){ sib=sib.toLowerCase(); node=node<=sib?keccak256(hexBytes(node.slice(2)+sib.slice(2))):keccak256(hexBytes(sib.slice(2)+node.slice(2))); });
   return node===p.root.toLowerCase();
 }
-var ANCHOR_KINDS={mint:N("token minted"),burn:N("token burned"),settle:N("settlement recorded"),root:N("root anchored")};
+var ANCHOR_KINDS={mint:N("token mint"),burn:N("token burn"),settle:N("settlement record"),root:N("book root")};
 function anchorState(st){ return {pending:t("waiting to be sent"),sent:t("sent"),confirmed:t("confirmed"),failed:t("failed")}[st]||st; }
 function anchorLink(url,text){ return url?'<a href="'+esc(url)+'" target="_blank" rel="noreferrer noopener">'+esc(text)+'</a>':esc(text); }
 function anchorShort(h){ return h?h.slice(0,10)+"…"+h.slice(-6):""; }

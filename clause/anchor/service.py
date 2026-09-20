@@ -210,6 +210,13 @@ class Anchor:
                 policy = self.pool.policies.get(intent.policy_id)
                 if policy is None or self.synthetic(policy) or not getattr(policy, "is_open", True):
                     del self.intents[intent.intent_id]
+            # A mint that failed for want of a recipient (recorded before there
+            # was a signer, sent to nobody) is given its recipient and queued again.
+            for intent in [i for i in self.intents.values() if i.kind == "mint" and i.status == "failed" and not i.tx_hash]:
+                if (intent.payload.get("to") or self.ZERO).lower() == self.ZERO and self.signer:
+                    self._settle_recipient(intent)
+                    intent.status = "pending"
+                    intent.error = ""
             have = {i.policy_id for i in self.intents.values() if i.kind == "mint"}
         added = 0
         for policy in list(self.pool.policies.values()):
@@ -331,7 +338,19 @@ class Anchor:
 
     # -- sending ------------------------------------------------------------------
 
+    ZERO = "0x" + "00" * 20
+
+    def _settle_recipient(self, intent: AnchorIntent) -> None:
+        """A mint recorded before there was a signer carries the zero
+        address; the recipient is decided the moment there is one."""
+        if intent.kind == "mint" and (intent.payload.get("to") or self.ZERO).lower() == self.ZERO and self.signer:
+            policy = self.pool.policies.get(intent.policy_id)
+            to, custodial = self.recipient(policy.holder if policy is not None else "")
+            intent.payload["to"] = to
+            intent.payload["custodial"] = custodial
+
     def calldata(self, intent: AnchorIntent) -> tuple[str, bytes]:
+        self._settle_recipient(intent)
         p = intent.payload
         if intent.kind == "mint":
             return self.config.policy_contract, encode_call(CALLS["mint"], [p["to"], intent.policy_id, p["holder_hash"], p["terms_hash"]])
