@@ -1920,7 +1920,10 @@
     "Check your answers": "Проверьте свои ответы",
     "Everything you chose, in one place. Anything wrong can be changed before you pay.": "Всё, что вы выбрали, в одном месте. Любую ошибку можно исправить до оплаты.",
     "Change": "Изменить",
-    "Price": "Цена"
+    "Price": "Цена",
+    "Theme: follows your device": "Тема: как на устройстве",
+    "Theme: light": "Тема: светлая",
+    "Theme: dark": "Тема: тёмная"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

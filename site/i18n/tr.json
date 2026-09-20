@@ -1928,7 +1928,10 @@
     "Check your answers": "Cevaplarınızı kontrol edin",
     "Everything you chose, in one place. Anything wrong can be changed before you pay.": "Seçtikleriniz bir arada. Yanlış bir şey varsa ödemeden önce değiştirebilirsiniz.",
     "Change": "Değiştir",
-    "Price": "Fiyat"
+    "Price": "Fiyat",
+    "Theme: follows your device": "Tema: cihazınızı izler",
+    "Theme: light": "Tema: gündüz",
+    "Theme: dark": "Tema: gece"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

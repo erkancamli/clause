@@ -1920,7 +1920,10 @@
     "Check your answers": "Vérifiez vos réponses",
     "Everything you chose, in one place. Anything wrong can be changed before you pay.": "Tout ce que vous avez choisi, au même endroit. Ce qui est faux peut être modifié avant de payer.",
     "Change": "Modifier",
-    "Price": "Prix"
+    "Price": "Prix",
+    "Theme: follows your device": "Thème : suit l'appareil",
+    "Theme: light": "Thème : clair",
+    "Theme: dark": "Thème : sombre"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
