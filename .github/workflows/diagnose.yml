@@ -18,28 +18,63 @@ jobs:
       - name: from the outside, as a browser would
         run: |
           set +e
+          H='-H Origin:https://clause.insure -H content-type:application/json'
+          A=https://api.clause.insure
+          # The subjects the page sends: the shaking index by default for a home,
+          # with the year built, at a coordinate with a label.
+          SHAKE='{"latitude":40.99,"longitude":29.03,"radius_km":50,"place":"Kadıköy","index":"shaking","built":1998}'
+          MAG='{"latitude":40.99,"longitude":29.03,"radius_km":50,"place":"Kadıköy","built":1998}'
+          STORM='{"latitude":41.02,"longitude":28.77,"place":"test"}'
+          INTEREST='"interest":{"what":"a flat","country":"TR","inside_trigger_area":true,"value_at_risk":90000,"size":{"kind":"home","building":"flat","area_m2":150,"built":1998},"professional":false}'
           for path in /api/health /api/perils; do
-            echo "==> GET $path"; curl -sS --max-time 30 -o /dev/null -D - -w "status %{http_code} in %{time_total}s\n" -H "Origin: https://clause.insure" "https://api.clause.insure$path" | grep -iE "^HTTP|access-control|status |server:|via:"
+            echo "==> GET $path"; curl -sS --max-time 30 -o /dev/null -D - -w "status %{http_code} in %{time_total}s\n" -H "Origin: https://clause.insure" "$A$path" | grep -iE "^HTTP|access-control|status |server:|via:"
           done
           echo "==> OPTIONS /api/quote (preflight)"
-          curl -sS --max-time 30 -o /dev/null -D - -w "status %{http_code} in %{time_total}s\n" -X OPTIONS -H "Origin: https://clause.insure" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "https://api.clause.insure/api/quote" | grep -iE "^HTTP|access-control|status "
-          echo "==> POST /api/quote"
-          curl -sS --max-time 60 -o /tmp/q.json -D /tmp/h.txt -w "status %{http_code} in %{time_total}s\n" -X POST -H "Origin: https://clause.insure" -H "content-type: application/json" -d '{"peril":"earthquake","subject":{"location":"IST-KADIKOY","radius_km":50},"limit":50000,"term_days":365}' "https://api.clause.insure/api/quote"
-          grep -iE "^HTTP|access-control|content-type" /tmp/h.txt; head -c 200 /tmp/q.json; echo
-          echo "==> POST /api/contract"
-          curl -sS --max-time 60 -o /tmp/c.json -D /tmp/h2.txt -w "status %{http_code} in %{time_total}s\n" -X POST -H "Origin: https://clause.insure" -H "content-type: application/json" -d '{"peril":"earthquake","subject":{"location":"IST-KADIKOY","radius_km":50},"limit":50000,"term_days":365,"interest":{"what":"a flat","country":"TR","inside_trigger_area":true,"value_at_risk":90000,"size":{"kind":"home","building":"flat","area_m2":150,"built":1998}},"settlement":"fiat"}' "https://api.clause.insure/api/contract"
-          grep -iE "^HTTP|access-control|content-type" /tmp/h2.txt; head -c 300 /tmp/c.json; echo
+          curl -sS --max-time 30 -o /dev/null -D - -w "status %{http_code} in %{time_total}s\n" -X OPTIONS -H "Origin: https://clause.insure" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "$A/api/quote" | grep -iE "^HTTP|access-control|status "
+          one() { # name path body
+            echo "==> $1"; curl -sS --max-time 90 -o /tmp/o.json -D /tmp/h.txt -w "status %{http_code} in %{time_total}s\n" -X POST $H -d "$3" "$A$2"
+            grep -iE "^HTTP|access-control-allow-origin|content-type" /tmp/h.txt; head -c 200 /tmp/o.json; echo
+          }
+          one "quote, earthquake magnitude" /api/quote "{\"peril\":\"earthquake\",\"subject\":$MAG,\"limit\":50000,\"term_days\":365}"
+          one "quote, earthquake shaking" /api/quote "{\"peril\":\"earthquake\",\"subject\":$SHAKE,\"limit\":50000,\"term_days\":365}"
+          one "quote, storm" /api/quote "{\"peril\":\"storm\",\"subject\":$STORM,\"limit\":37327,\"term_days\":365}"
+          one "offers, earthquake shaking" "/api/offers?country=TR&professional=false" "{\"peril\":\"earthquake\",\"subject\":$SHAKE,\"limit\":50000,\"term_days\":365}"
+          one "contract, earthquake shaking" /api/contract "{\"peril\":\"earthquake\",\"subject\":$SHAKE,\"limit\":50000,\"term_days\":365,\"instalments\":1,\"settlement\":\"fiat\",$INTEREST}"
+          echo "==> together, as the confirm step fires them: offers and contract at once, then quote"
+          T0=$(date +%s.%N)
+          curl -sS --max-time 90 -o /tmp/a.json -w "offers   status %{http_code} in %{time_total}s\n" -X POST $H -d "{\"peril\":\"earthquake\",\"subject\":$SHAKE,\"limit\":50000,\"term_days\":365}" "$A/api/offers?country=TR&professional=false" &
+          curl -sS --max-time 90 -o /tmp/b.json -w "contract status %{http_code} in %{time_total}s\n" -X POST $H -d "{\"peril\":\"earthquake\",\"subject\":$SHAKE,\"limit\":50000,\"term_days\":365,\"instalments\":1,\"settlement\":\"fiat\",$INTEREST}" "$A/api/contract" &
+          curl -sS --max-time 90 -o /tmp/c.json -w "cancel   status %{http_code} in %{time_total}s\n" -H "Origin: https://clause.insure" "$A/api/cancellation/terms?country=TR&peril=earthquake&term_days=365" &
+          curl -sS --max-time 90 -o /tmp/d.json -w "plans    status %{http_code} in %{time_total}s\n" -H "Origin: https://clause.insure" "$A/api/instalments?country=TR&term_days=365" &
+          wait
+          curl -sS --max-time 90 -o /tmp/e.json -w "quote    status %{http_code} in %{time_total}s\n" -X POST $H -d "{\"peril\":\"earthquake\",\"subject\":$SHAKE,\"limit\":50000,\"term_days\":365}" "$A/api/quote"
+          echo "all done in $(echo "$(date +%s.%N) - $T0" | bc)s"
+          for f in a b e; do head -c 120 /tmp/$f.json; echo; done
       - uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 5m
+          command_timeout: 10m
           script: |
             echo "==> service"; sudo systemctl status clause --no-pager --lines=0 || true
+            echo "==> machine"; nproc; free -m | head -2; uptime
+            echo "==> top"; top -bn1 | head -12
             echo "==> version"; curl -s --max-time 5 http://127.0.0.1:8080/api/health | head -c 300; echo
-            echo "==> quote"; curl -s --max-time 60 -o /tmp/q.json -w "status %{http_code} in %{time_total}s\n" -X POST http://127.0.0.1:8080/api/quote -H 'content-type: application/json' -d '{"peril":"earthquake","subject":{"location":"IST-KADIKOY","radius_km":50},"limit":50000,"term_days":365}'; head -c 300 /tmp/q.json; echo
-            echo "==> storm quote"; curl -s --max-time 60 -o /tmp/s.json -w "status %{http_code} in %{time_total}s\n" -X POST http://127.0.0.1:8080/api/quote -H 'content-type: application/json' -d '{"peril":"storm","subject":{"latitude":41.02,"longitude":28.77,"place":"test"},"limit":37327,"term_days":365}'; head -c 300 /tmp/s.json; echo
-            echo "==> book"; curl -s --max-time 30 "http://127.0.0.1:8080/api/policies?limit=1" | head -c 200; echo
-            echo "==> models"; ls -la /opt/clause/clause/hazard/models/ | tail -3
+            echo "==> book, by kind"; sudo /opt/clause/.venv/bin/python - <<'PY'
+            import json, sqlite3, collections
+            db = sqlite3.connect("file:/var/lib/clause/clause.sqlite?mode=ro", uri=True)
+            kinds = collections.Counter(k for (k,) in db.execute("SELECT kind FROM docs"))
+            print(dict(kinds))
+            rows = collections.Counter()
+            for (data,) in db.execute("SELECT data FROM docs WHERE kind='policy'"):
+                d = json.loads(data)
+                d = d.get("value", d) if isinstance(d, dict) else d
+                if not isinstance(d, dict): continue
+                subj = d.get("subject") or {}
+                rows[(str(d.get("peril")), str(subj.get("index", "-")) if isinstance(subj, dict) else "?", str(d.get("status")))] += 1
+            for k, v in sorted(rows.items()): print(k, v)
+            PY
+            echo "==> shaking quote, on the box"; curl -s --max-time 120 -o /tmp/q.json -w "status %{http_code} in %{time_total}s\n" -X POST http://127.0.0.1:8080/api/quote -H 'content-type: application/json' -d '{"peril":"earthquake","subject":{"latitude":40.99,"longitude":29.03,"radius_km":50,"place":"Kadıköy","index":"shaking","built":1998},"limit":50000,"term_days":365}'; head -c 200 /tmp/q.json; echo
+            echo "==> magnitude quote, on the box"; curl -s --max-time 120 -o /tmp/q.json -w "status %{http_code} in %{time_total}s\n" -X POST http://127.0.0.1:8080/api/quote -H 'content-type: application/json' -d '{"peril":"earthquake","subject":{"location":"IST-KADIKOY","radius_km":50},"limit":50000,"term_days":365}'; head -c 200 /tmp/q.json; echo
             echo "==> log"; sudo journalctl -u clause -n "${{ github.event.inputs.lines }}" --no-pager
