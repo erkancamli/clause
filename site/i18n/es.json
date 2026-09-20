@@ -1843,7 +1843,13 @@
     "token mint": "emisión del token",
     "token burn": "quema del token",
     "settlement record": "registro de liquidación",
-    "book root": "raíz del libro"
+    "book root": "raíz del libro",
+    "Held for you by the protocol's signer.": "Lo custodia para usted el firmante del protocolo.",
+    "In your wallet {address}.": "En su cartera {address}.",
+    "Mint it to my wallet {address}": "Emitirlo a mi cartera {address}",
+    "The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order.": "Como el token no se puede transferir, esto quema el que tiene el firmante y emite uno nuevo en su cartera, en ese orden.",
+    "Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it.": "¿Lo quiere en su propia cartera? Vincule una cartera de Ethereum en su perfil; el token se emitirá allí.",
+    "Queued: {n} transaction(s), sent on the next cycle.": "En cola: {n} transacción(es), se envían en el próximo ciclo."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

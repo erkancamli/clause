@@ -1843,7 +1843,13 @@
     "token mint": "Token-Prägung",
     "token burn": "Token-Verbrennung",
     "settlement record": "Abwicklungseintrag",
-    "book root": "Buchwurzel"
+    "book root": "Buchwurzel",
+    "Held for you by the protocol's signer.": "Vom Signierer des Protokolls für Sie gehalten.",
+    "In your wallet {address}.": "In Ihrer Wallet {address}.",
+    "Mint it to my wallet {address}": "In meine Wallet {address} prägen",
+    "The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order.": "Da der Token nicht übertragbar ist, wird der beim Signierer verbrannt und ein neuer in Ihre Wallet geprägt, in dieser Reihenfolge.",
+    "Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it.": "Sie möchten ihn in Ihrer eigenen Wallet? Verknüpfen Sie in Ihrem Profil eine Ethereum-Wallet; der Token wird dann dorthin geprägt.",
+    "Queued: {n} transaction(s), sent on the next cycle.": "Eingereiht: {n} Transaktion(en), gesendet im nächsten Zyklus."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -246,6 +246,11 @@ class VettingItem(BaseModel):
     note: str = Field(default="", max_length=400)     # what they saw
 
 
+class ClaimRequest(BaseModel):
+    """The holder asks for the token in one of their linked wallets."""
+    address: str | None = Field(default=None, max_length=42)
+
+
 class MoreEvidence(BaseModel):
     evidence: list[EvidenceBody] = Field(min_length=1, max_length=4)
 
@@ -779,6 +784,7 @@ def create_app(
     # transactions when a key is configured; without one they are recorded
     # here, marked as not sent, and the proof page still works.
     from ..anchor import Anchor, AnchorConfig
+    from ..anchor.signing import checksum as checksum_evm
 
     def synthetic_policy(policy: Any) -> bool:
         """The demonstration's own policy, marked or recognised by its holder;
@@ -4774,15 +4780,43 @@ def create_app(
         return anchor.status()
 
     @app.get("/api/policies/{policy_id}/anchor")
-    async def policy_anchor(policy_id: str) -> dict[str, Any]:
+    async def policy_anchor(policy_id: str, token: str | None = Depends(bearer)) -> dict[str, Any]:
         """One policy on the public chain: its token's mint and burn, its
         settlement, and its proof of inclusion in the last anchored root,
-        with every hash a person needs to check it themselves."""
-        if policy_id not in pool.policies:
+        with every hash a person needs to check it themselves. The holder
+        also sees where the token is held and which of their own wallets
+        it could go to."""
+        found = pool.policies.get(policy_id)
+        if found is None:
             raise HTTPException(404, f"no policy {policy_id}")
-        return {"mode": anchor.config.mode, "chain": anchor.status()["chain"],
-                "contracts": anchor.status()["contracts"],
-                "proof": anchor.proof(policy_id), **anchor.for_policy(policy_id)}
+        out = {"mode": anchor.config.mode, "chain": anchor.status()["chain"],
+               "contracts": anchor.status()["contracts"],
+               "proof": anchor.proof(policy_id), "held": anchor.held_by(policy_id), **anchor.for_policy(policy_id)}
+        if session_of(token) == found.holder:
+            out["wallets"] = [checksum_evm(a) for a in links.wallets_of(found.holder, "evm")]
+        return out
+
+    @app.post("/api/policies/{policy_id}/anchor/claim")
+    async def policy_anchor_claim(policy_id: str, request: ClaimRequest,
+                                  token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The holder asks for the token in their own wallet: one they have
+        linked on their profile, proved by its signature. Not yet sent, the
+        mint is pointed there; already on the chain, it is burned and
+        minted again to the wallet, in that order."""
+        found = pool.policies.get(policy_id)
+        if found is None or session_of(token) != found.holder:
+            raise HTTPException(404, f"no policy {policy_id}")
+        linked = [checksum_evm(a) for a in links.wallets_of(found.holder, "evm")]
+        if not linked:
+            raise Refused(409, "link an Ethereum wallet on your profile first; the token goes only to a wallet you have proved is yours")
+        wanted = request.address or linked[0]
+        if wanted.lower() not in {a.lower() for a in linked}:
+            raise Refused(409, "that is not one of your linked wallets")
+        if "token" not in (found.metadata or {}) or (found.metadata["token"] or {}).get("burned_at"):
+            raise Refused(409, "this policy has no live token")
+        queued = anchor.claim(found, wanted)
+        return {"queued": [dict(i.to_dict(), tx_url=anchor.tx_url(i.tx_hash)) for i in queued],
+                "held": anchor.held_by(policy_id), "wallet": checksum_evm(wanted)}
 
     @app.post("/api/operator/anchor/run")
     async def anchor_run(

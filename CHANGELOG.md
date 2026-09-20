@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.8.0, 20 September 2026
+
+- The token in the holder's own wallet, if they want it there. A buyer
+  who has linked an Ethereum wallet on their profile (proved by its
+  signature) gets the token minted to it from the start; one who links a
+  wallet later presses "Mint it to my wallet" on the token: a mint not
+  yet sent is pointed there, one already on the chain is burned and
+  minted again to the wallet, the mint waiting for the burn to be mined,
+  since the token cannot be transferred. The token dialog says who holds
+  it. `POST /api/policies/{id}/anchor/claim`.
+
 ## 1.7.4, 20 September 2026
 
 - A mint recorded before there was a signer carried the zero address as

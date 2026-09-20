@@ -163,8 +163,51 @@ class Anchor:
         return intent
 
     def _has(self, kind: str, policy_id: str) -> bool:
+        """Whether the protocol's own event of this kind was already recorded
+        for the policy; a re-issue to the holder's wallet is not one."""
         with self.lock:
-            return any(i.kind == kind and i.policy_id == policy_id for i in self.intents.values())
+            return any(i.kind == kind and i.policy_id == policy_id and not i.payload.get("reissue")
+                       for i in self.intents.values())
+
+    def held_by(self, policy_id: str) -> dict[str, Any] | None:
+        """Where the policy's token is, or is going: the last mint that did
+        not fail, with whether the signer holds it for the person."""
+        mints = sorted((i for i in self._snapshot() if i.kind == "mint" and i.policy_id == policy_id
+                        and i.status != "failed"), key=lambda i: i.created_at)
+        if not mints:
+            return None
+        last = mints[-1]
+        return {"to": last.payload.get("to"), "custodial": bool(last.payload.get("custodial")),
+                "status": last.status, "intent_id": last.intent_id}
+
+    def claim(self, policy: Any, wallet: str, now: float | None = None) -> list[AnchorIntent]:
+        """Put the token in the holder's own wallet. A mint not yet sent is
+        simply pointed there; one already on the chain is burned and minted
+        again to the wallet, the mint waiting for the burn to be mined,
+        since the token cannot be transferred. Returns what was queued."""
+        wallet = checksum(wallet)
+        now = time.time() if now is None else now
+        held = self.held_by(policy.policy_id)
+        token = (policy.metadata or {}).get("token") or {}
+        with self.lock:
+            if held is None:
+                intent = self._add("mint", policy.policy_id, {
+                    "to": wallet, "custodial": False, "holder_hash": merkle.text_hash(policy.holder),
+                    "terms_hash": token.get("terms_hash") or "0x" + "00" * 32, "reissue": True}, now=now)
+                return [intent]
+            if (held["to"] or "").lower() == wallet.lower():
+                return []
+            current = self.intents[held["intent_id"]]
+            if current.status == "pending" and not current.tx_hash:
+                current.payload["to"] = wallet
+                current.payload["custodial"] = False
+                return [current]
+            burn = self._add("burn", policy.policy_id, {"reason": "re-issued to the holder's own wallet", "reissue": True}, now=now)
+            mint = self._add("mint", policy.policy_id, {
+                "to": wallet, "custodial": False, "holder_hash": merkle.text_hash(policy.holder),
+                "terms_hash": token.get("terms_hash") or "0x" + "00" * 32, "reissue": True,
+                "after": burn.intent_id}, now=now + 0.001)
+            return [burn, mint]
 
     def recipient(self, holder: str) -> tuple[str, bool]:
         """Where a policy's token goes: the holder's linked Ethereum wallet
@@ -363,8 +406,20 @@ class Anchor:
         raise ValueError(intent.kind)
 
     def pending(self) -> list[AnchorIntent]:
-        """Oldest first, so a burn never overtakes its mint and roots rise."""
-        return sorted((i for i in self._snapshot() if i.status == "pending"), key=lambda i: (i.created_at, i.intent_id))
+        """Oldest first, so a burn never overtakes its mint and roots rise;
+        one that waits on another (a re-mint on its burn) is held back
+        until that one is confirmed."""
+        rows = self._snapshot()
+        by_id = {i.intent_id: i for i in rows}
+        ready = []
+        for i in rows:
+            if i.status != "pending":
+                continue
+            after = by_id.get(i.payload.get("after", ""))
+            if after is not None and after.status != "confirmed":
+                continue
+            ready.append(i)
+        return sorted(ready, key=lambda i: (i.created_at, i.intent_id))
 
     def send(self, intent: AnchorIntent, *, nonce: int | None = None, fees: tuple[int, int] | None = None) -> AnchorIntent:
         assert self.rpc is not None and self._key is not None and self.signer

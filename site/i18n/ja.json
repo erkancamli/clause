@@ -1843,7 +1843,13 @@
     "token mint": "トークン発行",
     "token burn": "トークン焼却",
     "settlement record": "決済記録",
-    "book root": "台帳ルート"
+    "book root": "台帳ルート",
+    "Held for you by the protocol's signer.": "プロトコルの署名者があなたのために保有しています。",
+    "In your wallet {address}.": "あなたのウォレット {address} にあります。",
+    "Mint it to my wallet {address}": "自分のウォレット {address} に発行",
+    "The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order.": "トークンは譲渡できないため、署名者が保有するものを焼却し、その後あなたのウォレットに新たに発行します。",
+    "Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it.": "自分のウォレットに入れたい場合は、プロフィールで Ethereum ウォレットを連携してください。トークンはそこに発行されます。",
+    "Queued: {n} transaction(s), sent on the next cycle.": "キュー済み: {n}件のトランザクション、次のサイクルで送信されます。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

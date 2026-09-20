@@ -1994,6 +1994,7 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
     <img id="token-img" alt="" style="width:100%;max-width:420px;border-radius:18px;justify-self:center">
     <p class="fine mono" id="token-meta" style="overflow-wrap:anywhere;word-break:break-all"></p>
     <p class="fine" id="token-chain"></p>
+    <div id="token-claim" style="display:grid;gap:8px"></div>
     <div class="row"><button class="btn btn-line btn-sm" type="submit" data-i18n>Close</button></div>
   </form>
 </dialog>
@@ -7952,14 +7953,44 @@ function showToken(id){
     $("token-img").src=meta.image;
     $("token-img").alt=meta.name;
     $("token-meta").textContent=t("Minted in block {n}",{n:f0.format(meta.token.minted_block)})+" · "+meta.token.terms_hash;
-    $("token-chain").textContent="";
-    api("/api/policies/"+encodeURIComponent(id)+"/anchor",{timeout:9000}).then(function(a){
+    $("token-chain").textContent=""; $("token-claim").innerHTML="";
+    api("/api/policies/"+encodeURIComponent(id)+"/anchor",{timeout:9000,token:identity.token||undefined}).then(function(a){
       var last=(a.intents||[]).slice(-1)[0];
       $("token-chain").textContent=last?t("On {chain}: {state}",{chain:(a.chain||{}).name||"",state:t(ANCHOR_KINDS[last.kind]||last.kind)+", "+anchorState(last.status)}):t("Not on a public chain yet.");
+      renderTokenClaim(id,a);
     },function(){});
     var d=$("token-dlg");
     if(typeof d.showModal==="function"){ if(!d.open)d.showModal(); } else d.setAttribute("open","");
   },function(){});
+}
+/* Whose wallet holds the token on the public chain, and the holder's way to
+   make it their own: a wallet they linked on their profile, proved by its
+   signature. The token cannot move, so "to my wallet" is a burn and a new
+   mint, in that order; the page says so rather than pretending otherwise. */
+function renderTokenClaim(id,a){
+  var box=$("token-claim"); if(!box)return;
+  if(!a.wallets||a.mode!=="live"||!a.held)return;   // not the holder, or nothing on the chain yet
+  var held=a.held, mine=a.wallets;
+  var where=held.custodial?t("Held for you by the protocol's signer."):t("In your wallet {address}.",{address:anchorShort(held.to)});
+  var h='<p class="fine">'+esc(where)+'</p>';
+  var target=mine.length?mine[0]:null;
+  if(target&&(held.to||"").toLowerCase()!==target.toLowerCase()){
+    h+='<div><button class="btn btn-ghost btn-sm" type="button" id="token-claim-go">'+esc(t("Mint it to my wallet {address}",{address:anchorShort(target)}))+'</button> <span class="fine" id="token-claim-out"></span></div>';
+    if(held.status!=="pending")h+='<p class="fine">'+esc(t("The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order."))+'</p>';
+  } else if(!target){
+    h+='<p class="fine">'+esc(t("Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it."))+' <a href="#/profile">'+esc(t("My profile"))+'</a></p>';
+  }
+  box.innerHTML=h;
+  var go=$("token-claim-go");
+  if(go)go.addEventListener("click",function(){
+    go.disabled=true; $("token-claim-out").textContent="…";
+    api("/api/policies/"+encodeURIComponent(id)+"/anchor/claim",{method:"POST",token:identity.token,body:{address:target}}).then(function(r){
+      $("token-claim-out").textContent=t("Queued: {n} transaction(s), sent on the next cycle.",{n:(r.queued||[]).length});
+    },function(error){
+      go.disabled=false;
+      $("token-claim-out").textContent=(error&&error.payload&&error.payload.detail)||t("The protocol did not answer.");
+    });
+  });
 }
 function outcomeValue(o,v){
   if(v===null||v===undefined)return "–";

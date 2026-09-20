@@ -1851,7 +1851,13 @@
     "token mint": "token basımı",
     "token burn": "token yakımı",
     "settlement record": "sonuçlandırma kaydı",
-    "book root": "defter kökü"
+    "book root": "defter kökü",
+    "Held for you by the protocol's signer.": "Protokolün imzalayıcısı sizin için tutuyor.",
+    "In your wallet {address}.": "Cüzdanınızda: {address}.",
+    "Mint it to my wallet {address}": "Cüzdanıma bas: {address}",
+    "The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order.": "Token devredilemediği için bu işlem önce imzalayıcıdakini yakar, sonra cüzdanınıza yenisini basar; sırası budur.",
+    "Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it.": "Kendi cüzdanınızda olsun ister misiniz? Profilinizde bir Ethereum cüzdanı bağlayın; token oraya basılır.",
+    "Queued: {n} transaction(s), sent on the next cycle.": "Kuyruğa alındı: {n} işlem, bir sonraki döngüde gönderilir."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
