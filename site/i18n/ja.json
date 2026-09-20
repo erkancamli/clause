@@ -1915,7 +1915,12 @@
     "Reconciliation (CSV)": "照合（CSV）",
     "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "締結 {n}件 · 保険料 {premiums} · 手数料 {fees} · プラットフォーム {platform} · 支払クレーム {claims} · 返還保険料 {returned}",
     "The ledger and the bound policies agree to the cent.": "台帳と締結済み証券は1セント単位で一致しています。",
-    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "台帳と締結済み証券に {diff} の差があります。他の月に支払われた分割分、または以前に締結された証券で返還された手数料です。"
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "台帳と締結済み証券に {diff} の差があります。他の月に支払われた分割分、または以前に締結された証券で返還された手数料です。",
+    "Skip to content": "本文へ移動",
+    "Check your answers": "入力内容の確認",
+    "Everything you chose, in one place. Anything wrong can be changed before you pay.": "選んだ内容を一か所にまとめました。間違いがあれば、お支払い前に変更できます。",
+    "Change": "変更",
+    "Price": "価格"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

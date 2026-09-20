@@ -7,6 +7,12 @@
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # The page runs its own inline script and talks to the API, the map tiles,
+    # Privy and a wallet extension, so scripts are not pinned here; what is
+    # pinned is what no page of ours ever needs: plugins, a rewritten base
+    # URL, being framed by another site, and the device APIs except location.
+    Content-Security-Policy = "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+    Permissions-Policy = "camera=(), microphone=(), payment=(), usb=(), geolocation=(self)"
 
 [[headers]]
   for = "/index.html"

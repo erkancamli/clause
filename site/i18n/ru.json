@@ -1915,7 +1915,12 @@
     "Reconciliation (CSV)": "Сверка (CSV)",
     "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "{n} полисов заключено · премии {premiums} · ваши комиссии {fees} · платформа {platform} · выплаты {claims} · возвращённые премии {returned}",
     "The ledger and the bound policies agree to the cent.": "Реестр и заключённые полисы сходятся до цента.",
-    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Реестр и заключённые полисы расходятся на {diff}: части рассрочки, оплаченные в другие месяцы, или возвращённые комиссии по ранее заключённым полисам."
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Реестр и заключённые полисы расходятся на {diff}: части рассрочки, оплаченные в другие месяцы, или возвращённые комиссии по ранее заключённым полисам.",
+    "Skip to content": "Перейти к содержимому",
+    "Check your answers": "Проверьте свои ответы",
+    "Everything you chose, in one place. Anything wrong can be changed before you pay.": "Всё, что вы выбрали, в одном месте. Любую ошибку можно исправить до оплаты.",
+    "Change": "Изменить",
+    "Price": "Цена"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

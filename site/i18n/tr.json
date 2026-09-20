@@ -1923,7 +1923,12 @@
     "Reconciliation (CSV)": "Mutabakat (CSV)",
     "{n} policies bound · premiums {premiums} · your fees {fees} · platform {platform} · claims paid {claims} · premiums returned {returned}": "{n} poliçe bağlandı · primler {premiums} · ücretleriniz {fees} · platform {platform} · ödenen hasarlar {claims} · iade edilen primler {returned}",
     "The ledger and the bound policies agree to the cent.": "Defter ile bağlanan poliçeler kuruşuna kadar uyuşuyor.",
-    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Defter ile bağlanan poliçeler arasında {diff} fark var: başka aylarda ödenen taksit parçaları ya da daha önce bağlanan poliçelerde iade edilen ücretler."
+    "Ledger and bound policies differ by {diff}: instalment parts paid in other months, or fees returned on policies bound earlier.": "Defter ile bağlanan poliçeler arasında {diff} fark var: başka aylarda ödenen taksit parçaları ya da daha önce bağlanan poliçelerde iade edilen ücretler.",
+    "Skip to content": "İçeriğe atla",
+    "Check your answers": "Cevaplarınızı kontrol edin",
+    "Everything you chose, in one place. Anything wrong can be changed before you pay.": "Seçtikleriniz bir arada. Yanlış bir şey varsa ödemeden önce değiştirebilirsiniz.",
+    "Change": "Değiştir",
+    "Price": "Fiyat"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

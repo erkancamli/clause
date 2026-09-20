@@ -930,6 +930,27 @@ def create_app(
         redoc_url=None,
         lifespan=lifespan,
     )
+    @app.middleware("http")
+    async def harden(request: Request, call_next):
+        """The headers a browser needs from an API that answers with personal
+        data (ASVS V14.4). Everything under /api is a fresh answer about one
+        person's cover or money, so no cache anywhere may keep it; nothing here
+        is a page, so nothing here may run a script or be framed. nginx says
+        the same in production; the application says it itself so a deployment
+        without nginx is no less careful, and the two copies are identical so
+        they add up to one policy."""
+        response = await call_next(request)
+        headers = response.headers
+        headers.setdefault("x-content-type-options", "nosniff")
+        headers.setdefault("referrer-policy", "strict-origin-when-cross-origin")
+        headers.setdefault("permissions-policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()")
+        headers.setdefault("x-frame-options", "DENY")
+        path = request.url.path
+        if path.startswith("/api/") and not path.startswith("/api/docs"):
+            headers.setdefault("cache-control", "no-store")
+            headers.setdefault("content-security-policy", "default-src 'none'; frame-ancestors 'none'")
+        return response
+
     if keeper is not None:
         @app.middleware("http")
         async def keep_what_changed(request: Request, call_next):
