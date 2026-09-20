@@ -21,6 +21,8 @@ quote says so in words rather than only in the number.
 
 from __future__ import annotations
 
+import json
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
@@ -182,6 +184,10 @@ class PricingEngine:
         self.seed = seed
         self.draws = WorldDraws.draw(trials=trials, years=horizon_years, seed=seed)
         self._book_cache: tuple[frozenset[str], list[float]] | None = None
+        # The last few candidates settled, by what they are. A quote settles
+        # its candidate once and the capacity checks that follow reuse it,
+        # instead of simulating the same policy three times over.
+        self._candidates: OrderedDict[tuple[Any, ...], list[float]] = OrderedDict()
 
     # -- book -------------------------------------------------------------
 
@@ -198,6 +204,29 @@ class PricingEngine:
 
         self._book_cache = (key, total)
         return total
+
+    def losses_of(self, exposure: Exposure) -> list[float]:
+        """One exposure's loss per trial, remembered for the next call about it."""
+        key = (exposure.policy_id, exposure.peril_key, exposure.limit, exposure.term_days,
+               json.dumps(exposure.subject, sort_keys=True, default=str), exposure.curve)
+        found = self._candidates.get(key)
+        if found is None:
+            found = settle(exposure, self.draws)
+            self._candidates[key] = found
+            while len(self._candidates) > 8:
+                self._candidates.popitem(last=False)
+        else:
+            self._candidates.move_to_end(key)
+        return found
+
+    def losses_with(self, book: Sequence[Exposure], extra: Exposure | None) -> list[float]:
+        """The book's loss per trial with one more policy in it: the cached
+        book plus that policy, rather than the whole book simulated again
+        under a membership the cache has never seen."""
+        base = self.book_losses(book)
+        if extra is None:
+            return base
+        return [a + b for a, b in zip(base, self.losses_of(extra))]
 
     def position(self, book: Sequence[Exposure]) -> CapitalPosition:
         """The capital the pool must hold for a given book."""
@@ -259,7 +288,7 @@ class PricingEngine:
         )
 
         # Marginal capital, on shared draws.
-        candidate_losses = settle(candidate, self.draws)
+        candidate_losses = self.losses_of(candidate)
         before_losses = self.book_losses(book)
         after_losses = [a + b for a, b in zip(before_losses, candidate_losses)]
 

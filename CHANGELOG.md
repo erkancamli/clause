@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3.3, 20 September 2026
+
+- An earthquake quote on shaking, the index the page chooses for a home,
+  took twelve seconds on the live server against three for magnitude and
+  storm, and the confirm step's three calls (offers, the price, the
+  contract) ran past the page's patience one after another: the price bar
+  stayed on "Pricing…" and the contract said the protocol could not be
+  reached. Three causes, each fixed, no figure changed:
+  the capital model walked the address's whole rate table on every one of
+  its twelve thousand trials (now a cumulative table kept per address and
+  a binary search; the same events, in the same order, from the same
+  random numbers); the capacity checks after a quote simulated the whole
+  book twice more with the candidate in it (now the cached book plus the
+  candidate settled once and remembered); and the page asked for the
+  contract before the price came, so the same policy was priced a third
+  time for the text (now the contract waits for the price and carries its
+  lock). The `diagnose` workflow probes the confirm step as the page
+  sends it, one call at a time and all at once.
+
 ## 1.3.2, 20 September 2026
 
 - The book on disk: a save that ran while a key was being registered or an

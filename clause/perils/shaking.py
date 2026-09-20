@@ -34,6 +34,7 @@ better in each country, and replacing it changes nothing else here.
 from __future__ import annotations
 
 import math
+from bisect import bisect_left
 from functools import lru_cache
 from typing import Any, Callable
 
@@ -117,6 +118,24 @@ def exceedance(subject: dict[str, Any], term_days: float) -> Callable[[float], f
     return probability
 
 
+@lru_cache(maxsize=512)
+def _sampler(latitude: float, longitude: float, part: str, magnitude_below: float | None,
+             ) -> tuple[float, tuple[float, ...], tuple[tuple[float, float], ...]]:
+    """The rate table of one address as a cumulative rate to draw against.
+
+    Built once per address and kept: the capital model draws every trial from
+    it, and rebuilding and walking the table twelve thousand times over was
+    most of what an earthquake quote on shaking cost.
+    """
+    rows = [row for row in _site(latitude, longitude, part)
+            if magnitude_below is None or row[0] < magnitude_below]
+    total, cumulative = 0.0, []
+    for _, _, r in rows:
+        total += r
+        cumulative.append(total)
+    return total, tuple(cumulative), tuple((m, d) for m, d, _ in rows)
+
+
 def draw(rng: Any, subject: dict[str, Any], part: str = "all",
          magnitude_below: float | None = None) -> list[float]:
     """Shaking at the address from events drawn in one year, one value per event.
@@ -125,20 +144,20 @@ def draw(rng: Any, subject: dict[str, Any], part: str = "all",
     address; large shared events are shaken separately so neighbours settle
     together.
     """
-    rows = [row for row in density(subject, part)
-            if magnitude_below is None or row[0] < magnitude_below]
-    total = sum(r for _, _, r in rows)
+    total, cumulative, events = _sampler(
+        round(float(subject["latitude"]), 4), round(float(subject["longitude"]), 4),
+        part, magnitude_below)
     if total <= 0:
         return []
     count = _poisson(rng, total)
     out = []
+    last = len(events) - 1
     for _ in range(count):
-        target, acc = rng.random() * total, 0.0
-        for m, d, r in rows:
-            acc += r
-            if acc >= target:
-                out.append(mmi(m, d) + rng.gauss(0.0, IPE_SIGMA))
-                break
+        # The first row whose cumulative rate reaches the target: the same row
+        # a walk down the table found, at the cost of a binary search.
+        i = min(bisect_left(cumulative, rng.random() * total), last)
+        m, d = events[i]
+        out.append(mmi(m, d) + rng.gauss(0.0, IPE_SIGMA))
     return out
 
 
