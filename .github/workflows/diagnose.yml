@@ -15,6 +15,20 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: from the outside, as a browser would
+        run: |
+          set +e
+          for path in /api/health /api/perils; do
+            echo "==> GET $path"; curl -sS --max-time 30 -o /dev/null -D - -w "status %{http_code} in %{time_total}s\n" -H "Origin: https://clause.insure" "https://api.clause.insure$path" | grep -iE "^HTTP|access-control|status |server:|via:"
+          done
+          echo "==> OPTIONS /api/quote (preflight)"
+          curl -sS --max-time 30 -o /dev/null -D - -w "status %{http_code} in %{time_total}s\n" -X OPTIONS -H "Origin: https://clause.insure" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "https://api.clause.insure/api/quote" | grep -iE "^HTTP|access-control|status "
+          echo "==> POST /api/quote"
+          curl -sS --max-time 60 -o /tmp/q.json -D /tmp/h.txt -w "status %{http_code} in %{time_total}s\n" -X POST -H "Origin: https://clause.insure" -H "content-type: application/json" -d '{"peril":"earthquake","subject":{"location":"IST-KADIKOY","radius_km":50},"limit":50000,"term_days":365}' "https://api.clause.insure/api/quote"
+          grep -iE "^HTTP|access-control|content-type" /tmp/h.txt; head -c 200 /tmp/q.json; echo
+          echo "==> POST /api/contract"
+          curl -sS --max-time 60 -o /tmp/c.json -D /tmp/h2.txt -w "status %{http_code} in %{time_total}s\n" -X POST -H "Origin: https://clause.insure" -H "content-type: application/json" -d '{"peril":"earthquake","subject":{"location":"IST-KADIKOY","radius_km":50},"limit":50000,"term_days":365,"interest":{"what":"a flat","country":"TR","inside_trigger_area":true,"value_at_risk":90000,"size":{"kind":"home","building":"flat","area_m2":150,"built":1998}},"settlement":"fiat"}' "https://api.clause.insure/api/contract"
+          grep -iE "^HTTP|access-control|content-type" /tmp/h2.txt; head -c 300 /tmp/c.json; echo
       - uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
