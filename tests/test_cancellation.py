@@ -17,7 +17,9 @@ def policy(peril="earthquake", term=365, age_days=0.0, resident="TR", **meta):
         policy_id="CLS-X", premium=1000.0, term_days=term, peril_key=peril,
         bought_at=now - age_days * DAY, starts_at=now - age_days * DAY,
         ends_at=now - age_days * DAY + term * DAY, is_open=True, status=PolicyStatus.ACTIVE,
-        metadata={"interest": {"resident": resident}, **meta})
+        # As every policy the page sells: the contract read and accepted, so
+        # the buyer was informed and the statutory clock, not the year, runs.
+        metadata={"interest": {"resident": resident}, "contract_hash": "accepted", **meta})
 
 
 def test_a_mistake_is_undone_in_full_whatever_it_was() -> None:

@@ -1438,7 +1438,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
           </ul>
         </div>
       </div>
-      <p class="fine" style="margin-top:28px"><a href="#/faq" data-i18n>Questions people ask, and what the messages on the page mean</a></p>
+      <p class="fine" style="margin-top:28px"><a href="#/rules" data-i18n>The calculation rules: sources, final figures, tests, objections</a> · <a href="#/faq" data-i18n>Questions people ask, and what the messages on the page mean</a></p>
   </div>
   </div>
 </section>
@@ -1624,6 +1624,16 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     </div>
   </div>
 </section>
+<!-- ============================== RULES ============================== -->
+<section class="view" id="view-rules">
+  <div class="wrap pad">
+    <div class="label" data-i18n>Calculation rules</div>
+    <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px" data-i18n>How a reading becomes the number the policy settles on</h1>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>Written down before anything happens, peril by peril: which source is read and which stands in when it is silent, what counts as the final figure and when it is frozen, the tests a reading must pass, how long you have to object, and what happens if a publisher goes away. The same text is section 10 of every contract.</p>
+    <div id="rules-out" style="margin-top:26px;display:grid;gap:14px"></div>
+  </div>
+</section>
+
 <section class="view" id="view-faq">
   <div class="wrap pad" style="max-width:820px">
     <div class="label" data-i18n>Questions</div>
@@ -1643,6 +1653,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <details class="more" style="margin-top:8px"><summary data-i18n>Does the platform charge me anything?</summary><div class="inner"><p data-i18n>No. The price you see is the pool's price plus the issuing company's fee. The platform is paid by the company, out of that fee, and a fee that comes back to you takes the platform's share back with it.</p></div></details>
     <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>After buying</h3>
     <details class="more" style="margin-top:8px"><summary data-i18n>Where is my policy?</summary><div class="inner"><p data-i18n>On My cover, with its terms, its status and its token. The token is locked to your address and cannot be transferred; a cancelled policy's token is burned and leaves the wallet.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>How is the reading decided, and what if the source is silent?</summary><div class="inner"><p data-i18n>By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Is my policy on a public chain?</summary><div class="inner"><p data-i18n>The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How will I know it paid?</summary><div class="inner"><p data-i18n>Settlement happens on chain the moment the reading crosses the trigger; My cover shows the payout and the Proof page shows the reading, the block and the policy it settled. A bank payout, where you chose one, follows within the days the company states.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Can I renew?</summary><div class="inner"><p data-i18n>Yes. From My cover a policy that is ending can be renewed on the same terms, and a standing instruction can renew it on the day without you. The issuing company also sees which policies end within thirty days.</p></div></details>
@@ -1668,7 +1679,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <details class="more" style="margin-top:8px"><summary data-i18n>"This browser does not hold the key these were sealed to"</summary><div class="inner"><p data-i18n>The applicant sealed the documents to the reading key of the browser that first opened this desk. Open them there, or ask the applicant to send them again from this browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"That session ended" on the operator's page</summary><div class="inner"><p data-i18n>Operator sessions last forty five minutes and are not kept across a restart. Sign in again with the token.</p></div></details>
     <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Complaints</h3>
-    <details class="more" style="margin-top:8px"><summary data-i18n>Where do I complain?</summary><div class="inner"><p data-i18n>First to the issuing company, named on the policy; in Türkiye it has fifteen days to answer, and after that the Sigorta Tahkim Komisyonu hears disputes. The operator of this site can be reached at the contact on the Company page, and the Proof page shows every reading and settlement so a dispute starts from the facts.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>Where do I complain?</summary><div class="inner"><p data-i18n>On the policy itself, under My cover: "Raise a complaint" opens a thread with the issuing company, and its time to answer is counted from that moment (fifteen days in Türkiye). If it does not answer in time, or the answer does not settle it, one click takes it to the ombudsman (the Sigorta Tahkim Komisyonu in Türkiye) with the file its form asks for: the policy, every reading and settlement, the whole thread. The Proof page shows the same readings, so a dispute starts from the facts.</p></div></details>
   </div>
 </section>
 
@@ -3035,13 +3046,14 @@ function privySignIn(){
 /* ================= routing ================= */
 var VIEWS={"/":"view-home","/cover":"view-cover","/mine":"view-mine","/profile":"view-profile",
            "/how":"view-how","/pool":"view-pool","/proof":"view-proof",
-           "/insurers":"view-insurers","/privacy":"view-privacy","/faq":"view-faq",
+           "/insurers":"view-insurers","/privacy":"view-privacy","/faq":"view-faq","/rules":"view-rules",
            "/company":"view-company","/admin":"view-admin"};
 function currentRoute(){return (location.hash||"#/").replace(/^#/,"")||"/";}
 function show(route){
   // A proof link carries the policy it is about: #/proof/CLS-XXXX
   var proof = route.match(/^\/proof(?:\/(.+))?$/);
   if (proof) { route = "/proof"; renderProof(proof[1] ? decodeURIComponent(proof[1]) : null); }
+  if (route === "/rules") renderRules();
   if(!VIEWS[route])route="/";
   Object.keys(VIEWS).forEach(function(k){$(VIEWS[k]).classList.toggle("on",k===route);});
   Array.prototype.forEach.call($("mainnav").querySelectorAll("a"),function(a){
@@ -3178,7 +3190,151 @@ function cancelHtml(policy){
   var m=policy.metadata||{};
   if(policy.status!=="active")return "";
   return (m.bought_by==="rider"?'<span class="pill">'+esc(t("Bought by Rider"))+'</span>':'')+
-    '<span class="cancel-slot" data-cancel-for="'+esc(policy.policy_id)+'"></span>';
+    '<span class="cancel-slot" data-cancel-for="'+esc(policy.policy_id)+'"></span>'+
+    ' <button class="btn btn-ghost btn-sm" type="button" data-contract-copy="'+esc(policy.policy_id)+'">'+esc(t("Your copy of the contract"))+'</button>';
+}
+/* ---------------- complaints ----------------
+   A complaint is a thread on the policy with the company's clock on it. The
+   page shows the clock, lets the holder write, and when the clock has run
+   out or the answer has come, hands over the file the ombudsman's form asks
+   for: the policy, its readings and settlements, the thread, the links. */
+var COMPLAINT_SUBJECTS={settlement:N("The settlement: it paid nothing, or the wrong amount"),payment:N("The payment: it was decided but has not arrived"),
+  cover:N("The cover: it is not what I bought"),service:N("The company: how it dealt with me"),other:N("Something else")};
+var COMPLAINT_STATUS={open:N("waiting for the company"),answered:N("answered by the company"),closed:N("closed"),escalated:N("taken to the ombudsman")};
+var WHO={holder:N("You"),company:N("The company"),operator:N("The operator")};
+function complaintWhen(x){ return new Date(x*1000).toLocaleString(LOCALES[LANG]||"en-US"); }
+function complaintThread(c){
+  return '<div style="display:grid;gap:6px">'+(c.messages||[]).map(function(m){
+    return '<div class="fine"><b>'+esc(t(WHO[m.who]||m.who))+'</b> · '+esc(complaintWhen(m.at))+'<br>'+esc(m.text)+'</div>'; }).join("")+'</div>';
+}
+function complaintHtml(c){
+  var route=c.route||{};
+  var clock=c.status==="open"?(c.overdue?t("The company's {days} days to answer have run out.",{days:route.answer_days})
+    :t("The company has {n} days left to answer, until {when}.",{n:Math.max(0,Math.ceil(c.days_left)),when:complaintWhen(c.deadline_at)})):"";
+  var h='<div class="verdict" style="margin-top:10px"><p><b>'+esc(t("Complaint {id}",{id:c.complaint_id}))+'</b> · '+esc(t(COMPLAINT_SUBJECTS[c.subject]||c.subject))+' · '+esc(t(COMPLAINT_STATUS[c.status]||c.status))+'</p>'+
+    (clock?'<p class="fine">'+esc(clock)+'</p>':'')+complaintThread(c);
+  if(c.status!=="closed"){
+    h+='<div style="margin-top:8px;display:grid;gap:6px"><textarea class="dlg-input" rows="2" data-complaint-text="'+esc(c.complaint_id)+'" placeholder="'+esc(t("Write to the company"))+'"></textarea>'+
+      '<div><button class="btn btn-line btn-sm" type="button" data-complaint-send="'+esc(c.complaint_id)+'">'+esc(t("Send"))+'</button> '+
+      (c.can_escalate&&c.status!=="escalated"?'<button class="btn btn-primary btn-sm" type="button" data-complaint-escalate="'+esc(c.complaint_id)+'">'+esc(t("Take it to {body}",{body:route.body||""}))+'</button> ':'')+
+      '<button class="btn btn-ghost btn-sm" type="button" data-complaint-file="'+esc(c.complaint_id)+'">'+esc(t("Download the file"))+'</button> <span class="fine" data-complaint-out="'+esc(c.complaint_id)+'"></span></div></div>';
+  }
+  if(c.status==="escalated"||c.can_escalate){
+    h+='<p class="fine" style="margin-top:8px">'+esc(ts(route.note||""))+'</p><p class="fine">'+(route.links||[]).map(function(l){
+      return '<a href="'+esc(l.url)+'" target="_blank" rel="noreferrer noopener">'+esc(l.name)+'</a>'; }).join(" · ")+'</p>';
+  }
+  return h+'</div>';
+}
+function complaintFormHtml(id){
+  return '<details class="more" style="margin-top:10px"><summary>'+esc(t("Something wrong? Raise a complaint"))+'</summary><div class="inner" style="display:grid;gap:8px">'+
+    '<p class="fine">'+esc(t("It goes to the company that issued the policy, on the record, with its time to answer counted from now. If it does not answer in time, or the answer does not settle it, the ombudsman's file is one click away."))+'</p>'+
+    '<select class="dlg-input" data-complaint-subject="'+esc(id)+'">'+Object.keys(COMPLAINT_SUBJECTS).map(function(k){ return '<option value="'+k+'">'+esc(t(COMPLAINT_SUBJECTS[k]))+'</option>'; }).join("")+'</select>'+
+    '<textarea class="dlg-input" rows="3" data-complaint-new="'+esc(id)+'" placeholder="'+esc(t("What happened, in your own words"))+'"></textarea>'+
+    '<div><button class="btn btn-line btn-sm" type="button" data-complaint-open="'+esc(id)+'">'+esc(t("Send the complaint"))+'</button> <span class="fine" data-complaint-out="new-'+esc(id)+'"></span></div></div></details>';
+}
+function downloadText(path,filename){
+  return fetch(API+path,{headers:{authorization:"Bearer "+identity.token}}).then(function(r){ if(!r.ok)throw new Error("refused"); return r.text(); }).then(function(text){
+    var blob=new Blob([text],{type:"text/plain"}), url=URL.createObjectURL(blob), link=document.createElement("a");
+    link.href=url; link.download=filename; document.body.appendChild(link); link.click(); link.remove(); setTimeout(function(){URL.revokeObjectURL(url);},60000);
+  });
+}
+function bindComplaints(root){
+  var slots=root.querySelectorAll("[data-complaint-for]"); if(!slots.length||!identity.token)return;
+  api("/api/complaints",{token:identity.token}).then(function(r){
+    var byPolicy={}; (r.complaints||[]).forEach(function(c){ if(!byPolicy[c.policy_id]||c.status!=="closed")byPolicy[c.policy_id]=c; });
+    Array.prototype.forEach.call(slots,function(slot){ var id=slot.dataset.complaintFor, c=byPolicy[id]; slot.innerHTML=c?complaintHtml(c):complaintFormHtml(id); });
+    bindComplaintActions(root);
+  },function(){});
+}
+function bindComplaintActions(root){
+  function out(key,text){ var el=root.querySelector('[data-complaint-out="'+key+'"]'); if(el)el.textContent=text; }
+  Array.prototype.forEach.call(root.querySelectorAll("[data-complaint-open]"),function(b){
+    b.addEventListener("click",function(){
+      var id=b.dataset.complaintOpen, text=root.querySelector('[data-complaint-new="'+id+'"]').value, subject=root.querySelector('[data-complaint-subject="'+id+'"]').value;
+      b.disabled=true;
+      api("/api/policies/"+encodeURIComponent(id)+"/complaints",{method:"POST",token:identity.token,body:{subject:subject,text:text}}).then(function(){ renderMine(); },function(e){ b.disabled=false; out("new-"+id,refusalText(e)); });
+    });
+  });
+  Array.prototype.forEach.call(root.querySelectorAll("[data-complaint-send]"),function(b){
+    b.addEventListener("click",function(){
+      var id=b.dataset.complaintSend, text=root.querySelector('[data-complaint-text="'+id+'"]').value; b.disabled=true;
+      api("/api/complaints/"+encodeURIComponent(id)+"/messages",{method:"POST",token:identity.token,body:{text:text}}).then(function(){ renderMine(); },function(e){ b.disabled=false; out(id,refusalText(e)); });
+    });
+  });
+  Array.prototype.forEach.call(root.querySelectorAll("[data-complaint-escalate]"),function(b){
+    b.addEventListener("click",function(){
+      var id=b.dataset.complaintEscalate; b.disabled=true;
+      api("/api/complaints/"+encodeURIComponent(id)+"/escalate",{method:"POST",token:identity.token,body:{}}).then(function(){
+        downloadText("/api/complaints/"+encodeURIComponent(id)+"/package?format=text",id+".txt").then(renderMine,renderMine);
+      },function(e){ b.disabled=false; out(id,refusalText(e)); });
+    });
+  });
+  Array.prototype.forEach.call(root.querySelectorAll("[data-complaint-file]"),function(b){
+    b.addEventListener("click",function(){
+      var id=b.dataset.complaintFile; b.disabled=true;
+      downloadText("/api/complaints/"+encodeURIComponent(id)+"/package?format=text",id+".txt").then(function(){ b.disabled=false; },function(e){ b.disabled=false; out(id,refusalText(e)); });
+    });
+  });
+}
+/* The company's side of the same threads: its clock, its answer, its close. */
+function bindCompanyComplaints(root, auth){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-complaints-for]"),function(holder){
+    var id=holder.dataset.complaintsFor;
+    function load(){
+      var o={timeout:15000}; for(var k in auth)o[k]=auth[k];
+      api("/api/company/complaints?carrier_id="+encodeURIComponent(id),o).then(function(r){
+        var rows=r.complaints||[], s=r.summary||{};
+        if(!rows.length){ holder.innerHTML='<p class="fine">'+esc(t("No complaints."))+'</p>'; return; }
+        holder.innerHTML='<p class="fine">'+esc(t("{open} open · {overdue} overdue · {answered} answered · {closed} closed",{open:f0.format(s.open||0),overdue:f0.format(s.overdue||0),answered:f0.format(s.answered||0),closed:f0.format(s.closed||0)}))+'</p>'+
+          rows.map(function(c){
+            var route=c.route||{};
+            return '<div class="policy-card" style="margin-bottom:10px"><div class="bar"><span class="lamp'+(c.status==="open"?"":" off")+'"></span><span class="label">'+esc(t(COMPLAINT_STATUS[c.status]||c.status))+'</span><span class="right label mono">'+esc(c.complaint_id)+' · '+esc(c.policy_id)+'</span></div>'+
+              '<div class="body">'+(c.status==="open"?'<p class="fine">'+esc(c.overdue
+                ?t("Overdue: the {days} days to answer have passed. Answer now; the holder may already have taken it to {body}.",{days:route.answer_days,body:route.body||""})
+                :t("{n} days left to answer, until {when}.",{n:Math.max(0,Math.ceil(c.days_left)),when:complaintWhen(c.deadline_at)}))+'</p>':'')+
+              '<p class="fine">'+esc(t(COMPLAINT_SUBJECTS[c.subject]||c.subject))+'</p>'+complaintThread(c)+
+              (c.status!=="closed"?'<div style="margin-top:8px;display:grid;gap:6px"><textarea class="dlg-input" rows="2" data-co-complaint-text="'+esc(c.complaint_id)+'" placeholder="'+esc(t("Your answer, on the record"))+'"></textarea><div>'+
+                '<button class="btn btn-line btn-sm" type="button" data-co-complaint-send="'+esc(c.complaint_id)+'">'+esc(t("Answer"))+'</button> '+
+                '<button class="btn btn-ghost btn-sm" type="button" data-co-complaint-close="'+esc(c.complaint_id)+'">'+esc(t("Close as settled"))+'</button> <span class="fine" data-co-complaint-out="'+esc(c.complaint_id)+'"></span></div></div>':'')+
+              '</div></div>'; }).join("");
+        bind();
+      },function(e){ holder.innerHTML='<p class="fine">'+esc(refusalText(e))+'</p>'; });
+    }
+    function bind(){
+      function out(cid,text){ var el=holder.querySelector('[data-co-complaint-out="'+cid+'"]'); if(el)el.textContent=text; }
+      Array.prototype.forEach.call(holder.querySelectorAll("[data-co-complaint-send]"),function(b){
+        b.addEventListener("click",function(){
+          var cid=b.dataset.coComplaintSend, text=holder.querySelector('[data-co-complaint-text="'+cid+'"]').value; b.disabled=true;
+          var o={method:"POST",body:{text:text}}; for(var k in auth)o[k]=auth[k];
+          api("/api/complaints/"+encodeURIComponent(cid)+"/messages",o).then(load,function(e){ b.disabled=false; out(cid,refusalText(e)); });
+        });
+      });
+      Array.prototype.forEach.call(holder.querySelectorAll("[data-co-complaint-close]"),function(b){
+        b.addEventListener("click",function(){
+          var cid=b.dataset.coComplaintClose, text=holder.querySelector('[data-co-complaint-text="'+cid+'"]').value; b.disabled=true;
+          var o={method:"POST",body:{resolution:text}}; for(var k in auth)o[k]=auth[k];
+          api("/api/complaints/"+encodeURIComponent(cid)+"/close",o).then(load,function(e){ b.disabled=false; out(cid,refusalText(e)); });
+        });
+      });
+    }
+    load();
+  });
+}
+/* The contract as a file on the buyer's own device: the durable medium the
+   distance selling rules ask for. The protocol notes the day it was taken. */
+function bindContractCopies(root){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-contract-copy]"),function(b){
+    b.addEventListener("click",function(){
+      var id=b.dataset.contractCopy; b.disabled=true;
+      fetch(API+"/api/policies/"+encodeURIComponent(id)+"/contract?download=1",{headers:{authorization:"Bearer "+identity.token}}).then(function(r){
+        if(!r.ok)throw new Error("refused"); return r.text();
+      }).then(function(text){
+        var blob=new Blob([text],{type:"text/plain"}), url=URL.createObjectURL(blob), link=document.createElement("a");
+        link.href=url; link.download=id+"-contract.txt"; document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(function(){URL.revokeObjectURL(url);},60000); b.disabled=false;
+      }).catch(function(){ b.disabled=false; b.textContent=t("Could not fetch the contract; open My cover and try again."); });
+    });
+  });
 }
 var CANCEL_BASIS={mistake:N("Cancel: all of it comes back (bought less than an hour ago)"),
   rider:N("Cancel: all of it comes back (bought by Rider today)"),
@@ -3192,9 +3348,12 @@ function bindCancels(root){
         slot.innerHTML='<span class="fine">'+esc(t("Cannot be cancelled now: {why}",{why:ts(c.reason)}))+'</span>';
         return;
       }
+      var w=c.withdrawal||{}, when=function(x){ return new Date(x*1000).toLocaleString(LOCALES[LANG]||"en-US"); };
       slot.innerHTML='<button class="btn btn-line btn-sm" type="button" data-cancel="'+esc(id)+'">'+
         esc(t(CANCEL_BASIS[c.basis]||"Cancel",{refund:money(c.refund)}))+'</button>'+
-        (c.until?'<span class="fine"> '+esc(t("until {time}",{time:new Date(c.until*1000).toLocaleString(LOCALES[LANG]||"en-US")}))+'</span>':'');
+        (c.until?'<span class="fine"> '+esc(t("until {time}",{time:when(c.until)}))+'</span>':'')+
+        (w.basis==="informed"?'<span class="fine"> · '+esc(t("Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.",{days:w.days,refund_days:w.refund_within_days}))+'</span>':'')+
+        (w.basis==="not_informed"?'<span class="fine"> · '+esc(t("You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below."))+'</span>':'');
       var b=slot.querySelector("[data-cancel]");
       b.addEventListener("click",function(){
         if(!confirm(t("Cancel this policy? {refund} will be returned to your address and the cover ends now.",{refund:money(c.refund)})))return;
@@ -4120,7 +4279,7 @@ var flow={
   step:1, peril:"quake", subject:null, radius:50, limit:100000, instalments:1,
   // The declaration that separates cover from a wager.
   interest:{what:"", value:150000, inside:false, country:"TR", touched:false, declared:0, modelYear:null, address:null},
-  place:null, busy:false, quoted:null, refusal:null, seq:0, stationKm:0,
+  place:null, busy:false, quoted:null, quotedFor:null, refusal:null, seq:0, stationKm:0,
   // Where the chosen point is, as the protocol answered: its country, and for
   // a point outside Türkiye the catalogue model's rates for each radius.
   placeCountry:null, pointCountry:null, grid:null, gridError:null, hazardSeq:0,
@@ -4455,9 +4614,14 @@ function fillCountries(select,selected){
   if(keep)select.value=keep;
 }
 
+function quoteKey(){
+  return JSON.stringify([PERIL_KEYS[flow.peril],subjectPayload(),flow.limit,PERILS[flow.peril].term]);
+}
 function priced(){
   var q=flow.quoted;
-  if(!q)return quote();
+  // The protocol's price stands only for the cover it priced: move the
+  // slider or the pin and the page's own model answers until the protocol does.
+  if(!q||flow.quotedFor!==quoteKey())return quote();
   return {el:q.expected_loss, riskLoad:q.risk_load, expenses:q.expense_load,
           premium:q.premium, trigger:q.trigger_probability,
           capital:q.marginal_capital, basis:q.risk_basis, fromProtocol:true};
@@ -4468,8 +4632,9 @@ function refreshQuote(){
   // screen, so this either confirms it or replaces it; the panel is never empty
   // while it waits, and a buyer who moves on is not overwritten by a late reply.
   flow.quoted=null;
-  if(!link.live){renderPrice();return;}
-  var seq=++flow.seq;
+  var atConfirm=flow.step===CONFIRM_STEP, done=atConfirm?renderPrice:updatePriceBar;
+  if(!link.live){done();return;}
+  var seq=++flow.seq, key=quoteKey();
   flow.pricing=true;
   api("/api/offers?country="+encodeURIComponent(flow.interest.country||"")+"&professional="+(flow.interest.professional?"true":"false"),{method:"POST",timeout:25000,body:{
     peril:PERIL_KEYS[flow.peril], subject:subjectPayload(),
@@ -4486,14 +4651,29 @@ function refreshQuote(){
   }).then(function(reply){
     if(seq!==flow.seq||!reply)return;
     flow.pricing=false;
-    flow.quoted=reply;
-    renderPrice();
+    flow.quoted=reply; flow.quotedFor=key;
+    (flow.step===CONFIRM_STEP?renderPrice:updatePriceBar)();
   },function(error){
     if(seq!==flow.seq)return;
     flow.pricing=false;
     flow.refusal=(error&&error.payload&&error.payload.detail)||null;
-    renderPrice();
+    (flow.step===CONFIRM_STEP?renderPrice:updatePriceBar)();
   });
+}
+/* The whole price, the moment there is a place: the pool's premium and the
+   company's fee together, before anything personal is asked. Asked again,
+   after a pause, whenever the cover or the pin moves; the page's own model
+   fills the bar in the meantime, so it is never empty and never stale. */
+var quoteTimer=null;
+function scheduleQuote(){
+  if(!link.live||flow.step>=CONFIRM_STEP)return;
+  if(flow.quotedFor===quoteKey()&&flow.quoted)return;
+  clearTimeout(quoteTimer);
+  quoteTimer=setTimeout(function(){
+    if(flow.step>=CONFIRM_STEP||flow.quotedFor===quoteKey()&&flow.quoted)return;
+    if(!flow.peril||!flow.subject||!flow.limit||!quakeReady())return;
+    refreshQuote();
+  },450);
 }
 
 function stationFor(){return STATIONS[nearestStation(coordinates())];}
@@ -5444,10 +5624,20 @@ function updatePriceBar(){
   }
   // priced(), not quote(), so the bar and the sentence above it can never show
   // two different prices: once the protocol has answered, both read from it.
-  var q=priced(), offer=flow.step===CONFIRM_STEP?chosenOffer():null;
-  $("pb-amt").textContent=money(offer?q.premium+offer.fee:q.premium);
-  var cap=t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:PERILS[flow.peril].term});
-  if(offer&&offer.fee>0)cap+=" · "+t("includes the company's fee of {fee}",{fee:money(offer.fee)});
+  var q=priced(), current=flow.quoted&&flow.quotedFor===quoteKey();
+  // Before the confirm step the cheapest company stands in for the one not yet
+  // chosen, so the figure is the whole price: premium and fee, nothing to add later.
+  var offer=flow.step===CONFIRM_STEP?chosenOffer():(current&&(flow.offers||[]).length?flow.offers.slice().sort(function(a,b){return a.fee-b.fee;})[0]:null);
+  var total=offer?q.premium+offer.fee:q.premium, days=PERILS[flow.peril].term;
+  $("pb-amt").textContent=money(total);
+  var cap=t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days});
+  if(flow.step!==CONFIRM_STEP){
+    if(offer){
+      cap+=" · "+(days>=60?t("all in, about {monthly} a month",{monthly:money(total*30/days)}):t("all in, nothing to add"));
+      if(offer.fee>0)cap+=" · "+t("includes the company's fee of {fee}",{fee:money(offer.fee)});
+    } else cap+=" · "+(link.live?t("before the company's fee; the whole price follows in a moment"):t("before the company's fee"));
+    scheduleQuote();
+  } else if(offer&&offer.fee>0)cap+=" · "+t("includes the company's fee of {fee}",{fee:money(offer.fee)});
   if(flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
     cap+=" · "+t("{n} payments of {amount}",{n:flow.instalments,amount:money((q.premium+(offer?offer.fee:0))*(1+pl.surcharge)/flow.instalments)}); }
   var lock=flow.quoted&&flow.quoted.lock;
@@ -6491,7 +6681,7 @@ function renderMine(){
   api("/api/portfolio",{token:identity.token}).then(function(reply){
     box.innerHTML=mineHtml(reply);
     bindTokens(box);
-    bindCancels(box);
+    bindCancels(box); bindContractCopies(box); bindComplaints(box);
     Array.prototype.forEach.call(document.querySelectorAll("[data-renew]"),function(b){
       b.addEventListener("click",function(){
         var p=(reply.policies||[]).filter(function(x){return x.policy_id===b.dataset.renew;})[0];
@@ -6569,6 +6759,7 @@ function mineHtml(reply){
           esc(t("Policy token"))+'</button><span class="fine">'+esc(t("Non-transferable, held by your address"))+'</span>':'')+
         cancelHtml(policy)+autoRenewHtml(policy)+
       '</div>'+
+      '<div data-complaint-for="'+esc(policy.policy_id)+'"></div>'+
       '</div></div>';
   });
   out+='</div><div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">'+
@@ -7320,6 +7511,7 @@ function renderCompany(){
     box.innerHTML=list.map(companyHtml).join("")+'<h3 style="font-size:17px;margin:30px 0 12px">'+
       esc(t("Applications for your paper"))+'</h3><div id="company-apps"></div>'+demo;
     bindStatements(box,{token:identity.token});
+    bindCompanyComplaints(box,{token:identity.token});
     bindVetting(box,{token:identity.token},renderCompany);
     bindMoreDocs(box,{token:identity.token},renderCompany);
     Array.prototype.forEach.call(box.querySelectorAll("[data-desk-for]"),function(h){
@@ -7421,6 +7613,9 @@ function companyHtml(c){
     (reinsurer?'':'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Monthly statement"))+'</h3>'+
       '<p class="fine">'+esc(t("Every fee movement on your paper, month by month: the fees buyers paid you, what came back to them, and the platform's {rate} of premium taken out of your fee. The buyer's price is the pool's price; the platform is paid by you, never by them.",{rate:pct(b.platform_rate||0.01,0)}))+'</p>'+
       '<div data-statement-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the statement…"))+'</p></div>')+
+    (reinsurer?'':'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Complaints"))+'</h3>'+
+      '<p class="fine">'+esc(t("Raised on your policies, with your time to answer counted from the day they were raised. Answer on the thread; your first message stops the clock. Close one when it is settled."))+'</p>'+
+      '<div data-complaints-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the complaints…"))+'</p></div>')+
     '<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Your book"))+'</h3>'+
     (reinsurer?policiesTable(b.recent,false):'<div data-desk-for="'+esc(c.carrier_id)+'"><p class="fine">'+esc(t("Reading the book…"))+'</p></div>')+
     (reviews?'<h3 style="font-size:16px;margin:22px 0 10px">'+esc(t("Review record"))+'</h3><ul class="fine" style="display:grid;gap:4px;padding-left:18px">'+reviews+'</ul>':'')+
@@ -7890,6 +8085,34 @@ function renderAnchorFor(id,box){
   },function(){});
 }
 
+/* The rulebook, read from the protocol so the page and the contract never
+   differ: the same words, peril by peril. */
+function renderRules(){
+  var box=$("rules-out"); if(!box)return;
+  box.innerHTML='<div class="panel" style="padding:22px">'+esc(t("Reading the chain…"))+'</div>';
+  whenLinked().then(function(){
+    if(!link.live){ box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("This page cannot reach the protocol, so there is no record to read. It will not show you one it made up."))+'</p></div>'; return; }
+    return api("/api/rulebook",{timeout:12000}).then(function(r){
+      var perils=r.perils||{};
+      box.innerHTML=Object.keys(perils).map(function(k){
+        var x=perils[k];
+        function row(label,html){ return '<div class="kv"><div class="k">'+esc(label)+'</div><div class="v">'+html+'</div></div>'; }
+        return '<div class="panel" style="padding:22px"><h3 style="font-size:18px;margin-bottom:10px">'+esc(t(x.title))+'</h3><div class="kvs">'+
+          row(t("Index"),esc(ts(x.index)))+
+          row(t("Primary source"),esc(ts(x.primary)))+
+          row(t("Fallbacks, in order"),'<ol style="margin:0;padding-left:18px">'+(x.fallbacks||[]).map(function(f){ return '<li>'+esc(ts(f))+'</li>'; }).join("")+'</ol>')+
+          row(t("Final figure"),esc(ts(x.final_data))+' · '+esc(t("frozen {days} days after the event",{days:Math.round(x.freeze_hours/24)})))+
+          row(t("Tests a reading must pass"),'<ul style="margin:0;padding-left:18px">'+(x.criteria||[]).map(function(c){ return '<li>'+esc(ts(c))+'</li>'; }).join("")+'</ul>')+
+          row(t("Attestation"),esc(ts(x.attestation||"")))+
+          (x.deadline_days?row(t("Silence"),esc(t("No final figure {days} days after the term ends: {then}",{days:x.deadline_days,then:ts(x.on_missing_data||"")}))):'')+
+          row(t("Objection"),esc(t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days})))+
+          row(t("Successor source"),esc(ts(x.successor)))+
+          row(t("Archive"),esc(ts(x.archive)))+
+          '</div><p class="fine" style="margin-top:10px">'+esc(t("Rulebook version {v}",{v:x.version}))+'</p></div>';
+      }).join("");
+    },function(){ box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("The protocol did not answer."))+'</p></div>'; });
+  });
+}
 function renderProof(id){
   var box=$("proof-out");
   if(!id){

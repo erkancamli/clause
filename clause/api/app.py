@@ -251,6 +251,19 @@ class ClaimRequest(BaseModel):
     address: str | None = Field(default=None, max_length=42)
 
 
+class ComplaintOpen(BaseModel):
+    subject: str = Field(default="other", max_length=20)
+    text: str = Field(max_length=4000)
+
+
+class ComplaintMessage(BaseModel):
+    text: str = Field(max_length=4000)
+
+
+class ComplaintClose(BaseModel):
+    resolution: str = Field(default="", max_length=1000)
+
+
 class MoreEvidence(BaseModel):
     evidence: list[EvidenceBody] = Field(min_length=1, max_length=4)
 
@@ -644,7 +657,7 @@ def create_app(
             auth=auth, accounts=accounts, payouts=payouts, partners=partners,
             mandates=mandates, applications=applications, funding=funding,
             links=links, instructions=instructions, assets=assets, pipeline=pipeline,
-            documents=documents, fees=fees, anchor=anchor))
+            documents=documents, fees=fees, anchor=anchor, complaints=complaints))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -713,6 +726,9 @@ def create_app(
     # The platform's fee on each policy, taken from the company's fronting
     # fee, and the statements that account for it.
     fees = Fees()
+    # Complaints: a thread on the policy, the company's clock, the file for the ombudsman.
+    from ..protocol.complaints import ComplaintError, Complaints, route_for
+    complaints = Complaints()
     from ..protocol.instructions import InstructionError, Instructions
     instructions = Instructions()
     from ..protocol.assets import AssetError, Assets
@@ -820,7 +836,7 @@ def create_app(
                              payouts=payouts, partners=partners, mandates=mandates,
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
-                             pipeline=pipeline, documents=documents, fees=fees, anchor=anchor)
+                             pipeline=pipeline, documents=documents, fees=fees, anchor=anchor, complaints=complaints)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -1036,6 +1052,7 @@ def create_app(
     app.state.documents = documents
     app.state.fees = fees
     app.state.anchor = anchor
+    app.state.complaints = complaints
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -1343,7 +1360,7 @@ def create_app(
                           "short_cover_days": rule.short_cover_days,
                           "law": rule.law, "pro_rata_after": peril_key in UNFORESEEABLE},
             plan=plan, address=address, value_basis=value_basis,
-        )
+            attestation=chain.aggregator.describe())
         return text, contract_mod.digest(text), plan
 
     def fronting_fee_of(carrier_id: str | None, premium: float) -> float:
@@ -1878,6 +1895,10 @@ def create_app(
             terms["size"] = size
         if request.carrier_id:
             terms["carrier_id"] = request.carrier_id
+        if request.contract_hash:
+            # The contract read and accepted is part of what is signed, as on
+            # the application path: the signature binds the buyer to that text.
+            terms["contract_hash"] = request.contract_hash
         holder = signed(request.holder, "buy", request.nonce, request.signature, terms)
         if KIND_FOR.get(request.peril) in ("home", "vehicle") and not settings.direct_buy:
             # A home or a car is checked by the issuing company first: its
@@ -1892,6 +1913,31 @@ def create_app(
             attestations=request.attestations, max_premium=request.max_premium,
             quote_id=request.quote_id, carrier_id=request.carrier_id,
         )
+        if request.contract_hash:
+            # The contract the buyer read and accepted is written onto the
+            # policy, so their own copy can be taken later and the day they
+            # were informed is known: the withdrawal period counts from it.
+            try:
+                # Written exactly as the preview wrote it, so the hash the
+                # buyer signed is the hash of the text kept for them.
+                basis = ""
+                if size:
+                    try:
+                        basis = value_of(size, country=get_peril(request.peril).risk_country(subject)
+                                         or request.interest.country).basis
+                    except (ValuationError, ValueError):
+                        basis = ""
+                text, digest_, _plan = contract_for(
+                    peril_key=request.peril, subject=subject, limit=limit, term_days=term_days,
+                    premium=round(policy.premium, 2), carrier_id=(policy.metadata or {}).get("carrier"), holder="",
+                    country=request.interest.country.upper(), instalments=getattr(request, "instalments", 1) or 1,
+                    address=clean_address(request.interest.address), value_basis=basis)
+                policy.metadata["contract"] = text
+                policy.metadata["contract_hash"] = digest_
+                policy.metadata["disclosure"] = {"served_at": policy.bought_at, "hash": digest_,
+                                                 "accepted_hash": request.contract_hash}
+            except Exception:  # the policy stands; only its copy is missing
+                logger.exception("could not write the contract onto %s", policy.policy_id)
         return {
             "policy": policy.to_dict(),
             "account": armed.account,
@@ -1901,7 +1947,8 @@ def create_app(
         }
 
     PRIVATE_POLICY_KEYS = ("review_note", "reviewed_by", "address_hash", "interest", "plan",
-                           "premium_owed", "written_off", "fee_paid", "financing_paid")
+                           "premium_owed", "written_off", "fee_paid", "financing_paid",
+                           "contract", "disclosure", "withdrawal")
 
     def public_policy(found: Any, *, owner: bool) -> dict[str, Any]:
         """A policy as anyone may see it: the terms, never the person."""
@@ -3330,15 +3377,25 @@ def create_app(
         return PlainTextResponse(app_.contract or "", media_type="text/plain; charset=utf-8")
 
     @app.get("/api/policies/{policy_id}/contract")
-    async def policy_contract(policy_id: str, token: str | None = Depends(bearer)):
+    async def policy_contract(policy_id: str, download: bool = Query(False),
+                              token: str | None = Depends(bearer)):
+        """The contract as the holder's own copy. The first time it is
+        taken is noted on the policy: a document on the buyer's device is
+        the durable medium the distance selling rules ask for, and the
+        right to withdraw is counted from it when nothing earlier counts."""
         from fastapi.responses import PlainTextResponse
         address = session_of(token)
         found = pool.policies.get(policy_id)
         if found is None or address is None or found.holder != address:
             raise HTTPException(404, f"no policy {policy_id}")
         app_ = applications.applications.get((found.metadata or {}).get("application", ""))
-        text = app_.contract if app_ is not None else ""
-        return PlainTextResponse(text, media_type="text/plain; charset=utf-8")
+        text = app_.contract if app_ is not None else str((found.metadata or {}).get("contract") or "")
+        if text:
+            record = found.metadata.setdefault("disclosure", {})
+            record.setdefault("kept_at", time.time())
+            record.setdefault("hash", getattr(app_, "contract_hash", None))
+        headers = {"content-disposition": f'attachment; filename="{policy_id}-contract.txt"'} if download else {}
+        return PlainTextResponse(text, media_type="text/plain; charset=utf-8", headers=headers)
 
     # -- standing instructions ----------------------------------------------
 
@@ -4513,7 +4570,15 @@ def create_app(
             partners.notify(partner, {"type": "policy.cancelled", "policy_id": policy_id,
                                       "external_ref": meta.get("external_ref"),
                                       "refund": round(refund, 2)})
-        return {"policy": found.to_dict(), "refund": round(refund, 2), "basis": terms["basis"]}
+        # The notice, and what is due when: the rules give thirty days to pay
+        # back what comes back; here it went back in the same step.
+        from ..protocol.cancellation import REFUND_WITHIN_DAYS
+        notified = time.time()
+        found.metadata["withdrawal"] = {"notified_at": notified, "basis": terms["basis"], "refund": round(refund, 2),
+                                        "refund_due_by": notified + REFUND_WITHIN_DAYS * 86400.0,
+                                        "refunded_at": notified if refund > 0 else None}
+        return {"policy": found.to_dict(), "refund": round(refund, 2), "basis": terms["basis"],
+                "withdrawal": found.metadata["withdrawal"]}
 
     # -- the pool ---------------------------------------------------------
 
@@ -4828,6 +4893,183 @@ def create_app(
         reviewer_of(operator, token)
         report = await asyncio.to_thread(anchor.run_once)
         return {"report": report, "anchor": anchor.status()}
+
+    # -- the calculation agent's rulebook ---------------------------------------
+
+    RULEBOOK_SUBJECTS = {
+        "earthquake": {"location": "IST-KADIKOY", "radius_km": 50},
+        "storm": {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "Kadıköy"},
+        "vehicle_flood": {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "Kadıköy"},
+        "drought": {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 50.0},
+        "flight_delay": {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon()},
+    }
+
+    @app.get("/api/rulebook")
+    async def rulebook_all() -> dict[str, Any]:
+        """How a reading becomes the number a policy settles on, peril by
+        peril: sources and their order, what is final and when it is
+        frozen, the tests, the chain's attestation rule, the silence
+        deadline, the objection window, the successor rule. The same text
+        is section 10 of every contract."""
+        from ..protocol import rulebook
+        out = {}
+        for key in rulebook.RULES:
+            deadline, missing = None, ""
+            try:
+                peril_ = get_peril(key)
+                src = peril_.data_source(peril_.validate_subject(RULEBOOK_SUBJECTS.get(key, {})))
+                deadline, missing = src.settlement_deadline_days, src.on_missing_data
+            except Exception:
+                pass
+            out[key] = rulebook.for_peril(key, deadline_days=deadline, on_missing_data=missing,
+                                          attestation=chain.aggregator.describe())
+        return {"version": rulebook.VERSION, "attestation": chain.aggregator.describe(),
+                "objection_days": rulebook.OBJECTION_DAYS, "perils": out}
+
+    # -- complaints: on the policy, on the company's clock, to the ombudsman ----
+
+    def complaint_role(c: Any, token: str | None, operator: str | None) -> str | None:
+        """Who is looking: the holder, the company it was raised against, the
+        operator; or nobody, which reads as not found."""
+        address = session_of(token)
+        if address and address == c.holder:
+            return "holder"
+        carrier = registry.carriers.get(c.carrier_id)
+        if address and carrier is not None and carrier.address == address:
+            return "company"
+        try:
+            reviewer_of(operator, token)
+            return "operator"
+        except Exception:
+            return None
+
+    def complaint_view(c: Any) -> dict[str, Any]:
+        route = route_for(c.country)
+        carrier = registry.carriers.get(c.carrier_id)
+        return {**c.to_dict(), "carrier": carrier.name if carrier else None,
+                "route": {"body": route.body, "answer_days": route.answer_days, "note": route.note,
+                          "links": [{"name": n, "url": u} for n, u in route.links]}}
+
+    def complaint_package(c: Any) -> dict[str, Any]:
+        policy = pool.policies.get(c.policy_id)
+        carrier = registry.carriers.get(c.carrier_id)
+        return Complaints.package(
+            c, policy=policy.to_dict() if policy else None,
+            contract_hash=(policy.metadata or {}).get("contract_hash") if policy else None,
+            lineage=chain.lineage(c.policy_id), settlements=[x.to_dict() for x in chain.settlements if x.policy_id == c.policy_id],
+            carrier={"carrier_id": carrier.carrier_id, "name": carrier.name, "domicile": carrier.domicile,
+                     "contact": carrier.contact} if carrier else None)
+
+    @app.post("/api/policies/{policy_id}/complaints")
+    async def complaint_open(policy_id: str, request: ComplaintOpen, http: Request,
+                             token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The holder raises a complaint on their policy. The company's time
+        to answer starts now and is visible to both sides."""
+        guard(http, "complaint", limit=5, window=3600.0)
+        found = pool.policies.get(policy_id)
+        if found is None or session_of(token) != found.holder:
+            raise HTTPException(404, f"no policy {policy_id}")
+        try:
+            c = complaints.open(found, subject=request.subject, text=request.text)
+        except ComplaintError as error:
+            raise Refused(422, str(error)) from error
+        return {"complaint": complaint_view(c)}
+
+    @app.get("/api/complaints")
+    async def complaints_mine(token: str | None = Depends(bearer)) -> dict[str, Any]:
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        return {"complaints": [complaint_view(c) for c in complaints.for_holder(address)]}
+
+    @app.get("/api/complaints/{complaint_id}")
+    async def complaint_read(complaint_id: str, token: str | None = Depends(bearer),
+                             operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        c = complaints.get(complaint_id)
+        role = complaint_role(c, token, operator) if c else None
+        if c is None or role is None:
+            raise HTTPException(404, "no such complaint")
+        return {"complaint": complaint_view(c), "viewer": role}
+
+    @app.post("/api/complaints/{complaint_id}/messages")
+    async def complaint_message(complaint_id: str, request: ComplaintMessage, token: str | None = Depends(bearer),
+                                operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        """A message on the thread, from whichever side is writing. The
+        company's first message stops its clock."""
+        c = complaints.get(complaint_id)
+        role = complaint_role(c, token, operator) if c else None
+        if c is None or role is None:
+            raise HTTPException(404, "no such complaint")
+        try:
+            complaints.reply(complaint_id, who=role, text=request.text)
+        except ComplaintError as error:
+            raise Refused(409, str(error)) from error
+        return {"complaint": complaint_view(c)}
+
+    @app.post("/api/complaints/{complaint_id}/close")
+    async def complaint_close(complaint_id: str, request: ComplaintClose, token: str | None = Depends(bearer),
+                              operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        c = complaints.get(complaint_id)
+        role = complaint_role(c, token, operator) if c else None
+        if c is None or role is None:
+            raise HTTPException(404, "no such complaint")
+        if role == "holder":
+            raise Refused(409, "the holder withdraws a complaint by saying so on the thread; the company or the operator closes it")
+        try:
+            complaints.close(complaint_id, by=role, resolution=request.resolution)
+        except ComplaintError as error:
+            raise Refused(409, str(error)) from error
+        return {"complaint": complaint_view(c)}
+
+    @app.post("/api/complaints/{complaint_id}/escalate")
+    async def complaint_escalate(complaint_id: str, token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The holder takes it to the ombudsman, and gets the file to attach."""
+        c = complaints.get(complaint_id)
+        if c is None or session_of(token) != c.holder:
+            raise HTTPException(404, "no such complaint")
+        try:
+            complaints.escalate(complaint_id)
+        except ComplaintError as error:
+            raise Refused(409, str(error)) from error
+        return {"complaint": complaint_view(c), "package": complaint_package(c)}
+
+    @app.get("/api/complaints/{complaint_id}/package")
+    async def complaint_file(complaint_id: str, format: str = Query("json", max_length=4),
+                             token: str | None = Depends(bearer),
+                             operator: str | None = Header(None, alias="x-operator-token")):
+        """Everything the ombudsman's application asks for, as the record
+        stands: the policy, its contract hash, the readings and settlements,
+        the thread with its timestamps, and where to take it."""
+        from fastapi.responses import PlainTextResponse
+        c = complaints.get(complaint_id)
+        role = complaint_role(c, token, operator) if c else None
+        if c is None or role is None:
+            raise HTTPException(404, "no such complaint")
+        package = complaint_package(c)
+        if format == "text":
+            return PlainTextResponse(Complaints.package_text(package), media_type="text/plain; charset=utf-8",
+                                     headers={"content-disposition": f'attachment; filename="{complaint_id}.txt"'})
+        return package
+
+    @app.get("/api/company/complaints")
+    async def company_complaints(carrier_id: str = Query(..., max_length=80),
+                                 token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The company's complaints, the overdue ones first, with its clock."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        carrier = registry.carriers.get(carrier_id)
+        if carrier is None or carrier.address != address:
+            raise HTTPException(404, "no such company on this account")
+        rows = complaints.for_carrier(carrier_id)
+        return {"complaints": [complaint_view(c) for c in rows], "summary": complaints.summary(rows)}
+
+    @app.get("/api/operator/complaints")
+    async def operator_complaints(token: str | None = Depends(bearer),
+                                  operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        reviewer_of(operator, token)
+        rows = sorted(complaints.complaints.values(), key=lambda c: (c.status != "open", c.deadline_at))
+        return {"complaints": [complaint_view(c) for c in rows], "summary": complaints.summary(rows)}
 
     @app.get("/api/health")
     async def health() -> dict[str, Any]:
