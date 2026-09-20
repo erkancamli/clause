@@ -53,7 +53,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Iterable, Sequence
 
-from ..pricing import Exposure, PricingEngine, Quote
+from ..pricing import Exposure, PricingEngine, Quote, capital_from_losses
 from .policy import Policy, PolicyStatus
 
 # No single modelled catastrophe may take more than this share of pool capital.
@@ -409,7 +409,8 @@ class Pool:
 
     def required_capital(self, extra: Exposure | None = None) -> float:
         """Capital the book needs at the solvency standard, with the buffer."""
-        position = self.engine.position(self.exposures(extra))
+        losses = self.engine.losses_with(self.exposures(), extra)
+        position = capital_from_losses(losses, self.engine.trials)
         return position.solvency_capital * self.capital_buffer
 
     def free_capital(self) -> float:
@@ -418,8 +419,8 @@ class Pool:
 
     def largest_single_event_loss(self, extra: Exposure | None = None) -> float:
         """The worst single modelled year, which the concentration rule caps."""
-        result = self.engine.simulate(self.exposures(extra))
-        return max(result.losses) if result.losses else 0.0
+        losses = self.engine.losses_with(self.exposures(), extra)
+        return max(losses) if losses else 0.0
 
     # -- capital ----------------------------------------------------------
 

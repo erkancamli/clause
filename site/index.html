@@ -3724,7 +3724,11 @@ function renderContract(){
   if(CONTRACT.key===key){ $("contract-text").textContent=CONTRACT.text; return; }
   $("contract-text").textContent=t("Preparing the contract…");
   $("accept").checked=false; setNextLabel();
-  api("/api/contract",{method:"POST",body:{
+  // While the protocol is still pricing, wait for its price: the contract is
+  // written on it, and carries its lock so the same policy is not priced
+  // again for the text. renderPrice() comes back here when the price lands.
+  if(flow.pricing)return;
+  api("/api/contract",{method:"POST",timeout:25000,body:{
     peril:PERIL_KEYS[flow.peril], subject:subjectPayload(), limit:flow.limit, term_days:PERILS[flow.peril].term,
     carrier_id:flow.carrier||undefined, instalments:flow.instalments||1, quote_id:(flow.quoted&&flow.quoted.lock)?flow.quoted.lock.id:undefined, settlement:localRuling().asset,
     interest:{what:flow.interest.what, country:flow.interest.country, inside_trigger_area:true,
@@ -4233,6 +4237,7 @@ function refreshQuote(){
   flow.quoted=null;
   if(!link.live){renderPrice();return;}
   var seq=++flow.seq;
+  flow.pricing=true;
   api("/api/offers?country="+encodeURIComponent(flow.interest.country||"")+"&professional="+(flow.interest.professional?"true":"false"),{method:"POST",timeout:25000,body:{
     peril:PERIL_KEYS[flow.peril], subject:subjectPayload(),
     limit:flow.limit, term_days:PERILS[flow.peril].term,
@@ -4247,10 +4252,12 @@ function refreshQuote(){
     }});
   }).then(function(reply){
     if(seq!==flow.seq||!reply)return;
+    flow.pricing=false;
     flow.quoted=reply;
     renderPrice();
   },function(error){
     if(seq!==flow.seq)return;
+    flow.pricing=false;
     flow.refusal=(error&&error.payload&&error.payload.detail)||null;
     renderPrice();
   });
@@ -4599,7 +4606,9 @@ function renderStep(){
     // A quote whose price lock is still running is kept: a language change
     // or a redraw must not throw away the price the buyer was promised.
     var lockLive=flow.quoted&&flow.quoted.lock&&flow.quoted.lock.expires_at-Date.now()/1000>0;
-    renderPrice(); if(!lockLive)refreshQuote(); refreshNeed();
+    // The quote starts before the panel is drawn, so the contract the panel
+    // asks for waits for the protocol's price instead of pricing on its own.
+    if(!lockLive)refreshQuote(); renderPrice(); refreshNeed();
     loadCoverage(true).then(function(){
       if(flow.step===CONFIRM_STEP){ renderPrice(); setNextLabel(); }
     });
@@ -5222,7 +5231,7 @@ function choosePeril(key){
     // Kadıköy" is not what is at risk on a flight.
     flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null;
     flow.place=null; flow.quoted=null; flow.refusal=null;
-    flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false;
+    flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
     if($("place"))$("place").value="";
   }
@@ -5254,7 +5263,7 @@ function resetFlow(){
   flow.step=1; flow.chosen=false; flow.subject=null; flow.place=null;
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
   flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
-  flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
+  flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
   flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
   flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null;
   CONTRACT={key:"",text:"",hash:""};
