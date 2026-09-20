@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.6.0, 20 September 2026
+
+- Letting a company in has a shape. Each registration gets the operator's
+  checklist by domicile and role: the legal entity (LEI or trade register;
+  Türkiye: MERSİS and the trade registry gazette), control of the domain,
+  the licence and the classes it must name (Türkiye: the branch each peril
+  needs, and membership of Türkiye Sigorta Birliği), the signatory's
+  authority, sanctions screening (UN, EU, OFAC, MASAK), live enforcement,
+  and two recommended items (solvency, a data processing agreement). Every
+  item links the register to read; the company's documents sit beside the
+  item they support, by kind. The operator records each item with where
+  they looked and what they saw; activation is refused until every
+  required item is confirmed, and the review keeps the checklist as it
+  stood. Checks fall due again a year on, and the operator's page lists
+  what is due and which licences are about to lapse.
+- The company sees the same checklist on its own page and can add the
+  documents it asks for after registering, choosing what each one is
+  (nine kinds now, from licence certificate to signature circular).
+  Registration in Türkiye takes the MERSİS number and the tax number.
+- A questions page, at /faq and from the footer: thirty-two questions in
+  seven groups, from what the price is made of to what to do when a
+  message appears, with each message the page can show quoted as it
+  appears and what to do about it. In all six languages.
+
 ## 1.5.1, 20 September 2026
 
 - The confirm step, shorter by a quarter on a phone. The chosen company is

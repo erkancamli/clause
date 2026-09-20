@@ -67,6 +67,17 @@ def auth(token: str) -> dict:
     return {"authorization": f"Bearer {token}"}
 
 
+def vet(client, carrier_id: str, headers: dict) -> None:
+    """Confirm every required item on the operator's checklist, the way a
+    reviewer would before activating; the checklist itself is tested in
+    test_vetting.py."""
+    items = client.get(f"/api/carriers/{carrier_id}/vetting", headers=headers).json()["items"]
+    for item in items:
+        if item["required"]:
+            assert client.post(f"/api/carriers/{carrier_id}/vetting", headers=headers,
+                               json={"key": item["key"], "ok": True, "source": "the register", "note": "seen"}).status_code == 200
+
+
 # ---------------------------------------------------------------------------
 # Getting in
 # ---------------------------------------------------------------------------
@@ -185,6 +196,7 @@ def test_activating_records_who_did_it_and_what_they_checked(client) -> None:
         "/api/carriers", json=registration()
     ).json()["carrier"]["carrier_id"]
     token = sign_in(client, "Erkan")
+    vet(client, carrier_id, auth(token))
 
     reply = client.post(
         f"/api/carriers/{carrier_id}/activate",
@@ -211,6 +223,7 @@ def test_suspending_appends_rather_than_erasing(client) -> None:
         "/api/carriers", json=registration()
     ).json()["carrier"]["carrier_id"]
     token = sign_in(client, "Erkan")
+    vet(client, carrier_id, auth(token))
     client.post(
         f"/api/carriers/{carrier_id}/activate", json={"note": "checked"},
         headers=auth(token),
@@ -229,6 +242,7 @@ def test_a_decision_taken_with_the_raw_token_is_still_attributed(client) -> None
     carrier_id = client.post(
         "/api/carriers", json=registration()
     ).json()["carrier"]["carrier_id"]
+    vet(client, carrier_id, {"x-operator-token": TOKEN})
     reply = client.post(
         f"/api/carriers/{carrier_id}/activate",
         headers={"x-operator-token": TOKEN},
@@ -285,12 +299,14 @@ def test_a_country_opens_only_after_the_review(client) -> None:
     assert japan() is None, "pending is not licensed"
 
     token = sign_in(client, "Erkan")
+    vet(client, carrier_id, auth(token))
     client.post(f"/api/carriers/{carrier_id}/activate", json={"note": "checked"},
                 headers=auth(token))
     row = japan()
     assert row is not None and row["open"] is False
     assert "a reinsurer to stand behind it" in row["waiting_on"]
 
+    vet(client, re_id, auth(token))
     client.post(f"/api/carriers/{re_id}/activate", json={"note": "checked"},
                 headers=auth(token))
     row = japan()

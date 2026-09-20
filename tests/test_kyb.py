@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 from clause.api.app import create_app
 from clause.api.security import Settings
 from clause.protocol import kyb
-from test_operator import TOKEN, registration, sign_in
+from test_operator import TOKEN, registration, sign_in, vet
 
 YEAR = 365 * 86400.0
 
@@ -140,6 +140,7 @@ def test_a_registration_is_checked_and_the_reviewer_sees_what_was_found(monkeypa
         assert public["lei"] == lei and "verification" not in public and "evidence" not in public
 
         # Activation records what the reviewer confirmed.
+        vet(client, carrier_id, auth)
         done = client.post(f"/api/carriers/{carrier_id}/activate", headers=auth,
                            json={"note": "FSA list checked", "checked": ["licence", "lei"]}).json()["carrier"]
         assert "[confirmed: lei, licence]" in done["reviews"][-1]["note"]

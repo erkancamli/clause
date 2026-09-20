@@ -132,11 +132,13 @@ class Review:
     action: str                     # "activated" or "suspended"
     reviewer: str = ""              # self declared, see above
     note: str = ""                  # what the reviewer says they checked
+    checks: dict[str, Any] = field(default_factory=dict)   # the checklist as it stood, item by item
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "at": self.at,
             "action": self.action,
+            "checks": dict(self.checks),
             "reviewer": self.reviewer or "operator",
             "reviewer_self_declared": True,
             "note": self.note,
@@ -282,6 +284,11 @@ class Carrier:
     domain: str = ""
     evidence: list[dict[str, Any]] = field(default_factory=list)
     verification: dict[str, Any] | None = None
+    # The operator's checklist, item by item: who confirmed what, where, when.
+    vetting: dict[str, Any] = field(default_factory=dict)
+    review_due_at: float | None = None      # when the checks are due again
+    mersis: str = ""                        # Türkiye: the central registry number
+    tax_number: str = ""                    # Türkiye: vergi kimlik numarası
     registered_at: float = field(default_factory=time.time)
     in_force: float = 0.0              # cover currently on its paper
     written: int = 0                   # policies issued, for the record
@@ -341,12 +348,16 @@ class Carrier:
             "registered_at": self.registered_at,
         }
         out["lei"] = self.lei
+        out["review_due_at"] = self.review_due_at
         if private:
             out["contact"] = self.contact
             out["address"] = self.address
             out["domain"] = self.domain
+            out["mersis"] = self.mersis
+            out["tax_number"] = self.tax_number
             out["evidence"] = [{k: v for k, v in e.items() if k != "stored"} for e in self.evidence]
             out["verification"] = self.verification
+            out["vetting"] = {k: dict(v) for k, v in self.vetting.items()}
             out["reviews"] = [r.to_dict() for r in self.reviews]
         return out
 
@@ -438,7 +449,8 @@ class Registry:
 
     def activate(
         self, carrier_id: str, *, reviewer: str = "", note: str = "",
-        now: float | None = None,
+        now: float | None = None, checks: dict[str, Any] | None = None,
+        review_after_days: float = 365.0,
     ) -> Carrier:
         """Mark a company's licences as checked against the public register.
 
@@ -462,9 +474,11 @@ class Registry:
             for l in carrier.licences
         )
         carrier.status = Status.ACTIVE
+        carrier.review_due_at = now + review_after_days * 86400.0
         carrier.reviews += (Review(
             at=now, action="activated",
             reviewer=reviewer.strip()[:80], note=note.strip()[:400],
+            checks={k: dict(v) for k, v in (checks or {}).items()},
         ),)
         return carrier
 
