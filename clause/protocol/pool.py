@@ -216,6 +216,13 @@ class Pool:
     def open_policies(self) -> list[Policy]:
         return [p for p in self.policies.values() if p.is_open]
 
+    def snapshot(self) -> tuple[list[Exposure], float]:
+        """The book and the balance at one moment, taken under the lock and
+        handed out, so a quote can be worked on a copy while the lock is
+        free for the purchases and payouts that actually move money."""
+        with self.lock:
+            return self.exposures(), self.balance
+
     def exposures(self, extra: Exposure | None = None) -> list[Exposure]:
         """The live book, as the capital model sees it."""
         book = [
@@ -407,9 +414,10 @@ class Pool:
         out.reverse()
         return out
 
-    def required_capital(self, extra: Exposure | None = None) -> float:
+    def required_capital(self, extra: Exposure | None = None, *,
+                         book: list[Exposure] | None = None) -> float:
         """Capital the book needs at the solvency standard, with the buffer."""
-        losses = self.engine.losses_with(self.exposures(), extra)
+        losses = self.engine.losses_with(self.exposures() if book is None else book, extra)
         position = capital_from_losses(losses, self.engine.trials)
         return position.solvency_capital * self.capital_buffer
 
@@ -417,9 +425,10 @@ class Pool:
         """What could leave the pool without breaking the solvency rule."""
         return max(0.0, self.balance - self.required_capital())
 
-    def largest_single_event_loss(self, extra: Exposure | None = None) -> float:
+    def largest_single_event_loss(self, extra: Exposure | None = None, *,
+                                  book: list[Exposure] | None = None) -> float:
         """The worst single modelled year, which the concentration rule caps."""
-        losses = self.engine.losses_with(self.exposures(), extra)
+        losses = self.engine.losses_with(self.exposures() if book is None else book, extra)
         return max(losses) if losses else 0.0
 
     # -- capital ----------------------------------------------------------
@@ -514,23 +523,27 @@ class Pool:
         subject: dict[str, Any],
         limit: float,
         term_days: float,
-        curve: Any = None,
+        curve: Any = None, book: list[Exposure] | None = None,
     ) -> Quote:
-        """Price a prospective policy against the live book."""
+        """Price a prospective policy against the live book, or against a
+        snapshot of it taken earlier (see ``snapshot``)."""
         return self.engine.quote(
             peril_key=peril_key,
             subject=subject,
             limit=limit,
             term_days=term_days,
             curve=curve,
-            book=self.exposures(),
+            book=self.exposures() if book is None else book,
         )
 
     def can_write(
         self, *, peril_key: str, subject: dict[str, Any], limit: float, term_days: float,
-        curve: Any = None,
+        curve: Any = None, book: list[Exposure] | None = None, balance: float | None = None,
     ) -> tuple[bool, list[str]]:
-        """Whether the pool may write this policy, and why not if it may not."""
+        """Whether the pool may write this policy, and why not if it may not.
+        On a snapshot when ``book`` and ``balance`` are given."""
+        if balance is None:
+            balance = self.balance
         from ..perils import get_peril
 
         peril = get_peril(peril_key)
@@ -545,16 +558,16 @@ class Pool:
 
         reasons: list[str] = []
 
-        required = self.required_capital(candidate)
-        if required > self.balance:
+        required = self.required_capital(candidate, book=book)
+        if required > balance:
             reasons.append(
                 f"writing it would need {required:,.0f} of capital against a pool of "
-                f"{self.balance:,.0f}"
+                f"{balance:,.0f}"
             )
 
-        worst = self.largest_single_event_loss(candidate)
-        cap = self.balance * self.concentration_limit
-        if worst > cap and self.balance > 0:
+        worst = self.largest_single_event_loss(candidate, book=book)
+        cap = balance * self.concentration_limit
+        if worst > cap and balance > 0:
             reasons.append(
                 f"a single modelled year could take {worst:,.0f}, above the "
                 f"{self.concentration_limit * 100:.0f}% concentration limit of "

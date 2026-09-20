@@ -3311,7 +3311,10 @@ function signedCall(purpose, terms, path, extra){
       var body={}; var k;
       for(k in fields)body[k]=fields[k];
       body.nonce=challenge.nonce; body.signature=signature;
-      return api(path,{method:"POST",body:body,timeout:30000});
+      // A purchase prices, writes the contract and is on disk before it is
+      // answered; on a busy protocol that is longer than a read. Ninety
+      // seconds before the page gives up, and it says so meanwhile.
+      return api(path,{method:"POST",body:body,timeout:90000});
     });
   });
 }

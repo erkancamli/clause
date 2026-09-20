@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.13.0, 20 September 2026
+
+- A price no longer makes a purchase wait. Every preview quote, the
+  offers and the contract text priced the book while holding the money
+  lock, seconds of simulation each, so a purchase arriving behind a few
+  visitors' prices could wait past the page's patience and be reported
+  as "the protocol could not be reached", though nothing was wrong with
+  it. A quote now takes a snapshot of the book under the lock and prices
+  it outside; the engine's caches are guarded so quotes can run side by
+  side; the purchase itself still prices under the lock, against the book
+  as it is then, and refuses if the price moved past what was agreed. The
+  page waits ninety seconds for a purchase, and nginx two minutes.
+
 ## 1.12.2, 20 September 2026
 
 - On the Proof page the signer's address is shown short, with the full

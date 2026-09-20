@@ -1712,15 +1712,22 @@ def create_app(
         term_days = bounded(request.term_days, "term_days", MIN_TERM_DAYS, MAX_TERM_DAYS)
 
         def work() -> tuple[Any, bool, list[str]]:
+            # The book is read under the money lock and priced outside it.
+            # A quote is seconds of simulation; holding the lock for all of
+            # it made every purchase wait behind every visitor's price. The
+            # purchase itself prices again, under the lock, against the book
+            # as it is then, and refuses if the price moved past what was
+            # agreed; so a preview on a snapshot loses nothing.
             with money:
-                quoted_ = pool.quote(
-                    peril_key=request.peril, subject=subject,
-                    limit=limit, term_days=term_days,
-                )
-                allowed_, reasons_ = pool.can_write(
-                    peril_key=request.peril, subject=subject,
-                    limit=limit, term_days=term_days,
-                )
+                book, balance = pool.snapshot()
+            quoted_ = pool.quote(
+                peril_key=request.peril, subject=subject,
+                limit=limit, term_days=term_days, book=book,
+            )
+            allowed_, reasons_ = pool.can_write(
+                peril_key=request.peril, subject=subject,
+                limit=limit, term_days=term_days, book=book, balance=balance,
+            )
             return quoted_, allowed_, reasons_
 
         try:
@@ -1773,9 +1780,12 @@ def create_app(
         term_days = bounded(request.term_days, "term_days", MIN_TERM_DAYS, MAX_TERM_DAYS)
 
         def priced():
+            held = promised(request.quote_id, request.peril, subject, limit, term_days)
+            if held is not None:
+                return held
             with money:
-                return (promised(request.quote_id, request.peril, subject, limit, term_days)
-                        or pool.quote(peril_key=request.peril, subject=subject, limit=limit, term_days=term_days))
+                book, _balance = pool.snapshot()
+            return pool.quote(peril_key=request.peril, subject=subject, limit=limit, term_days=term_days, book=book)
         try:
             quoted = await run_in_threadpool(priced)
         except (ValueError, KeyError) as error:

@@ -22,6 +22,7 @@ quote says so in words rather than only in the number.
 from __future__ import annotations
 
 import json
+import threading
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Sequence
@@ -188,35 +189,44 @@ class PricingEngine:
         # its candidate once and the capacity checks that follow reuse it,
         # instead of simulating the same policy three times over.
         self._candidates: OrderedDict[tuple[Any, ...], list[float]] = OrderedDict()
+        # Quotes run on several threads at once, each on its own snapshot of
+        # the book; the caches are the one thing they share, so the caches
+        # are guarded and the simulations, the expensive part, are not.
+        self._cache_lock = threading.Lock()
 
     # -- book -------------------------------------------------------------
 
     def book_losses(self, book: Sequence[Exposure]) -> list[float]:
         """Aggregate loss per trial for a book, cached on its membership."""
         key = frozenset(exposure.policy_id for exposure in book)
-        if self._book_cache is not None and self._book_cache[0] == key:
-            return self._book_cache[1]
+        with self._cache_lock:
+            cached = self._book_cache
+        if cached is not None and cached[0] == key:
+            return cached[1]
 
         total = [0.0] * self.trials
         for exposure in book:
             for index, amount in enumerate(settle(exposure, self.draws)):
                 total[index] += amount
 
-        self._book_cache = (key, total)
+        with self._cache_lock:
+            self._book_cache = (key, total)
         return total
 
     def losses_of(self, exposure: Exposure) -> list[float]:
         """One exposure's loss per trial, remembered for the next call about it."""
         key = (exposure.policy_id, exposure.peril_key, exposure.limit, exposure.term_days,
                json.dumps(exposure.subject, sort_keys=True, default=str), exposure.curve)
-        found = self._candidates.get(key)
+        with self._cache_lock:
+            found = self._candidates.get(key)
+            if found is not None:
+                self._candidates.move_to_end(key)
         if found is None:
             found = settle(exposure, self.draws)
-            self._candidates[key] = found
-            while len(self._candidates) > 8:
-                self._candidates.popitem(last=False)
-        else:
-            self._candidates.move_to_end(key)
+            with self._cache_lock:
+                self._candidates[key] = found
+                while len(self._candidates) > 8:
+                    self._candidates.popitem(last=False)
         return found
 
     def losses_with(self, book: Sequence[Exposure], extra: Exposure | None) -> list[float]:
