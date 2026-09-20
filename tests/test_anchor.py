@@ -186,13 +186,13 @@ def test_without_a_key_everything_is_recorded_and_the_proof_still_checks(tmp_pat
         pid = policy["policy_id"]
         mine = client.get(f"/api/policies/{pid}/anchor").json()
         assert [i["kind"] for i in mine["intents"]] == ["mint"]
+        assert mine["intents"][0]["status"] == "pending" and mine["intents"][0]["payload"]["custodial"]
+        # No root yet: the first cycle runs on the worker, which is not running here.
+        assert mine["proof"]["root"] is None
+        client.post("/api/operator/anchor/run", headers=OP)
         # The seeded book is in the root but gets no transactions of its own.
         assert client.get("/api/anchor").json()["by_kind"]["mint"] == 1
         assert client.get("/api/anchor").json()["last_root"]["payload"]["count"] >= 12
-        assert mine["intents"][0]["status"] == "pending" and mine["intents"][0]["payload"]["custodial"]
-        # Not yet in a root: the root was built before the policy existed.
-        assert mine["proof"]["root"] is None or not mine["proof"]["current"]
-        client.post("/api/operator/anchor/run", headers=OP)
         proof = client.get(f"/api/policies/{pid}/anchor").json()["proof"]
         assert proof["verified"] and proof["current"] and proof["count"] >= 1
         assert merkle.verify(proof["root"], proof["proof"], proof["leaf"])

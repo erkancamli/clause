@@ -60,10 +60,11 @@ def _raw(h: str) -> bytes:
     return bytes.fromhex(h[2:] if h.startswith("0x") else h)
 
 
-def root_of(leaves: Iterable[str]) -> str:
+def build(leaves: Iterable[str]) -> list[list[bytes]]:
+    """The tree, level by level from the sorted leaves up to the root, kept
+    so proofs come from a lookup rather than a rebuild."""
     level = sorted(_raw(l) for l in leaves)
-    if not level:
-        return "0x" + "00" * 32
+    levels = [level]
     while len(level) > 1:
         nxt = []
         for i in range(0, len(level), 2):
@@ -72,30 +73,42 @@ def root_of(leaves: Iterable[str]) -> str:
             else:
                 nxt.append(level[i])   # an odd leaf is carried up as it is
         level = nxt
-    return "0x" + level[0].hex()
+        levels.append(level)
+    return levels
+
+
+def root_of_tree(levels: list[list[bytes]]) -> str:
+    if not levels or not levels[0]:
+        return "0x" + "00" * 32
+    return "0x" + levels[-1][0].hex()
+
+
+def proof_from_tree(levels: list[list[bytes]], leaf: str) -> list[str] | None:
+    """The sibling hashes from this leaf to the root; None if it is not
+    in the tree."""
+    if not levels or not levels[0]:
+        return None
+    target = _raw(leaf)
+    bottom = levels[0]
+    import bisect
+    index = bisect.bisect_left(bottom, target)
+    if index >= len(bottom) or bottom[index] != target:
+        return None
+    path: list[str] = []
+    for level in levels[:-1]:
+        sibling = index ^ 1
+        if sibling < len(level):
+            path.append("0x" + level[sibling].hex())
+        index //= 2
+    return path
+
+
+def root_of(leaves: Iterable[str]) -> str:
+    return root_of_tree(build(leaves))
 
 
 def proof_of(leaves: Iterable[str], leaf: str) -> list[str] | None:
-    """The sibling hashes from this leaf to the root; None if it is not
-    in the tree."""
-    level = sorted(_raw(l) for l in leaves)
-    target = _raw(leaf)
-    if target not in level:
-        return None
-    index = level.index(target)
-    path: list[str] = []
-    while len(level) > 1:
-        nxt = []
-        for i in range(0, len(level), 2):
-            if i + 1 < len(level):
-                if i == index or i + 1 == index:
-                    path.append("0x" + level[i + 1 if i == index else i].hex())
-                nxt.append(_pair(level[i], level[i + 1]))
-            else:
-                nxt.append(level[i])
-        index //= 2
-        level = nxt
-    return path
+    return proof_from_tree(build(leaves), leaf)
 
 
 def verify(root: str, proof: Iterable[str], leaf: str) -> bool:

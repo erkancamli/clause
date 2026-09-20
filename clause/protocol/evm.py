@@ -24,32 +24,43 @@ _RC = [
     0x8000000000008002, 0x8000000000000080, 0x000000000000800A, 0x800000008000000A,
     0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008,
 ]
-_ROT = [
-    [0, 36, 3, 41, 18], [1, 44, 10, 45, 2], [62, 6, 43, 15, 61],
-    [28, 55, 25, 21, 56], [27, 20, 39, 8, 14],
-]
 _MASK = (1 << 64) - 1
+_ROTC = [[0, 36, 3, 41, 18], [1, 44, 10, 45, 2], [62, 6, 43, 15, 61],
+         [28, 55, 25, 21, 56], [27, 20, 39, 8, 14]]
+# rho and pi in one pass, chi in one pass: the lane indices worked out once,
+# so the permutation is straight line code rather than nested loops. Twice
+# as fast as the loops, which matters when a book of ten thousand policies
+# is hashed into a tree.
+_PI = [(x + 5 * y, y + 5 * ((2 * x + 3 * y) % 5), _ROTC[x][y]) for x in range(5) for y in range(5)]
+_CHI = [(i, (i % 5 + 1) % 5 + 5 * (i // 5), (i % 5 + 2) % 5 + 5 * (i // 5)) for i in range(25)]
 
 
-def _rol(x: int, n: int) -> int:
-    return ((x << n) | (x >> (64 - n))) & _MASK if n else x
-
-
-def _keccak_f(state: list[int]) -> None:
+def _keccak_f(s: list[int]) -> None:
+    M = _MASK
     for rc in _RC:
-        c = [state[x] ^ state[x + 5] ^ state[x + 10] ^ state[x + 15] ^ state[x + 20] for x in range(5)]
-        d = [c[(x - 1) % 5] ^ _rol(c[(x + 1) % 5], 1) for x in range(5)]
-        for x in range(5):
-            for y in range(5):
-                state[x + 5 * y] ^= d[x]
+        c0 = s[0] ^ s[5] ^ s[10] ^ s[15] ^ s[20]
+        c1 = s[1] ^ s[6] ^ s[11] ^ s[16] ^ s[21]
+        c2 = s[2] ^ s[7] ^ s[12] ^ s[17] ^ s[22]
+        c3 = s[3] ^ s[8] ^ s[13] ^ s[18] ^ s[23]
+        c4 = s[4] ^ s[9] ^ s[14] ^ s[19] ^ s[24]
+        d0 = c4 ^ (((c1 << 1) | (c1 >> 63)) & M)
+        d1 = c0 ^ (((c2 << 1) | (c2 >> 63)) & M)
+        d2 = c1 ^ (((c3 << 1) | (c3 >> 63)) & M)
+        d3 = c2 ^ (((c4 << 1) | (c4 >> 63)) & M)
+        d4 = c3 ^ (((c0 << 1) | (c0 >> 63)) & M)
+        for i in range(0, 25, 5):
+            s[i] ^= d0
+            s[i + 1] ^= d1
+            s[i + 2] ^= d2
+            s[i + 3] ^= d3
+            s[i + 4] ^= d4
         b = [0] * 25
-        for x in range(5):
-            for y in range(5):
-                b[y + 5 * ((2 * x + 3 * y) % 5)] = _rol(state[x + 5 * y], _ROT[x][y])
-        for x in range(5):
-            for y in range(5):
-                state[x + 5 * y] = b[x + 5 * y] ^ ((~b[(x + 1) % 5 + 5 * y]) & b[(x + 2) % 5 + 5 * y])
-        state[0] ^= rc
+        for src, dst, r in _PI:
+            v = s[src]
+            b[dst] = ((v << r) | (v >> (64 - r))) & M if r else v
+        for i, j, k in _CHI:
+            s[i] = b[i] ^ ((~b[j]) & b[k])
+        s[0] ^= rc
 
 
 def keccak256(data: bytes) -> bytes:

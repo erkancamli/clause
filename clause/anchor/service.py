@@ -14,10 +14,16 @@ everything is sent in order.
 The signer is one hot key with the issuer role on both contracts and
 nothing else: it can mint, burn, settle and anchor, and cannot change who
 the issuer is. That is the owner's, kept elsewhere.
+
+Nothing here runs on the request path or the chain's thread for long: a
+policy's leaf is hashed once and kept until the policy changes, the tree
+is built in the worker and kept for proofs, and the chain's own thread
+only ever appends an intent under a lock held for microseconds.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -96,12 +102,11 @@ class AnchorConfig:
         def env(name: str) -> str:
             return os.environ.get(name, "").strip()
         chain = env("CLAUSE_ANCHOR_CHAIN_ID")
+        chain_id = int(chain) if chain.isdigit() else 84532
         every = env("CLAUSE_ANCHOR_EVERY")
-        return cls(chain_id=int(chain) if chain.isdigit() else 84532,
-                   rpc_url=env("CLAUSE_ANCHOR_RPC") or (CHAINS.get(int(chain) if chain.isdigit() else 84532, {}).get("rpc", "") if env("CLAUSE_ANCHOR_KEY") else ""),
-                   private_key=env("CLAUSE_ANCHOR_KEY"),
-                   policy_contract=env("CLAUSE_ANCHOR_POLICY"),
-                   book_contract=env("CLAUSE_ANCHOR_BOOK"),
+        rpc_url = env("CLAUSE_ANCHOR_RPC") or (CHAINS.get(chain_id, {}).get("rpc", "") if env("CLAUSE_ANCHOR_KEY") else "")
+        return cls(chain_id=chain_id, rpc_url=rpc_url, private_key=env("CLAUSE_ANCHOR_KEY"),
+                   policy_contract=env("CLAUSE_ANCHOR_POLICY"), book_contract=env("CLAUSE_ANCHOR_BOOK"),
                    every=float(every) if every else 600.0)
 
     @property
@@ -128,7 +133,8 @@ class Anchor:
         # of their own: a public chain is for cover people bought.
         self.synthetic = synthetic or (lambda policy: bool((policy.metadata or {}).get("synthetic")))
         self.intents: dict[str, AnchorIntent] = {}
-        self.lock = threading.RLock()
+        self.lock = threading.RLock()          # the intents dict
+        self._cycle = threading.Lock()         # one cycle at a time
         self._key = private_key_of(self.config.private_key) if self.config.private_key else None
         self.signer = address_of_key(self._key) if self._key is not None else None
         self.rpc = rpc or (Rpc(self.config.rpc_url) if self.config.rpc_url else None)
@@ -137,8 +143,17 @@ class Anchor:
         self.last_run_at: float | None = None
         self.last_error = ""
         self.balance_wei: int | None = None
+        # A policy's leaf, hashed once and kept until the policy changes.
+        self._leaf_cache: dict[str, tuple[tuple[Any, ...], str]] = {}
+        # The tree behind each recent root, by epoch, for proofs by lookup.
+        self._trees: dict[int, list[list[bytes]]] = {}
+        self._fingerprint = ""
 
     # -- what happens in the protocol ------------------------------------------
+
+    def _snapshot(self) -> list[AnchorIntent]:
+        with self.lock:
+            return list(self.intents.values())
 
     def _add(self, kind: str, policy_id: str, payload: dict[str, Any], now: float | None = None) -> AnchorIntent:
         intent = AnchorIntent(intent_id="ANC-" + secrets.token_hex(6).upper(), kind=kind, policy_id=policy_id,
@@ -146,6 +161,10 @@ class Anchor:
         with self.lock:
             self.intents[intent.intent_id] = intent
         return intent
+
+    def _has(self, kind: str, policy_id: str) -> bool:
+        with self.lock:
+            return any(i.kind == kind and i.policy_id == policy_id for i in self.intents.values())
 
     def recipient(self, holder: str) -> tuple[str, bool]:
         """Where a policy's token goes: the holder's linked Ethereum wallet
@@ -165,14 +184,14 @@ class Anchor:
             return None
         token = (policy.metadata or {}).get("token") or {}
         if event == "minted":
-            if any(i.kind == "mint" and i.policy_id == policy.policy_id for i in self.intents.values()):
+            if self._has("mint", policy.policy_id):
                 return None
             to, custodial = self.recipient(policy.holder)
             return self._add("mint", policy.policy_id, {
                 "to": to, "custodial": custodial, "holder_hash": merkle.text_hash(policy.holder),
                 "terms_hash": token.get("terms_hash") or "0x" + "00" * 32})
         if event == "burned":
-            if any(i.kind == "burn" and i.policy_id == policy.policy_id for i in self.intents.values()):
+            if self._has("burn", policy.policy_id):
                 return None
             return self._add("burn", policy.policy_id, {"reason": token.get("burned_because") or "cancelled"})
         return None
@@ -182,14 +201,15 @@ class Anchor:
         chain: the policies from before anchoring. A token burned before then
         was never minted on the chain, so there is nothing to burn; and
         settlements are told from now on, not the seeded past."""
-        have = {(i.kind, i.policy_id) for i in self.intents.values()}
+        with self.lock:
+            have = {i.policy_id for i in self.intents.values() if i.kind == "mint"}
         added = 0
         for policy in list(self.pool.policies.values()):
             token = (policy.metadata or {}).get("token")
-            if not token or token.get("burned_at") or ("mint", policy.policy_id) in have or self.synthetic(policy):
+            if not token or token.get("burned_at") or policy.policy_id in have or self.synthetic(policy):
                 continue
-            self.on_token("minted", policy)
-            added += 1
+            if self.on_token("minted", policy) is not None:
+                added += 1
         return added
 
     def on_settlement(self, settlement: Any) -> AnchorIntent | None:
@@ -197,7 +217,7 @@ class Anchor:
         policy = self.pool.policies.get(settlement.policy_id)
         if not code or policy is None or self.synthetic(policy):
             return None
-        if any(i.kind == "settle" and i.policy_id == settlement.policy_id for i in self.intents.values()):
+        if self._has("settle", settlement.policy_id):
             return None
         return self._add("settle", settlement.policy_id, {
             "status": settlement.kind, "status_code": code,
@@ -208,35 +228,71 @@ class Anchor:
 
     # -- the book's root --------------------------------------------------------
 
+    def leaf_for(self, policy: Any) -> str:
+        """The policy's leaf, from the cache unless something in it moved.
+        The key is read straight off the policy: no hashing on a hit."""
+        status = policy.status.value if hasattr(policy.status, "value") else str(policy.status)
+        token = (policy.metadata or {}).get("token") or {}
+        key = (status, int(round(float(policy.limit) * 100)), int(policy.starts_at), int(policy.ends_at),
+               token.get("terms_hash"), policy.holder)
+        cached = self._leaf_cache.get(policy.policy_id)
+        if cached is not None and cached[0] == key:
+            return cached[1]
+        leaf = merkle.leaf_of(merkle.leaf_fields(policy))
+        self._leaf_cache[policy.policy_id] = (key, leaf)
+        return leaf
+
     def leaves(self) -> list[tuple[str, str]]:
         out = []
         for policy in list(self.pool.policies.values()):
             if "token" not in (policy.metadata or {}):
                 continue
-            out.append((policy.policy_id, merkle.leaf_of(merkle.leaf_fields(policy))))
+            out.append((policy.policy_id, self.leaf_for(policy)))
         return sorted(out, key=lambda p: p[1])
 
     def roots(self) -> list[AnchorIntent]:
-        return sorted((i for i in self.intents.values() if i.kind == "root"), key=lambda i: i.payload.get("epoch", 0))
+        return sorted((i for i in self._snapshot() if i.kind == "root"), key=lambda i: i.payload.get("epoch", 0))
 
     def latest_root(self) -> AnchorIntent | None:
         roots = self.roots()
         return roots[-1] if roots else None
 
     def anchor_root(self, now: float | None = None, *, force: bool = False) -> AnchorIntent | None:
-        """A new root if the book changed since the last one."""
+        """A new root if the book changed since the last one. The hashing
+        happens outside every lock; only the intent is added under one."""
         now = time.time() if now is None else now
         leaves = self.leaves()
-        root = merkle.root_of(l for _, l in leaves)
         last = self.latest_root()
+        # The same leaves give the same root: a cheap fingerprint of the
+        # sorted leaves says whether the tree needs building at all.
+        fingerprint = hashlib.sha256("".join(l for _, l in leaves).encode()).hexdigest()
+        if last is not None and not force and fingerprint == self._fingerprint and last.payload.get("leaves"):
+            return None
+        tree = merkle.build(l for _, l in leaves)
+        root = merkle.root_of_tree(tree)
+        self._fingerprint = fingerprint
         if last is not None and last.payload.get("root") == root and not force:
             return None
         epoch = max(int(now), (int(last.payload.get("epoch", 0)) + 1) if last else 0)
         intent = self._add("root", "", {"root": root, "count": len(leaves), "epoch": epoch, "leaves": leaves}, now=now)
         with self.lock:
+            self._trees[epoch] = tree
             for old in self.roots()[:-KEEP_LEAVES]:
                 old.payload.pop("leaves", None)
+                self._trees.pop(int(old.payload.get("epoch", -1)), None)
         return intent
+
+    def _tree_for(self, root: AnchorIntent) -> list[list[bytes]] | None:
+        leaves = root.payload.get("leaves")
+        if not leaves:
+            return None
+        epoch = int(root.payload.get("epoch", 0))
+        tree = self._trees.get(epoch)
+        if tree is None:
+            # A root restored from the book: built once, then kept.
+            tree = merkle.build(l for _, l in leaves)
+            self._trees[epoch] = tree
+        return tree
 
     def proof(self, policy_id: str) -> dict[str, Any]:
         """A policy's place in the book: its leaf in the clear, the sibling
@@ -245,15 +301,15 @@ class Anchor:
         if policy is None:
             raise KeyError(policy_id)
         fields = merkle.leaf_fields(policy)
-        leaf_now = merkle.leaf_of(fields)
+        leaf_now = self.leaf_for(policy)
         for root in reversed(self.roots()):
-            leaves = root.payload.get("leaves")
-            if not leaves:
+            tree = self._tree_for(root)
+            if tree is None:
                 continue
-            entry = next((l for pid, l in leaves if pid == policy_id), None)
+            entry = next((l for pid, l in root.payload["leaves"] if pid == policy_id), None)
             if entry is None:
                 continue
-            siblings = merkle.proof_of([l for _, l in leaves], entry) or []
+            siblings = merkle.proof_from_tree(tree, entry) or []
             return {
                 "policy_id": policy_id, "fields": fields, "leaf": entry, "leaf_now": leaf_now,
                 "current": entry == leaf_now, "proof": siblings,
@@ -280,7 +336,7 @@ class Anchor:
 
     def pending(self) -> list[AnchorIntent]:
         """Oldest first, so a burn never overtakes its mint and roots rise."""
-        return sorted((i for i in self.intents.values() if i.status == "pending"), key=lambda i: (i.created_at, i.intent_id))
+        return sorted((i for i in self._snapshot() if i.status == "pending"), key=lambda i: (i.created_at, i.intent_id))
 
     def send(self, intent: AnchorIntent, *, nonce: int | None = None, fees: tuple[int, int] | None = None) -> AnchorIntent:
         assert self.rpc is not None and self._key is not None and self.signer
@@ -336,16 +392,18 @@ class Anchor:
         return intent
 
     def run_once(self, now: float | None = None) -> dict[str, Any]:
-        """One cycle: a new root if the book moved, then what can be sent."""
+        """One cycle: tokens owed from before, a new root if the book moved,
+        then what can be sent."""
         report = {"root": None, "sent": 0, "confirmed": 0, "failed": 0, "mode": self.config.mode}
-        with self.lock:
+        with self._cycle:
+            self.backfill()
             fresh = self.anchor_root(now)
             report["root"] = fresh.payload["root"] if fresh else None
             if not self.config.live or self.rpc is None:
                 self.last_run_at = time.time()
                 return report
             try:
-                for intent in [i for i in self.intents.values() if i.status == "sent"]:
+                for intent in [i for i in self._snapshot() if i.status == "sent"]:
                     before = intent.status
                     self.confirm(intent)
                     if intent.status == "confirmed" and before != "confirmed":
@@ -379,12 +437,16 @@ class Anchor:
     # -- the worker ---------------------------------------------------------------
 
     def start(self) -> None:
+        """The first cycle runs as soon as the thread does, off the startup
+        path: a big book takes seconds to hash and nothing waits for it."""
         def run() -> None:
-            while not self._stop.wait(self.config.every):
+            while True:
                 try:
                     self.run_once()
                 except Exception:
                     logger.exception("anchor cycle failed")
+                if self._stop.wait(self.config.every):
+                    return
         self._thread = threading.Thread(target=run, name="clause-anchor", daemon=True)
         self._thread.start()
 
@@ -406,7 +468,7 @@ class Anchor:
         return f"{explorer}/address/{address}" if address and explorer else None
 
     def for_policy(self, policy_id: str) -> dict[str, Any]:
-        rows = sorted((i for i in self.intents.values() if i.policy_id == policy_id), key=lambda i: i.created_at)
+        rows = sorted((i for i in self._snapshot() if i.policy_id == policy_id), key=lambda i: i.created_at)
         return {"intents": [dict(i.to_dict(), tx_url=self.tx_url(i.tx_hash)) for i in rows],
                 "token_url": (f"{self.config.chain['explorer']}/nft/{self.config.policy_contract}/{int(merkle.text_hash(policy_id), 16)}"
                               if self.config.policy_contract and self.config.chain.get("explorer") else None)}
@@ -414,11 +476,12 @@ class Anchor:
     def status(self, *, recent: int = 12) -> dict[str, Any]:
         counts = {k: 0 for k in ("pending", "sent", "confirmed", "failed")}
         by_kind = {k: 0 for k in KINDS}
-        for i in self.intents.values():
+        rows = self._snapshot()
+        for i in rows:
             counts[i.status] = counts.get(i.status, 0) + 1
             by_kind[i.kind] = by_kind.get(i.kind, 0) + 1
         last = self.latest_root()
-        latest = sorted(self.intents.values(), key=lambda i: i.created_at, reverse=True)[:recent]
+        latest = sorted(rows, key=lambda i: i.created_at, reverse=True)[:recent]
         return {
             "mode": self.config.mode,
             "chain": {"id": self.config.chain_id, "name": self.config.chain["name"], "explorer": self.config.chain.get("explorer", "")},
