@@ -1,0 +1,109 @@
+# The public chain beside the protocol's own
+
+The protocol's chain is the record: every policy, reading and settlement
+lives there, and the Proof page reads it. A public chain adds a witness
+that nobody running the protocol controls. The first one is Base Sepolia;
+the code is plain EVM and would run on Base itself with a chain id.
+
+## What goes to the chain
+
+| When | What | Where |
+|---|---|---|
+| A policy is issued | `mint(to, policyId, holderHash, termsHash)`: a token to the holder's linked Ethereum wallet, or to the signer's address held for them | `ClausePolicy` |
+| A policy is cancelled | `burn(policyId, reason)` | `ClausePolicy` |
+| The chain settles a policy | `settle(policyId, status, payoutCents, readingHash, when)`: an event | `ClauseBook` |
+| The book changed since the last root (checked every `CLAUSE_ANCHOR_EVERY` seconds) | `anchor(root, leafCount, epoch)` | `ClauseBook` |
+
+Each of these is an *intent* in the book the moment it happens, with its
+transaction hash and block once sent and mined. A restart loses nothing;
+a node that is down is tried again next cycle; a call that would revert
+(`eth_estimateGas` says so) is marked failed and never paid for.
+
+The token cannot move: every ERC-721 transfer and approval reverts, and
+`locked(tokenId)` is true (ERC-5192, interface `0xb45a3c0e`), so a wallet
+knows before it tries. The token id is `uint256(keccak256(policyId))`;
+`tokenURI` is the protocol's own metadata for the policy
+(`<base URI><policyId>/token`), which carries the certificate image.
+
+## The Merkle root
+
+One leaf per policy with a token:
+
+```
+leaf = keccak256(abi.encode(
+    keccak256(policyId), keccak256(holder), uint8 status,
+    uint256 limitCents, uint64 startsAt, uint64 endsAt, bytes32 termsHash))
+```
+
+with status 1 active, 2 paid, 3 lapsed, 4 expired, 5 cancelled. Leaves are
+sorted, pairs are hashed in sorted order, an odd leaf is carried up as it
+is. A proof is the list of sibling hashes; `verify(root, proof, leaf)` on
+the book contract, the Python in `clause/anchor/merkle.py` and the
+Keccak in the site's own script all compute the same walk. The epoch is
+the protocol's Unix time when the tree was built and only rises.
+
+`GET /api/policies/{id}/anchor` returns the leaf's fields in the clear,
+the leaf, the siblings, the root and the anchoring transaction. The Proof
+page shows them and has a button that recomputes everything in the
+browser, so a person checks the protocol's claim without trusting the
+protocol's server.
+
+## Without a key
+
+With no key configured the service runs in *record* mode: roots are built,
+intents are recorded as `pending`, and the pages say so. Nothing is lost:
+the day a key and the contract addresses are set, the pending intents go
+out in order, oldest first, so a burn never overtakes its mint.
+
+Policies the demonstration writes for itself (the opening book and the
+buyers that keep arriving) are in the root, since the root is the book as
+it is, but get no token, burn or settlement of their own: the public chain
+is for cover people bought.
+
+Tokens minted before anchoring existed are queued at startup (the
+backfill). Tokens burned before then were never on the chain, so nothing
+is burned for them; settlements are told from the day anchoring starts.
+
+## Going live
+
+1. Make a fresh key for the signer and fund it with a little Base Sepolia
+   ETH from a faucet. The whole first year costs a fraction of one test
+   ETH.
+2. Deploy the two contracts from it:
+
+   ```
+   CLAUSE_ANCHOR_KEY=0x… python scripts/deploy_anchor.py \
+       --rpc https://sepolia.base.org --chain-id 84532 \
+       --base-uri https://api.clause.insure/api/policies/
+   ```
+
+   It prints the four environment lines.
+3. Set them on the service and restart:
+
+   ```
+   CLAUSE_ANCHOR_CHAIN_ID=84532
+   CLAUSE_ANCHOR_RPC=https://sepolia.base.org
+   CLAUSE_ANCHOR_POLICY=0x…
+   CLAUSE_ANCHOR_BOOK=0x…
+   CLAUSE_ANCHOR_KEY=0x…
+   CLAUSE_ANCHOR_EVERY=600      # seconds between cycles; optional
+   ```
+
+4. `GET /api/anchor` shows `"mode": "live"`, the signer, its balance and
+   the last root with its transaction; `POST /api/operator/anchor/run`
+   runs a cycle now.
+
+The key is a hot key with the issuer role only. It can mint, burn, settle
+and anchor; it cannot change the issuer. Move the owner role of both
+contracts to a safer key (`setOwner`) once deployed, keep only a few
+weeks of gas on the signer, and rotate it by calling `setIssuer` from the
+owner and changing the variable. `/api/anchor` reports the balance so a
+low one is seen before it stops sending.
+
+## What it is not
+
+It is not the settlement layer: nothing pays out from these contracts and
+no premium touches them. It is a public, timestamped, independently
+verifiable copy of what the protocol says its book is, which is what a
+buyer, a company or a regulator needs to check the protocol against
+itself.

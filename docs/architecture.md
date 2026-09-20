@@ -71,6 +71,11 @@ back, the payout does not go out.
 | `clause/protocol/vetting.py` | The operator's checklist for letting a company in: items by domicile and role, registers to read, documents by kind, the record per item, activation gated on it, review due a year on |
 | `clause/protocol/fees.py` | The platform's fee (1% of premium, out of the company's fronting fee, returned with refunds) and monthly statements |
 | `clause/protocol/desk.py` | The company's book worked: search, filters, renewals due, exposure by province, CSV |
+| `clause/anchor/service.py` | The public chain beside this one: intents (mint, burn, settle, root) recorded as things happen, sent as signed transactions when a key is set, receipts read back; proofs of a policy's place in the book |
+| `clause/anchor/merkle.py` | The book as a Merkle tree: one leaf per policy, sorted pairs, proofs the contract's `verify` accepts |
+| `clause/anchor/signing.py` | Keccak, secp256k1 with RFC 6979 nonces, RLP, the ABI, EIP-1559 transactions: signing without a wallet library |
+| `clause/anchor/rpc.py` | The few JSON-RPC calls a signer needs, over httpx |
+| `contracts/` | `ClausePolicy.sol` (ERC-721 + ERC-5192, locked, burn on cancel) and `ClauseBook.sol` (roots by epoch, settlement events, `verify`); compiled artifacts in `clause/anchor/artifacts.json` |
 | `clause/chain/world.py` | Rialo shaped chain, Edge readings, settlement |
 | `clause/rpc/client.py` | The published Rialo RPC |
 | `clause/api/app.py` | HTTP surface and the event stream |
@@ -266,6 +271,9 @@ them import from `clause.chain`.
 | GET | `/api/applications/recipient` | Who could open documents sent with an application to a company, and the key to seal them to |
 | POST, GET, DELETE | `/api/applications/{id}/documents[/{doc}]` | Send sealed documents; the deciding party fetches the envelope, which is recorded; the applicant takes one back |
 | GET, POST | `/api/carriers/{id}/vetting` | The checklist for one company; the operator records an item (confirmed, failed, set aside) with where they looked and what they saw |
+| GET | `/api/anchor` | The public chain's state: mode, contracts, signer, last root, recent intents with transactions |
+| GET | `/api/policies/{id}/anchor` | One policy on the public chain: its intents and its Merkle proof against the last anchored root |
+| POST | `/api/operator/anchor/run` | One anchor cycle now: a root if the book moved, then whatever is pending, sent |
 | POST | `/api/company/{id}/evidence` | The company adds documents after registering, by kind |
 | GET | `/api/company/statements`, `/api/operator/statements` | A company's month of fee movements and what it was left with; every company's, and the platform's totals, for the operator; CSV |
 | GET | `/api/company/policies`, `/api/operator/policies` | The book worked: search, status, peril, province, due within N days, sort, paging, CSV |

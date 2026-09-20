@@ -312,6 +312,8 @@ class Chain:
         # leave the protocol (a partner's webhook). A listener that fails is
         # logged; it can never undo a settlement.
         self.listeners: list[Any] = []
+        # Told when a policy's token is minted or burned, with the policy.
+        self.token_listeners: list[Any] = []
 
         # Every web call is performed by each validator separately, and what
         # lands on chain is the set of their answers. The aggregator is Clause's
@@ -662,6 +664,7 @@ class Chain:
             # restart finds it already there.
             if "token" not in policy.metadata:
                 policy.metadata["token"] = mint_token(policy, self.height, self.timestamp)
+                self._token_event("minted", policy)
             # A running maximum left by an earlier policy on this source must
             # not pay this one for an event before its term.
             self._reset_if_idle(policy.data_reference)
@@ -1072,6 +1075,14 @@ class Chain:
         reading = self.readings.get(armed.policy.data_reference)
         return float(reading.value) if reading else 0.0
 
+    def _token_event(self, event: str, policy: Policy) -> None:
+        for listener in list(self.token_listeners):
+            try:
+                listener(event, policy)
+            except Exception:
+                import logging
+                logging.getLogger("clause.chain").exception("token listener failed")
+
     def _settled(self, settlement: Settlement) -> None:
         self.settlements.append(settlement)
         for listener in list(self.listeners):
@@ -1095,6 +1106,7 @@ class Chain:
                 token.update({"burned_block": self.height, "burned_at": self.timestamp,
                               "burned_from": token.get("owner"), "owner": None,
                               "burned_because": "cancelled"})
+                self._token_event("burned", policy)
             for account, armed in list(self.armed.items()):
                 if armed.policy.policy_id == policy.policy_id:
                     self._disarm(account)

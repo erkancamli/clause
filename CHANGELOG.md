@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.7.0, 20 September 2026
+
+- A public chain beside the protocol's own. Base Sepolia is told of each
+  policy token minted (to the holder's linked Ethereum wallet, else held
+  by the signer for them) and burned, of each settlement, and, on a
+  timer, of the root of a Merkle tree over the whole book. Two small
+  contracts: a policy token (ERC-721 with ERC-5192 locked, every transfer
+  refused, the id the Keccak of the policy number) and a book (roots by
+  epoch, settlements as events, and `verify(root, proof, leaf)`). The
+  service signs its own EIP-1559 transactions (RFC 6979 nonces, checked
+  against the EIP-155 example) and speaks plain JSON-RPC; no wallet
+  library. Each thing to tell the chain is an intent in the book first,
+  so nothing is lost to a restart or a node that is down, and a call
+  that would revert is not paid for. The demonstration's own policies are
+  in the root but get no transactions of their own.
+- Without a key it still works: roots are built and intents recorded as
+  not sent, so the proof page shows a policy's place in the book today
+  and the day the signer is funded everything goes out in order.
+- The Proof page shows the chain's state and, for a policy, its mint,
+  burn and settlement with explorer links and its leaf, siblings and
+  root, with a button that recomputes the proof in the browser
+  (Keccak-256 in the page, no library). The token dialog says where the
+  token is on the public chain. `/api/anchor`, `/api/policies/{id}/anchor`,
+  `POST /api/operator/anchor/run`, `scripts/deploy_anchor.py`.
+
 ## 1.6.0, 20 September 2026
 
 - Letting a company in has a shape. Each registration gets the operator's
