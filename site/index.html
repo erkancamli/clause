@@ -1643,6 +1643,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     <details class="more" style="margin-top:8px"><summary data-i18n>Does the platform charge me anything?</summary><div class="inner"><p data-i18n>No. The price you see is the pool's price plus the issuing company's fee. The platform is paid by the company, out of that fee, and a fee that comes back to you takes the platform's share back with it.</p></div></details>
     <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>After buying</h3>
     <details class="more" style="margin-top:8px"><summary data-i18n>Where is my policy?</summary><div class="inner"><p data-i18n>On My cover, with its terms, its status and its token. The token is locked to your address and cannot be transferred; a cancelled policy's token is burned and leaves the wallet.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>Is my policy on a public chain?</summary><div class="inner"><p data-i18n>The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How will I know it paid?</summary><div class="inner"><p data-i18n>Settlement happens on chain the moment the reading crosses the trigger; My cover shows the payout and the Proof page shows the reading, the block and the policy it settled. A bank payout, where you chose one, follows within the days the company states.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Can I renew?</summary><div class="inner"><p data-i18n>Yes. From My cover a policy that is ending can be renewed on the same terms, and a standing instruction can renew it on the day without you. The issuing company also sees which policies end within thirty days.</p></div></details>
     <h3 style="font-size:17px;margin:28px 0 10px" data-i18n>Applications and documents</h3>
@@ -1992,6 +1993,7 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
     <p data-i18n>Minted to your address when the policy was written. It cannot be transferred: cover belongs to the person with an interest in what it insures.</p>
     <img id="token-img" alt="" style="width:100%;max-width:420px;border-radius:18px;justify-self:center">
     <p class="fine mono" id="token-meta" style="overflow-wrap:anywhere;word-break:break-all"></p>
+    <p class="fine" id="token-chain"></p>
     <div class="row"><button class="btn btn-line btn-sm" type="submit" data-i18n>Close</button></div>
   </form>
 </dialog>
@@ -7795,6 +7797,98 @@ function opAct(id, action, button){
    Wake, folded into Clause. The question an insurer normally answers out of its
    own file, answered instead from what the chain stored. */
 
+
+/* ---------------- the public chain beside the protocol's ----------------
+   Keccak-256 in the browser, so a proof can be checked without trusting the
+   page's server: BigInt lanes, a proof is a dozen hashes, speed is nothing. */
+var KC_RC=["0x1","0x8082","0x800000000000808a","0x8000000080008000","0x808b","0x80000001","0x8000000080008081","0x8000000000008009","0x8a","0x88","0x80008009","0x8000000a","0x8000808b","0x800000000000008b","0x8000000000008089","0x8000000000008003","0x8000000000008002","0x8000000000000080","0x800a","0x800000008000000a","0x8000000080008081","0x8000000000008080","0x80000001","0x8000000080008008"].map(function(h){ return BigInt(h); });
+var KC_ROT=[[0,36,3,41,18],[1,44,10,45,2],[62,6,43,15,61],[28,55,25,21,56],[27,20,39,8,14]];
+var KC_M=(1n<<64n)-1n;
+function kcRol(x,n){ if(!n)return x; var b=BigInt(n); return ((x<<b)|(x>>(64n-b)))&KC_M; }
+function kcF(s){
+  for(var r=0;r<24;r++){
+    var c=[],d=[],b=new Array(25),x,y;
+    for(x=0;x<5;x++)c[x]=s[x]^s[x+5]^s[x+10]^s[x+15]^s[x+20];
+    for(x=0;x<5;x++)d[x]=c[(x+4)%5]^kcRol(c[(x+1)%5],1);
+    for(x=0;x<5;x++)for(y=0;y<5;y++)s[x+5*y]^=d[x];
+    for(x=0;x<5;x++)for(y=0;y<5;y++)b[y+5*((2*x+3*y)%5)]=kcRol(s[x+5*y],KC_ROT[x][y]);
+    for(x=0;x<5;x++)for(y=0;y<5;y++)s[x+5*y]=b[x+5*y]^(((~b[(x+1)%5+5*y])&KC_M)&b[(x+2)%5+5*y]);
+    s[0]^=KC_RC[r];
+  }
+}
+function keccak256(bytes){
+  var rate=136,len=bytes.length,padded=new Uint8Array((Math.floor(len/rate)+1)*rate),i,k;
+  padded.set(bytes); padded[len]^=0x01; padded[padded.length-1]^=0x80;
+  var s=[]; for(i=0;i<25;i++)s.push(0n);
+  for(var off=0;off<padded.length;off+=rate){
+    for(i=0;i<17;i++){ var v=0n; for(k=7;k>=0;k--)v=(v<<8n)|BigInt(padded[off+8*i+k]); s[i]^=v; }
+    kcF(s);
+  }
+  var out="0x";
+  for(i=0;i<4;i++)for(k=0;k<8;k++)out+=Number((s[i]>>BigInt(8*k))&0xffn).toString(16).padStart(2,"0");
+  return out;
+}
+function hexBytes(hex){ hex=hex.replace(/^0x/,""); var out=new Uint8Array(hex.length/2); for(var i=0;i<out.length;i++)out[i]=parseInt(hex.substr(2*i,2),16); return out; }
+function kcWord(n){ return BigInt(n).toString(16).padStart(64,"0"); }
+/* The leaf as the contract lays it out, the sibling walk in sorted order, and
+   the root it must reach. Anything that does not match is "does not match":
+   the page never explains a failure away. */
+function anchorCheck(p){
+  var f=p.fields;
+  if(keccak256(new TextEncoder().encode(f.policy_id))!==f.policy_hash.toLowerCase())return false;
+  var leaf=keccak256(hexBytes(f.policy_hash.slice(2)+f.holder_hash.slice(2)+kcWord(f.status_code)+kcWord(f.limit_cents)+kcWord(f.starts_at)+kcWord(f.ends_at)+f.terms_hash.slice(2)));
+  if(leaf!==p.leaf.toLowerCase())return false;
+  var node=leaf;
+  p.proof.forEach(function(sib){ sib=sib.toLowerCase(); node=node<=sib?keccak256(hexBytes(node.slice(2)+sib.slice(2))):keccak256(hexBytes(sib.slice(2)+node.slice(2))); });
+  return node===p.root.toLowerCase();
+}
+var ANCHOR_KINDS={mint:N("token minted"),burn:N("token burned"),settle:N("settlement recorded"),root:N("root anchored")};
+function anchorState(st){ return {pending:t("waiting to be sent"),sent:t("sent"),confirmed:t("confirmed"),failed:t("failed")}[st]||st; }
+function anchorLink(url,text){ return url?'<a href="'+esc(url)+'" target="_blank" rel="noreferrer noopener">'+esc(text)+'</a>':esc(text); }
+function anchorShort(h){ return h?h.slice(0,10)+"…"+h.slice(-6):""; }
+function renderAnchorStatus(box){
+  api("/api/anchor",{timeout:9000}).then(function(a){
+    var chain=a.chain||{},c=a.counts||{},lr=a.last_root,el=document.createElement("div");
+    el.className="panel"; el.style.cssText="padding:26px;display:grid;gap:12px;max-width:640px;margin-top:18px";
+    var h='<div class="label">'+esc(t("On a public chain"))+' · '+esc(chain.name||"")+'</div>'+
+      '<p style="font-size:14.5px;color:var(--ink-2)">'+esc(t("The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer."))+'</p>';
+    if(a.mode!=="live")h+='<p class="fine">'+esc(t("Recorded here, not yet sent: the chain will be told the day the signer is funded."))+'</p>';
+    else h+='<div class="kvs">'+kv(t("Signer"),'<span class="mono">'+anchorLink(a.signer_url,a.signer)+'</span>'+(a.balance_eth!=null?' · '+esc(Number(a.balance_eth).toFixed(4))+' ETH':''))+
+      kv(t("Contracts"),'<span class="mono">'+anchorLink(a.contracts.policy_url,anchorShort(a.contracts.policy))+' · '+anchorLink(a.contracts.book_url,anchorShort(a.contracts.book))+'</span>')+'</div>';
+    if(lr)h+='<div class="kvs">'+kv(t("Last root"),'<span class="mono" style="overflow-wrap:anywhere">'+esc(lr.payload.root)+'</span><br>'+esc(t("{n} policies, epoch {e}",{n:f0.format(lr.payload.count),e:lr.payload.epoch}))+' · '+esc(anchorState(lr.status))+(lr.tx_url?' · '+anchorLink(lr.tx_url,anchorShort(lr.tx_hash)):''))+'</div>';
+    h+='<p class="fine">'+esc(t("Sent {s} · confirmed {c} · waiting {p} · failed {f}",{s:f0.format(c.sent||0),c:f0.format(c.confirmed||0),p:f0.format(c.pending||0),f:f0.format(c.failed||0)}))+'</p>';
+    if((a.recent||[]).length)h+='<div style="display:grid;gap:4px">'+a.recent.map(function(i){ return '<div class="fine">'+esc(t(ANCHOR_KINDS[i.kind]||i.kind))+(i.policy_id?' · <span class="mono">'+esc(i.policy_id)+'</span>':'')+' · '+esc(anchorState(i.status))+(i.tx_url?' · <span class="mono">'+anchorLink(i.tx_url,anchorShort(i.tx_hash))+'</span>':'')+'</div>'; }).join("")+'</div>';
+    el.innerHTML=h; box.appendChild(el);
+  },function(){});
+}
+function renderAnchorFor(id,box){
+  api("/api/policies/"+encodeURIComponent(id)+"/anchor",{timeout:9000}).then(function(a){
+    var p=a.proof||{},el=document.createElement("div");
+    el.className="panel"; el.style.cssText="padding:24px;display:grid;gap:12px;margin-top:14px";
+    var h='<div class="label">'+esc(t("On a public chain"))+' · '+esc((a.chain||{}).name||"")+'</div>';
+    if(a.mode!=="live")h+='<p class="fine">'+esc(t("Recorded here, not yet sent: the chain will be told the day the signer is funded."))+'</p>';
+    h+='<div style="display:grid;gap:4px">'+(a.intents||[]).map(function(i){ return '<div class="fine">'+esc(t(ANCHOR_KINDS[i.kind]||i.kind))+' · '+esc(anchorState(i.status))+(i.tx_url?' · <span class="mono">'+anchorLink(i.tx_url,anchorShort(i.tx_hash))+'</span>':'')+'</div>'; }).join("")+'</div>';
+    if(a.token_url&&a.mode==="live")h+='<p class="fine">'+anchorLink(a.token_url,t("The token on the explorer"))+'</p>';
+    h+='<h4 style="font-size:15px;margin-top:6px">'+esc(t("Its place in the book"))+'</h4>';
+    if(!p.root)h+='<p class="fine">'+esc(t("Not yet in a root: the next one will carry it."))+'</p>';
+    else{
+      if(!p.current)h+='<p class="fine">'+esc(t("Changed since the last root (now {status}); the next root will carry the change.",{status:t(POLICY_STATUS[p.fields.status]||p.fields.status)}))+'</p>';
+      h+='<div class="kvs">'+kv(t("Leaf"),'<span class="mono" style="overflow-wrap:anywhere">'+esc(p.leaf)+'</span>')+
+        kv(t("Siblings ({n})",{n:p.proof.length}),'<span class="mono" style="overflow-wrap:anywhere">'+(p.proof.length?p.proof.map(esc).join("<br>"):"–")+'</span>')+
+        kv(t("Root"),'<span class="mono" style="overflow-wrap:anywhere">'+esc(p.root)+'</span>'+(p.tx_url?'<br>'+anchorLink(p.tx_url,t("anchored in this transaction")):''))+'</div>';
+      h+='<div><button class="btn btn-ghost btn-sm" type="button" id="anchor-check">'+esc(t("Check it in this browser"))+'</button> <span id="anchor-check-out" class="fine"></span></div>';
+      h+='<p class="fine">'+esc(t("The same check on the chain: verify(root, proof, leaf) on the book contract returns true."))+'</p>';
+    }
+    el.innerHTML=h; box.appendChild(el);
+    var btn=$("anchor-check");
+    if(btn)btn.addEventListener("click",function(){
+      var out=$("anchor-check-out"),ok=false;
+      try{ ok=anchorCheck(p); }catch(e){ ok=false; }
+      out.textContent=ok?t("Checks out: this leaf, hashed up through its siblings, gives the root."):t("Does not match.");
+    });
+  },function(){});
+}
+
 function renderProof(id){
   var box=$("proof-out");
   if(!id){
@@ -7812,6 +7906,7 @@ function renderProof(id){
     $("proof-id").addEventListener("keydown",function(e){
       if(e.key==="Enter")$("proof-go").click();
     });
+    whenLinked().then(function(){ if(link.live)renderAnchorStatus(box); });
     return;
   }
   box.innerHTML='<div class="panel" style="padding:24px">'+esc(t("Reading the chain…"))+'</div>';
@@ -7821,7 +7916,7 @@ function renderProof(id){
       return;
     }
     return api("/api/lineage/"+encodeURIComponent(id)).then(function(story){
-      box.innerHTML=proofHtml(story); bindTokens(box);
+      box.innerHTML=proofHtml(story); bindTokens(box); renderAnchorFor(id,box);
     },function(error){
       box.innerHTML='<div class="panel" style="padding:26px"><p>'+
         esc(error&&error.status===404?t("No policy with that id."):t("The protocol did not answer."))+
@@ -7857,6 +7952,11 @@ function showToken(id){
     $("token-img").src=meta.image;
     $("token-img").alt=meta.name;
     $("token-meta").textContent=t("Minted in block {n}",{n:f0.format(meta.token.minted_block)})+" · "+meta.token.terms_hash;
+    $("token-chain").textContent="";
+    api("/api/policies/"+encodeURIComponent(id)+"/anchor",{timeout:9000}).then(function(a){
+      var last=(a.intents||[]).slice(-1)[0];
+      $("token-chain").textContent=last?t("On {chain}: {state}",{chain:(a.chain||{}).name||"",state:t(ANCHOR_KINDS[last.kind]||last.kind)+", "+anchorState(last.status)}):t("Not on a public chain yet.");
+    },function(){});
     var d=$("token-dlg");
     if(typeof d.showModal==="function"){ if(!d.open)d.showModal(); } else d.setAttribute("open","");
   },function(){});

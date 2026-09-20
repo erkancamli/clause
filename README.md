@@ -176,6 +176,22 @@ no app secret on the server.
 
 ---
 
+## A public chain beside the protocol's own
+
+The protocol's chain is the record. What Base Sepolia adds is a witness
+nobody here controls. The service tells it three things: each policy token,
+minted to the holder's linked Ethereum wallet (or held by the signer for
+them) and burned when the policy is cancelled; each settlement, as an
+event; and on a timer the root of a Merkle tree over the whole book, so
+that any policy's place in the book that day can be proven from a handful
+of hashes against a root the chain holds. Two small contracts in
+`contracts/`, no wallet library: the service signs its own transactions.
+
+Without a key it still works. Roots are built and every intent is recorded
+as not sent; the Proof page shows a policy's leaf, siblings and root and
+checks them in the browser. To go live, deploy once from a funded testnet
+key and set four variables; see `docs/anchor.md`.
+
 ## Deploy
 
 A push to `main` is live. Netlify builds and publishes the site from the

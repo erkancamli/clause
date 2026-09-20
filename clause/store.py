@@ -62,7 +62,7 @@ FORMAT = 1
 
 
 # Only classes from the protocol's own packages are ever built from a file.
-_ALLOWED = ("clause.protocol.", "clause.perils.base", "clause.chain.world")
+_ALLOWED = ("clause.protocol.", "clause.perils.base", "clause.chain.world", "clause.anchor.")
 
 
 def _tag(cls: type) -> str:
@@ -253,15 +253,18 @@ def _text(item: Any) -> str:
 
 KINDS = ("policy", "provider", "wallet", "carrier", "key", "signers", "privy",
          "application", "payout_pref", "payout_order", "partner", "mandate", "funding",
-         "link", "instruction", "asset", "rule", "reading_key", "document", "fee")
+         "link", "instruction", "asset", "rule", "reading_key", "document", "fee", "anchor")
 
 
 def _books(payouts: Any, partners: Any, mandates: Any,
            applications: Any = None, funding: Any = None, links: Any = None,
            instructions: Any = None, assets: Any = None, pipeline: Any = None,
-           documents: Any = None, fees: Any = None) -> dict[str, dict[str, Any]]:
+           documents: Any = None, fees: Any = None, anchor: Any = None) -> dict[str, dict[str, Any]]:
     """The newer books, each a plain dict of stored kinds, when present."""
     out: dict[str, dict[str, Any]] = {}
+    if anchor is not None:
+        # What the public chain was, or will be, told: every intent and its receipt.
+        out["anchor"] = anchor.intents
     if fees is not None:
         # Every fee movement between buyer, company and platform: the statements.
         out["fee"] = fees.entries
@@ -297,7 +300,7 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
                auth: Any, accounts: Any, payouts: Any = None, partners: Any = None,
                mandates: Any = None, applications: Any = None, funding: Any = None,
                links: Any = None, instructions: Any = None, assets: Any = None,
-               pipeline: Any = None, documents: Any = None, fees: Any = None) -> None:
+               pipeline: Any = None, documents: Any = None, fees: Any = None, anchor: Any = None) -> None:
     with pool.lock, chain.lock:
         meta = {
             "format": FORMAT,
@@ -325,7 +328,7 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
             "privy": dict(accounts._by_user),
         }
         books.update({kind: dict(book) for kind, book in
-                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees).items()})
+                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor).items()})
         docs = {kind: {str(id_): _text(item) for id_, item in book.items()} for kind, book in books.items()}
         logs = {"ledger": [_text(e) for e in list(pool.ledger)],
                 "settlement": [_text(e) for e in list(chain.settlements)]}
@@ -336,7 +339,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
             auth: Any, accounts: Any, payouts: Any = None, partners: Any = None,
             mandates: Any = None, applications: Any = None, funding: Any = None,
             links: Any = None, instructions: Any = None, assets: Any = None,
-            pipeline: Any = None, documents: Any = None, fees: Any = None) -> dict[str, int]:
+            pipeline: Any = None, documents: Any = None, fees: Any = None, anchor: Any = None) -> dict[str, int]:
     """Put a saved book back. Returns counts, for the log line."""
     from .protocol.auth import load_public_key
 
@@ -397,7 +400,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
     store.remember("key", {a: _pem(k) for a, k in auth.keys.items()})
     store.remember("signers", {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()})
     store.remember("privy", accounts._by_user)
-    for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees).items():
+    for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor).items():
         book.clear()
         book.update(store.docs(kind))
         store.remember(kind, book)
@@ -416,7 +419,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
         store.remember("key", {a: _pem(k) for a, k in auth.keys.items()})
         store.remember("signers", {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()})
         store.remember("privy", accounts._by_user)
-        for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees).items():
+        for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor).items():
             store.remember(kind, book)
         logger.info("rewrote %s legacy 0x addresses in Rialo form", migrated)
     armed = 0

@@ -581,6 +581,8 @@ def create_app(
     privy_verifier: Any = None,
     store_path: Any = "env",
     geocoder: Any = None,
+    anchor_config: Any = None,
+    anchor_rpc: Any = None,
 ) -> FastAPI:
     settings = settings or Settings.from_env()
     engine = PricingEngine(trials=trials, seed=seed)
@@ -637,7 +639,7 @@ def create_app(
             auth=auth, accounts=accounts, payouts=payouts, partners=partners,
             mandates=mandates, applications=applications, funding=funding,
             links=links, instructions=instructions, assets=assets, pipeline=pipeline,
-            documents=documents, fees=fees))
+            documents=documents, fees=fees, anchor=anchor))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -772,6 +774,16 @@ def create_app(
         except AuthError:
             return None
 
+    # A public chain as witness. Each token minted or burned, each settlement
+    # and, on a timer, the root of the book go out to it as signed
+    # transactions when a key is configured; without one they are recorded
+    # here, marked as not sent, and the proof page still works.
+    from ..anchor import Anchor, AnchorConfig
+    anchor = Anchor(anchor_config or AnchorConfig.from_env(), pool=pool, links=links, rpc=anchor_rpc,
+                    synthetic=is_synthetic)
+    chain.token_listeners.append(anchor.on_token)
+    chain.listeners.append(anchor.on_settlement)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         restored = False
@@ -781,7 +793,7 @@ def create_app(
                              payouts=payouts, partners=partners, mandates=mandates,
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
-                             pipeline=pipeline, documents=documents, fees=fees)
+                             pipeline=pipeline, documents=documents, fees=fees, anchor=anchor)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -818,6 +830,14 @@ def create_app(
         if run_chain:
             chain.start()
             logger.info("chain producing blocks from height %s", chain.height)
+        # Tokens minted before the anchor existed are owed to the chain too;
+        # the first root is built now so the proof page has one from the start.
+        backfilled = anchor.backfill()
+        if backfilled:
+            logger.info("anchor: %s tokens from before anchoring queued for the chain", backfilled)
+        anchor.anchor_root()
+        if run_chain:
+            anchor.start()
 
         # Buyers keep arriving. Without this the book drains as policies settle
         # and the protocol ends up demonstrating an empty pool.
@@ -857,6 +877,7 @@ def create_app(
                 except asyncio.CancelledError:
                     pass
             chain.stop()
+            anchor.stop()
             if keeper is not None:
                 keeper.stop()
 
@@ -4724,11 +4745,47 @@ def create_app(
         items = [row for row in feed["items"] if row.get("country") == code][:40]
         return {**feed, "items": items, "country": code, "available": True}
 
+    # -- the public chain beside this one -----------------------------------
+
+    @app.get("/api/anchor")
+    async def anchor_status() -> dict[str, Any]:
+        """What the public chain has been told: the contracts, the signer,
+        the last root of the book and the recent intents with their
+        transactions. Readable by anyone; it is the public record's index."""
+        return anchor.status()
+
+    @app.get("/api/policies/{policy_id}/anchor")
+    async def policy_anchor(policy_id: str) -> dict[str, Any]:
+        """One policy on the public chain: its token's mint and burn, its
+        settlement, and its proof of inclusion in the last anchored root,
+        with every hash a person needs to check it themselves."""
+        if policy_id not in pool.policies:
+            raise HTTPException(404, f"no policy {policy_id}")
+        return {"mode": anchor.config.mode, "chain": anchor.status()["chain"],
+                "contracts": anchor.status()["contracts"],
+                "proof": anchor.proof(policy_id), **anchor.for_policy(policy_id)}
+
+    @app.post("/api/operator/anchor/run")
+    async def anchor_run(
+        token: str | None = Depends(bearer),
+        operator: str | None = Header(None, alias="x-operator-token"),
+    ) -> dict[str, Any]:
+        """One cycle now rather than on the timer: a root if the book moved,
+        then whatever is pending, sent."""
+        reviewer_of(operator, token)
+        report = await asyncio.to_thread(anchor.run_once)
+        return {"report": report, "anchor": anchor.status()}
+
     @app.get("/api/health")
     async def health() -> dict[str, Any]:
+        last_root = anchor.latest_root()
         return {
             "status": "ok",
             "version": __version__,
+            "anchor": {"mode": anchor.config.mode, "chain": anchor.config.chain["name"],
+                       "pending": sum(1 for i in anchor.intents.values() if i.status == "pending"),
+                       "last_root_epoch": last_root.payload.get("epoch") if last_root else None,
+                       "last_error": anchor.last_error},
             "chain": chain.stats(),
             "pool": {
                 "balance": round(pool.balance, 2),
@@ -4926,6 +4983,23 @@ def _sse(event: str, data: Any) -> bytes:
 # ---------------------------------------------------------------------------
 
 
+_DEMO_LABELS = ("kadikoy.apt", "konak.shop", "adiyaman.coop", "ankara.office", "konya.farm", "edirne.farm",
+                "cukurova.farm", "urfa.farm", "traveller.a", "traveller.b", "traveller.c", "traveller.d")
+_demo_addresses: set[str] = set()
+
+
+def is_synthetic(policy: Any) -> bool:
+    """A policy the demonstration wrote for itself: the opening book and the
+    arrivals. Marked on the record since 1.7.0; recognised by the holder's
+    derived address before that, so an older book is read the same way."""
+    if (policy.metadata or {}).get("synthetic"):
+        return True
+    if not _demo_addresses:
+        _demo_addresses.update(derive_address(f"clause/demo/{label}") for label in _DEMO_LABELS)
+        _demo_addresses.update(derive_address(f"clause/demo/buyer.{n:04d}") for n in range(10_000))
+    return policy.holder in _demo_addresses
+
+
 def _address(wallets: Wallets, label: str, funding: float) -> str:
     """A deterministic address for a seeded participant, funded to act.
 
@@ -5010,6 +5084,7 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
                 )
                 if carrier_id:
                     policy.metadata["carrier"] = carrier_id
+            policy.metadata["synthetic"] = True
             chain.register(policy)
         except PoolError as error:
             logger.info("opening book skipped a policy: %s", error)
@@ -5085,6 +5160,7 @@ async def _arrivals(
                     )
                     if carrier_id:
                         policy.metadata["carrier"] = carrier_id
+                policy.metadata["synthetic"] = True
                 chain.register(policy)
         except PoolError as error:
             # A refusal is the capital rules working, not a fault.
