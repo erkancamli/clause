@@ -176,6 +176,19 @@ no app secret on the server.
 
 ---
 
+## What a buyer can hold the protocol to
+
+Three things a person can point at. The whole price, premium and company
+fee together, is on the screen from the first place chosen, before anything
+personal is asked. The contract they accepted is theirs as a file, and the
+right to withdraw runs from the day it reached them (`docs/anchor.md` for
+the chain, `clause/protocol/cancellation.py` for the calendar). A complaint
+is a thread on the policy with the company's clock on it, and when the
+clock runs out the file for the ombudsman is one click away
+(`clause/protocol/complaints.py`). And the rules by which a reading becomes
+the number the policy settles on are written before the event, in every
+contract and on the Calculation rules page (`docs/rulebook.md`).
+
 ## A public chain beside the protocol's own
 
 The protocol's chain is the record. What Base Sepolia adds is a witness

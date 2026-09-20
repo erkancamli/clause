@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.9.0, 20 September 2026
+
+- The whole price from the first place chosen. The moment there is a
+  place, the page asks the protocol for its offers and its premium and
+  the price bar shows premium and company fee together, per term and
+  about per month, before anything personal is asked; the page's own
+  model fills the bar while it waits and whenever the cover moves, and
+  the protocol's figure replaces it a moment later.
+- The right to withdraw as the distance selling rules shape it. The
+  fourteen days run from the day the contract reached the buyer, a year
+  if it never did on a durable medium, and whatever comes back is due
+  within thirty days of the notice (paid at once here, and recorded).
+  "Your copy of the contract" on every policy saves the text the buyer
+  accepted as a file, and the day it was taken is noted; a directly
+  bought policy now keeps that text too, and its hash is part of what
+  the buyer signs.
+- Complaints on the policy. "Raise a complaint" under My cover opens a
+  thread with the issuing company with its time to answer counted from
+  that moment (fifteen days in Türkiye, eight weeks in the UK); the
+  company answers on its own page, its first message stops the clock;
+  when it does not answer in time, or the answer does not settle it, one
+  click takes it to the ombudsman (the Sigorta Tahkim Komisyonu in
+  Türkiye) with the file its form asks for: the policy, its contract
+  hash, every reading and settlement, the whole thread, the links. The
+  operator sees every complaint. `clause/protocol/complaints.py`.
+- The calculation agent's rulebook. Peril by peril: the primary source
+  and the ordered fallbacks, what counts as the final figure and when it
+  is frozen, the tests a reading must pass, the chain's attestation rule,
+  the silence deadline, a thirty day objection window, the successor
+  source rule and the archive rule. Section 10 of every contract, the
+  Calculation rules page, `GET /api/rulebook`. `docs/rulebook.md`.
+
 ## 1.8.0, 20 September 2026
 
 - The token in the holder's own wallet, if they want it there. A buyer

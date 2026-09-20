@@ -76,6 +76,39 @@ def cooling_off_for(country: str | None) -> CoolingOff:
     return CoolingOff(14, 30, "this protocol's own rule, where no local one is modelled", statutory=False)
 
 
+REFUND_WITHIN_DAYS = 30.0      # the money back within a month of the notice
+NOT_INFORMED_DAYS = 365.0      # the period when the information was never delivered
+
+
+def withdrawal(policy: Any, *, now: float | None = None) -> dict[str, Any]:
+    """The withdrawal right as the distance selling rules shape it: the
+    days run from the day the pre-contract information reached the buyer
+    on a durable medium (the contract they read and accepted, or a copy
+    they downloaded), not merely from the day of purchase; a buyer never
+    given it has a year; and whatever comes back is due within thirty
+    days of the notice."""
+    now = time.time() if now is None else now
+    meta = policy.metadata or {}
+    resident = ((meta.get("interest") or {}).get("resident") or (meta.get("interest") or {}).get("country"))
+    rule = cooling_off_for(resident)
+    disclosure = meta.get("disclosure") or {}
+    informed_at = disclosure.get("served_at")
+    if informed_at is None and (meta.get("contract_hash") or meta.get("application")):
+        informed_at = policy.bought_at          # read and accepted before buying
+    if informed_at is None:
+        informed_at = disclosure.get("kept_at")  # delivered later: the clock starts then
+    short = policy.term_days <= rule.short_cover_days
+    if short:
+        days, until, basis = 0.0, None, "short_cover"
+    elif informed_at is None:
+        days, until, basis = NOT_INFORMED_DAYS, policy.bought_at + NOT_INFORMED_DAYS * DAY, "not_informed"
+    else:
+        days, until, basis = rule.days, max(policy.bought_at, informed_at) + rule.days * DAY, "informed"
+    return {"days": days, "until": until, "basis": basis, "informed_at": informed_at,
+            "kept_at": disclosure.get("kept_at"), "law": rule.law, "statutory": rule.statutory,
+            "refund_within_days": REFUND_WITHIN_DAYS, "open": until is not None and now <= until}
+
+
 def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
     """Whether this policy can be cancelled now, how much comes back, and why."""
     now = time.time() if now is None else now
@@ -90,11 +123,13 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
     rule = cooling_off_for(resident)
     age = now - policy.bought_at
     term = max(0.0, policy.ends_at - policy.starts_at) or policy.term_days * DAY
+    right = withdrawal(policy, now=now)
     out: dict[str, Any] = {
         "policy_id": policy.policy_id, "premium": round(policy.premium, 2),
         "paid": round(paid, 2), "premium_owed": round(float(meta.get("premium_owed", 0.0)), 2),
         "cooling_off_days": rule.days, "law": rule.law, "statutory": rule.statutory,
         "mistake_until": policy.bought_at + MISTAKE_SECONDS,
+        "withdrawal": right, "withdrawn": meta.get("withdrawal"),
     }
 
     if not policy.is_open:
@@ -112,10 +147,13 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
         return {**out, "allowed": True, "refund": round(refundable, 2), "basis": "rider",
                 "until": float(meta["cancel_until"]),
                 "reason": "bought by Rider less than a day ago: all of it comes back"}
-    if policy.term_days > rule.short_cover_days and age <= rule.days * DAY:
+    if right["open"]:
+        reason = (f"inside the {right['days']:g} day cooling off period under {rule.law}: all of it comes back"
+                  if right["basis"] == "informed" else
+                  "the pre-contract information was never delivered to you on a durable medium, so the right to "
+                  "withdraw runs for a year: all of it comes back")
         return {**out, "allowed": True, "refund": round(refundable, 2), "basis": "cooling_off",
-                "until": policy.bought_at + rule.days * DAY,
-                "reason": f"inside the {rule.days:g} day cooling off period under {rule.law}: all of it comes back"}
+                "until": right["until"], "reason": reason}
     if policy.peril_key in UNFORESEEABLE:
         left = max(0.0, (policy.ends_at - now) / term) if term > 0 else 0.0
         used = policy.premium * (1.0 - left)

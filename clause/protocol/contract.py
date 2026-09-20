@@ -36,9 +36,10 @@ def render(
     premium: float, fee: float, carrier: dict[str, Any] | None, holder: str,
     country: str, cancellation: dict[str, Any], plan: dict[str, Any] | None = None,
     starts_at: float | None = None, address: dict[str, Any] | None = None,
-    value_basis: str = "",
+    value_basis: str = "", attestation: str = "",
 ) -> str:
     """The contract, as plain text with headings. Deterministic in its inputs."""
+    from .rulebook import contract_lines
     curve = peril.curve_for(subject)
     unit = peril.unit_for(subject)
     source = peril.data_source(subject)
@@ -101,7 +102,9 @@ def render(
         "",
         "6. The right to cancel",
         "    Within one hour of buying, for any reason, the whole premium and fee come back.",
-        (f"    Within {cool:g} days of buying, under {law}, the whole premium and fee come back."
+        (f"    Within {cool:g} days of receiving this document, under {law}, the whole premium and fee come back; "
+         f"whatever comes back is paid within 30 days of the notice, and here it is paid at once. "
+         f"A policyholder who was never given this document on a durable medium may withdraw within a year of buying."
          if cool else f"    Cover of {short:g} days or less has no cooling off period under the law that applies."),
         ("    After that, the unexpired part of the premium comes back on cancellation."
          if cancellation.get("pro_rata_after") else
@@ -116,9 +119,14 @@ def render(
         "    The protocol keeps the terms, the address of what is insured and the outcome of the insurer's checks, and nothing that identifies the policyholder beyond their address.",
         "",
         "9. Law and complaints",
-        f"    This contract is governed by the law of {country}, where the policyholder is resident, and disputes go to its courts and its insurance ombudsman. Complaints go first to the insurer at the contact it gave when it registered.",
+        f"    This contract is governed by the law of {country}, where the policyholder is resident, and disputes go to its courts and its insurance ombudsman. Complaints go first to the insurer, on the policy itself under My cover, where the insurer's time to answer is counted"
+        + (" (fifteen days in Türkiye; after that, or if the answer does not settle it, the Sigorta Tahkim Komisyonu takes the application, and the policy carries everything the application needs)." if country.upper() == "TR" else "; after that the ombudsman where the policyholder lives takes it, and the policy carries everything the application needs."),
         "    The English text of this document is the binding one; translations are for convenience.",
     ]
+    rules = contract_lines(getattr(peril, "key", ""), deadline_days=source.settlement_deadline_days,
+                           on_missing_data=source.on_missing_data, attestation=attestation)
+    if rules:
+        lines[-1:-1] = [""] + rules
     return "\n".join(lines)
 
 
