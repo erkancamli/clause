@@ -111,9 +111,16 @@ def encode(value: Any) -> Any:
     if cls is float:
         return None if value != value else value
     if cls is dict:
-        return {str(k): encode(v) for k, v in value.items()}
+        # list() first, always. The books are copied before the checkpoint
+        # walks them, but their values are the live objects, and a request
+        # thread recording a vetting check or stamping a policy's metadata
+        # holds no lock. Iterating such a dict directly raised "dictionary
+        # changed size during iteration" and lost the whole cycle. Taking
+        # the items in one step cannot: it runs to completion without
+        # letting another thread in.
+        return {str(k): encode(v) for k, v in list(value.items())}
     if cls is list:
-        return [encode(v) for v in value]
+        return [encode(v) for v in list(value)]
     if cls in _SHAPES:
         tag, names = _SHAPES[cls]
         out: dict[str, Any] = {"__t": tag}
@@ -133,9 +140,9 @@ def encode(value: Any) -> Any:
     if isinstance(value, tuple):
         return {"__tu": [encode(v) for v in value]}
     if isinstance(value, list):
-        return [encode(v) for v in value]
+        return [encode(v) for v in list(value)]
     if isinstance(value, dict):
-        return {str(k): encode(v) for k, v in value.items()}
+        return {str(k): encode(v) for k, v in list(value.items())}
     if isinstance(value, float) and value != value:
         return None
     return value
