@@ -1923,7 +1923,20 @@
     "Price": "Цена",
     "Theme: follows your device": "Тема: как на устройстве",
     "Theme: light": "Тема: светлая",
-    "Theme: dark": "Тема: тёмная"
+    "Theme: dark": "Тема: тёмная",
+    "if you have it": "если есть",
+    "the licence you named, as the regulator issued it": "указанная вами лицензия в том виде, в каком её выдал регулятор",
+    "that the person registering may bind the company": "что регистрирующее лицо вправе действовать от имени компании",
+    "the legal entity, as its register holds it": "юридическое лицо в том виде, в каком оно значится в реестре",
+    "the legal entity and its signing authorities": "юридическое лицо и лица с правом подписи",
+    "membership of the industry body, where one is required": "членство в отраслевом объединении, где оно требуется",
+    "the last published solvency figures": "последние опубликованные показатели платёжеспособности",
+    "how personal data is handled between us": "как между нами обрабатываются персональные данные",
+    "anything the reviewer asked you for": "всё, что запросил проверяющий",
+    "Drop your files here": "Перетащите файлы сюда",
+    "or": "или",
+    "choose from this device": "выберите на этом устройстве",
+    "What this document is": "Что это за документ"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

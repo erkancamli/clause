@@ -1923,7 +1923,20 @@
     "Price": "Precio",
     "Theme: follows your device": "Tema: sigue al dispositivo",
     "Theme: light": "Tema: claro",
-    "Theme: dark": "Tema: oscuro"
+    "Theme: dark": "Tema: oscuro",
+    "if you have it": "si lo tiene",
+    "the licence you named, as the regulator issued it": "la licencia que indicó, tal como la emitió el regulador",
+    "that the person registering may bind the company": "que quien registra puede obligar a la compañía",
+    "the legal entity, as its register holds it": "la entidad jurídica, tal como consta en su registro",
+    "the legal entity and its signing authorities": "la entidad jurídica y sus apoderados",
+    "membership of the industry body, where one is required": "la pertenencia al organismo sectorial, donde se exige",
+    "the last published solvency figures": "las últimas cifras de solvencia publicadas",
+    "how personal data is handled between us": "cómo se tratan los datos personales entre nosotros",
+    "anything the reviewer asked you for": "cualquier cosa que le haya pedido el revisor",
+    "Drop your files here": "Suelte aquí sus archivos",
+    "or": "o",
+    "choose from this device": "elija desde este dispositivo",
+    "What this document is": "Qué es este documento"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

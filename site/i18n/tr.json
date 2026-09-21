@@ -1931,7 +1931,20 @@
     "Price": "Fiyat",
     "Theme: follows your device": "Tema: cihazınızı izler",
     "Theme: light": "Tema: gündüz",
-    "Theme: dark": "Tema: gece"
+    "Theme: dark": "Tema: gece",
+    "if you have it": "varsa",
+    "the licence you named, as the regulator issued it": "belirttiğiniz ruhsat, düzenleyicinin verdiği hâliyle",
+    "that the person registering may bind the company": "kaydı yapan kişinin şirketi temsile yetkili olduğu",
+    "the legal entity, as its register holds it": "tüzel kişilik, sicilinde yazdığı hâliyle",
+    "the legal entity and its signing authorities": "tüzel kişilik ve imza yetkilileri",
+    "membership of the industry body, where one is required": "gerekli olduğu yerde sektör birliği üyeliği",
+    "the last published solvency figures": "yayımlanmış son sermaye yeterliliği rakamları",
+    "how personal data is handled between us": "kişisel verilerin aramızda nasıl işlendiği",
+    "anything the reviewer asked you for": "inceleyenin sizden istediği başka bir belge",
+    "Drop your files here": "Dosyalarınızı buraya bırakın",
+    "or": "ya da",
+    "choose from this device": "bu cihazdan seçin",
+    "What this document is": "Bu belge nedir"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

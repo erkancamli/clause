@@ -2391,6 +2391,20 @@ def create_app(
             "summary": registry.summary(),
         }
 
+    @app.get("/api/carriers/documents")
+    async def carrier_documents(country: str = Query("", max_length=2),
+                                role: str = Query("carrier", max_length=16)) -> dict[str, Any]:
+        """What a company in this country is asked to attach, and why.
+
+        Asked by the registration form as soon as a country is chosen, so
+        nobody is shown a document their country does not issue.
+        """
+        from ..protocol import kyb as kyb_mod
+        return {"country": (country or "").upper(), "role": role,
+                "documents": kyb_mod.documents_for(country, role=role),
+                "max_files": kyb_mod.EVIDENCE_MAX_FILES,
+                "max_bytes": kyb_mod.EVIDENCE_MAX_BYTES}
+
     @app.post("/api/carriers")
     async def carrier_register(request: CarrierRequest, http: Request) -> dict[str, Any]:
         """A company asking to be registered.

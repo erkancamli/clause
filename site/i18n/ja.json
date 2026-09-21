@@ -1923,7 +1923,20 @@
     "Price": "価格",
     "Theme: follows your device": "テーマ：端末の設定に従う",
     "Theme: light": "テーマ：ライト",
-    "Theme: dark": "テーマ：ダーク"
+    "Theme: dark": "テーマ：ダーク",
+    "if you have it": "あれば",
+    "the licence you named, as the regulator issued it": "申告した免許を、規制当局が発行したそのままの形で",
+    "that the person registering may bind the company": "登録する人が会社を代表できること",
+    "the legal entity, as its register holds it": "登記簿に記載されたとおりの法人",
+    "the legal entity and its signing authorities": "法人とその署名権限者",
+    "membership of the industry body, where one is required": "必要とされる場合の業界団体への加盟",
+    "the last published solvency figures": "直近に公表されたソルベンシー数値",
+    "how personal data is handled between us": "当事者間での個人データの取り扱い",
+    "anything the reviewer asked you for": "審査担当が求めたもの",
+    "Drop your files here": "ここにファイルをドロップ",
+    "or": "または",
+    "choose from this device": "この端末から選ぶ",
+    "What this document is": "この書類の種類"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
