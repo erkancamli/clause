@@ -68,6 +68,62 @@ EVIDENCE_TYPES = {"application/pdf": ".pdf", "image/png": ".png", "image/jpeg": 
 EVIDENCE_MAX_BYTES = 3_000_000
 EVIDENCE_MAX_FILES = 4
 
+# What a company is asked to attach, by the country it is licensed in.
+#
+# Short on purpose, and the reason is the module's own: a document is a
+# claim and the supervisor's register is the proof, so the reviewer's work
+# is reading the register rather than reading paper. Two things paper is
+# actually needed for: the licence as it was issued, and something showing
+# the person registering may bind the company. Where a country has its own
+# instrument for the second, that instrument is named instead of a generic
+# letter, because asking a Turkish company for a "letter of authorisation"
+# when it holds an imza sirküleri is asking for something that does not
+# exist. Anything further the reviewer wants is asked for afterwards,
+# against the checklist, and never up front from everyone.
+DOCUMENTS: dict[str, tuple[tuple[str, bool], ...]] = {
+    "": (("licence_certificate", True), ("authorisation_letter", True), ("register_extract", False)),
+    "TR": (("licence_certificate", True), ("signature_circular", True), ("trade_registry_gazette", False)),
+}
+
+# Why each one is asked for, said once here so the page and the reviewer's
+# checklist use the same words.
+DOCUMENT_REASONS: dict[str, str] = {
+    "licence_certificate": "the licence you named, as the regulator issued it",
+    "authorisation_letter": "that the person registering may bind the company",
+    "signature_circular": "that the person registering may bind the company",
+    "register_extract": "the legal entity, as its register holds it",
+    "trade_registry_gazette": "the legal entity and its signing authorities",
+    "membership_proof": "membership of the industry body, where one is required",
+    "solvency_report": "the last published solvency figures",
+    "data_agreement": "how personal data is handled between us",
+    "other": "anything the reviewer asked you for",
+}
+
+
+def documents_for(domicile: str, *, role: str = "carrier") -> list[dict[str, Any]]:
+    """The documents this company is asked to attach, in its own terms.
+
+    A reinsurer never writes a policy in anybody's country, so no licence
+    is asked of it; what is asked of everyone is who may sign. Kinds not
+    listed for a country are not offered there: a trade registry gazette
+    is a Turkish instrument and has no meaning in Japan.
+    """
+    code = (domicile or "").upper()
+    wanted = DOCUMENTS.get(code, DOCUMENTS[""])
+    out: list[dict[str, Any]] = []
+    for kind, required in wanted:
+        if kind == "licence_certificate" and role != "carrier":
+            continue
+        out.append({"kind": kind, "required": required,
+                    "why": DOCUMENT_REASONS.get(kind, "")})
+    out.append({"kind": "other", "required": False, "why": DOCUMENT_REASONS["other"]})
+    return out
+
+
+def document_kinds_for(domicile: str, *, role: str = "carrier") -> tuple[str, ...]:
+    """Just the kinds, for checking what was uploaded against what was asked."""
+    return tuple(d["kind"] for d in documents_for(domicile, role=role))
+
 
 # ---------------------------------------------------------------------------
 # The public registers, by country: where a person checks a licence number.
