@@ -7664,9 +7664,17 @@ function renderEvidenceKinds(){
   var old=$("co-evidence-kinds"); if(old)old.innerHTML="";
 }
 (function(){
-  var dom=$("co-domicile"), role=$("co-role"), ev=$("co-evidence");
+  var dom=$("co-domicile"), role=$("co-role"), ev=$("co-evidence"), lic=$("co-country");
+  // A company is nearly always licensed where it is domiciled, and the two
+  // fields did not move together: choosing Türkiye left "licensed in" on
+  // whatever it started at, which is the one field the register check is
+  // made against. It follows the domicile until the person moves it
+  // themselves, and then it is theirs and stays where they put it.
+  var licenceChosen=false;
+  if(lic)lic.addEventListener("change",function(){ licenceChosen=true; });
   if(dom)dom.addEventListener("change",function(){
     var tr=$("co-tr"); if(tr)tr.hidden=dom.value!=="TR";
+    if(lic&&!licenceChosen&&dom.value)lic.value=dom.value;
     renderAskedDocuments();
   });
   if(role)role.addEventListener("change",renderAskedDocuments);
