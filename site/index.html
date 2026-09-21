@@ -409,16 +409,31 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
 .vrule .t{display:block;font-size:14.5px;font-weight:500}
 .vrule .s{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px;
   max-width:52ch;line-height:1.5}
+/* Looking a policy up and the state of the public chain are peers, not a
+   sequence, so on a wide screen they sit side by side. Stacked, each in a
+   560px column, they left the right half of the page empty. */
+.proof-landing{display:grid;gap:18px;align-items:start;max-width:640px}
+@media (min-width:1000px){.proof-landing{grid-template-columns:minmax(0,1fr) minmax(0,1fr);max-width:none}}
+
 .cov{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
   border-radius:var(--r);overflow:hidden}
+/* minmax(0,…) rather than a bare fr: a grid track sized in fr still keeps
+   an automatic minimum of its content, so one long line of company names
+   pushed the track past the table's edge and squeezed the country column
+   down to a word a line. With the floor at zero the text wraps instead. */
 .cov > div{background:var(--panel);padding:14px 16px;display:grid;
-  grid-template-columns:2.2fr 2fr 1.4fr auto;gap:14px;align-items:center;font-size:13.5px}
+  grid-template-columns:minmax(0,2.2fr) minmax(0,2fr) minmax(0,1.4fr) auto;
+  gap:14px;align-items:center;font-size:13.5px}
+.cov > div > *{min-width:0}
 .cov .head{background:var(--sunk);font-family:var(--mono);font-size:10.5px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
 .cov b{font-weight:600}
-.cov .who{color:var(--ink-2)}
+/* Not .who: that is the sign-in pill in the header, a 34px inline-flex
+   capsule, and this cell was inheriting its whole shape, so a list of
+   company names could neither wrap nor stay inside its own column. */
+.cov .licensed{color:var(--ink-2)}
 @media (max-width:700px){.cov > div{grid-template-columns:1fr auto}
-  .cov .who,.cov .auth{display:none}}
+  .cov .licensed,.cov .auth{display:none}}
 .co-card{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
   border-radius:var(--r);overflow:hidden;margin-bottom:12px}
 .co-card > div{background:var(--panel);padding:14px 16px}
@@ -2001,7 +2016,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <details class="more" style="margin-top:8px"><summary data-i18n>"The protocol could not read what the page sent:"</summary><div class="inner"><p data-i18n>A field the protocol refused, named in the message. Almost always an old page talking to a newer protocol: reload the page and go through the steps again.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"Cover of … exceeds the … you declared at risk"</summary><div class="inner"><p data-i18n>Cover above the value at risk would be a wager rather than an indemnity, so it is refused rather than priced. Lower the cover, or raise the declared value if it was wrong.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"What you are insuring is not inside the area this index measures"</summary><div class="inner"><p data-i18n>The place you chose is not where the thing stands, or the index is measured elsewhere. Choose the place where the home, the car or the field actually is.</p></div></details>
-    <details class="more" style="margin-top:8px"><summary data-i18n>"registered company but not for this risk", or no company offers to issue it</summary><div class="inner"><p data-i18n>No licensed company writes this peril at this place, or the ones that do have no room. Try another amount or term; on the demonstration the stand ins' licences decide what can be written where.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>"but not for this peril", or no company offers to issue it</summary><div class="inner"><p data-i18n>No licensed company writes this peril at this place, or the ones that do have no room. Try another amount or term; on the demonstration the stand ins' licences decide what can be written where.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"The price moved while you were deciding"</summary><div class="inner"><p data-i18n>The book moved between the price you were shown and the moment you signed, and the new price is higher than what you agreed to. Nothing was taken. Ask for a fresh price and decide again.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"Too many requests"</summary><div class="inner"><p data-i18n>Each address and each page is limited in how often it may ask for prices or sign in, to keep the protocol up for everyone. Wait a minute and try again.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"This browser does not hold the key these were sealed to"</summary><div class="inner"><p data-i18n>The applicant sealed the documents to the reading key of the browser that first opened this desk. Open them there, or ask the applicant to send them again from this browser.</p></div></details>
@@ -7352,7 +7367,7 @@ function coverageHtml(payload){
       (row.specimen?' <span class="pill no">'+esc(t("specimen"))+'</span>':'')+
       '<br><span class="fine">'+esc(perilWords(row.perils))+
       ((row.unpriced||[]).length?' · '+esc(t("not yet {perils}",{perils:perilWords(row.unpriced)})):'')+'</span></b>'+
-      '<span class="who">'+esc(listText(row.carriers.map(ts)))+
+      '<span class="licensed">'+esc(listText(row.carriers.map(ts)))+
       '<br><span class="fine auth">'+esc(listText(row.authorities.map(ts)))+'</span></span>'+
       '<span class="auth">'+esc(listText(row.settlement.map(localValue)))+'</span>'+
       '<span class="pill '+(row.retail?"ok":"")+'">'+
@@ -7366,7 +7381,7 @@ function coverageHtml(payload){
     waiting.forEach(function(row){
       out+='<div><b>'+esc(countryName(row.country))+
         (row.specimen?' <span class="pill no">'+esc(t("specimen"))+'</span>':'')+'</b>'+
-        '<span class="who">'+esc(listText(row.carriers.map(ts)))+'</span>'+
+        '<span class="licensed">'+esc(listText(row.carriers.map(ts)))+'</span>'+
         '<span class="auth">'+esc(t("waiting on {missing}",{missing:listText(row.waiting_on.map(ts))}))+'</span>'+
         '<span class="pill no">'+esc(t("closed"))+'</span></div>';
     });
@@ -8690,7 +8705,7 @@ function anchorShort(h){ return h?h.slice(0,10)+"…"+h.slice(-6):""; }
 function renderAnchorStatus(box){
   api("/api/anchor",{timeout:9000}).then(function(a){
     var chain=a.chain||{},c=a.counts||{},lr=a.last_root,el=document.createElement("div");
-    el.className="panel"; el.style.cssText="padding:26px;display:grid;gap:12px;max-width:640px;margin-top:18px";
+    el.className="panel"; el.style.cssText="padding:26px;display:grid;gap:12px";
     var h='<div class="label">'+esc(t("On a public chain"))+' · '+esc(chain.name||"")+'</div>'+
       '<p style="font-size:14.5px;color:var(--ink-2)">'+esc(t("The protocol's own chain is the record. A public chain beside it holds a witness nobody here controls: each policy token, each settlement, and the root of the whole book, anchored on a timer."))+'</p>';
     if(a.mode!=="live")h+='<p class="fine">'+esc(t("Recorded here, not yet sent: the chain will be told the day the signer is funded."))+'</p>';
@@ -8761,7 +8776,8 @@ function renderRules(){
 function renderProof(id){
   var box=$("proof-out");
   if(!id){
-    box.innerHTML='<div class="panel" style="padding:26px;display:grid;gap:14px;max-width:560px">'+
+    box.className="proof-landing";
+    box.innerHTML='<div class="panel" style="padding:26px;display:grid;gap:14px">'+
       '<h3 style="font-size:19px">'+esc(t("Look one up"))+'</h3>'+
       '<p style="font-size:14.5px;color:var(--ink-2)">'+esc(t("Any policy id. You do not have to hold it, and you do not have to be signed in: the record is the chain's, not ours."))+'</p>'+
       '<div class="searchbox"><input id="proof-id" type="text" placeholder="CLS-…" '+
@@ -8778,6 +8794,7 @@ function renderProof(id){
     whenLinked().then(function(){ if(link.live)renderAnchorStatus(box); });
     return;
   }
+  box.className="";
   box.innerHTML='<div class="panel" style="padding:24px">'+esc(t("Reading the chain…"))+'</div>';
   whenLinked().then(function(){
     if(!link.live){
@@ -8916,9 +8933,16 @@ function proofHtml(story){
   out+='<div style="margin-top:18px"><div class="label" style="margin-bottom:7px">'+
        esc(t("What has to be true"))+'</div><div class="code">'+esc(sub.predicate||"—")+'</div></div>';
 
+  // Three pieces from three places, two of them fragments and one a whole
+  // sentence. Joined with a bare space they ran together: "taken at window
+  // close If the station publishes no closing total". Each part is closed
+  // before the next one starts, and an absent part leaves no stray stop.
+  var sourceParts=[source.publisher,source.resolution,source.on_missing_data]
+    .map(function(part){ return ts(part||"").trim(); })
+    .filter(Boolean)
+    .map(function(part){ return /[.!?…]$/.test(part) ? part : part+"."; });
   out+='<div style="margin-top:18px"><div class="label" style="margin-bottom:7px">'+esc(t("The source"))+'</div>'+
-       '<p style="font-size:13.5px;color:var(--ink-2)">'+esc(ts(source.publisher||""))+'. '+
-       esc(ts(source.resolution||""))+' '+esc(ts(source.on_missing_data||""))+'</p></div>';
+       '<p style="font-size:13.5px;color:var(--ink-2)">'+esc(sourceParts.join(" "))+'</p></div>';
 
   out+='<div style="margin-top:26px"><div class="label" style="margin-bottom:9px">'+
        esc(t("Every round of validator reports"))+'</div>'+
