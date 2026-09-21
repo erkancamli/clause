@@ -96,3 +96,32 @@ def test_the_legal_warnings_survived_translation(lang) -> None:
         "What you are insuring is not inside the area this index measures, so a payout would not answer a loss you could actually suffer. That is the line between insurance and a wager, and it is the one line this protocol will not cross for you.",
     ):
         assert strings.get(key) and strings[key] != key, key
+
+
+def table_sentences() -> dict[str, list[str]]:
+    """English the page translates through a variable rather than a literal.
+
+    ``page_sentences`` can only see what is written inside ``t("...")``. The
+    seismology text is not written that way: the fault names, the sentence
+    about a segment that has not ruptured, and the name of the zone all come
+    out of tables and reach ``t()`` as ``t(site.nearest.name)``. Nothing
+    checked them, so a value added to a table arrived on the page in English
+    in every language and no test said a word.
+    """
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    faults = json.loads(re.search(r"var FAULTS = (\[.*?\]);", html, re.S).group(1))
+    zones = json.loads(re.search(r"var ZONE_NAMES = (\{.*?\});", html, re.S).group(1))
+    inline = re.findall(r'zoneName:"([^"]+)"', html)
+    return {
+        "fault name": [f["name"] for f in faults],
+        "fault gap note": [f["gap"] for f in faults if f["gap"]],
+        "zone name": list(zones.values()) + inline,
+    }
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_the_sentences_that_reach_t_through_a_table_are_translated(lang) -> None:
+    strings = dictionary(lang)["strings"]
+    missing = [f"{kind}: {s}" for kind, values in table_sentences().items()
+               for s in values if s not in strings]
+    assert not missing, missing[:6]

@@ -1,5 +1,55 @@
 # Changelog
 
+## 1.15.0, 21 September 2026
+
+- The palette answers to what it is seen against. Every colour this site
+  ships was measured rather than trusted, and several were wrong: the
+  tertiary ink failed the 4.5:1 minimum on every surface in both themes;
+  the light signal, settled and hold tones failed both as text and as a
+  button label; and the light primary button ran its sheen the wrong way,
+  taking a white label on orange to 4.25:1. All corrected, and a test now
+  reads the tokens out of the stylesheet and computes the ratios, so the
+  next wrong value fails a test instead of shipping.
+- Borders come in two tiers, because a divider and the edge of a text
+  field are not the same obligation. The old single tier measured 1.10:1,
+  which is right for a rule drawn between two rows and wrong for the only
+  thing saying an input is an input. Controls now draw at 3:1 and panels
+  keep the quiet line.
+- Focus draws two rings, the inner one in the surface colour. A single
+  ring around a signal-filled button was signal on signal, so the most
+  important control on the page had no visible focus at all.
+- The illustrations are drawn in a line that can be seen. They carried
+  the divider tone at 1.57:1, which is why the picture explaining how the
+  cover pays read as an empty panel next to the headline.
+- The chooser at the first step is no longer squeezed into a reading
+  measure. Five cards had 133px each, with their headings broken over two
+  lines, while half the page stayed empty.
+- Heading tracking follows size instead of one setting serving a 60px
+  line and a 15px label alike, and the four claims under the hero are
+  laid out two and two rather than three and one.
+- Every string in all six languages was read against its English for
+  meaning. Roughly 2,100 values changed. The errors were not stylistic:
+  a Turkish contract clause that said "above all" where the English says
+  "before anything happens"; a status that invented a cause, telling an
+  insurer data had not arrived when the term had merely run out; a German
+  capital rule that said a provider *is able to* withdraw where the
+  English says *may*; a Spanish disclosure that named the reader's own
+  country as the one a company is licensed in; a French payout called an
+  assessed indemnity, which is the one thing this product does not pay; a
+  Russian word doing duty for both settling a claim and settling a
+  payment; and a Japanese page referred to under four different names by
+  the twelve places that link to it. Terms of art were settled once per
+  language and held across all of them.
+- The FAQ quotes the message it says it quotes. It promises that a
+  message on the page is quoted exactly so you can find it here, and in
+  several languages it quoted a wording the page has never shown.
+- Sentences that reach the translator through a table are translated too.
+  The fault names and the seismic zone names are not written inside
+  `t("...")` but read out of a table, so nothing checked them; a test now
+  does, and it found one that had no translation in any language.
+- The price bar says what you receive beside what you pay, and the
+  signing button names the amount.
+
 ## 1.14.1, 21 September 2026
 
 - The demonstration's older policies are forgotten too. The test in
