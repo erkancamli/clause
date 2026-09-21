@@ -83,13 +83,50 @@ def _class(tag: str) -> type:
     return obj
 
 
+# A class's tag and its field names, worked out once. The checkpoint encodes
+# every document on every cycle to see which ones changed, so this runs
+# millions of times over a book of any size; asking the dataclasses module
+# for the same answer each time was a third of the cost of keeping the book.
+_SHAPES: dict[type, tuple[str, tuple[str, ...]]] = {}
+
+
+def _shape(cls: type) -> tuple[str, tuple[str, ...]]:
+    found = _SHAPES.get(cls)
+    if found is None:
+        found = (_tag(cls), tuple(f.name for f in dataclasses.fields(cls)))
+        _SHAPES[cls] = found
+    return found
+
+
 def encode(value: Any) -> Any:
+    """A value as JSON ready data, tagged so decode can rebuild it.
+
+    The exact type is looked at first, which is the case almost every value
+    hits; anything else (a subclass of one of these, an enum) falls through
+    to the checks below, so the answer is the same either way.
+    """
+    cls = value.__class__
+    if cls is str or cls is int or cls is bool or value is None:
+        return value
+    if cls is float:
+        return None if value != value else value
+    if cls is dict:
+        return {str(k): encode(v) for k, v in value.items()}
+    if cls is list:
+        return [encode(v) for v in value]
+    if cls in _SHAPES:
+        tag, names = _SHAPES[cls]
+        out: dict[str, Any] = {"__t": tag}
+        for name in names:
+            out[name] = encode(getattr(value, name))
+        return out
     if isinstance(value, enum.Enum):
         return {"__e": _tag(type(value)), "v": value.value}
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
-        out: dict[str, Any] = {"__t": _tag(type(value))}
-        for f in dataclasses.fields(value):
-            out[f.name] = encode(getattr(value, f.name))
+        tag, names = _shape(cls)
+        out = {"__t": tag}
+        for name in names:
+            out[name] = encode(getattr(value, name))
         return out
     if isinstance(value, frozenset):
         return {"__fs": sorted((encode(v) for v in value), key=repr)}

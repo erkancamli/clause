@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.13.1, 21 September 2026
+
+- Keeping the book costs less. The checkpoint encodes every document on
+  every cycle to find the ones that changed, and asked the dataclasses
+  module for the same field list each time; on a book of twenty one
+  thousand policies that was a third of the work. The shape of a class is
+  now worked out once and the common types are dispatched on directly.
+  The text is byte for byte what it was, which a test pins, so nothing on
+  disk is rewritten and nothing reads back differently.
+
 ## 1.13.0, 20 September 2026
 
 - A price no longer makes a purchase wait. Every preview quote, the

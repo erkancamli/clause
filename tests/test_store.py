@@ -228,3 +228,62 @@ def test_a_key_registered_while_the_book_is_being_saved_does_not_lose_the_save(t
                    registry=app.state.rules.registry, auth=auth, accounts=app.state.accounts,
                    pipeline=app.state.pipeline)
         assert arrived[0] in target.docs("key")
+
+
+def test_the_encoder_is_the_one_the_book_was_written_with() -> None:
+    """The fast path must answer exactly as the general one does: the text is
+    the fingerprint a checkpoint compares against, so a difference would
+    rewrite the whole book and, worse, could round trip differently."""
+    import dataclasses
+    import enum
+    import json
+    from typing import Any
+
+    from clause import store as store_mod
+
+    def general(value: Any) -> Any:
+        if isinstance(value, enum.Enum):
+            return {"__e": store_mod._tag(type(value)), "v": value.value}
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            out = {"__t": store_mod._tag(type(value))}
+            for f in dataclasses.fields(value):
+                out[f.name] = general(getattr(value, f.name))
+            return out
+        if isinstance(value, frozenset):
+            return {"__fs": sorted((general(v) for v in value), key=repr)}
+        if isinstance(value, tuple):
+            return {"__tu": [general(v) for v in value]}
+        if isinstance(value, list):
+            return [general(v) for v in value]
+        if isinstance(value, dict):
+            return {str(k): general(v) for k, v in value.items()}
+        if isinstance(value, float) and value != value:
+            return None
+        return value
+
+    class Colour(enum.Enum):
+        RED = "red"
+
+    @dataclasses.dataclass
+    class Leaf:
+        n: int
+        f: float
+
+    @dataclasses.dataclass
+    class Branch:
+        name: str
+        leaf: Leaf
+        many: list
+        pair: tuple
+        seen: frozenset
+        meta: dict
+        colour: Colour
+        nothing: None = None
+
+    values = [
+        Branch("a", Leaf(1, 2.5), [Leaf(2, float("nan")), 3, "x", True],
+               (1, "two"), frozenset({"p", "q"}), {"k": [1, {"deep": Leaf(9, 0.1)}], 2: None}, Colour.RED),
+        {"plain": 1}, [1, 2], "text", 7, True, None, 1.25, float("nan"), (1,), frozenset({1}),
+    ]
+    for value in values:
+        assert json.dumps(store_mod.encode(value), sort_keys=True) == json.dumps(general(value), sort_keys=True), value
