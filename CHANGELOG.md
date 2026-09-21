@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.14.1, 21 September 2026
+
+- The demonstration's older policies are forgotten too. The test in
+  1.14.0 was the demonstration's marker or an address it derived, which
+  left the several thousand written before the addresses changed shape:
+  they carry neither. A policy is now also the demonstration's when
+  nobody can reach it, meaning no device key is registered for its
+  holder, no account signed in as it and no wallet is linked to it.
+  Three things exempt a policy outright, whatever else is true: a record
+  saying it is not the demonstration's, a partner behind it, or the
+  contract its holder accepted stored on it, which only the application
+  path writes.
+
 ## 1.14.0, 21 September 2026
 
 - The demonstration's book is kept to a size. A simulated chain writes
