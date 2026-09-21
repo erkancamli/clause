@@ -3268,19 +3268,44 @@ def create_app(
     # demonstration's own marker, or an address it derived for itself.
     demo_keep = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP", "2000") or 0))
 
-    def demo_policy(policy: Any) -> bool:
-        """The demonstration's own: marked as such, or written to an address
-        it derived for itself. A record that says outright it is not the
-        demonstration's is believed, so anything can be exempted by hand."""
-        if (policy.metadata or {}).get("synthetic") is False:
+    def demo_policy(policy: Any, claimable: set[str] | None = None) -> bool:
+        """The demonstration's own, by three tests in order.
+
+        A record that says outright it is not the demonstration's is believed,
+        so anything can be exempted by hand. A policy that carries the
+        contract its holder accepted came through the application path and is
+        somebody's, whatever else is true of it. Otherwise it is the
+        demonstration's if it is marked, if it was written to an address the
+        demonstration derived for itself, or if nobody can reach it: no device
+        key, no account, no linked wallet, no partner behind it. Books written
+        before the addresses changed shape hold demonstration policies that
+        only the last of those catches.
+        """
+        meta = policy.metadata or {}
+        if meta.get("synthetic") is False or meta.get("partner"):
             return False
-        return is_synthetic(policy)
+        if meta.get("contract") or meta.get("contract_hash"):
+            return False
+        if is_synthetic(policy):
+            return True
+        if claimable is None:
+            return synthetic_policy(policy)
+        return policy.holder not in claimable
+
+    def claimable_holders() -> set[str]:
+        """Every address somebody can still act as: a key registered on a
+        device, an account signed in through Privy, a wallet linked to one."""
+        held = set(auth.keys) | set(accounts._by_user.values())
+        held.update(link.account for link in links.links.values())
+        return held
 
     def forget_demo_book() -> int:
         if demo_keep <= 0:
             return 0
         with money:
-            closed = [p for p in pool.policies.values() if not p.is_open and demo_policy(p)]
+            claimable = claimable_holders()
+            closed = [p for p in pool.policies.values()
+                      if not p.is_open and demo_policy(p, claimable)]
             if len(closed) <= demo_keep:
                 return 0
             closed.sort(key=lambda p: (p.ends_at or p.bought_at or 0.0))

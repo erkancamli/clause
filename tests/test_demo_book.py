@@ -98,3 +98,42 @@ def test_a_trimmed_book_is_read_back_as_it_was_left(tmp_path, monkeypatch) -> No
         assert len(again.state.chain.settlements) == kept + 1
         assert read["settlements"] == figures["settlements"] + 1
         assert read["lapsed"] == figures["lapsed"] and read["paid"] == figures["paid"] + 1
+
+
+def test_only_what_nobody_can_reach_is_forgotten(tmp_path, monkeypatch) -> None:
+    """A book written before the addresses changed shape holds demonstration
+    policies with neither the marker nor a recognisable address. What marks
+    them is that nobody can act as their holder. Everything somebody can
+    still reach, or that carries the contract its holder accepted, stays."""
+    from test_commerce import register
+
+    monkeypatch.setenv("CLAUSE_DEMO_KEEP", "1")
+    app = create_app(trials=200, seed=11, run_chain=False, seed_book=True,
+                     settings=Settings(faucet=True, specimens=True),
+                     store_path=tmp_path / "book.sqlite")
+    with TestClient(app) as client:
+        pool = app.state.pool
+        demo = [p for p in pool.policies.values() if (p.metadata or {}).get("synthetic")]
+        _device, address = register(client)
+
+        # Three settled policies with nothing of the demonstration on them:
+        # one nobody can reach, one held by a registered device, one that
+        # carries its contract.
+        stray, newer, held, papered = demo[0], demo[1], demo[2], demo[3]
+        for i, policy in enumerate((stray, newer, held, papered)):
+            policy.status = PolicyStatus.LAPSED
+            policy.ends_at = 10.0 + i          # the stray is the oldest, so not the one kept
+            policy.metadata.pop("synthetic", None)
+            policy.holder = "CLSnobodyHoldsThisAddressAtAll1111111111111"
+        held.holder = address
+        papered.metadata["contract_hash"] = "0xabc"
+
+        assert app.state.demo_policy(stray) is True
+        assert app.state.demo_policy(held) is False
+        assert app.state.demo_policy(papered) is False
+
+        assert app.state.forget_demo_book() == 1, "two nobody can reach, the newer one kept"
+        assert stray.policy_id not in pool.policies, "nobody could ever have reached it"
+        assert newer.policy_id in pool.policies, "the most recent is the one kept"
+        assert held.policy_id in pool.policies, "a device is registered for its holder"
+        assert papered.policy_id in pool.policies, "it carries the contract its holder accepted"

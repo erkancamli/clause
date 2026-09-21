@@ -317,8 +317,14 @@ policies by the thousand and they used to be kept for ever. Settled ones past
 `CLAUSE_DEMO_KEEP` (2000 by default, 0 to keep everything) are forgotten along
 with their settlements; the chain keeps the counts and latencies they
 contributed, so every figure it publishes is unchanged. A policy a person
-bought is never touched: the test is the demonstration's own marker, or an
-address it derived for itself, and an explicit `synthetic: false` always wins.
+bought is never touched. Three things exempt one outright: a record saying it
+is not the demonstration's, a partner behind it, or the contract its holder
+accepted stored on it, which only the application path writes. What is left is
+the demonstration's if it is marked, if its holder is an address the
+demonstration derived, or if nobody can reach it, meaning no device key is
+registered for its holder, no account signed in as it and no wallet is linked
+to it. That last test catches the policies written before the addresses
+changed shape, which carry neither the marker nor a recognisable address.
 
 ### Rate limits
 
