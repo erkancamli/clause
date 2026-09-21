@@ -31,7 +31,7 @@
      --edge-2 they measured 1.57:1, which is why the hero illustration read
      as an empty panel. --art-line-soft is for the rings and haloes that
      only set a mood. */
-  --art-line:#556271; --art-line-soft:#364351;
+  --art-line:#5C6A78; --art-line-soft:#364351;
   --ink:#E9EFF5; --ink-2:#8D9BA9; --ink-3:#7A8895;
   --signal:#FF6A2B; --signal-2:#FF8A55;
   --settled:#24D3A5; --hold:#F0B429; --crit:#FF4D5E;
@@ -57,7 +57,7 @@
   color-scheme:light; --mark-invert:0;
   --ground:#F7F7F5; --panel:#FFFFFF; --raised:#FFFFFF; --sunk:#F1F1EE;
   --float:#FFFFFF;
-  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.42);
+  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
   --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
   --signal:#C83700; --signal-2:#A93000;
@@ -76,7 +76,7 @@
   color-scheme:light;
   --ground:#F7F7F5; --panel:#FFFFFF; --raised:#FFFFFF; --sunk:#F1F1EE;
   --float:#FFFFFF;
-  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.42);
+  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
   --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
   --signal:#C83700; --signal-2:#A93000;
@@ -207,8 +207,20 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 .btn-primary:hover:not(:disabled){background:linear-gradient(180deg,color-mix(in srgb,var(--signal) 78%,#fff) 0%,var(--signal) 50%,var(--signal-2) 100%);
   transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 4px rgba(12,17,22,.12),0 16px 30px -10px var(--signal)}
 .btn-primary:active:not(:disabled){transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 10px -8px var(--signal)}
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn-primary{color:#fff}}
-:root[data-theme="light"] .btn-primary{color:#fff}
+/* The sheen that lifts the top of the button is right in the dark theme,
+   where the label is ink: it only ever makes the orange brighter under
+   dark letters. In the light theme the label is white, and lifting the
+   top takes white-on-orange to 4.25:1. So light runs the gradient the
+   other way and leaves the highlight to the inset hairline, which does
+   not sit under the text. Worst point on the face is then 5.25:1. */
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn-primary{color:#fff;
+  background:linear-gradient(180deg,var(--signal) 0%,var(--signal-2) 100%)}
+  :root:not([data-theme="dark"]) .btn-primary:hover:not(:disabled){
+  background:linear-gradient(180deg,var(--signal) 10%,var(--signal-2) 100%)}}
+:root[data-theme="light"] .btn-primary{color:#fff;
+  background:linear-gradient(180deg,var(--signal) 0%,var(--signal-2) 100%)}
+:root[data-theme="light"] .btn-primary:hover:not(:disabled){
+  background:linear-gradient(180deg,var(--signal) 10%,var(--signal-2) 100%)}
 :root[data-theme="dark"] .btn-primary{color:#0B0D11}
 .btn-line{background:var(--panel);border-color:var(--edge-2);color:var(--ink);box-shadow:var(--lift-1),var(--hairline)}
 .btn-line:hover:not(:disabled){border-color:var(--signal);color:var(--signal);transform:translateY(-1px);box-shadow:0 8px 20px -12px rgba(12,17,22,.35)}
