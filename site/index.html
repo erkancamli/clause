@@ -631,6 +631,28 @@ h1 span{color:var(--signal)}
    width its content needs; its prose keeps the measure. */
 #s1{max-width:min(100%,1120px)}
 #s1 > h2,#s1 > p.hint{max-width:720px}
+/* Choosing a place is a search and a map, and they belong beside each
+   other: stacked in a reading column the map was 720px wide with 400px of
+   empty page next to it, and the list of matches sat below the fold. The
+   map holds the right column and grows with whatever the left one needs.
+   Leaflet tracks window resizes itself, so crossing this breakpoint
+   redraws the tiles without any help. */
+@media (min-width:1000px){
+  #s2{max-width:min(100%,1120px)}
+  #s2 > h2,#s2 > p.hint{max-width:720px}
+  #s2 > .q-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 28px;
+    align-items:start;
+    grid-template-areas:"chips chips" "search map" "locate map" "results map" "note map" ". map"}
+  #asset-chips{grid-area:chips}
+  #s2-search{grid-area:search}
+  #s2-locate{grid-area:locate}
+  #s2-opts{grid-area:results}
+  #map-note{grid-area:note}
+  /* The list of matches is long, so the map does not stretch to it: it
+     keeps a size of its own and stays in view while the list scrolls. */
+  #where-map{grid-area:map;align-self:start;position:sticky;top:96px;
+    height:clamp(420px,58vh,600px);margin:0}
+}
 .q h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15}
 .q > p.hint{margin-top:10px;color:var(--ink-2);max-width:56ch}
 .q-body{margin-top:24px;display:grid;gap:12px}
