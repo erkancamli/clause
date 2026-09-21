@@ -47,6 +47,12 @@
   The fault names and the seismic zone names are not written inside
   `t("...")` but read out of a table, so nothing checked them; a test now
   does, and it found one that had no translation in any language.
+- The last step reads like a checkout rather than a scroll. It is the
+  longest page in the product and it was a 720px column with half the
+  window empty beside it: the summary, the sentence, the payout chart and
+  table, the company, what is checked before issue, how to pay and the
+  whole contract, one under the other. The summary now holds a column of
+  its own and stays in view while the rest scrolls past it.
 - Choosing a place puts the map beside the search rather than under it.
   Stacked in a reading column the map was 720px wide with 400px of empty
   page next to it, and the list of matches began below the fold.
