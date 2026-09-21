@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.14.0, 21 September 2026
+
+- The demonstration's book is kept to a size. A simulated chain writes
+  policies by the thousand and, once settled, they were kept for ever:
+  twenty one thousand of them on the live protocol, nine thousand more a
+  day, and everything that walks the book paid for every one. Settled
+  demonstration policies past the most recent two thousand are now
+  forgotten along with their settlements, and the chain keeps the counts
+  and latencies they contributed, so every figure it publishes is exactly
+  what it was. A policy a person bought is never touched: the test is the
+  demonstration's own marker or an address it derived for itself, and a
+  record that says outright it is not the demonstration's is believed.
+  `CLAUSE_DEMO_KEEP`, 0 to keep everything.
+- A log is written from where it left off. The whole settlement log was
+  encoded on every checkpoint to write its last few entries. Only what is
+  not on disk is encoded now, and a log that came back shorter, because
+  something was forgotten on purpose, is written again from the start.
+- Together with 1.13.1: a checkpoint that writes nothing fell from 1.2
+  seconds to 0.09 on a book of twenty one thousand policies, and the
+  chain's own page from two seconds to three milliseconds.
+
 ## 1.13.1, 21 September 2026
 
 - Keeping the book costs less. The checkpoint encodes every document on

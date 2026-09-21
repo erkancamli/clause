@@ -211,10 +211,19 @@ class Store:
     def count(self, kind: str) -> int:
         return self._db.execute("SELECT COUNT(*) FROM log WHERE kind=?", (kind,)).fetchone()[0]
 
+    def kept(self, kind: str) -> int:
+        """How many entries of a log are written, as this process knows it:
+        counted on disk the first time, remembered after."""
+        have = self._lengths.get(kind)
+        if have is None:
+            have = self.count(kind)
+            self._lengths[kind] = have
+        return have
+
     # -- writing ------------------------------------------------------------
 
     def write(self, *, meta: dict[str, Any], docs: dict[str, dict[str, str]],
-              logs: dict[str, list[str]]) -> dict[str, int]:
+              logs: dict[str, tuple[int, list[str]]]) -> dict[str, int]:
         """One consistent moment, written incrementally.
 
         ``docs`` maps a kind to its items, each already encoded to its JSON
@@ -223,8 +232,12 @@ class Store:
         can change under the encoder. The text is its own fingerprint: only
         an item whose text differs from the last write is written, so a book
         of a hundred thousand settled policies costs nothing to keep once
-        written, and no change to any field can go unsaved. Logs are only
-        ever appended to.
+        written, and no change to any field can go unsaved.
+
+        A log arrives as the number of entries already on disk and the ones
+        after that, since what is written cannot have changed. A log that
+        starts from zero when this process holds more was trimmed, and is
+        written again from the start.
         """
         written: dict[str, int] = {}
         with self._lock:
@@ -247,11 +260,13 @@ class Store:
                         seen.pop(id_, None)
                     cur.executemany("INSERT OR REPLACE INTO docs VALUES (?, ?, ?)", rows)
                     written[kind] = len(rows)
-                for kind, entries in logs.items():
+                for kind, (start, fresh) in logs.items():
                     have = self._lengths.get(kind)
                     if have is None:
                         have = cur.execute("SELECT COUNT(*) FROM log WHERE kind=?", (kind,)).fetchone()[0]
-                    fresh = entries[have:]
+                    if start != have:
+                        cur.execute("DELETE FROM log WHERE kind=?", (kind,))
+                        have = 0
                     cur.executemany(
                         "INSERT INTO log VALUES (?, ?, ?)",
                         [(kind, have + i, text) for i, text in enumerate(fresh)],
@@ -337,6 +352,20 @@ def _books(payouts: Any, partners: Any, mandates: Any,
     return out
 
 
+def _fresh(store: Store, kind: str, items: Any) -> tuple[int, list[str]]:
+    """A log's entries that are not on disk yet, and where they start.
+
+    A log only grows, so what is already written cannot have changed. When
+    one does come back shorter, something was forgotten on purpose and the
+    whole of what is left is handed over to be written again.
+    """
+    have = store.kept(kind)
+    entries = list(items)
+    if len(entries) < have:
+        return 0, [_text(e) for e in entries]
+    return have, [_text(e) for e in entries[have:]]
+
+
 def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
                auth: Any, accounts: Any, payouts: Any = None, partners: Any = None,
                mandates: Any = None, applications: Any = None, funding: Any = None,
@@ -353,7 +382,8 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
                 "tranches": {n: {"balance": t.balance, "shares": t.shares}
                              for n, t in pool.tranches.items()},
             },
-            "chain": {"height": chain.height, "timestamp": chain.timestamp, "genesis": chain.genesis},
+            "chain": {"height": chain.height, "timestamp": chain.timestamp, "genesis": chain.genesis,
+                      "forgotten": dict(getattr(chain, "forgotten", {}) or {})},
             "session_secret": auth._secret.hex(),
         }
         # Encoded here, under the locks, so the snapshot is one moment. Each
@@ -372,8 +402,11 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
         books.update({kind: dict(book) for kind, book in
                       _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints).items()})
         docs = {kind: {str(id_): _text(item) for id_, item in book.items()} for kind, book in books.items()}
-        logs = {"ledger": [_text(e) for e in list(pool.ledger)],
-                "settlement": [_text(e) for e in list(chain.settlements)]}
+        # Only what is not on disk yet is encoded. Encoding the whole
+        # settlement log on every cycle to write its last few entries was,
+        # on a book of twenty thousand, most of the cost of keeping it.
+        logs = {"ledger": _fresh(store, "ledger", pool.ledger),
+                "settlement": _fresh(store, "settlement", chain.settlements)}
     store.write(meta=meta, docs=docs, logs=logs)
 
 
@@ -435,6 +468,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
             chain.height = int(c.get("height", chain.height))
             chain.timestamp = float(c.get("timestamp", chain.timestamp))
             chain.genesis = float(c.get("genesis", chain.genesis))
+            chain.forgotten = {str(k): float(v) for k, v in (c.get("forgotten") or {}).items()}
         chain.settlements = store.log("settlement")
     store.remember("policy", pool.policies)
     store.remember("provider", pool.providers)

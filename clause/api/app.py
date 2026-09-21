@@ -897,6 +897,7 @@ def create_app(
                     await run_in_threadpool(partners.retry)
                     await run_in_threadpool(lapse_overdue)
                     await run_in_threadpool(collect_due)
+                    await run_in_threadpool(app.state.forget_demo_book)
                     await run_in_threadpool(funding.expire)
                     if watcher.active:
                         await run_in_threadpool(watcher.run)
@@ -3256,6 +3257,42 @@ def create_app(
         return n
 
     app.state.collect_due = collect_due
+
+    # The demonstration writes policies by the thousand and, once settled,
+    # they were kept for ever: every checkpoint encoded them, every capital
+    # reading walked past them, every count on the chain's own page summed
+    # them. A settled demonstration policy is of no further interest, so only
+    # the most recent are kept and the rest are forgotten along with their
+    # settlements, whose arithmetic the chain keeps so its published figures
+    # do not move. Nothing a person bought is touched: the test is the
+    # demonstration's own marker, or an address it derived for itself.
+    demo_keep = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP", "2000") or 0))
+
+    def demo_policy(policy: Any) -> bool:
+        """The demonstration's own: marked as such, or written to an address
+        it derived for itself. A record that says outright it is not the
+        demonstration's is believed, so anything can be exempted by hand."""
+        if (policy.metadata or {}).get("synthetic") is False:
+            return False
+        return is_synthetic(policy)
+
+    def forget_demo_book() -> int:
+        if demo_keep <= 0:
+            return 0
+        with money:
+            closed = [p for p in pool.policies.values() if not p.is_open and demo_policy(p)]
+            if len(closed) <= demo_keep:
+                return 0
+            closed.sort(key=lambda p: (p.ends_at or p.bought_at or 0.0))
+            gone = {p.policy_id for p in closed[: len(closed) - demo_keep]}
+            for policy_id in gone:
+                pool.policies.pop(policy_id, None)
+            chain.forget(gone)
+        logger.info("forgot %d settled demonstration policies, keeping %d", len(gone), demo_keep)
+        return len(gone)
+
+    app.state.forget_demo_book = forget_demo_book
+    app.state.demo_policy = demo_policy
 
     def lapse_overdue() -> int:
         n = 0
