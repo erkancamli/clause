@@ -47,6 +47,21 @@
   The fault names and the seismic zone names are not written inside
   `t("...")` but read out of a table, so nothing checked them; a test now
   does, and it found one that had no translation in any language.
+- Choosing a place puts the map beside the search rather than under it.
+  Stacked in a reading column the map was 720px wide with 400px of empty
+  page next to it, and the list of matches began below the fold.
+- Where a company is licensed follows where it is domiciled. The two
+  fields never moved together, so choosing Türkiye left "licensed in" on
+  whatever it started at, and that is the field the register check is
+  made against.
+- Whatever takes focus stays where it can be seen. The window judges "in
+  view" by its own edges and knows nothing of the header stuck to the top
+  or the price bar stuck to the bottom: at 320px the country select
+  landed two pixels under the bar and the file dropzone a hundred and
+  twenty below it.
+- Below 400px the brand drops its word for room and the mark beside it is
+  hidden from assistive technology, so the link to the home page had no
+  name at all. Hidden from the eye only now.
 - The price bar says what you receive beside what you pay, and the
   signing button names the amount.
 
