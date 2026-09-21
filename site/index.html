@@ -957,6 +957,15 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 @keyframes hxEpi{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
 .hx-trace{stroke-dasharray:var(--len,900);stroke-dashoffset:var(--len,900);animation:hxTrace 6s linear infinite}
 @keyframes hxTrace{0%{stroke-dashoffset:var(--len,900);opacity:1}38%{stroke-dashoffset:0;opacity:1}92%{stroke-dashoffset:0;opacity:1}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:var(--len,900);opacity:0}}
+/* The trace crosses the trigger at 13.2% of the loop, measured off the path
+   rather than guessed. The line answers there and nowhere else: that crossing
+   is the whole reason the money moves, and before it happens nothing should
+   suggest it has. */
+.hx-trigger{animation:hxTrigger 6s linear infinite}
+@keyframes hxTrigger{0%,12.6%{stroke-width:1;opacity:.55}13.6%{stroke-width:2.6;opacity:1}
+  16%{stroke-width:1.4;opacity:.95}26%,100%{stroke-width:1;opacity:.55}}
+.hx-trigger-label{animation:hxTriggerLabel 6s linear infinite}
+@keyframes hxTriggerLabel{0%,12.6%{opacity:.45}13.6%,24%{opacity:1}34%,100%{opacity:.45}}
 .hx-dot{opacity:0;animation:hxDot 6s linear infinite}
 @keyframes hxDot{0%,40%{transform:translateX(0);opacity:0}42%{opacity:1}50%{transform:translateX(34px);opacity:1}52%,100%{transform:translateX(34px);opacity:0}}
 .hx-attest{opacity:.3;animation:hxAttest 6s linear infinite}
@@ -1265,8 +1274,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <circle class="a-signal-f hx-epi" cx="66" cy="196" r="4"/>
 
           <!-- the trace, crossing the trigger -->
-          <line class="a-signal a-dash" x1="24" y1="140" x2="286" y2="140"/>
-          <text x="24" y="132" font-size="9.5" letter-spacing="1.2" data-i18n>TRIGGER  M5.5</text>
+          <line class="a-signal a-dash hx-trigger" x1="24" y1="140" x2="286" y2="140"/>
+          <text class="hx-trigger-label" x="24" y="132" font-size="9.5" letter-spacing="1.2" data-i18n>TRIGGER  M5.5</text>
           <path id="hero-trace" class="a-settled hx-trace" stroke-width="1.6" d="M24 196 40 194 52 199 64 193 76 198 88 195 100 197 112 194 124 198 132 196 140 158 146 232 152 118 158 258 164 136 170 226 176 170 184 206 192 186 200 200 210 192 222 198 234 194 248 197 262 195 276 196 286 196"/>
           <text x="152" y="282" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04</text>
 
@@ -1287,7 +1296,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <circle class="a-settled-f" cx="392" cy="112" r="11"/>
           <path class="hx-check" d="M387 112.5 390.5 116 397.5 108.5" fill="none" stroke="var(--panel)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
           <text x="411" y="109" font-size="9.5" letter-spacing="1.1" class="t-2" data-i18n>PAID TO YOU</text>
-          <text x="411" y="129" font-size="19" class="big">25,000</text>
+          <text id="hero-amount" x="411" y="129" font-size="19" class="big">25,000</text>
           <text x="386" y="160" font-size="9.5" class="t-2" data-i18n>no claim was filed</text>
           </g>
 
@@ -9161,10 +9170,54 @@ function closeRider(){
   (function(){
     var trace=$("hero-trace");
     if(trace&&trace.getTotalLength){ try{ trace.style.setProperty("--len",String(Math.ceil(trace.getTotalLength()))); }catch(e){} }
-    var block=$("hero-block");
-    if(!block||(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches))return;
-    var n=412388;
-    setInterval(function(){ if(document.hidden)return; n+=1; block.textContent=n.toLocaleString("en-US"); },1300);
+    var block=$("hero-block"), amount=$("hero-amount"), card=document.querySelector(".hero-art .hx-card");
+    var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(!block||still)return;
+
+    // One clock, the card's. Everything else in this picture is CSS on a six
+    // second loop, so the two things JS has to say are hung off that loop's
+    // own iteration rather than a timer of their own, which would drift
+    // apart from it within a minute.
+    var PAID=25000, COUNT=620, height=412388, settled=null, timers=[];
+    var nf=function(v){ try{ return v.toLocaleString(LANG||"en-US"); }catch(e){ return v.toLocaleString("en-US"); } };
+
+    function countUp(){
+      var started=0;
+      function step(now){
+        if(!started)started=now;
+        var k=Math.min(1,(now-started)/COUNT);
+        // eased, so it lands rather than stops
+        amount.textContent=nf(Math.round(PAID*(1-Math.pow(1-k,3))));
+        if(k<1)requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function cycle(){
+      timers.forEach(clearTimeout); timers=[];
+      settled=null;
+      if(amount)amount.textContent=nf(0);
+      // The chain goes on advancing while the policy waits.
+      timers.push(setTimeout(function(){
+        // 3.12s in, the card lands: that block is the one it settled in, and
+        // "settled in block" then means what it says, so it stops there.
+        settled=height;
+        block.textContent=nf(settled);
+        if(amount)countUp();
+      },3120));
+    }
+
+    setInterval(function(){
+      if(document.hidden)return;
+      height+=1;
+      if(settled===null)block.textContent=nf(height);
+    },1300);
+
+    if(card&&"onanimationiteration" in card){
+      card.addEventListener("animationiteration",cycle);
+      card.addEventListener("animationstart",cycle);
+    }
+    cycle();
   })();
   var canvas=$("hero-fx"); if(!canvas||!canvas.getContext)return;
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){ canvas.remove(); return; }
