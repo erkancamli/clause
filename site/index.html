@@ -1728,7 +1728,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         <text x="516" y="37" font-size="11" class="t-ink" data-i18n>Seismic network</text>
         <text x="516" y="52" font-size="9.5" data-i18n>publishes max magnitude</text>
         <line class="a-edge" x1="615" y1="66" x2="615" y2="120" marker-end="url(#a2)" stroke-width="1.2"/>
-        <text x="625" y="96" font-size="9.5" class="t-2" data-i18n>Edge reading, validator attested</text>
+        <text x="625" y="96" font-size="9.5" class="t-2" data-i18n>Read at the source, attested by validators</text>
 
         <!-- the block row -->
         <text x="40" y="150" font-size="9.5" letter-spacing="1.2" data-i18n>BLOCKS, 50 ms APART</text>
@@ -2182,7 +2182,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 
     <h2 style="font-size:23px;margin-top:44px" data-i18n>Register a company</h2>
     <p style="margin-top:10px;color:var(--ink-2);max-width:60ch;font-size:14.5px" data-i18n>
-      This records a claim and grants nothing. Nothing in this protocol can read
+      This records a statement and grants nothing. Nothing in this protocol can read
       a regulator's register from inside a block, so a person checks every
       licence number against the authority's own register before the company can
       issue anything. Until then it is visible and writes nothing.
@@ -2243,7 +2243,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         <div class="results" id="co-perils"></div>
       </div>
       <div class="field" id="co-settlement-field">
-        <label class="label" data-i18n>Settlement permitted by that licence</label>
+        <label class="label" data-i18n>Settlement assets permitted by that licence</label>
         <div class="results" id="co-settlement"></div>
       </div>
       <div class="two">
@@ -2287,7 +2287,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         <input id="co-evidence" type="file" accept="application/pdf,image/png,image/jpeg" multiple>
         <div id="co-evidence-kinds" style="display:grid;gap:6px;margin-top:8px"></div>
         <p class="fine" data-i18n>Up to 4 files, PDF, PNG or JPEG, 3 MB each. Kept for the reviewer, who
-          still checks your licence number at the regulator's own register: a document is a claim,
+          still checks your licence number at the regulator's own register: a document is a statement,
           the register is the proof.</p>
       </div>
       <div>
@@ -5583,8 +5583,8 @@ function setNextLabel(){
     : !priced ? (flow.refusal?t("The protocol did not price this"):t("Pricing…"))
     : !proved ? t("Verify the items above")
     : !accepted ? t("Read and accept the contract")
-    : identity.token ? t("Sign and apply for {amount}",{amount:money(payableNow())})
-                     : t("Sign in and apply for {amount}",{amount:money(payableNow())});
+    : identity.token ? t("Sign and apply, paying {amount}",{amount:money(payableNow())})
+                     : t("Sign in and apply, paying {amount}",{amount:money(payableNow())});
 }
 
 function payableNow(){
@@ -5712,7 +5712,7 @@ function localRuling(){
 
   var asset=cover.settlement.indexOf("stablecoin")>=0?"stablecoin":cover.settlement[0];
   return {allowed:true, cover:cover, note:note, name:name, asset:asset, reasons:[
-    t("Issued in {country} by {carriers}, supervised by {authorities}, settling in {cash}.",
+    t("Issued in {country} by {carriers}, supervised by {authorities}, paid in {cash}.",
       {country:name,carriers:listText(cover.carriers.map(ts)),authorities:listText(cover.authorities.map(ts)),
        cash:cashName(code,asset)})]};
 }
@@ -6465,8 +6465,8 @@ function renderInterest(){
       esc(cover.retail?t("Available"):t("Professional only"))+'</span><span>'+esc(name)+
       ' · '+esc(listText(cover.authorities.map(ts)))+'</span></div>'+
       '<p>'+esc(t(cover.carriers.length>1
-        ? "{carriers} are licensed to issue this in {country}, settling in {cash}."
-        : "{carriers} is licensed to issue this in {country}, settling in {cash}.",
+        ? "{carriers} are licensed to issue this in {country}, paid in {cash}."
+        : "{carriers} is licensed to issue this in {country}, paid in {cash}.",
         {carriers:listText(cover.carriers.map(ts)),country:name,
          cash:cashName(code, cover.settlement.indexOf("stablecoin")>=0?"stablecoin":cover.settlement[0])}))+'</p>';
   } else if(cover||(COVERAGE&&COVERAGE.__waiting&&COVERAGE.__waiting[code])){
@@ -7169,7 +7169,7 @@ function showDone(reply){
   $("done-kvs").innerHTML=
     kv(t("Cover"),f0.format(policy.limit)+' USDC')+
     kv(t("You paid"),money(policy.premium))+
-    kv(t("Settles in"),esc(cashName(riskCountry(), (reply.compliance||{}).settlement)))+
+    kv(t("Payout currency"),esc(cashName(riskCountry(), (reply.compliance||{}).settlement)))+
     kv(t("Runs for"),esc(t("{days} days",{days:f0.format(policy.term_days)})))+
     kv(t("Measured by"),esc(sourceName()))+
     kv(t("Subscription"),esc(reply.account||"—"),"mono")+
@@ -7377,7 +7377,7 @@ function mineHtml(reply){
 /* ---------------- the company side ----------------
    Where an insurer looks at this protocol and sees what it would be joining:
    which countries are open and who opened them, what everyone else is charging
-   to front, and a form that records a claim and grants nothing. */
+   to front, and a form that records a statement and grants nothing. */
 
 function renderInsurers(){
   fillCountries($("co-domicile"), "JP");
@@ -7432,7 +7432,7 @@ function coverageHtml(payload){
   var FOLD=12;
   if(rows.length)
     out+='<div class="cov"><div class="head"><span>'+esc(t("Country"))+'</span><span>'+esc(t("Who is licensed"))+'</span>'+
-       '<span>'+esc(t("Settles in"))+'</span><span>'+esc(t("Buyers"))+'</span></div>';
+       '<span>'+esc(t("Payout currency"))+'</span><span>'+esc(t("Buyers"))+'</span></div>';
   rows.forEach(function(row,i){
     if(i===FOLD&&rows.length>FOLD+2)
       out+='</div><details class="more"><summary>'+esc(t("Every country ({n})",{n:f0.format(rows.length)}))+
@@ -7457,7 +7457,7 @@ function coverageHtml(payload){
         (row.specimen?' <span class="pill no">'+esc(t("specimen"))+'</span>':'')+'</b>'+
         '<span class="licensed">'+esc(listText(row.carriers.map(ts)))+'</span>'+
         '<span class="auth">'+esc(t("waiting on {missing}",{missing:listText(row.waiting_on.map(ts))}))+'</span>'+
-        '<span class="pill no">'+esc(t("closed"))+'</span></div>';
+        '<span class="pill no">'+esc(t("not open"))+'</span></div>';
     });
     out+='</div>';
   }
@@ -7491,7 +7491,7 @@ function companiesHtml(payload){
         ' · '+esc(t(REACH_WORDS[l.reach]||l.reach))+' · '+
         esc(t("settles {assets}",{assets:listText(l.settlement.map(localValue))}))+'</span></span>'+
         '<span class="pill '+(l.live?(l.expiring_soon?"":"ok"):"no")+'">'+
-        esc(l.live?(l.expiring_soon?t("renewing"):t("live")):t("lapsed"))+'</span></div>';
+        esc(l.live?(l.expiring_soon?t("renewing"):t("live")):t("out of force"))+'</span></div>';
     }).join("");
     return '<div class="co-card">'+
       '<div><div class="co-head"><span class="nm">'+esc(ts(c.name))+'</span>'+
@@ -8512,7 +8512,7 @@ function opCard(c){
       ' · '+esc(l.verified_at?t("checked {time}",{time:opStamp(l.verified_at)}):t("never checked"))+
       '</span></span>'+
       '<span class="pill '+(l.live?(l.expiring_soon?"":"ok"):"no")+'">'+
-      esc(l.live?(l.expiring_soon?t("renewing"):t("live")):t("lapsed"))+'</span></div>';
+      esc(l.live?(l.expiring_soon?t("renewing"):t("live")):t("out of force"))+'</span></div>';
   }).join("") || '<div class="vrule"><span class="mark">—</span><span><span class="t">'+
     esc(t("No licence on this record"))+'</span><span class="s">'+
     esc(t("A reinsurer holds none where the buyer is, which is the role working as intended. A carrier with none can write nothing anywhere."))+'</span></span></div>';

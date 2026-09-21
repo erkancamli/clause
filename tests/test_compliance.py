@@ -147,7 +147,7 @@ def test_a_country_with_nobody_registered_is_refused_with_a_fact_about_us(engine
     assert "no licensed carrier is registered" in reasons
     assert "JP" in reasons
     # And it does not name an asset, because both were tried.
-    assert "settling in" not in reasons
+    assert "paid in" not in reasons
 
 
 def test_a_professional_only_licence_refuses_a_consumer(engine) -> None:

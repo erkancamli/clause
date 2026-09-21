@@ -542,7 +542,7 @@ class Registry:
             if not licensed_here:
                 reasons.append(
                     f"no licensed carrier is registered to write {peril} cover in "
-                    f"{country} for this kind of buyer, settling in {asset.value}"
+                    f"{country} for this kind of buyer, paid in {asset.value}"
                 )
             else:
                 reasons.append(

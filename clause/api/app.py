@@ -1588,7 +1588,7 @@ def create_app(
                     country=body.country, signature=body.signature,
                 ))
             except ValueError as error:
-                raise Refused(422, "that is not a claim this protocol knows") from error
+                raise Refused(422, "that is not an attestation this protocol knows") from error
         standing = eligibility.check(
             address=holder, attestations=presented, requirement=need,
         )
@@ -3084,7 +3084,7 @@ def create_app(
         try:
             claim = Claim(request.purpose)
         except ValueError as error:
-            raise Refused(422, "that is not a claim this protocol knows") from error
+            raise Refused(422, "that is not an attestation this protocol knows") from error
 
         verifier_id = (
             "demo-professional" if claim is Claim.PROFESSIONAL else "demo-identity"
@@ -3604,7 +3604,7 @@ def create_app(
                             expires_at=finite(body.expires_at, "expires_at"),
                             country=body.country, signature=body.signature))
                     except ValueError as error:
-                        raise Refused(422, "that is not a claim this protocol knows") from error
+                        raise Refused(422, "that is not an attestation this protocol knows") from error
                 standing = eligibility.check(address=account, attestations=presented, requirement=need)
                 if KIND_FOR.get(request.peril) not in ("home", "vehicle") and settings.direct_buy and not standing.ok:
                     raise HTTPException(451, {"reasons": [
@@ -4555,7 +4555,7 @@ def create_app(
                     expires_at=finite(body.expires_at, "expires_at"),
                     country=body.country, signature=body.signature))
             except ValueError as error:
-                raise Refused(422, "that is not a claim this protocol knows") from error
+                raise Refused(422, "that is not an attestation this protocol knows") from error
         need = eligibility.requirement(limit=terms["max_limit_per_policy"], professional=False,
                                        country=request.country.upper())
         standing = eligibility.check(address=account, attestations=presented, requirement=need)
