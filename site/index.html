@@ -481,7 +481,12 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
 
 
 /* ---------------- happening now ---------------- */
-.now{border-block:1px solid var(--edge);background:var(--sunk);padding:10px 0 12px}
+/* section.now, not .now: the band on the home page and the current step
+   of the cover flow both carry the class, so every step chip was
+   inheriting the band's sunk fill, its rules above and below and its
+   vertical padding, which is why the step being worked on looked like
+   a box clipped by the gutter. */
+section.now{border-block:1px solid var(--edge);background:var(--sunk);padding:10px 0 12px}
 .now-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
 .now-head b{font-family:var(--display);font-size:15px;font-weight:600}
 .now-head .pip{width:7px;height:7px;border-radius:50%;background:var(--settled);animation:blink 2.2s infinite;align-self:center}
