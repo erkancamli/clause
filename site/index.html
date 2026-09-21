@@ -995,7 +995,12 @@ figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
 .diagram{padding:18px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
 .chart-box{padding:16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
 
-dialog{border:1px solid var(--edge);border-radius:var(--r);background:var(--panel);color:var(--ink);
+/* A thing that floats over the page sits a step above the card it came
+   from. In the dark theme that step is lightness, because a black
+   shadow does almost nothing against a near-black page; in the light
+   theme the card is already white, so the shadow does the work and
+   --float is white as well. */
+dialog{border:1px solid var(--edge);border-radius:var(--r);background:var(--float);color:var(--ink);
   padding:0;max-width:min(92vw,400px);box-shadow:var(--shadow)}
 dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 @media (prefers-reduced-motion:no-preference){
@@ -1120,7 +1125,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 .tform select,.tform input{height:40px;border-radius:10px;border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
   font:inherit;font-size:15px;padding:0 10px;min-width:150px}
 .whomenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:230px;display:grid;gap:2px;padding:8px;
-  border:1px solid var(--edge);border-radius:14px;background:var(--panel);box-shadow:0 12px 32px rgba(0,0,0,.14)}
+  border:1px solid var(--edge);border-radius:14px;background:var(--float);box-shadow:var(--lift-2),var(--hairline)}
 .whomenu[hidden]{display:none}
 .whomenu p{padding:6px 10px 8px;margin:0;border-bottom:1px solid var(--edge);margin-bottom:4px;word-break:break-all}
 .whomenu a,.whomenu button{display:block;text-align:left;padding:9px 10px;border-radius:9px;border:0;background:none;
