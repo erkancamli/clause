@@ -660,6 +660,12 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
 .pricebar .amt{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.6vw,28px);
   line-height:1;font-variant-numeric:tabular-nums}
 .pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:600}
+/* What is paid, beside what is received. In parametric cover the ratio
+   between the two is the whole proposition, so they are never apart. */
+.pricebar .pays{display:inline-flex;align-items:baseline;gap:6px;margin-left:12px;padding-left:12px;
+  border-left:1px solid var(--edge);font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-2)}
+.pricebar .pays b{font-family:var(--display);font-size:17px;font-weight:700;color:var(--settled);letter-spacing:-.02em}
+@media (max-width:640px){.pricebar .pays{display:none}}
 .pricebar .cap{font-size:12.5px;color:var(--ink-3);margin-top:3px}
 .pricebar .grow{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
 
@@ -1516,8 +1522,9 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
     </div>
 
     <div class="pricebar" id="pricebar" hidden>
-      <div>
-        <div class="amt num"><span id="pb-amt">0</span><small data-i18n>USDC</small></div>
+      <div aria-live="polite" aria-atomic="true" id="pb-live">
+        <div class="amt num"><span id="pb-amt">0</span><small data-i18n>USDC</small>
+          <span class="pays" id="pb-pays" hidden></span></div>
         <div class="cap" id="pb-cap">premium for the term</div>
       </div>
       <div class="grow">
@@ -5416,7 +5423,19 @@ function setNextLabel(){
     : !priced ? (flow.refusal?t("The protocol did not price this"):t("Pricing…"))
     : !proved ? t("Verify the items above")
     : !accepted ? t("Read and accept the contract")
-    : identity.token ? t("Sign and apply") : t("Sign in and apply");
+    : identity.token ? t("Sign and apply for {amount}",{amount:money(payableNow())})
+                     : t("Sign in and apply for {amount}",{amount:money(payableNow())});
+}
+
+function payableNow(){
+  // What leaves the account when this is signed: the whole price, or the
+  // first instalment where one was chosen.
+  var q=priced(), offer=chosenOffer(), total=q.premium+(offer?offer.fee:0);
+  if(flow.instalments>1){
+    var plan=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
+    return total*(1+plan.surcharge)/flow.instalments;
+  }
+  return total;
 }
 
 function setBusy(text){
@@ -6048,6 +6067,13 @@ function updatePriceBar(){
   var offer=flow.step===CONFIRM_STEP?chosenOffer():(current&&(flow.offers||[]).length?flow.offers.slice().sort(function(a,b){return a.fee-b.fee;})[0]:null);
   var total=offer?q.premium+offer.fee:q.premium, days=PERILS[flow.peril].term;
   tweenAmount($("pb-amt"),total);
+  var pays=$("pb-pays");
+  if(pays){
+    // What the policy pays at its top step, which is the limit: the figure
+    // the price is actually buying, said beside it rather than further down.
+    pays.hidden=!flow.limit;
+    pays.innerHTML=esc(t("you receive up to"))+' <b>'+esc(money(flow.limit))+'</b>';
+  }
   var cap=t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days});
   if(flow.step!==CONFIRM_STEP){
     if(offer){
