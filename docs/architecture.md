@@ -303,6 +303,23 @@ device APIs off, `X-Frame-Options: DENY` and a `Content-Security-Policy` of
 the application says it itself so a deployment without nginx is no less
 careful.
 
+### Keeping the book
+
+The book is checkpointed to SQLite every five seconds and after every request
+that changed it. A document is written only when its text differs from the
+last write, and a log only from where it left off, so what is already on disk
+costs nothing to keep. What it did cost was finding that out: every document
+was encoded on every cycle to compare it. The encoder now works out a class's
+shape once, and a log is encoded only past the entries already written.
+
+The demonstration is what made the book large: a simulated chain writes
+policies by the thousand and they used to be kept for ever. Settled ones past
+`CLAUSE_DEMO_KEEP` (2000 by default, 0 to keep everything) are forgotten along
+with their settlements; the chain keeps the counts and latencies they
+contributed, so every figure it publishes is unchanged. A policy a person
+bought is never touched: the test is the demonstration's own marker, or an
+address it derived for itself, and an explicit `synthetic: false` always wins.
+
 ### Rate limits
 
 Two layers. nginx, per client address: 20 pricing requests a minute

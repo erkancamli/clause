@@ -310,6 +310,10 @@ class Chain:
 
         self.readings: dict[str, EdgeReading] = {}
         self.settlements: list[Settlement] = []
+        # Settlements dropped from the list above, counted so that what the
+        # chain reports about itself is the whole of its history even when
+        # the demonstration's own record is trimmed (see forget).
+        self.forgotten: dict[str, float] = {}
         # Told about every settlement after it is recorded, for notices that
         # leave the protocol (a partner's webhook). A listener that fails is
         # logged; it can never undo a settlement.
@@ -1351,24 +1355,57 @@ class Chain:
             rows.sort(key=lambda row: row["registered_at"])
             return rows
 
+    def forget(self, policy_ids: set[str]) -> int:
+        """Drop the settlements of policies that are no longer in the book.
+
+        Only the record is dropped, never the arithmetic: what each dropped
+        settlement contributed to the counts and to the mean latency is kept,
+        so every figure the chain publishes is the same afterwards. Used for
+        the demonstration's own policies, which arrive by the thousand and
+        would otherwise be walked by everything, for ever.
+        """
+        if not policy_ids:
+            return 0
+        with self.lock:
+            keep, gone = [], 0
+            for s in self.settlements:
+                if s.policy_id not in policy_ids:
+                    keep.append(s)
+                    continue
+                gone += 1
+                self.forgotten["settlements"] = self.forgotten.get("settlements", 0) + 1
+                self.forgotten[s.kind] = self.forgotten.get(s.kind, 0) + 1
+                if s.kind == "paid":
+                    self.forgotten["latency_total"] = self.forgotten.get("latency_total", 0.0) + s.latency_blocks
+                    self.forgotten["latency_count"] = self.forgotten.get("latency_count", 0) + 1
+            if gone:
+                self.settlements = keep
+            for account, armed in list(self.armed.items()):
+                if armed.policy.policy_id in policy_ids:
+                    self.armed.pop(account, None)
+                    for holders in self.index.values():
+                        holders.discard(account)
+            return gone
+
     def stats(self) -> dict[str, Any]:
         with self.lock:
+            forgotten = self.forgotten
             latencies = [s.latency_blocks for s in self.settlements if s.kind == "paid"]
+            latency_total = sum(latencies) + forgotten.get("latency_total", 0.0)
+            latency_count = len(latencies) + int(forgotten.get("latency_count", 0))
             return {
                 "height": self.height,
                 "timestamp": self.timestamp,
                 "armed": len(self.armed),
                 "queued": len(self._queue),
                 "evaluations": self._evaluations,
-                "settlements": len(self.settlements),
-                "paid": sum(1 for s in self.settlements if s.kind == "paid"),
-                "expired": sum(1 for s in self.settlements if s.kind == "expired"),
-                "lapsed": sum(1 for s in self.settlements if s.kind == "lapsed"),
+                "settlements": len(self.settlements) + int(forgotten.get("settlements", 0)),
+                "paid": sum(1 for s in self.settlements if s.kind == "paid") + int(forgotten.get("paid", 0)),
+                "expired": sum(1 for s in self.settlements if s.kind == "expired") + int(forgotten.get("expired", 0)),
+                "lapsed": sum(1 for s in self.settlements if s.kind == "lapsed") + int(forgotten.get("lapsed", 0)),
                 "sources": len(self.readings),
                 "silent_sources": sum(1 for r in self.readings.values() if r.silent),
-                "mean_latency_blocks": (
-                    sum(latencies) / len(latencies) if latencies else 0.0
-                ),
+                "mean_latency_blocks": (latency_total / latency_count if latency_count else 0.0),
                 # The REX layer: how the outside world actually gets in.
                 "validators": self.config.validators,
                 "quorum": self.aggregator.quorum,
