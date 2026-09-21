@@ -9208,7 +9208,9 @@ function closeRider(){
     }
 
     setInterval(function(){
-      if(document.hidden)return;
+      // Nothing to say while the tab is in the background, and nothing to
+      // say below the width where the picture is not drawn at all.
+      if(document.hidden||!block.getClientRects().length)return;
       height+=1;
       if(settled===null)block.textContent=nf(height);
     },1300);
