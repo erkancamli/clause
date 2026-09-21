@@ -371,7 +371,7 @@ class ComplianceEngine:
             # and imply the other would have worked.
             for reason in (placement.reasons if placement else ()):
                 for asset_name in ("stablecoin", "fiat"):
-                    reason = reason.replace(f", settling in {asset_name}", "")
+                    reason = reason.replace(f", paid in {asset_name}", "")
                 reasons.append(reason)
             if note is not None:
                 disclosure.append(note.text)
@@ -440,7 +440,7 @@ class ComplianceEngine:
             )
         reasons.append(
             f"issued in {country} by {best.carrier.name} under "
-            f"{best.licence.authority}, settling in {settled_as.value}"
+            f"{best.licence.authority}, paid in {settled_as.value}"
         )
         return Ruling(
             True, channel, settled_as, max_limit, tuple(reasons), stage,

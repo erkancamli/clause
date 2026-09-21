@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.15.2, 21 September 2026
+
+- The English says which of two things it means, in the places where six
+  translators each had to guess. Reviewing all six languages turned up the
+  same short list of source ambiguities every time, so the source is fixed
+  rather than worked around once per language.
+- `claim` meant both a demand for payment and an assertion. The assertion
+  sense is now `statement`, and the refusal about an unrecognised
+  credential says `attestation`, which is what it always was.
+- `settle` meant both the insurance act and the payment rail. The rail now
+  says `paid`: `Payout currency` rather than `Settles in`, `paid in
+  {cash}` rather than `settling in {cash}`, and `Settlement assets
+  permitted by that licence`, which is what that field lists.
+- Two keys were doing two jobs. A country with no cover yet said `closed`,
+  the word a finished complaint uses, which in Japanese read as "ended"
+  and in French, Spanish and Russian carried a complaint's gender. It says
+  `not open`. A licence no longer in force said `lapsed`, the word a
+  policy that ran its term uses, which in Russian took a policy's
+  masculine ending. It says `out of force`.
+- `Edge reading, validator attested` used a word explained nowhere, so
+  every language transliterated it. It reads `Read at the source, attested
+  by validators`.
+- `Sign and apply for {amount}` read as applying for that much cover, when
+  the amount is the premium. It reads `Sign and apply, paying {amount}`.
+
 ## 1.15.1, 21 September 2026
 
 - A checkpoint no longer loses a cycle to a book being written while it is
