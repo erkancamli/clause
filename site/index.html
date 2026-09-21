@@ -92,7 +92,16 @@
 }
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+/* Moving to a field scrolls it into view, and the window's own idea of
+   "in view" ends at its edges: it does not know about the header stuck to
+   the top or the price bar stuck to the bottom, so a field could take
+   focus and sit behind one of them. WCAG 2.2 calls that Focus Not
+   Obscured. Padding the scrollport takes both out of the reckoning, and
+   unlike a margin on the field it also settles whether to scroll at all,
+   which is the case a margin cannot reach. --pricebar-h is measured and
+   is 0px when no bar is up. */
+html{-webkit-text-size-adjust:100%;
+  scroll-padding-top:96px;scroll-padding-bottom:calc(var(--pricebar-h,0px) + 24px)}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
   font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
@@ -1014,7 +1023,12 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 @media (max-width:420px){.who{padding:0 10px;font-size:12px}.langsel select{max-width:84px}}
 /* 320 css px (a phone, or a desktop at 400% zoom): the mark alone, so the
    header holds the account, the language and the theme without scrolling. */
-@media (max-width:400px){.brand span{display:none}.brand{padding:0 6px}.top-in{gap:6px}}
+/* Below 400px the word is dropped for room, but the mark beside it is
+   aria-hidden, so display:none left the link to the home page with no
+   name at all for anyone not looking at it. Hidden from the eye only. */
+@media (max-width:400px){
+  .brand span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .brand{padding:0 6px}.top-in{gap:6px}}
 .whobox{position:relative}
 .sizegrid.addr{grid-template-columns:2fr 1fr 1fr 1fr 2fr}
 @media (max-width:700px){.sizegrid.addr{grid-template-columns:1fr 1fr}}
