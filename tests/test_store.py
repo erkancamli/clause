@@ -7,12 +7,14 @@ there after the process stops and a new one starts on the same file.
 
 from __future__ import annotations
 
+import threading
 import time
 
 from fastapi.testclient import TestClient
 
 from clause.api.app import create_app
 from clause.api.security import Settings
+from clause import store
 from clause.store import Store, decode, encode
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
@@ -287,3 +289,35 @@ def test_the_encoder_is_the_one_the_book_was_written_with() -> None:
     ]
     for value in values:
         assert json.dumps(store_mod.encode(value), sort_keys=True) == json.dumps(general(value), sort_keys=True), value
+
+
+def test_a_dict_that_changes_while_it_is_encoded_does_not_lose_the_save():
+    """The live journal's "could not save the book", reproduced.
+
+    A checkpoint copies each book before it walks it, but the values in
+    those books are the live objects, and a request thread recording a
+    vetting check or stamping a policy's metadata holds no lock. Iterating
+    such a dict directly raises ``dictionary changed size during
+    iteration`` and the whole cycle is lost. Written against the encoder
+    that failed, this reproduces it in a few dozen tries out of three
+    thousand; the encoder takes its items in one step, which no other
+    thread can interrupt, so it cannot.
+    """
+    live = {"vetting": {f"k{i}": {"ok": True, "note": "x"} for i in range(400)}}
+    stop = threading.Event()
+
+    def churn() -> None:
+        n = 0
+        while not stop.is_set():
+            live["vetting"][f"new{n}"] = {"ok": True}
+            live["vetting"].pop(f"new{n - 200}", None)
+            n += 1
+
+    writer = threading.Thread(target=churn, daemon=True)
+    writer.start()
+    try:
+        for _ in range(3000):
+            store.encode(live)          # must never raise
+    finally:
+        stop.set()
+        writer.join(timeout=2)

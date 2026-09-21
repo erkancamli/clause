@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.15.1, 21 September 2026
+
+- A checkpoint no longer loses a cycle to a book being written while it is
+  read. The live journal carried `could not save the book: dictionary
+  changed size during iteration`. Each book is copied before the
+  checkpoint walks it, but the values in those books are the live objects,
+  and a request thread recording a vetting check or stamping a policy's
+  metadata holds no lock; the encoder was iterating such a dict directly.
+  It now takes the items in one step, which no other thread can interrupt.
+  Reproduced against the old encoder at thirty failures in three thousand
+  tries, and at none with this one.
+- The step being worked on is not a box clipped by the gutter. The band on
+  the home page and the current step of the cover flow both carry the
+  class name `now`, and the band's rule was written unscoped, so every
+  step chip inherited its fill, its rules above and below and its vertical
+  padding. At the last step that box ended flush against the right edge.
+- A dialog and a menu sit a step above the card they came from. Both were
+  painted in the card colour, so on a dark page the only thing saying they
+  float was a black shadow, which against a near black page says almost
+  nothing.
+- The calculation rules heading is two lines rather than four. It was
+  being held to the sixteen characters that suit a short headline.
+
 ## 1.15.0, 21 September 2026
 
 - The palette answers to what it is seen against. Every colour this site
