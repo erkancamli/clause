@@ -20,6 +20,8 @@
   painted in the card colour, so on a dark page the only thing saying they
   float was a black shadow, which against a near black page says almost
   nothing.
+- A short page keeps its footer at the bottom of the window instead of
+  leaving it halfway up with dark ground beneath it.
 - The calculation rules heading is two lines rather than four. It was
   being held to the sixteen characters that suit a short headline.
 
