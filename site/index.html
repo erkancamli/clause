@@ -646,6 +646,22 @@ h1 span{color:var(--signal)}
    map holds the right column and grows with whatever the left one needs.
    Leaflet tracks window resizes itself, so crossing this breakpoint
    redraws the tiles without any help. */
+/* The last step is the longest page in the product and it was a 720px
+   column with half the window empty beside it: the summary, the sentence,
+   the payout chart and table, the company, what is checked before issue,
+   how to pay, and the whole contract, one under the other. The summary is
+   what a buyer keeps glancing back at while reading the rest, so it holds
+   a column of its own and stays in view, which is how every checkout that
+   works is built. Everything else keeps its reading measure. */
+@media (min-width:1120px){
+  #s4{max-width:min(100%,1200px)}
+  #s4 > h2,#s4 > p.hint{max-width:760px}
+  #s4 > .q-body{grid-template-columns:minmax(0,1fr) 360px;gap:14px 32px;align-items:start}
+  #s4 > .q-body > *{grid-column:1}
+  #s4 > .q-body > #answers{grid-column:2;grid-row:1 / span 99;position:sticky;top:96px;
+    max-height:calc(100vh - 130px - var(--pricebar-h,0px));overflow:auto}
+}
+
 @media (min-width:1000px){
   #s2{max-width:min(100%,1120px)}
   #s2 > h2,#s2 > p.hint{max-width:720px}
