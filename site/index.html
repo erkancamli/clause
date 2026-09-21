@@ -17,8 +17,22 @@
 :root{
   color-scheme:dark;
   --ground:#07090D; --panel:#0E1319; --raised:#161E27; --sunk:#0A0F14;
+  --float:#1F2832;
   --edge:#1D2631; --edge-2:#2A3644;
-  --ink:#E9EFF5; --ink-2:#8D9BA9; --ink-3:#5B6875;
+  /* Two border tiers, and they are not interchangeable. --edge draws
+     dividers and the decorative edge of a panel, where nothing depends on
+     seeing it. --edge-ctl draws the boundary of a control whose boundary is
+     the only thing saying it is one: an input, a select, an outline button.
+     Measured at 3.01:1 on the ground and 3.08:1 on a raised surface, which
+     is what WCAG 1.4.11 asks for and what --edge (1.10:1) never gave. */
+  --edge-ctl:rgba(255,255,255,.34);
+  /* The diagrams are drawn, not decorated: their lines carry the meaning,
+     so they answer to 1.4.11 as Graphical Objects and need 3:1. Drawn in
+     --edge-2 they measured 1.57:1, which is why the hero illustration read
+     as an empty panel. --art-line-soft is for the rings and haloes that
+     only set a mood. */
+  --art-line:#556271; --art-line-soft:#364351;
+  --ink:#E9EFF5; --ink-2:#8D9BA9; --ink-3:#7A8895;
   --signal:#FF6A2B; --signal-2:#FF8A55;
   --settled:#24D3A5; --hold:#F0B429; --crit:#FF4D5E;
   --signal-wash:rgba(255,106,43,.13); --settled-wash:rgba(36,211,165,.13);
@@ -42,12 +56,14 @@
 @media (prefers-color-scheme:light){ :root:not([data-theme="dark"]){
   color-scheme:light; --mark-invert:0;
   --ground:#F7F7F5; --panel:#FFFFFF; --raised:#FFFFFF; --sunk:#F1F1EE;
-  --edge:#E3E5E2; --edge-2:#D2D5D1;
-  --ink:#0C1116; --ink-2:#56616C; --ink-3:#87929D;
-  --signal:#D9480F; --signal-2:#B93D0C;
-  --settled:#0B8F72; --hold:#A9760B; --crit:#C42B3A;
-  --signal-wash:rgba(217,72,15,.09); --settled-wash:rgba(11,143,114,.10);
-  --hold-wash:rgba(169,118,11,.10); --crit-wash:rgba(196,43,58,.09);
+  --float:#FFFFFF;
+  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.42);
+  --art-line:#888A87; --art-line-soft:#AEB1AD;
+  --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
+  --signal:#C83700; --signal-2:#A93000;
+  --settled:#007B5F; --hold:#946200; --crit:#B62734;
+  --signal-wash:rgba(200,55,0,.09); --settled-wash:rgba(0,123,95,.10);
+  --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
   --grid:rgba(12,17,22,.05);
   --shadow:0 14px 40px rgba(12,17,22,.10);
   --lift-1:0 1px 2px rgba(12,17,22,.05),0 2px 8px -4px rgba(12,17,22,.08);
@@ -59,12 +75,14 @@
   --mark-invert:0;
   color-scheme:light;
   --ground:#F7F7F5; --panel:#FFFFFF; --raised:#FFFFFF; --sunk:#F1F1EE;
-  --edge:#E3E5E2; --edge-2:#D2D5D1;
-  --ink:#0C1116; --ink-2:#56616C; --ink-3:#87929D;
-  --signal:#D9480F; --signal-2:#B93D0C;
-  --settled:#0B8F72; --hold:#A9760B; --crit:#C42B3A;
-  --signal-wash:rgba(217,72,15,.09); --settled-wash:rgba(11,143,114,.10);
-  --hold-wash:rgba(169,118,11,.10); --crit-wash:rgba(196,43,58,.09);
+  --float:#FFFFFF;
+  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.42);
+  --art-line:#888A87; --art-line-soft:#AEB1AD;
+  --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
+  --signal:#C83700; --signal-2:#A93000;
+  --settled:#007B5F; --hold:#946200; --crit:#B62734;
+  --signal-wash:rgba(200,55,0,.09); --settled-wash:rgba(0,123,95,.10);
+  --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
   --grid:rgba(12,17,22,.05);
   --shadow:0 14px 40px rgba(12,17,22,.10);
   --lift-1:0 1px 2px rgba(12,17,22,.05),0 2px 8px -4px rgba(12,17,22,.08);
@@ -78,7 +96,14 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
   font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
-h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.025em;text-wrap:balance}
+/* Tracking follows size, because one value cannot serve both. A display
+   line needs the letters pulled together or it reads as a row of separate
+   shapes; a 15px sub-heading at the same setting reads as cramped. The
+   curve runs from about -.035em at the top to nearly nothing at label
+   sizes, which is the shape Inter publishes as its Dynamic Metrics. */
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;text-wrap:balance}
+h3{letter-spacing:-.018em}
+h4{letter-spacing:-.008em}
 p{margin:0}
 a{color:inherit}
 button{font:inherit;color:inherit}
@@ -517,6 +542,9 @@ h1 span{color:var(--signal)}
 .home-hero p{max-width:52ch;color:var(--ink-2);font-size:clamp(15px,1.7vw,17px)}
 .hero-cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .trust{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+/* Four claims in a column that fits three: laid out three and one, it
+   reads as an accident. Two and two reads as a decision. */
+@media (min-width:861px){.hero-text .trust{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:start}}
 .trust>span{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
   border:1px solid var(--edge);background:var(--panel);font-size:12.5px;color:var(--ink-2)}
 .trust svg{width:12px;height:12px;color:var(--settled);flex:none}
@@ -570,6 +598,12 @@ h1 span{color:var(--signal)}
 @media (max-width:700px){.step-dot span{display:none}}
 
 .q{max-width:720px}
+/* 720px is a reading measure, right for a question and its hint and wrong
+   for a row of five cards, which were being squeezed into 133px each while
+   half the page stayed empty. The step that holds the chooser gets the
+   width its content needs; its prose keeps the measure. */
+#s1{max-width:min(100%,1120px)}
+#s1 > h2,#s1 > p.hint{max-width:720px}
 .q h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15}
 .q > p.hint{margin-top:10px;color:var(--ink-2);max-width:56ch}
 .q-body{margin-top:24px;display:grid;gap:12px}
@@ -812,8 +846,8 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .art{width:100%;height:auto;display:block;max-width:100%}
 .a-panel{fill:var(--panel)}
 .a-sunk{fill:var(--sunk)}
-.a-edge{stroke:var(--edge-2);fill:none}
-.a-edge-soft{stroke:var(--edge);fill:none}
+.a-edge{stroke:var(--art-line);fill:none}
+.a-edge-soft{stroke:var(--art-line-soft);fill:none}
 .a-ink{fill:var(--ink)}
 .a-ink2{fill:var(--ink-2)}
 .a-mute{fill:var(--ink-3)}
@@ -1016,6 +1050,31 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 .whomenu .quiet{color:var(--ink-3);font-size:13px}
 .bio svg{width:46px;height:46px;color:var(--signal)}
 .bio span{font-size:13px;color:var(--ink-3)}
+/* A control's boundary is the only thing that says it is a control, so it
+   answers to WCAG 1.4.11 and has to clear 3:1 against what is behind it.
+   The decorative --edge measures 1.10:1; --edge-ctl measures 3.01. Panels,
+   table rules and card edges keep --edge, because nothing depends on
+   seeing those. This block is last in the sheet so it wins on order. */
+.dlg-input,#country,.field select,.dlg input,.dlg select,.dlg textarea,
+.searchbox input,.rider .ask input,.now-where select,.filerow select,
+.tform select,.tform input,.presets button,.seg,.drop,.opt .tick,
+.dlg-input:hover,#country:hover,.field select:hover,
+input[type=text],input[type=email],input[type=number],input[type=date],
+input[type=search],input[type=password],input[type=tel],select,textarea{
+  border-color:var(--edge-ctl)}
+
+/* Focus, as two rings. The inner ring is painted in the surface colour, so
+   the focus tone only ever has to stand out from the surface, never from
+   the control it is ringing. A single ring around a signal-filled button
+   is signal on signal: 1.00:1, invisible, and a 1.4.11 failure. */
+.dlg-input:focus,#country:focus,.field select:focus{outline:none;border-color:var(--signal);
+  box-shadow:var(--sunk-in),0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{
+  box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+.rider .ask input:focus-visible{outline:none;
+  box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+.drop:focus-within{outline:none;
+  box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
 </style>
 </head>
 <body data-role="guest">
