@@ -1,5 +1,66 @@
 # Changelog
 
+## 1.16.1, 22 September 2026
+
+- The policy token is the bargain, drawn, rather than the policy retyped.
+  Every token was the same card with different words on it: eleven labelled
+  fields, a sixty-four character hash nobody can read, and a line of small
+  print. A wallet renders attributes itself, so repeating them in the picture
+  only made the picture a form. The image now carries the one thing a list of
+  traits cannot: the index this cover watches, the level it has to reach, and
+  the moment the two meet. The trace is generated from the policy id and the
+  hash of the terms, so no two tokens are alike and the drawing is a function
+  of the contract rather than an ornament laid on it. The terms hash is
+  thirty-two marks instead of sixty-four characters.
+- Each peril has its own signature and its own subject behind it. An
+  earthquake is quiet and then one burst; a season that does not fill
+  descends past the line; a flight is flat until the step the delay puts in;
+  wind is a gust train; a day's rain is rain above and water that rises and
+  stays up. Behind each, the thing insured: a house on moving ground, a sun
+  over furrows, a plane, a car in water. A token is read at the size of a
+  thumbnail, and at that size a trace alone does not say which kind it is.
+- A tier — Diamond, Platinum, Gold, Silver, Bronze — names the band the cover
+  falls in. It is the limit and nothing else: a grade of size, not a grade of
+  quality, and the description says so. Its metal is spent on the edge and on
+  one stamp, never on the trace, so the card keeps one loud thing and that is
+  the state.
+- A deposit from a wallet names the chain it is watched on. The mechanism was
+  built and waiting only for addresses in the environment; turning it on that
+  way would have printed twenty bytes with nothing saying where to send them,
+  and the same twenty bytes exist on every EVM chain and all of their test
+  networks. A destination with no chain named is no longer offered at all, and
+  a deployment on test networks declares it, so the page can say what that
+  means: send test USDC only, and the balance it credits is not money either.
+- Every page is measured now, in every language, at three widths: twelve
+  routes by seven languages by three widths, checked for a label that leaves
+  its picture, a label that leaves the box it was drawn in, two labels on top
+  of each other, a page that scrolls sideways, a box that hides its own text
+  and a target too small to hit. The first run found the fault I had just
+  diagnosed elsewhere still living in the hero: in French the policy's own
+  sentence ran out of the handset and over the bezel. The handset is no longer
+  drawn — the waveform and the trigger line are a drawing, the policy and the
+  payout notice are writing, and writing belongs in the page, where it wraps.
+- The rest of what it found: a drought label anchored at the left grew off the
+  right edge of its drawing; every peril card on a phone lost the bottom
+  thirty-two pixels of its illustration to a height cap meant for a narrow
+  card; two Istanbul districts on the pool's map are six units apart with
+  names ninety long, so their labels were one smear; a policy id in the
+  register was an eighteen pixel target where 2.5.8 asks for twenty-four; and
+  the step cards on three pages slid up into a block that clips its own
+  corners, arriving with their bottoms cut off.
+- Forty refusals had no translation in any language. A person is told no in
+  Python, not in the page, and nothing was reading those sentences, so the one
+  moment the protocol says no was the one moment it dropped into English. They
+  are translated, and a test now collects every Refused and every safe_detail
+  fallback and fails when one cannot be read.
+- Complaint reasons are statements rather than headings. "The company: how it
+  dealt with me" is not a sentence in English either, which is why every
+  translation of it came out broken.
+- A storm policy read its cover name and half its address line in English on
+  an otherwise Turkish page. Those sentences come from the protocol, and
+  neither the literal scan nor the markup scan could see them; a test now
+  enumerates every cover name and subject line the protocol can compose.
+
 ## 1.16.0, 22 September 2026
 
 - The home page follows one policy from written to paid, and the reader

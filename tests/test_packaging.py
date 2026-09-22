@@ -116,3 +116,28 @@ def test_the_installer_names_whatever_already_holds_port_eighty() -> None:
     an https call that returns nothing at all."""
     script = (ROOT / "deploy" / "install.sh").read_text()
     assert "port 80 is already taken" in script
+
+
+def test_the_release_notes_are_the_changelog(monkeypatch) -> None:
+    """The version in the source has a section in the changelog, and the
+    release workflow can read it.
+
+    The notes on GitHub and the changelog in the repository are the same
+    words. Writing them twice is how they come apart, and the copy on GitHub
+    is the one nobody remembers to update.
+    """
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(root / "scripts"))
+    try:
+        from release_notes import notes
+    finally:
+        sys.path.pop(0)
+
+    import clause
+
+    section = notes(clause.__version__)
+    assert section.strip(), clause.__version__
+    assert section.lstrip().startswith("-"), "a version's notes are a list of changes"

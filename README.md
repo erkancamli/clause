@@ -1,12 +1,23 @@
 # Clause
 
-Parametric cover that settles itself, on Rialo.
+**Parametric cover that settles itself, on Rialo.**
+
+[![deploy](https://github.com/erkancamli/clause/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/erkancamli/clause/actions/workflows/deploy.yml)
+[![live](https://img.shields.io/badge/live-clause.insure-E9EFF5)](https://clause.insure)
+[![version](https://img.shields.io/badge/version-1.16.1-FF6A2B)](CHANGELOG.md)
+[![tests](https://img.shields.io/badge/tests-730%20passing-24D3A5)](tests/)
+[![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](pyproject.toml)
+[![languages](https://img.shields.io/badge/languages-6-8D9BA9)](site/i18n/)
+[![anchored on](https://img.shields.io/badge/anchored%20on-Base%20Sepolia-0052FF)](docs/anchor.md)
+[![licence](https://img.shields.io/badge/licence-all%20rights%20reserved-7A8895)](LICENSE)
 
 An insurance protocol where the policy is a subscription on chain. You buy cover
 against a measurable event; the subscription listens to the topic that carries
 that measurement; when the validators agree the index has crossed your trigger,
 the payout runs in that block. No claim is filed, no adjuster is appointed, and
 nobody decides whether you are paid.
+
+![The home page: one policy from written to paid](docs/images/home.png)
 
 Five perils ship in this build:
 
@@ -37,6 +48,32 @@ specimen in the API, on the coverage map, on the confirmation screen and on the
 policy itself. An earlier version invented plausible insurers with references in
 the exact format the regulator uses; that was published on a live public site,
 and it is the one kind of falsehood this codebase exists to make impossible.
+
+### The policy is a token, and the token is the policy
+
+Each policy mints a non-transferable ERC-721 on Base Sepolia. The picture is not
+the policy retyped: it is the index that cover watches, the level it has to
+reach, and the moment the two meet, generated from the policy id and the hash of
+the terms, so the drawing is a function of the contract rather than an ornament
+laid on it. No two are alike. Behind each trace stands the thing insured, and a
+tier names the band the cover falls in — the limit and nothing else, a grade of
+size rather than of quality.
+
+![Policy tokens across four tiers](docs/images/tokens.png)
+
+### Contents
+
+- [What is actually here](#what-is-actually-here)
+- [What a company gets for its paper](#what-a-company-gets-for-its-paper)
+- [What a buyer can hold the protocol to](#what-a-buyer-can-hold-the-protocol-to)
+- [A public chain beside the protocol's own](#a-public-chain-beside-the-protocols-own)
+- [Deploy](#deploy)
+- [Money in, and the chain it is on](#money-in-and-the-chain-it-is-on)
+- [Running it](#running-it)
+- [The test that matters](#the-test-that-matters)
+- [The number that makes it insurance](#the-number-that-makes-it-insurance)
+- [What is real and what is simulated](#what-is-real-and-what-is-simulated)
+- [Layout](#layout)
 
 ---
 
@@ -199,6 +236,14 @@ clock runs out the file for the ombudsman is one click away
 the number the policy settles on are written before the event, in every
 contract and on the Calculation rules page (`docs/rulebook.md`).
 
+The Proof page opens with the work rather than with a search box: the book's
+figures, and the policies the chain decided last, paid and not paid, each with
+the line it was written on and the figure that met it or did not. A policy that
+ran its term without the index ever reaching the line is the harder promise to
+keep, so it is listed beside the ones that paid; a page that shows only what it
+paid is an advertisement. Any policy's full lineage still answers to its id,
+with no sign in (`GET /api/decided`, `GET /api/lineage/{policy_id}`).
+
 ## A public chain beside the protocol's own
 
 The protocol's chain is the record. What Base Sepolia adds is a witness
@@ -248,6 +293,23 @@ also builds the storm cover's wind model from NASA POWER (see
 `deploy/README.md`); until that has passed its test, storm cover is
 priceable nowhere and the site says so.
 
+## Money in, and the chain it is on
+
+Balance is USDC. It comes in by bank transfer or from a Rialo, Solana or
+Ethereum wallet; a watcher reads the receiving addresses every half minute and
+credits a waiting request itself, by the reference in a Solana memo or by the
+sending address on an EVM chain. Bank transfers are confirmed by a person.
+
+Every wallet destination must name the chain it is watched on, and one that does
+not is withheld rather than offered. The same twenty bytes exist on Ethereum, on
+Base, on every other EVM chain and on all of their test networks, and a transfer
+sent on the wrong one cannot be brought back, so the chain's name is printed
+above the address and the page says to send it there and nowhere else. A
+deployment on test networks declares it, and the page then says what that means:
+send test USDC only, and the balance it credits is not money either.
+`deploy/clause.env.example` documents the setup for Base Sepolia and Solana
+devnet with Circle's own token addresses.
+
 ## Running it
 
 ```bash
@@ -274,8 +336,12 @@ The tests:
 python -m pytest tests/ -q
 ```
 
-The test suite runs in about five minutes. The slow ones run seventy full policy terms
-through the chain.
+Seven hundred and thirty tests, about nine minutes. The slow ones run seventy full
+policy terms through the chain; the site's own are quick and check things a
+person would have to notice by eye — that every colour meets its contrast
+minimum in both themes, that every sentence the page or the protocol can put in
+front of a reader has a translation, and that no cover name or address line is
+composed in a way no dictionary can answer.
 
 ---
 

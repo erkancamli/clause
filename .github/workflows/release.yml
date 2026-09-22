@@ -1,0 +1,43 @@
+# A version tag publishes its release notes.
+#
+# The notes and the changelog are the same words; writing them twice is how
+# they come apart, and the copy on GitHub is the one nobody remembers to
+# update. So this reads the tag's own section out of CHANGELOG.md and posts it.
+#
+# It holds no secrets and reaches nothing outside this repository: the only
+# credential is the token GitHub mints for the run, scoped to writing a release
+# here and nothing else.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: read the notes for this version
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          python scripts/release_notes.py "$VERSION" > notes.md
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "--- notes for $VERSION"
+          cat notes.md
+      - name: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Clause $VERSION" \
+            --notes-file notes.md \
+            --repo "$GITHUB_REPOSITORY"
