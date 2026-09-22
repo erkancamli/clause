@@ -17,6 +17,10 @@ on:
     paths:
       - "clause/__init__.py"
       - "CHANGELOG.md"
+  # A workflow is only picked up once it is on the default branch, so the
+  # version that introduces one is always the version it misses. This is how
+  # that one gets published, and how any release can be re-run by hand.
+  workflow_dispatch:
 
 permissions:
   contents: write
