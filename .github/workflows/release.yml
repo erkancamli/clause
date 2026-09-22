@@ -1,17 +1,22 @@
-# A version tag publishes its release notes.
+# A version bump on main publishes its release notes.
 #
 # The notes and the changelog are the same words; writing them twice is how
 # they come apart, and the copy on GitHub is the one nobody remembers to
-# update. So this reads the tag's own section out of CHANGELOG.md and posts it.
+# update. So the version is read from the source, its section is read out of
+# CHANGELOG.md, and the release is created with the tag it needs. A version
+# that already has a release is left alone, so an ordinary push does nothing.
 #
 # It holds no secrets and reaches nothing outside this repository: the only
-# credential is the token GitHub mints for the run, scoped to writing a release
-# here and nothing else.
+# credential is the token GitHub mints for the run, scoped to writing a
+# release here.
 name: release
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths:
+      - "clause/__init__.py"
+      - "CHANGELOG.md"
 
 permissions:
   contents: write
@@ -24,20 +29,36 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: read the notes for this version
+
+      - name: what version is this
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
-          python scripts/release_notes.py "$VERSION" > notes.md
+          VERSION="$(python -c 'import clause; print(clause.__version__)')"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "--- notes for $VERSION"
-          cat notes.md
-      - name: publish
+          echo "TAG=v$VERSION" >> "$GITHUB_ENV"
+
+      - name: has it been released already
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release create "$GITHUB_REF_NAME" \
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "$TAG is already released"
+            echo "NEW=0" >> "$GITHUB_ENV"
+          else
+            echo "NEW=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: publish
+        if: env.NEW == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python scripts/release_notes.py "$VERSION" > notes.md
+          cat notes.md
+          gh release create "$TAG" \
             --title "Clause $VERSION" \
             --notes-file notes.md \
+            --target "$GITHUB_SHA" \
             --repo "$GITHUB_REPOSITORY"
