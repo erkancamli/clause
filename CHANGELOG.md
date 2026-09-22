@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.15.3, 22 September 2026
+
+- The home page tells the story rather than holding one frame of it. The
+  illustration already carried the whole argument and a six second loop
+  drawing the trace, but the three beats that give it meaning were
+  missing. The trigger now answers when the trace crosses it, at 13.2% of
+  the loop, measured off the path rather than guessed, because that
+  crossing is the entire reason the money moves and nothing before it
+  should suggest it has. The payout counts up as the card lands, eased so
+  it arrives rather than stops, and in the page language, so a Turkish
+  reader sees 25.000.
+- The block number stops at settlement. It was drifting on a timer of its
+  own under a line reading "settled in block", which is a plain statement
+  about one block and cannot keep changing. The chain goes on advancing
+  while the policy waits; once it settles, that number is the one it
+  settled in and it holds until the loop begins again.
+- Everything hangs off the card animation's own iteration rather than a
+  second timer, which would drift apart from the CSS within a minute. A
+  browser asking for less motion gets the still picture untouched, reading
+  25,000 in block 412,388. No bytes were added to the page: it was already
+  in the DOM.
+- The chain clock is quiet where the picture is not drawn. Below 860px the
+  illustration is not rendered at all, but the timer behind its block
+  number went on waking every 1.3 seconds to count for nobody. It stops
+  where there is nothing to say, and starts again by itself if the window
+  is widened.
+
 ## 1.15.2, 21 September 2026
 
 - The English says which of two things it means, in the places where six
