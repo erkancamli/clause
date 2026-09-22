@@ -2052,7 +2052,18 @@
     "this account could not be joined on this device; sign in again on the device you first used": "esta cuenta no se pudo unir en este dispositivo; inicie sesión de nuevo en el dispositivo que usó primero",
     "this policy has no live token": "esta póliza no tiene un token activo",
     "unknown peril; use * for every peril": "peligro desconocido; use * para todos",
-    "you may ask about your own address only": "solo puede preguntar por su propia dirección"
+    "you may ask about your own address only": "solo puede preguntar por su propia dirección",
+    "Rewards": "Recompensas",
+    "Credited": "Abonado",
+    "Earning now": "Acumulando ahora",
+    "Unbroken terms": "Periodos sin interrupción",
+    "Still earning": "Sigue acumulando",
+    "Credited when the term ended": "Abonado al terminar el plazo",
+    "{days} days · x{multiplier}": "{days} días · x{multiplier}",
+    "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "La cobertura mantenida gana RIALO: el límite, por el tiempo que está realmente en vigor. Un año de cobertura gana lo de un año, y una póliza cancelada en su segundo día gana dos días. Cada periodo renovado sin una interrupción mayor de {days} días eleva el ritmo al que gana.",
+    "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Esto no es un descuento: el precio en pantalla es el precio del fondo y así se queda. Lo paga la plataforma con su propia comisión, que procede de la empresa emisora y nunca de usted, así que no le cuesta nada a la aseguradora ni al fondo.",
+    "On this demonstration it is an accrual, not a token.": "En esta demostración es una acumulación, no un token.",
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "La cadena aquí está simulada y el saldo también: nada se guarda en un monedero y nada se puede gastar. Lo abonado es un registro de lo que se debería."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

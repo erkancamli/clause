@@ -2052,7 +2052,18 @@
     "this account could not be joined on this device; sign in again on the device you first used": "この端末ではアカウントを統合できませんでした。最初に使った端末で再度サインインしてください",
     "this policy has no live token": "この保険には有効なトークンがありません",
     "unknown peril; use * for every peril": "不明な危険です。すべてを指定するには * を使ってください",
-    "you may ask about your own address only": "ご自身のアドレスについてのみお問い合わせいただけます"
+    "you may ask about your own address only": "ご自身のアドレスについてのみお問い合わせいただけます",
+    "Rewards": "特典",
+    "Credited": "計上済み",
+    "Earning now": "現在の獲得分",
+    "Unbroken terms": "連続した期間",
+    "Still earning": "まだ獲得中",
+    "Credited when the term ended": "期間終了時に計上",
+    "{days} days · x{multiplier}": "{days}日 · x{multiplier}",
+    "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "保有している補償がRIALOを獲得します。対象は限度額で、実際に有効だった期間に応じます。1年間の補償は1年分、2日目に解約された保険は2日分です。{days}日を超える空白なく更新された期間ごとに、獲得率が上がります。",
+    "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "これは割引ではありません。画面の価格はプールの価格であり、そのままです。支払うのはプラットフォームで、原資は自社の手数料です。その手数料は発行会社から来るものであり、お客様からではないため、保険会社にもプールにも費用はかかりません。",
+    "On this demonstration it is an accrual, not a token.": "このデモでは、これはトークンではなく計上額です。",
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "ここでのチェーンは模擬であり、残高も同じです。ウォレットに保有されているものはなく、使うこともできません。計上されるのは、支払われるべき額の記録です。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

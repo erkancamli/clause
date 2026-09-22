@@ -726,6 +726,8 @@ def create_app(
     # The platform's fee on each policy, taken from the company's fronting
     # fee, and the statements that account for it.
     fees = Fees()
+    from ..protocol.rewards import Rewards
+    rewards = Rewards(fees)
     # Complaints: a thread on the policy, the company's clock, the file for the ombudsman.
     from ..protocol.complaints import ComplaintError, Complaints, route_for
     complaints = Complaints()
@@ -899,6 +901,9 @@ def create_app(
                     await run_in_threadpool(collect_due)
                     await run_in_threadpool(app.state.forget_demo_book)
                     await run_in_threadpool(funding.expire)
+                    # What a policy earned is a fact once its term is over,
+                    # so it is credited then rather than promised before.
+                    await run_in_threadpool(rewards.sweep, list(pool.policies.values()))
                     if watcher.active:
                         await run_in_threadpool(watcher.run)
                     await run_instructions()
@@ -1073,6 +1078,7 @@ def create_app(
     app.state.pipeline = pipeline
     app.state.documents = documents
     app.state.fees = fees
+    app.state.rewards = rewards
     app.state.anchor = anchor
     app.state.complaints = complaints
     app.state.chain = chain
@@ -2220,6 +2226,20 @@ def create_app(
             raise Refused(404, "no such policy")
         return story
 
+    @app.get("/api/rewards")
+    async def rewards_mine(token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """What this address has been given back, and what is still earning.
+
+        The programme pays for cover held, out of the platform's own fee and
+        never out of the premium or the insurer's pocket. See
+        ``clause/protocol/rewards.py`` for why each of those matters.
+        """
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        return await run_in_threadpool(
+            rewards.mine, address, list(pool.policies.values()))
+
     @app.get("/api/decided")
     async def decided(limit: int = Query(12, ge=1, le=50)) -> dict[str, Any]:
         """What the chain decided last, paid and not paid, with the figures.
@@ -2241,6 +2261,13 @@ def create_app(
                 "mean_latency_blocks": round(stats["mean_latency_blocks"], 1),
             },
         }
+
+    @app.get("/api/rewards/totals")
+    async def rewards_totals() -> dict[str, Any]:
+        """The programme's own books: the rule, the budget and what it has
+        given back. Public, because a scheme whose size is a secret is one
+        nobody can check is solvent."""
+        return await run_in_threadpool(rewards.totals)
 
     @app.get("/api/compliance")
     async def compliance() -> dict[str, Any]:

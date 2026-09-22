@@ -2052,7 +2052,18 @@
     "this account could not be joined on this device; sign in again on the device you first used": "ce compte n’a pas pu être rattaché sur cet appareil ; reconnectez-vous sur l’appareil utilisé la première fois",
     "this policy has no live token": "cette police n’a pas de jeton actif",
     "unknown peril; use * for every peril": "péril inconnu ; utilisez * pour tous",
-    "you may ask about your own address only": "vous ne pouvez interroger que votre propre adresse"
+    "you may ask about your own address only": "vous ne pouvez interroger que votre propre adresse",
+    "Rewards": "Récompenses",
+    "Credited": "Crédité",
+    "Earning now": "En cours d’acquisition",
+    "Unbroken terms": "Périodes sans interruption",
+    "Still earning": "Continue d’acquérir",
+    "Credited when the term ended": "Crédité à la fin de la période",
+    "{days} days · x{multiplier}": "{days} jours · x{multiplier}",
+    "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Une couverture tenue gagne des RIALO : le plafond, pour le temps où elle est réellement en vigueur. Un an de couverture en gagne l’équivalent, et une police annulée le deuxième jour en gagne deux jours. Chaque période renouvelée sans interruption de plus de {days} jours augmente le rythme auquel elle gagne.",
+    "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Ce n’est pas une remise : le prix affiché est celui du pool et le reste. Il est payé par la plateforme sur sa propre commission, qui vient de la société émettrice et jamais de vous, donc il ne coûte rien à l’assureur ni au pool.",
+    "On this demonstration it is an accrual, not a token.": "Sur cette démonstration, c’est une accumulation, pas un jeton.",
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "La chaîne est ici simulée, et le solde aussi : rien n’est détenu dans un portefeuille et rien ne peut être dépensé. Ce qui est crédité est le compte de ce qui serait dû."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

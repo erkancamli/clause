@@ -2052,7 +2052,18 @@
     "this account could not be joined on this device; sign in again on the device you first used": "dieses Konto konnte auf diesem Gerät nicht zusammengeführt werden; melden Sie sich wieder auf dem zuerst genutzten Gerät an",
     "this policy has no live token": "diese Police hat kein aktives Token",
     "unknown peril; use * for every peril": "unbekannte Gefahr; * für alle verwenden",
-    "you may ask about your own address only": "Sie dürfen nur nach Ihrer eigenen Adresse fragen"
+    "you may ask about your own address only": "Sie dürfen nur nach Ihrer eigenen Adresse fragen",
+    "Rewards": "Prämien",
+    "Credited": "Gutgeschrieben",
+    "Earning now": "Läuft gerade auf",
+    "Unbroken terms": "Ununterbrochene Laufzeiten",
+    "Still earning": "Läuft weiter auf",
+    "Credited when the term ended": "Bei Laufzeitende gutgeschrieben",
+    "{days} days · x{multiplier}": "{days} Tage · x{multiplier}",
+    "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Gehaltener Versicherungsschutz verdient RIALO: die Summe, für die Zeit, in der er tatsächlich in Kraft ist. Ein Jahr Schutz verdient ein Jahr, und eine am zweiten Tag gekündigte Police verdient zwei Tage. Jede ohne Unterbrechung von mehr als {days} Tagen verlängerte Laufzeit erhöht den Satz, zu dem verdient wird.",
+    "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Das ist kein Rabatt: der Preis auf dem Bildschirm ist der Preis des Pools und bleibt es. Gezahlt wird aus der eigenen Gebühr der Plattform, die vom ausstellenden Unternehmen kommt und nie von Ihnen, also kostet es den Versicherer nichts und den Pool nichts.",
+    "On this demonstration it is an accrual, not a token.": "In dieser Demonstration ist es eine Gutschrift, kein Token.",
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Die Kette ist hier simuliert und das Guthaben ebenso: nichts liegt in einer Wallet und nichts lässt sich ausgeben. Gutgeschrieben wird eine Aufstellung dessen, was geschuldet wäre."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

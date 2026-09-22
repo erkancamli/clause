@@ -4183,14 +4183,49 @@ function renderMineExtras(){
     api("/api/payouts",{token:identity.token}).catch(function(){return null;}),
     api("/api/mandate",{token:identity.token}).catch(function(){return null;}),
     api("/api/funding",{token:identity.token}).catch(function(){return null;}),
-    Promise.resolve(null),
+    api("/api/rewards",{token:identity.token}).catch(function(){return null;}),
     api("/api/instructions",{token:identity.token}).catch(function(){return null;}),
   ]).then(function(all){
-    box.innerHTML=fundingPanel(all[2])+payoutPanel(all[0])+instructionsPanel(all[4])+mandatePanel(all[1]);
+    box.innerHTML=rewardsPanel(all[3])+fundingPanel(all[2])+payoutPanel(all[0])+instructionsPanel(all[4])+mandatePanel(all[1]);
     bindFundingPanel(all[2]); bindPayoutPanel(all[0]); bindInstructionsPanel(); bindMandatePanel(all[1]);
     bindAutoRenew(document,(all[4]||{}).instructions||[]);
   });
 }
+/* ---------------- what is given back for cover held ----------------
+   Three things this panel must say, because a loyalty scheme attached to
+   insurance goes wrong in exactly three ways: it is not a discount on the
+   premium, it is not the insurer's money, and on this build it is not a token
+   anybody holds. The first two are enforced in clause/protocol/rewards.py;
+   the third is said here in the same words the test network warning uses. */
+function rewardsPanel(r){
+  if(!r)return "";
+  var earning=r.earning>0
+    ? '<div class="hrow"><span>'+esc(t("Earning now"))+'</span><b class="mono">+'+esc(f2.format(r.earning))+' '+esc(r.unit)+'</b></div>' : "";
+  var rows=(r.running||[]).slice(0,6).map(function(x){
+    return '<div class="hrow"><span class="mono">'+esc(x.policy_id)+'</span>'+
+      '<b class="mono">'+esc(t("{days} days · x{multiplier}",{days:f0.format(x.days),multiplier:x.multiplier}))+'</b></div>';
+  }).join("");
+  var awards=(r.awards||[]).slice(0,6).map(function(a){
+    return '<div class="hrow"><span class="mono">'+esc(a.policy_id)+'</span>'+
+      '<b class="mono">+'+esc(f2.format(a.points))+'</b></div>';
+  }).join("");
+  return '<details class="more" id="rewards-box"><summary>'+esc(t("Rewards"))+': <b>'+
+      esc(f2.format(r.balance))+' '+esc(r.unit)+'</b></summary><div class="inner">'+
+    '<p class="fine">'+esc(t("Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.",{days:r.grace_days}))+'</p>'+
+    '<div class="holding" style="margin-top:10px">'+
+      '<div class="hrow"><span>'+esc(t("Credited"))+'</span><b class="mono">'+esc(f2.format(r.balance))+' '+esc(r.unit)+'</b></div>'+
+      earning+
+      '<div class="hrow"><span>'+esc(t("Unbroken terms"))+'</span><b class="mono">'+esc(f0.format(r.streak))+
+        ' · x'+esc(String(r.multiplier))+(r.next_multiplier>r.multiplier?' → x'+esc(String(r.next_multiplier)):'')+'</b></div>'+
+    '</div>'+
+    (rows?'<div class="label" style="margin:14px 0 6px">'+esc(t("Still earning"))+'</div><div class="holding">'+rows+'</div>':'')+
+    (awards?'<div class="label" style="margin:14px 0 6px">'+esc(t("Credited when the term ended"))+'</div><div class="holding">'+awards+'</div>':'')+
+    '<p class="fine" style="margin-top:12px">'+esc(t("This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing."))+'</p>'+
+    '<p class="fine"><b>'+esc(t("On this demonstration it is an accrual, not a token."))+'</b> '+
+      esc(t("The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed."))+'</p>'+
+    '</div></details>';
+}
+
 /* ---------------- the profile ----------------
    What else this account is known by. A Solana or Ethereum wallet is joined by
    signing a short text with the wallet itself, so the link is proved, not

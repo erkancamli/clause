@@ -2052,7 +2052,18 @@
     "this account could not be joined on this device; sign in again on the device you first used": "этот аккаунт не удалось объединить на этом устройстве; войдите снова на том устройстве, с которого начинали",
     "this policy has no live token": "у этого полиса нет активного токена",
     "unknown peril; use * for every peril": "неизвестная опасность; используйте * для всех",
-    "you may ask about your own address only": "вы можете спрашивать только о собственном адресе"
+    "you may ask about your own address only": "вы можете спрашивать только о собственном адресе",
+    "Rewards": "Награды",
+    "Credited": "Начислено",
+    "Earning now": "Накапливается сейчас",
+    "Unbroken terms": "Непрерывных сроков",
+    "Still earning": "Ещё накапливается",
+    "Credited when the term ended": "Начислено по окончании срока",
+    "{days} days · x{multiplier}": "{days} дн. · x{multiplier}",
+    "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Действующее покрытие приносит RIALO: лимит, за то время, что оно реально в силе. Год покрытия приносит годовую величину, а полис, расторгнутый на второй день, — два дня. Каждый срок, продлённый без перерыва дольше {days} дней, повышает ставку начисления.",
+    "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Это не скидка: цена на экране — цена пула, и она такой и остаётся. Платит платформа из собственной комиссии, которая приходит от компании-эмитента, а не от вас, так что страховщику и пулу это не стоит ничего.",
+    "On this demonstration it is an accrual, not a token.": "В этой демонстрации это начисление, а не токен.",
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Цепочка здесь смоделирована, и баланс тоже: ничего не хранится в кошельке и ничего нельзя потратить. Начисленное — это учёт того, что причиталось бы."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

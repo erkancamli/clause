@@ -2060,7 +2060,18 @@
     "this account could not be joined on this device; sign in again on the device you first used": "bu hesap bu cihazda birleştirilemedi; ilk kullandığınız cihazda yeniden giriş yapın",
     "this policy has no live token": "bu poliçenin canlı bir token'ı yok",
     "unknown peril; use * for every peril": "bilinmeyen tehlike; hepsi için * kullanın",
-    "you may ask about your own address only": "yalnızca kendi adresiniz hakkında sorabilirsiniz"
+    "you may ask about your own address only": "yalnızca kendi adresiniz hakkında sorabilirsiniz",
+    "Rewards": "Ödüller",
+    "Credited": "Hesaba geçen",
+    "Earning now": "Şu anda kazanılan",
+    "Unbroken terms": "Kesintisiz dönem",
+    "Still earning": "Kazanmaya devam ediyor",
+    "Credited when the term ended": "Süre bittiğinde hesaba geçenler",
+    "{days} days · x{multiplier}": "{days} gün · x{multiplier}",
+    "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Yürürlükte tutulan teminat RIALO kazandırır: teminat tutarı, gerçekten yürürlükte kaldığı süre boyunca. Bir yıllık teminat bir yıllık kazandırır; ikinci gününde iptal edilen poliçe iki gün kazandırır. {days} günden uzun ara vermeden yenilenen her dönem, kazanma oranını yükseltir.",
+    "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Bu bir indirim değildir: ekrandaki fiyat havuzun fiyatıdır ve öyle kalır. Ödülü platform kendi ücretinden öder; o ücret poliçeyi düzenleyen şirketten gelir, sizden değil. Yani sigortacıya da havuza da hiçbir maliyeti yoktur.",
+    "On this demonstration it is an accrual, not a token.": "Bu gösterimde bu bir tahakkuktur, token değil.",
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Buradaki zincir simüle edilmiştir, bakiye de öyle: hiçbir şey bir cüzdanda tutulmuyor ve hiçbir şey harcanamaz. Hesaba geçen şey, borçlanılacak olanın kaydıdır."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
