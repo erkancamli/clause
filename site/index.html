@@ -113,7 +113,12 @@ body{margin:0;min-height:100svh;display:flex;flex-direction:column;
    shapes; a 15px sub-heading at the same setting reads as cramped. The
    curve runs from about -.035em at the top to nearly nothing at label
    sizes, which is the shape Inter publishes as its Dynamic Metrics. */
-h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;text-wrap:balance}
+/* A heading breaks a word rather than running off the page. German
+   compounds are longer than a phone is wide: "Versicherungsschutz" in
+   the home page headline measured 387px in a 308px column and was only
+   ever invisible because the hero clipped whatever left it. */
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;
+  text-wrap:balance;overflow-wrap:break-word}
 h3{letter-spacing:-.018em}
 h4{letter-spacing:-.008em}
 p{margin:0}
@@ -333,6 +338,60 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
   background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:40px}
 
 /* proof */
+/* The register: what the chain decided last, in the order it decided it. The
+   page used to open with an empty box asking for a policy id, which only
+   somebody who already had one could answer. A row is a card on a phone and a
+   line in a ledger on a desk, because four cards in a three column grid leave
+   one of them standing alone and a register is a list, not a gallery. */
+.register{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
+.reg{display:grid;gap:11px;padding:16px 18px;align-content:start}
+.reg + .reg{border-top:1px solid var(--edge)}
+.reg-who{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  flex-wrap:wrap}
+.reg-id{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none}
+.reg-id:hover{text-decoration:underline}
+.reg-what{display:grid;gap:8px;min-width:0}
+.reg-where{font-size:14px;color:var(--ink-2)}
+.reg-rule{font-family:var(--mono);font-size:12px;color:var(--ink-3);background:var(--sunk);
+  border:1px solid var(--edge);border-radius:var(--r-sm);padding:8px 10px;
+  line-height:1.7;overflow-wrap:anywhere}
+.reg-out{display:grid;gap:2px;min-width:0}
+.reg-out b{font-family:var(--display);font-size:19px;font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.reg-out span{font-size:12.5px;color:var(--ink-3)}
+/* A payment is the loud figure in its row; "nothing paid" sits in the same
+   place and the same size, so the column still reads as one column, but it
+   does not shout. On a page where most rows did not pay, it otherwise does
+   all the shouting. */
+.reg-out.quiet b{color:var(--ink-2);font-weight:600}
+.reg-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--edge);padding-top:11px;flex-wrap:wrap}
+.reg-foot .mono{font-size:11.5px;color:var(--ink-3)}
+@media (min-width:900px){
+  .reg{grid-template-columns:150px minmax(0,1fr) 200px 182px;gap:24px;
+    align-items:center;padding:18px 20px}
+  .reg-who{flex-direction:column;align-items:flex-start;gap:7px}
+  .reg-foot{border-top:0;padding-top:0;flex-direction:column;align-items:flex-end;gap:8px}
+}
+.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--edge);border:1px solid var(--edge);border-radius:var(--r);
+  overflow:hidden}
+.figures > div{background:var(--panel);padding:16px 18px;display:grid;gap:3px}
+.figures b{font-family:var(--display);font-size:clamp(21px,3vw,28px);font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.figures span{font-size:13px;color:var(--ink-3)}
+.lookup{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r);
+  padding:16px 18px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  justify-content:space-between}
+.lookup .txt{display:grid;gap:2px;min-width:0}
+.lookup .txt b{font-family:var(--display);font-size:15px;font-weight:600}
+.lookup .txt span{font-size:13px;color:var(--ink-3)}
+.lookup .go{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lookup input{font:inherit;font-family:var(--mono);font-size:13.5px;padding:9px 12px;
+  border-radius:var(--r-sm);background:var(--panel);color:var(--ink);
+  border:1px solid var(--edge-ctl);width:160px;min-width:0}
+.proof-open{display:grid;gap:18px}
 .vrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
   padding:11px 14px;background:var(--panel);font-family:var(--mono);font-size:12px}
 .vrow .key{color:var(--ink-3);font-size:10.5px}
@@ -542,27 +601,28 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
   .band-run{animation:none}.band-run .dup{display:none}}
 
 /* ---------------- home ---------------- */
-.home-hero{position:relative;padding-block:clamp(16px,2.4vw,30px) clamp(12px,1.8vw,20px);overflow:hidden}
-.home-hero::before{content:"";position:absolute;inset:-140px -12% 0;pointer-events:none;
+.home-hero{position:relative;padding-block:clamp(16px,2.4vw,30px) clamp(12px,1.8vw,20px)}
+.hero-fx-clip{position:absolute;inset:0 0 auto 0;height:min(100svh,900px);
+  overflow:hidden;pointer-events:none;z-index:0}
+.hero-fx-clip::before{content:"";position:absolute;inset:-140px -12% 0;pointer-events:none;
   background:radial-gradient(52% 55% at 22% 4%,var(--signal-wash),transparent 70%),
              radial-gradient(40% 50% at 82% 22%,var(--settled-wash),transparent 72%),
              radial-gradient(34% 40% at 58% 78%,var(--hold-wash),transparent 74%)}
 @media (prefers-reduced-motion:no-preference){
-  .home-hero::before{animation:heroDrift 18s ease-in-out infinite alternate}
+  .hero-fx-clip::before{animation:heroDrift 18s ease-in-out infinite alternate}
   @keyframes heroDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-2%,1.5%,0) scale(1.06)}}
 }
 .home-hero .hero-text h1{font-size:clamp(34px,4.9vw,60px);letter-spacing:-.035em;line-height:1.02}
-.hero-art .hx-card{filter:drop-shadow(0 18px 28px rgba(12,17,22,.16))}
+.stage .hx-card{filter:drop-shadow(0 18px 28px rgba(12,17,22,.16))}
 /* The hero arrives in order: the headline, the sentence, the buttons, the marks. */
 @media (prefers-reduced-motion:no-preference){
   .home-hero .hero-text>*{animation:fadeUp .7s cubic-bezier(.2,.7,.2,1) both}
   .home-hero .hero-text>*:nth-child(2){animation-delay:.08s}
   .home-hero .hero-text>*:nth-child(3){animation-delay:.16s}
   .home-hero .hero-text>*:nth-child(4){animation-delay:.24s}
-  .home-hero .hero-art{animation:fadeUp .9s cubic-bezier(.2,.7,.2,1) .2s both}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 }
-.home-hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+.hero-fx-clip::after{content:"";position:absolute;inset:0;pointer-events:none;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:54px 54px;
   -webkit-mask-image:radial-gradient(760px 380px at 28% 12%,#000,transparent 74%);
@@ -572,18 +632,99 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
    dissolve behind the hero, the way data reaches the protocol. Drawn on a
    canvas, a dozen at a time, paused when unseen, absent for anyone who
    asked the browser for less motion. */
-.home-hero{position:relative;overflow:hidden}
 .home-hero>.wrap{position:relative;z-index:1}
-.home-hero .readings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(20px,4vw,48px)}
+.hero-fx-clip .readings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr;align-items:start;gap:clamp(20px,4vw,48px)}
 .hero-text{display:grid;gap:12px;justify-items:start;text-align:left}
 .hero-text h1{max-width:13ch}
 .hero-text .hero-cta,.hero-text .trust{justify-content:flex-start}
 @media (max-width:860px){
-  .hero-grid{grid-template-columns:1fr}
   .hero-text{justify-items:center;text-align:center}
   .hero-text .hero-cta,.hero-text .trust{justify-content:center}
-  .hero-art{display:none}
+}
+@media (min-width:861px){
+  .hero-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    grid-template-areas:"text art" "beats art"}
+  .hero-flow{display:contents}
+  .hero-text{grid-area:text}
+  .beats{grid-area:beats}
+  .hero-art{grid-area:art}
+}
+
+/* ---------------- one policy, all the way through ----------------
+   The home page used to run a six second loop: it told the whole story and
+   then forgot it, every six seconds, whether or not anybody was looking.
+   Now the reader moves it. Each step adds to the picture instead of
+   replacing it, because that is what actually happens to a policy: the rule
+   does not stop existing when the ground moves, and the reading does not
+   stop existing when it pays. The first step is drawn before any script
+   runs, so the page at rest is the hero it always was. */
+.hero-flow{min-width:0}
+.beats{display:grid;margin-top:clamp(18px,3vw,34px)}
+.beat{display:grid;gap:10px;align-content:center;padding-block:clamp(22px,5vh,46px)}
+.beat + .beat{border-top:1px solid var(--edge)}
+.beat h2{font-size:clamp(18px,2.2vw,24px);font-family:var(--display);font-weight:600;
+  letter-spacing:-.024em;line-height:1.15;text-wrap:balance}
+.beat p{color:var(--ink-2);max-width:52ch;font-size:clamp(14.5px,1.6vw,16px)}
+.beat .num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.beat .num b{color:var(--signal);font-weight:500}
+.beat .said{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+  background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
+  padding:9px 12px;line-height:1.75;overflow-wrap:anywhere;max-width:52ch}
+/* The step being read is the one in full ink. This is a reading aid, not a
+   way of hiding anything: every step is legible at every moment, and with
+   motion switched off they are all in full ink. */
+.beat[data-live="off"]{opacity:.5;transition:opacity .4s}
+.beat[data-live="on"]{opacity:1}
+
+.hero-art{max-width:520px;margin:clamp(14px,3vw,22px) auto 0;width:100%;
+  /* The header stays at the top and is 61px tall, so the stage stops
+     below it rather than sliding half under it. */
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + 69px);z-index:2;
+  background:var(--ground);padding-block:8px 12px}
+@media (min-width:861px){
+  /* Clear of the header that stays at the top, so the picture is never
+     half under it while a step is being read. */
+  .hero-art{margin:0;max-width:560px;align-self:start;background:none;
+    padding-block:0;top:calc(env(safe-area-inset-top,0px) + 76px)}
+}
+.stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
+.stage > svg{display:block;width:100%;height:auto}
+.stage-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  padding:9px 13px;border-top:1px solid var(--edge);background:var(--sunk)}
+.ticks{display:flex;gap:5px}
+.ticks i{display:block;width:20px;height:3px;border-radius:2px;background:var(--edge-2);
+  transition:background .25s}
+.ticks i.lit{background:var(--signal)}
+.stage-foot .cap{font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  text-align:right;overflow-wrap:anywhere}
+
+/* Layers arrive in order and stay. Nothing is removed except the rule card,
+   which the payout notice replaces on the same phone. */
+.stage .layer{opacity:0;transition:opacity .5s ease}
+.stage.on-1 .l-clause,.stage.on-2 .l-ground,.stage.on-3 .l-validators,
+.stage.on-4 .l-trigger,.stage.on-5 .l-payout{opacity:1}
+.stage.on-5 .l-clause{opacity:0}
+.stage .hx-trace{stroke-dasharray:var(--len,1100);stroke-dashoffset:var(--len,1100);
+  transition:stroke-dashoffset 1.9s cubic-bezier(.3,.6,.35,1)}
+.stage.on-2 .hx-trace{stroke-dashoffset:0}
+.stage .hx-trigger{stroke-width:1;opacity:.55;transition:stroke-width .3s,opacity .3s}
+.stage.on-4 .hx-trigger{stroke-width:2.4;opacity:1}
+.stage .hx-card{transform-box:fill-box;transform-origin:center;transform:scale(.95);
+  transition:transform .5s cubic-bezier(.2,.9,.3,1)}
+.stage.on-5 .hx-card{transform:scale(1)}
+.stage .hx-check{stroke-dasharray:22;stroke-dashoffset:22;
+  transition:stroke-dashoffset .5s linear .25s}
+.stage.on-5 .hx-check{stroke-dashoffset:0}
+@media (prefers-reduced-motion:reduce){
+  .stage .layer,.stage .hx-trace,.stage .hx-trigger,.stage .hx-card,.stage .hx-check,
+  .ticks i,.beat{transition:none}
+  .stage .hx-trace{stroke-dashoffset:0}
+  .stage .hx-card{transform:none}
+  .stage .hx-check{stroke-dashoffset:0}
+  .beat[data-live="off"]{opacity:1}
 }
 h1{font-size:clamp(28px,4vw,46px);line-height:1.05;font-weight:700;max-width:16ch}
 h1 span{color:var(--signal)}
@@ -951,29 +1092,11 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
    it runs for a browser that asks for less motion: the still art stands. ---- */
 @media (prefers-reduced-motion:no-preference){
 .art .hx-ring,.art .hx-epi,.art .hx-dot,.art .hx-card,.art .hx-attest,.art .bq-ring,.art .bq-epi,.art .bq-glow,.art .bd-sun,.art .bd-core,.art .bd-heat,.art .bd-fill,.art .bf-plane,.art .bf-late,.art .bf-delay,.art .bc-rain,.art .bc-water,.art .bs-wind,.art .bs-gust,.art .bs-tree,.art .bs-tile{transform-box:fill-box;transform-origin:center}
-.hx-ring{animation:hxRing 3.6s ease-out infinite}.hx-r2{animation-delay:1.2s}.hx-r3{animation-delay:2.4s}
+.stage.on-2 .hx-ring{animation:hxRing 3.6s ease-out infinite}
+.stage.on-2 .hx-r2{animation-delay:1.2s}.stage.on-2 .hx-r3{animation-delay:2.4s}
 @keyframes hxRing{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.15);opacity:0}}
-.hx-epi,.bq-epi{animation:hxEpi 1.8s ease-in-out infinite}
+.stage.on-2 .hx-epi,.bq-epi{animation:hxEpi 1.8s ease-in-out infinite}
 @keyframes hxEpi{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
-.hx-trace{stroke-dasharray:var(--len,900);stroke-dashoffset:var(--len,900);animation:hxTrace 6s linear infinite}
-@keyframes hxTrace{0%{stroke-dashoffset:var(--len,900);opacity:1}38%{stroke-dashoffset:0;opacity:1}92%{stroke-dashoffset:0;opacity:1}96%{stroke-dashoffset:0;opacity:0}100%{stroke-dashoffset:var(--len,900);opacity:0}}
-/* The trace crosses the trigger at 13.2% of the loop, measured off the path
-   rather than guessed. The line answers there and nowhere else: that crossing
-   is the whole reason the money moves, and before it happens nothing should
-   suggest it has. */
-.hx-trigger{animation:hxTrigger 6s linear infinite}
-@keyframes hxTrigger{0%,12.6%{stroke-width:1;opacity:.55}13.6%{stroke-width:2.6;opacity:1}
-  16%{stroke-width:1.4;opacity:.95}26%,100%{stroke-width:1;opacity:.55}}
-.hx-trigger-label{animation:hxTriggerLabel 6s linear infinite}
-@keyframes hxTriggerLabel{0%,12.6%{opacity:.45}13.6%,24%{opacity:1}34%,100%{opacity:.45}}
-.hx-dot{opacity:0;animation:hxDot 6s linear infinite}
-@keyframes hxDot{0%,40%{transform:translateX(0);opacity:0}42%{opacity:1}50%{transform:translateX(34px);opacity:1}52%,100%{transform:translateX(34px);opacity:0}}
-.hx-attest{opacity:.3;animation:hxAttest 6s linear infinite}
-@keyframes hxAttest{0%,44%{opacity:.3}50%,90%{opacity:1}96%,100%{opacity:.3}}
-.hx-card{animation:hxCard 6s ease-out infinite}
-@keyframes hxCard{0%,52%{opacity:0;transform:scale(.94)}58%{opacity:1;transform:scale(1.03)}62%{transform:scale(1)}92%{opacity:1;transform:scale(1)}97%,100%{opacity:0;transform:scale(.98)}}
-.hx-check{stroke-dasharray:22;stroke-dashoffset:22;animation:hxCheck 6s linear infinite}
-@keyframes hxCheck{0%,56%{stroke-dashoffset:22}64%,100%{stroke-dashoffset:0}}
 .bq-ring{animation:bqRing 4.4s ease-out infinite}.bq-2{animation-delay:1.1s}.bq-3{animation-delay:2.2s}.bq-4{animation-delay:3.3s}
 @keyframes bqRing{0%{transform:scale(.72);opacity:.85}100%{transform:scale(1.12);opacity:0}}
 .bq-glow{animation:bqGlow 1.8s ease-in-out infinite}
@@ -1013,7 +1136,6 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .art .t-ink{fill:var(--ink)}
 .art .t-2{fill:var(--ink-2)}
 .art .big{font-family:var(--display);font-weight:700;fill:var(--ink)}
-.hero-art{max-width:440px;margin:0 auto;width:100%}
 .pick figure{margin:0 0 4px;width:100%}
 .pick .banner{border-radius:var(--r-sm);overflow:hidden;background:var(--sunk);width:100%}
 figure{margin:0}
@@ -1239,8 +1361,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <!-- ============================== HOME ============================== -->
 <section class="view" id="view-home">
   <div class="home-hero">
-    <canvas class="readings" id="hero-fx" aria-hidden="true"></canvas>
+    <div class="hero-fx-clip" aria-hidden="true">
+      <canvas class="readings" id="hero-fx"></canvas>
+    </div>
     <div class="wrap hero-grid">
+      <div class="hero-flow">
       <div class="hero-text">
       <h1 data-i18n>Cover that <span>pays itself</span>.</h1>
       <p data-i18n>
@@ -1259,56 +1384,146 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         <span><i class="rialo-mark" aria-hidden="true"></i><span data-i18n>Built on Rialo</span></span>
       </div>
       </div>
+
       <figure class="hero-art">
-        <svg class="art" viewBox="0 0 560 330" role="img" aria-label="A seismic reading crosses the policy trigger and a payout notification appears on a phone in the same block" data-i18n-aria>
+        <div class="stage on-1" id="hero-stage" data-beat="1">
+        <svg class="art" viewBox="0 0 560 340" role="img" aria-label="A policy written as a rule, a seismic reading crossing its trigger, validators attesting it, and the payout landing on a phone in the same block" data-i18n-aria>
           <defs>
             <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
               <path d="M0 0 10 5 0 10Z" fill="var(--ink-3)"/>
             </marker>
           </defs>
 
-          <!-- ground rings around the epicentre -->
-          <circle class="a-edge-soft hx-ring hx-r1" cx="66" cy="196" r="34"/>
-          <circle class="a-edge-soft hx-ring hx-r2" cx="66" cy="196" r="62"/>
-          <circle class="a-edge-soft hx-ring hx-r3" cx="66" cy="196" r="92"/>
-          <circle class="a-signal-f hx-epi" cx="66" cy="196" r="4"/>
+          <!-- the phone, which is there from the first step -->
+          <rect class="a-panel" x="352" y="20" width="192" height="298" rx="26"/>
+          <rect class="a-edge" x="352" y="20" width="192" height="298" rx="26" stroke-width="1.2"/>
+          <rect class="a-sunk" x="424" y="32" width="48" height="7" rx="3.5"/>
+          <text x="372" y="74" font-size="9" letter-spacing="1.4">CLAUSE</text>
 
-          <!-- the trace, crossing the trigger -->
-          <line class="a-signal a-dash hx-trigger" x1="24" y1="140" x2="286" y2="140"/>
-          <text class="hx-trigger-label" x="24" y="132" font-size="9.5" letter-spacing="1.2" data-i18n>TRIGGER  M5.5</text>
-          <path id="hero-trace" class="a-settled hx-trace" stroke-width="1.6" d="M24 196 40 194 52 199 64 193 76 198 88 195 100 197 112 194 124 198 132 196 140 158 146 232 152 118 158 258 164 136 170 226 176 170 184 206 192 186 200 200 210 192 222 198 234 194 248 197 262 195 276 196 286 196"/>
-          <text x="152" y="282" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04</text>
+          <!-- the source the policy listens to, quiet, from the first step -->
+          <line class="a-edge-soft" x1="24" y1="238" x2="286" y2="238" stroke-width="1"/>
+          <line class="a-edge-soft" x1="24" y1="230" x2="24" y2="246" stroke-width="1"/>
+          <line class="a-edge-soft" x1="155" y1="234" x2="155" y2="242" stroke-width="1"/>
+          <line class="a-edge-soft" x1="286" y1="230" x2="286" y2="246" stroke-width="1"/>
+          <text x="24" y="218" font-size="8.5" letter-spacing="1" data-i18n>LISTENING</text>
 
-          <line class="a-edge" x1="298" y1="196" x2="336" y2="196" marker-end="url(#ah)" stroke-width="1.2"/>
-          <circle class="a-signal-f hx-dot" cx="299" cy="196" r="2.6"/>
-          <text class="hx-attest" x="317" y="186" font-size="8.5" text-anchor="middle" letter-spacing="1" data-i18n>ATTESTED</text>
-
-          <!-- the phone -->
-          <rect class="a-panel" x="352" y="18" width="192" height="294" rx="26"/>
-          <rect class="a-edge" x="352" y="18" width="192" height="294" rx="26" stroke-width="1.2"/>
-          <rect class="a-sunk" x="424" y="30" width="48" height="7" rx="3.5"/>
-
-          <text x="372" y="72" font-size="9" letter-spacing="1.4" data-i18n>CLAUSE</text>
-
-          <g class="hx-card">
-          <rect class="a-settled-w" x="370" y="86" width="156" height="92" rx="12"/>
-          <rect class="a-settled" x="370" y="86" width="156" height="92" rx="12" stroke-width="1.1"/>
-          <circle class="a-settled-f" cx="392" cy="112" r="11"/>
-          <path class="hx-check" d="M387 112.5 390.5 116 397.5 108.5" fill="none" stroke="var(--panel)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
-          <text x="411" y="109" font-size="9.5" letter-spacing="1.1" class="t-2" data-i18n>PAID TO YOU</text>
-          <text id="hero-amount" x="411" y="129" font-size="19" class="big">25,000</text>
-          <text x="386" y="160" font-size="9.5" class="t-2" data-i18n>no claim was filed</text>
+          <!-- 1. the policy, as the rule it is -->
+          <g class="layer l-clause">
+            <rect class="a-sunk" x="370" y="88" width="156" height="126" rx="12"/>
+            <rect class="a-edge-soft" x="370" y="88" width="156" height="126" rx="12" stroke-width="1"/>
+            <text x="382" y="110" font-size="9.5" class="t-2">CLS-7F42</text>
+            <text x="382" y="132" font-size="9" data-i18n>if shaking ≥ M5.5</text>
+            <text x="382" y="148" font-size="9" data-i18n>within 50 km of</text>
+            <text x="382" y="164" font-size="9">40.99, 29.03</text>
+            <text x="382" y="186" font-size="9" class="t-ink" data-i18n>then pay 25,000</text>
+            <text x="370" y="238" font-size="9" data-i18n>written in block</text>
+            <text x="526" y="238" font-size="9" text-anchor="end" class="t-2" data-i18n>412,166</text>
           </g>
 
-          <rect class="a-sunk" x="370" y="194" width="156" height="11" rx="5.5"/>
-          <rect class="a-sunk" x="370" y="213" width="118" height="11" rx="5.5"/>
-          <rect class="a-sunk" x="370" y="232" width="138" height="11" rx="5.5"/>
+          <!-- 5. what it paid -->
+          <g class="layer l-payout">
+            <g class="hx-card">
+              <rect class="a-settled-w" x="370" y="88" width="156" height="92" rx="12"/>
+              <rect class="a-settled" x="370" y="88" width="156" height="92" rx="12" stroke-width="1.1"/>
+              <circle class="a-settled-f" cx="392" cy="114" r="11"/>
+              <path class="hx-check" d="M387 114.5 390.5 118 397.5 110.5" fill="none" stroke="var(--panel)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+              <text x="411" y="111" font-size="9.5" letter-spacing="1.1" class="t-2" data-i18n>PAID TO YOU</text>
+              <text x="411" y="131" font-size="19" class="big" data-i18n>25,000</text>
+              <text x="386" y="162" font-size="9.5" class="t-2" data-i18n>no claim was filed</text>
+            </g>
+            <rect class="a-sunk" x="370" y="196" width="156" height="11" rx="5.5"/>
+            <rect class="a-sunk" x="370" y="215" width="118" height="11" rx="5.5"/>
+            <line class="a-edge-soft" x1="370" y1="248" x2="526" y2="248" stroke-width="1"/>
+            <text x="370" y="268" font-size="9" data-i18n>settled in block</text>
+            <text x="526" y="268" font-size="9" text-anchor="end" class="t-2" data-i18n>412,388</text>
+          </g>
 
-          <line class="a-edge-soft" x1="370" y1="262" x2="526" y2="262" stroke-width="1"/>
-          <text x="370" y="282" font-size="9" data-i18n>settled in block</text>
-          <text id="hero-block" x="526" y="282" font-size="9" text-anchor="end" class="t-2">412,388</text>
+          <!-- 2. the ground moves, and is recorded -->
+          <g class="layer l-ground">
+            <circle class="a-edge-soft hx-ring hx-r1" cx="66" cy="238" r="30"/>
+            <circle class="a-edge-soft hx-ring hx-r2" cx="66" cy="238" r="54"/>
+            <circle class="a-edge-soft hx-ring hx-r3" cx="66" cy="238" r="80"/>
+            <circle class="a-signal-f hx-epi" cx="66" cy="238" r="4"/>
+            <path id="hero-trace" class="a-settled hx-trace" stroke-width="1.6" d="M24 238 40 236 52 241 64 235 76 240 88 237 100 239 112 236 124 240 132 238 140 200 146 274 152 160 158 300 164 178 170 268 176 212 184 248 192 228 200 242 210 234 222 240 234 236 248 239 262 237 276 238 286 238"/>
+            <text x="152" y="326" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04, 11 km deep</text>
+          </g>
+
+          <!-- 3. the validators who read it -->
+          <g class="layer l-validators">
+            <circle class="a-edge" cx="64" cy="58" r="11" stroke-width="1.2"/>
+            <circle class="a-edge" cx="152" cy="44" r="11" stroke-width="1.2"/>
+            <circle class="a-edge" cx="240" cy="60" r="11" stroke-width="1.2"/>
+            <path class="a-settled" d="M59 58.5 62.5 62 69 55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled" d="M147 44.5 150.5 48 157 41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled" d="M235 60.5 238.5 64 245 57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <line class="a-edge-soft a-dash" x1="64" y1="70" x2="64" y2="126" stroke-width="1"/>
+            <line class="a-edge-soft a-dash" x1="152" y1="56" x2="152" y2="126" stroke-width="1"/>
+            <line class="a-edge-soft a-dash" x1="240" y1="72" x2="240" y2="126" stroke-width="1"/>
+            <text x="152" y="24" font-size="9" text-anchor="middle" class="t-2" letter-spacing="1" data-i18n>3 OF 4 ATTESTED</text>
+          </g>
+
+          <!-- 4. the line the rule was written on -->
+          <g class="layer l-trigger">
+            <line class="a-signal a-dash hx-trigger" x1="24" y1="182" x2="286" y2="182"/>
+            <text x="24" y="174" font-size="9.5" letter-spacing="1.2" class="t-2" data-i18n>TRIGGER  M5.5</text>
+            <line class="a-edge" x1="298" y1="238" x2="338" y2="238" marker-end="url(#ah)" stroke-width="1.2"/>
+            <circle class="a-signal-f" cx="299" cy="238" r="2.6"/>
+            <text x="318" y="228" font-size="8.5" text-anchor="middle" letter-spacing="1">TRUE</text>
+          </g>
         </svg>
+        <div class="stage-foot">
+          <div class="ticks" aria-hidden="true"><i class="lit"></i><i></i><i></i><i></i><i></i></div>
+          <span class="cap" id="hero-cap">CLS-7F42 · written</span>
+        </div>
+        </div>
       </figure>
+      <div class="beats" id="hero-beats">
+        <article class="beat" data-beat="1" data-live="on">
+          <div class="num"><b>01</b> <span data-i18n>the policy</span></div>
+          <h2 data-i18n>A policy is a rule, not a promise</h2>
+          <p data-i18n>You write the condition when you buy it: the peril, the place, and
+            the figure that has to be reached. It goes onto the chain as written, and
+            after that neither side can change it.</p>
+          <div class="said" data-i18n>if shaking is M5.5 or more within 50 km of 40.99, 29.03 → pay 25,000</div>
+        </article>
+
+        <article class="beat" data-beat="2" data-live="off">
+          <div class="num"><b>02</b> <span data-i18n>the ground</span></div>
+          <h2 data-i18n>Something happens, and it is measured</h2>
+          <p data-i18n>The instruments record the event whether or not anybody holds a
+            policy on it. Nothing about this step belongs to us, which is the point of
+            settling on a public figure rather than on our own opinion.</p>
+          <div class="said" data-i18n>M7.2 · 40.76, 29.35 · 11 km deep · 09:41:04</div>
+        </article>
+
+        <article class="beat" data-beat="3" data-live="off">
+          <div class="num"><b>03</b> <span data-i18n>the readers</span></div>
+          <h2 data-i18n>Validators sign what they read</h2>
+          <p data-i18n>Independent validators report the figure from the official source
+            and stake their own deposit on it. Disagreeing is possible; it is only
+            expensive. What reaches the chain is the median of what they agreed.</p>
+          <div class="said" data-i18n>3 of 4 attested · median taken · round 118,204</div>
+        </article>
+
+        <article class="beat" data-beat="4" data-live="off">
+          <div class="num"><b>04</b> <span data-i18n>the moment</span></div>
+          <h2 data-i18n>The reading crosses the line you wrote</h2>
+          <p data-i18n>The chain compares the attested figure with your rule. There is no
+            assessor, no file and no queue, because nothing is left to decide: M7.2 is
+            above M5.5, and 38 km is inside 50 km.</p>
+          <div class="said" data-i18n>evaluate(CLS-7F42) → true</div>
+        </article>
+
+        <article class="beat" data-beat="5" data-live="off">
+          <div class="num"><b>05</b> <span data-i18n>the payment</span></div>
+          <h2 data-i18n>It pays in the same block</h2>
+          <p data-i18n>The transfer runs in the block that decided it, so the payment and
+            the reason for it are one record. You filed nothing, and anybody can still
+            read why it paid.</p>
+          <div class="said" data-i18n>25,000 · block 412,388 · 222 blocks after the reading</div>
+        </article>
+      </div>
+      </div>
     </div>
   </div>
 
@@ -8864,25 +9079,113 @@ function renderRules(){
     },function(){ box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("The protocol did not answer."))+'</p></div>'; });
   });
 }
+/* What a decision is called, in the reader's language. The chain's own word
+   for a policy that ran its term without the index reaching the line is
+   "lapsed", which is right in a ledger and wrong on a page: it says the policy
+   ended, not that nothing happened. */
+var DECIDED_PILL={paid:N("Paid"),lapsed:N("Not triggered"),expired:N("No data")};
+
+function decidedReason(row){
+  if(row.kind==="paid")
+    return t("{n} blocks after the reading",{n:f0.format(row.latency_blocks)});
+  if(row.kind==="expired")
+    return t("the source went silent before the deadline");
+  return row.direction==="below"
+    ? t("the figure never fell to the line")
+    : t("the figure never reached the line");
+}
+
+/* The line the policy was written on, and the figure that met it or did not,
+   in the same words and the same formatting the record itself uses: M7.2 for a
+   magnitude, 204.8 mm for a season's rainfall. The predicate is the true rule
+   and the record prints it in full; a register wants the two numbers it turns
+   on. A reading of zero is nothing read when the policy pays on a figure going
+   up, and a real reading when it pays on one coming down. */
+function decidedRule(row){
+  var o={unit:row.unit};
+  var nothing=row.measured===null||row.measured===undefined||
+    (row.direction!=="below"&&!row.measured);
+  return nothing
+    ? t("pays at {trigger} · nothing read",{trigger:outcomeValue(o,row.trigger)})
+    : t("pays at {trigger} · {value} read",
+        {trigger:outcomeValue(o,row.trigger),value:outcomeValue(o,row.measured)});
+}
+
+function decidedRow(row){
+  var paid=row.kind==="paid", href="#/proof/"+encodeURIComponent(row.policy_id);
+  return '<article class="reg">'+
+    '<div class="reg-who">'+
+      '<a class="reg-id" href="'+href+'">'+esc(row.policy_id)+'</a>'+
+      '<span class="pill '+esc(row.kind)+'">'+esc(t(DECIDED_PILL[row.kind]||row.kind))+'</span>'+
+    '</div>'+
+    '<div class="reg-what">'+
+      '<div class="reg-where">'+esc(ts(row.peril_name))+' · '+esc(ts(row.subject_text))+'</div>'+
+      '<div class="reg-rule">'+esc(decidedRule(row))+'</div>'+
+    '</div>'+
+    '<div class="reg-out'+(paid?'':' quiet')+'"><b>'+
+      (paid?esc(money(row.amount)):esc(t("Nothing paid")))+'</b>'+
+      '<span>'+esc(decidedReason(row))+'</span></div>'+
+    '<div class="reg-foot">'+
+      '<span class="mono">'+esc(t("block {n}",{n:f0.format(row.block_number)}))+'</span>'+
+      '<a class="btn btn-line btn-sm" href="'+href+'">'+
+        esc(paid?t("Read the record"):t("Read why not"))+'</a>'+
+    '</div>'+
+  '</article>';
+}
+
+function lookupHtml(){
+  return '<div class="lookup">'+
+    '<div class="txt"><b>'+esc(t("Or look one up"))+'</b>'+
+      '<span>'+esc(t("Any policy id. You do not have to hold it, and you do not have to be signed in: the record is the chain's, not ours."))+'</span></div>'+
+    '<div class="go">'+
+      '<label class="label" for="proof-id">'+esc(t("Policy id"))+'</label>'+
+      '<input id="proof-id" type="text" placeholder="CLS-…" autocomplete="off" spellcheck="false">'+
+      '<button class="btn btn-primary btn-sm" type="button" id="proof-go">'+esc(t("Read it"))+'</button>'+
+    '</div></div>';
+}
+
+function bindLookup(){
+  var go=$("proof-go"), field=$("proof-id");
+  if(!go||!field)return;
+  go.addEventListener("click",function(){
+    var value=field.value.trim();
+    if(value)location.hash="#/proof/"+encodeURIComponent(value);
+  });
+  field.addEventListener("keydown",function(e){
+    if(e.key==="Enter")go.click();
+  });
+}
+
 function renderProof(id){
   var box=$("proof-out");
   if(!id){
-    box.className="proof-landing";
-    box.innerHTML='<div class="panel" style="padding:26px;display:grid;gap:14px">'+
-      '<h3 style="font-size:19px">'+esc(t("Look one up"))+'</h3>'+
-      '<p style="font-size:14.5px;color:var(--ink-2)">'+esc(t("Any policy id. You do not have to hold it, and you do not have to be signed in: the record is the chain's, not ours."))+'</p>'+
-      '<div class="searchbox"><input id="proof-id" type="text" placeholder="CLS-…" '+
-      'autocomplete="off" spellcheck="false"></div>'+
-      '<div><button class="btn btn-primary btn-sm" type="button" id="proof-go">'+esc(t("Read it"))+'</button></div>'+
-      '</div>';
-    $("proof-go").addEventListener("click",function(){
-      var value=$("proof-id").value.trim();
-      if(value)location.hash="#/proof/"+encodeURIComponent(value);
+    /* Open with the work. The lookup still exists, below, for somebody who
+       arrived holding an id; it is no longer the only way in. */
+    box.className="proof-open";
+    box.innerHTML='<p class="fine">'+esc(t("Reading the chain…"))+'</p>';
+    api("/api/decided?limit=12",{timeout:9000}).then(function(reply){
+      var rows=reply.items||[], book=reply.book||{};
+      box.innerHTML=
+        '<div class="figures">'+
+          '<div><b>'+esc(f0.format(book.policies||0))+'</b><span>'+esc(t("policies in the book"))+'</span></div>'+
+          '<div><b>'+esc(f0.format(book.evaluated||0))+'</b><span>'+esc(t("conditions evaluated"))+'</span></div>'+
+          '<div><b>'+esc(f0.format(book.paid||0))+'</b><span>'+esc(t("paid without a claim"))+'</span></div>'+
+          '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
+        '</div>'+
+        '<h3 style="font-size:19px">'+esc(t("What the chain decided last"))+'</h3>'+
+        '<p style="font-size:14.5px;color:var(--ink-2);max-width:66ch">'+esc(t("Both halves are here. A policy that ran its term without the index ever reaching the line is the harder promise to keep, and hiding it would make this page an advertisement."))+'</p>'+
+        (rows.length
+          ? '<div class="register">'+rows.map(decidedRow).join("")+'</div>'
+          : '<div class="panel" style="padding:22px"><p>'+esc(t("Nothing has been decided yet. The first policy to reach its line will appear here."))+'</p></div>')+
+        lookupHtml();
+      bindLookup();
+      whenLinked().then(function(){ if(link.live)renderAnchorStatus(box); });
+    },function(){
+      /* No protocol to reach: the page still lets somebody with an id ask. It
+         will not invent a register to fill the space. */
+      box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("This page cannot reach the protocol, so there is no record to read. It will not show you one it made up."))+'</p></div>'+lookupHtml();
+      bindLookup();
     });
-    $("proof-id").addEventListener("keydown",function(e){
-      if(e.key==="Enter")$("proof-go").click();
-    });
-    whenLinked().then(function(){ if(link.live)renderAnchorStatus(box); });
     return;
   }
   box.className="";
@@ -9165,61 +9468,54 @@ function closeRider(){
 
 /* ---------------- readings behind the hero ---------------- */
 (function(){
-  // The trigger loop: the trace draws itself over its own length, and the
-  // block the payout settled in keeps counting, the way a chain does.
+  // One policy, all the way through, moved by the reader rather than by a
+  // timer. Whichever step is crossing the middle of the window owns the
+  // picture, and every layer below it stays drawn: the rule does not stop
+  // existing when the ground moves, and the reading does not stop existing
+  // when the money lands. Nothing here runs on an interval, so there is
+  // nothing to drift, nothing burning a background tab, and nothing at all
+  // for a browser that asked for less motion beyond choosing the step.
   (function(){
+    var stage=$("hero-stage"), cap=$("hero-cap");
+    if(!stage)return;
+
     var trace=$("hero-trace");
-    if(trace&&trace.getTotalLength){ try{ trace.style.setProperty("--len",String(Math.ceil(trace.getTotalLength()))); }catch(e){} }
-    var block=$("hero-block"), amount=$("hero-amount"), card=document.querySelector(".hero-art .hx-card");
-    var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if(!block||still)return;
-
-    // One clock, the card's. Everything else in this picture is CSS on a six
-    // second loop, so the two things JS has to say are hung off that loop's
-    // own iteration rather than a timer of their own, which would drift
-    // apart from it within a minute.
-    var PAID=25000, COUNT=620, height=412388, settled=null, timers=[];
-    var nf=function(v){ try{ return v.toLocaleString(LANG||"en-US"); }catch(e){ return v.toLocaleString("en-US"); } };
-
-    function countUp(){
-      var started=0;
-      function step(now){
-        if(!started)started=now;
-        var k=Math.min(1,(now-started)/COUNT);
-        // eased, so it lands rather than stops
-        amount.textContent=nf(Math.round(PAID*(1-Math.pow(1-k,3))));
-        if(k<1)requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
+    if(trace&&trace.getTotalLength){
+      try{ trace.style.setProperty("--len",String(Math.ceil(trace.getTotalLength()))); }catch(e){}
     }
 
-    function cycle(){
-      timers.forEach(clearTimeout); timers=[];
-      settled=null;
-      if(amount)amount.textContent=nf(0);
-      // The chain goes on advancing while the policy waits.
-      timers.push(setTimeout(function(){
-        // 3.12s in, the card lands: that block is the one it settled in, and
-        // "settled in block" then means what it says, so it stops there.
-        settled=height;
-        block.textContent=nf(settled);
-        if(amount)countUp();
-      },3120));
+    var beats=[].slice.call(document.querySelectorAll("#hero-beats .beat"));
+    var ticks=[].slice.call(stage.querySelectorAll(".ticks i"));
+    var CAPS={1:N("CLS-7F42 · written"),2:N("M7.2 · 09:41:04"),3:N("3 of 4 attested"),
+              4:N("evaluate → true"),5:N("25,000 · block 412,388")};
+    var at=1;
+
+    function paintCap(){ if(cap)cap.textContent=t(CAPS[at]||CAPS[1]); }
+    LANG_LISTENERS.push(paintCap);
+
+    function show(n){
+      if(n===at)return;
+      at=n;
+      stage.dataset.beat=String(n);
+      for(var i=1;i<=5;i++)stage.classList.toggle("on-"+i,i<=n);
+      ticks.forEach(function(tick,i){ tick.classList.toggle("lit",i<n); });
+      paintCap();
+      beats.forEach(function(b){ b.dataset.live=Number(b.dataset.beat)===n?"on":"off"; });
     }
 
-    setInterval(function(){
-      // Nothing to say while the tab is in the background, and nothing to
-      // say below the width where the picture is not drawn at all.
-      if(document.hidden||!block.getClientRects().length)return;
-      height+=1;
-      if(settled===null)block.textContent=nf(height);
-    },1300);
-
-    if(card&&"onanimationiteration" in card){
-      card.addEventListener("animationiteration",cycle);
-      card.addEventListener("animationstart",cycle);
+    if(!beats.length)return;
+    if(!("IntersectionObserver" in window)){
+      // No observer: show the whole picture rather than the first fifth of it.
+      at=0; show(5);
+      beats.forEach(function(b){ b.dataset.live="on"; });
+      return;
     }
-    cycle();
+    var live=[];
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ live[Number(e.target.dataset.beat)]=e.isIntersecting; });
+      for(var n=5;n>=1;n--)if(live[n]){ show(n); return; }
+    },{rootMargin:"-48% 0px -48% 0px",threshold:0});
+    beats.forEach(function(b){ io.observe(b); });
   })();
   var canvas=$("hero-fx"); if(!canvas||!canvas.getContext)return;
   if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){ canvas.remove(); return; }

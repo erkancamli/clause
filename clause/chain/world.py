@@ -1507,6 +1507,64 @@ class Chain:
         with self.lock:
             return [item.to_dict() for item in self.settlements[-limit:]][::-1]
 
+    def recent_decisions(self, limit: int = 12) -> list[dict[str, Any]]:
+        """The policies the chain decided most recently, paid and not paid.
+
+        The proof page used to open with an empty box asking for a policy id,
+        which only somebody who already had one could answer. This is the same
+        record it would have shown, for the policies it decided last, so the
+        page can open with the work instead of a question.
+
+        It publishes nothing the chain was keeping: a settlement is already a
+        public transaction and the lineage of any policy already answers to its
+        id. What this removes is the need to know the id first, which is a
+        property of our interface, not of the record. The holder is the one
+        thing left out, because no part of the argument needs it.
+
+        Both halves are here. A policy that ran its term without the index ever
+        reaching the line is the harder half of the promise and the one worth
+        showing: an insurer that only publishes what it paid has published an
+        advertisement.
+        """
+        with self.lock:
+            seen: set[str] = set()
+            out: list[dict[str, Any]] = []
+            for item in reversed(self.settlements):
+                if item.policy_id in seen:
+                    continue
+                policy = self.pool.policies.get(item.policy_id)
+                if policy is None:
+                    continue
+                seen.add(item.policy_id)
+                peril = policy.peril
+                curve = (
+                    peril.curve_in_mm(policy.subject, policy.curve)
+                    if policy.peril_key == "drought"
+                    else policy.curve
+                )
+                out.append({
+                    "policy_id": item.policy_id,
+                    "kind": item.kind,
+                    "peril": policy.peril_key,
+                    "peril_name": peril.title_for(policy.subject),
+                    "subject_text": peril.describe_subject(policy.subject),
+                    "predicate": policy.predicate,
+                    "unit": peril.unit_for(policy.subject),
+                    "direction": curve.direction.value,
+                    "trigger": curve.attachment,
+                    "measured": item.index_value,
+                    "amount": round(item.amount, 2),
+                    "limit": round(policy.limit, 2),
+                    "block_number": item.block_number,
+                    "condition_block": item.condition_block,
+                    "latency_blocks": item.latency_blocks,
+                    "at": item.at,
+                    "summary": item.summary,
+                })
+                if len(out) >= limit:
+                    break
+            return out
+
     def edge_readings(self) -> list[dict[str, Any]]:
         with self.lock:
             return [reading.to_dict() for reading in self.readings.values()]

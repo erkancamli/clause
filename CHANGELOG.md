@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.16.0, 22 September 2026
+
+- The home page follows one policy from written to paid, and the reader
+  moves it. The picture used to run a six second loop: it told the whole
+  story and then forgot it, every six seconds, whether or not anybody was
+  looking. Now five steps scroll past a picture that holds, and each step
+  adds to it instead of replacing it, because that is what happens to a
+  policy: the rule does not stop existing when the ground moves, and the
+  reading does not stop existing when the money lands. The first step is
+  drawn before any script runs, so the page at rest is the hero it always
+  was, and the source the policy listens to is on it from the beginning,
+  quiet.
+- Nothing in it runs on a timer any more. One IntersectionObserver decides
+  which step is being read; there is no interval to drift, nothing burning
+  a background tab, and for a browser asking for less motion the steps
+  still change but nothing eases, ripples or draws itself. On a phone the
+  picture is no longer hidden: it sits below the header and travels with
+  the steps, which is where the whole argument is.
+- The proof page opens with the record instead of asking for one. It used
+  to open with an empty box wanting a policy id, which only somebody who
+  already had one could answer. It now opens with the book's figures and
+  the policies the chain decided last, paid and not paid, each with the
+  line it was written on and the figure that met it. `GET /api/decided`
+  serves them; it publishes no field the chain was keeping, because a
+  settlement is already a public transaction and any policy's lineage
+  already answers to its id, and it leaves the holder out because no part
+  of the argument needs it.
+- Both halves are in that register. A policy that ran its term without the
+  index ever reaching the line is the harder promise to keep, and a page
+  that lists only what it paid is an advertisement. The payment is the
+  loud figure in its row; "nothing paid" sits in the same place and the
+  same size and does not shout.
+- A heading breaks a word rather than running off the page. The German
+  home page headline measured 387px in a 308px column and had only ever
+  been invisible because the hero clipped whatever left it; the hero no
+  longer clips, so the headline was caught the moment it stopped being
+  hidden. Checked in all six languages at 390px and 1366px.
+- Translations are checked in the markup as well as in the script. The
+  i18n test could only see sentences handed to `t()`, so a heading or a
+  paragraph written straight into the page could ship without one and
+  reach a Japanese reader in English with nothing to say so. It now reads
+  every `data-i18n` element the way the page itself does, and it found one
+  line that had been in that state already.
+
 ## 1.15.3, 22 September 2026
 
 - The home page tells the story rather than holding one frame of it. The

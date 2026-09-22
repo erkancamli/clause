@@ -11,6 +11,7 @@ from __future__ import annotations
 import collections
 import json
 import re
+from html.parser import HTMLParser
 from pathlib import Path
 
 import pytest
@@ -61,6 +62,75 @@ def page_sentences() -> set[str]:
         if re.search(r"[A-Za-z]{2}", re.sub(r"<[^>]+>|\{\w+\}", "", text)):
             found.add(text)
     return found
+
+
+_VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+         "link", "meta", "source", "track", "wbr"}
+
+
+class _Marked(HTMLParser):
+    """Collects the inner HTML of every element carrying data-i18n."""
+
+    def __init__(self, src: str) -> None:
+        super().__init__(convert_charrefs=False)
+        self.src = src
+        self.starts = [0]
+        for line in src.split("\n"):
+            self.starts.append(self.starts[-1] + len(line) + 1)
+        self.depth = 0
+        self.open: list[tuple[int, int]] = []   # (depth, offset just after the start tag)
+        self.found: list[str] = []
+
+    def _offset(self) -> int:
+        line, col = self.getpos()
+        return self.starts[line - 1] + col
+
+    def handle_starttag(self, tag, attrs):
+        if tag in _VOID:
+            return
+        self.depth += 1
+        if any(k == "data-i18n" for k, _ in attrs):
+            text = self.get_starttag_text() or ""
+            self.open.append((self.depth, self._offset() + len(text)))
+
+    def handle_endtag(self, tag):
+        if tag in _VOID:
+            return
+        while self.open and self.open[-1][0] == self.depth:
+            _, start = self.open.pop()
+            self.found.append(self.src[start:self._offset()])
+        self.depth -= 1
+
+
+def markup_sentences() -> set[str]:
+    """Every English sentence the page carries in its own markup.
+
+    ``page_sentences`` sees only what a script hands to ``t()``. The static
+    page translates itself from its ``data-i18n`` elements, keyed by each
+    element's own inner HTML with the whitespace collapsed, and nothing was
+    checking those: a heading or a paragraph written straight into the markup
+    without a translation reached a Japanese reader in English, and no test
+    said a word.
+    """
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    parser = _Marked(html)
+    parser.feed(html)
+    out = set()
+    for raw in parser.found:
+        text = re.sub(r"\s+", " ", raw).strip()
+        if re.search(r"[A-Za-z]{2}", re.sub(r"<[^>]+>|\{\w+\}", "", text)):
+            out.add(text)
+    return out
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_every_sentence_in_the_markup_is_translated(lang) -> None:
+    """Brands and code stay English by design; they are the only exceptions."""
+    strings = dictionary(lang)["strings"]
+    missing = [s for s in markup_sentences()
+               if s not in strings and " " in s
+               and not re.match(r"^[A-Z0-9 ,.:+\-]+$", s)]
+    assert not missing, missing[:8]
 
 
 @pytest.mark.parametrize("lang", LANGS)

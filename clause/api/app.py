@@ -2220,6 +2220,28 @@ def create_app(
             raise Refused(404, "no such policy")
         return story
 
+    @app.get("/api/decided")
+    async def decided(limit: int = Query(12, ge=1, le=50)) -> dict[str, Any]:
+        """What the chain decided last, paid and not paid, with the figures.
+
+        The companion to /api/lineage: that one answers about a policy you can
+        already name, this one says which policies there are to ask about. No
+        field here is new — a settlement is a public transaction and any
+        policy's lineage already answers to its id — and the holder is left out,
+        because no part of the argument needs it.
+        """
+        stats = chain.stats()
+        return {
+            "items": chain.recent_decisions(limit),
+            "book": {
+                "policies": len(pool.policies),
+                "evaluated": stats["settlements"],
+                "paid": stats["paid"],
+                "height": stats["height"],
+                "mean_latency_blocks": round(stats["mean_latency_blocks"], 1),
+            },
+        }
+
     @app.get("/api/compliance")
     async def compliance() -> dict[str, Any]:
         """Where cover may be written, assembled from who is registered.
