@@ -256,6 +256,10 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 @media (prefers-reduced-motion:no-preference){
   .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*70ms)}
   .reveal.in{opacity:1;transform:none}
+  /* The step cards are cells of one joined block, and that block clips its
+     own corners. A cell sliding up inside it arrives with its bottom cut
+     off, which is worse than not sliding, so here they only fade. */
+  .flowline > .reveal{transform:none}
   html{scroll-behavior:smooth}
 }
 header.top{transition:box-shadow .25s,border-color .25s}

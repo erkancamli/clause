@@ -5309,16 +5309,204 @@ FAUCET_TOP_UP = 100_000.0
 FAUCET_CEILING = 1_000_000.0
 
 
-def token_metadata(policy: Any) -> dict[str, Any]:
-    """The policy token: the contract's essentials on one card.
+# The thing insured, drawn plainly, in a hundred by a hundred box. A token is
+# read at the size of a thumbnail in a list of tokens, and at that size a
+# generated trace says "this is a Clause policy" but not which kind. The
+# subject says which kind before a word is read.
+_PERIL_MARKS = {
+    "earthquake": (
+        "M14 50 50 20 86 50M24 46V84H76V46M42 84V62H58V84",          # a house
+        "M50 92a26 9 0 0 0 0 0M22 90q28 10 56 0M8 96q42 14 84 0",    # ground, moving
+    ),
+    "storm": (
+        "M10 52 50 22 90 52M22 48V84H78V48M44 84V64H58V84",          # a house
+        "M2 26q16-8 30 0M2 38q24-10 42 0M2 62q12-6 22 0",            # wind across it
+    ),
+    "drought": (
+        "M50 8v12M50 46v12M22 33h12M66 33h12M31 14l8 8M69 14l-8 8"
+        "M31 52l8-8M69 52l-8-8M50 22a11 11 0 1 1 0 22 11 11 0 1 1 0-22",   # a sun
+        "M4 70q46-12 92 0M4 82q46-12 92 0M4 94q46-12 92 0",           # furrows
+    ),
+    "flight_delay": (
+        "M6 62 44 52 62 22l10 3-8 30 28 4 5 6-30 10-10 16-8-1 2-15-18 3Z",  # a plane
+        "M8 88h84",                                                   # the ground it is late to
+    ),
+    "vehicle_flood": (
+        "M16 62l8-18h52l8 18M12 62h76v14H12ZM26 76a6 6 0 1 0 12 0M62 76a6 6 0 1 0 12 0",  # a car
+        "M2 84q12-7 24 0t24 0 24 0 24 0M2 94q12-7 24 0t24 0 24 0 24 0",   # water
+    ),
+}
 
-    Drawn from the terms, so what the wallet shows is what was signed:
-    the cover, where, the steps it pays at, the term, who issued it and the
-    hash of the contract text. Nothing decorative that could be mistaken
-    for a promise."""
+
+# How much cover the token stands for, as a band. It is the limit and nothing
+# else: a grade of size, not a grade of quality, and a small policy is a small
+# policy. The metal it names is spent on the edge and on one stamp, never on
+# the trace, so the card still has one loud thing and it is the state.
+_TIERS = (
+    (500_000.0, "DIAMOND",  "#CFEBFF", "#7FC4E8"),
+    (250_000.0, "PLATINUM", "#E3E8EE", "#9AA6B4"),
+    (100_000.0, "GOLD",     "#F5CD63", "#C08A15"),
+    ( 25_000.0, "SILVER",   "#D3DAE2", "#8E98A6"),
+    (      0.0, "BRONZE",   "#D79A66", "#8C5A31"),
+)
+
+
+def _tier(limit: float) -> tuple[str, str, str]:
+    for floor, name, light, dark in _TIERS:
+        if limit >= floor:
+            return name, light, dark
+    return _TIERS[-1][1], _TIERS[-1][2], _TIERS[-1][3]
+
+
+def _peril_mark(key: str, x: float, y: float, size: float, colour: str) -> str:
+    """The insured thing, quiet, behind the index that decides it."""
+    shape = _PERIL_MARKS.get(key)
+    if not shape:
+        return ""
+    k = size / 100.0
+    body, detail = shape
+    return (f'<g transform="translate({x:.0f} {y:.0f}) scale({k:.3f})" fill="none" '
+            f'stroke="{colour}" stroke-width="3" stroke-linecap="round" '
+            f'stroke-linejoin="round" opacity=".16">'
+            f'<path d="{body}"/><path d="{detail}" opacity=".7"/></g>')
+
+
+def _token_art(policy: Any, seed: int, tone: str) -> str:
+    """The index this policy watches, drawn, and the line it has to cross.
+
+    Every token used to be the same card with different words on it: eleven
+    labelled fields, a sixty-four character hash nobody can read, and a
+    sentence of small print. A wallet already shows the fields — that is what
+    the attributes are for — so repeating them in the picture only made the
+    picture a form.
+
+    What a wallet cannot show is the shape of the bargain, so that is what the
+    picture is now: the index running across the card and the level at which
+    this policy starts paying, drawn as a line it either reaches or does not.
+    The trace is generated from the policy id and the hash of its terms, so no
+    two are alike and the drawing is a function of the contract rather than an
+    ornament laid on top of it.
+
+    Nothing here is a promise. The trace is not a forecast and is not drawn
+    from any reading; it is the peril's own signature, and the only figure it
+    carries is the trigger the buyer chose.
+    """
+    W = 840
+    top, bottom = 250.0, 560.0          # the band the figure lives in
+    left, right = 70.0, W - 70.0
+
+    state = seed & 0xFFFFFFFFFFFF
+    def rnd() -> float:
+        """A repeatable stream: the same policy always draws the same card."""
+        nonlocal state
+        state = (state * 6364136223846793005 + 1442695040888963407) & 0xFFFFFFFFFFFF
+        return state / 0xFFFFFFFFFFFF
+
+    below = str(getattr(policy.curve.direction, "value", policy.curve.direction)) == "below"
+    # Where the trigger sits in the band, and which way the trace approaches it.
+    line_y = top + (bottom - top) * (0.34 if below else 0.42)
+
+    points: list[tuple[float, float]] = []
+    span = right - left
+    if policy.peril_key == "earthquake":
+        # quiet, then one burst that carries the whole event
+        peak = 0.38 + rnd() * 0.24
+        n = 78
+        for i in range(n + 1):
+            x = left + span * i / n
+            d = abs(i / n - peak)
+            envelope = max(0.0, 1.0 - (d / 0.11) ** 2)
+            wobble = (rnd() - 0.5) * 10
+            swing = envelope * (bottom - line_y) * 1.45 * (1 if i % 2 else -1)
+            points.append((x, bottom - 40 - swing * (0.5 + rnd() * 0.6) + wobble))
+    elif policy.peril_key == "drought":
+        # a season that does not fill: a curve settling below the line
+        n = 46
+        fall = 0.55 + rnd() * 0.35
+        for i in range(n + 1):
+            k = i / n
+            x = left + span * k
+            y = top + 40 + (bottom - top - 80) * (k ** (1.0 / (0.45 + fall)))
+            points.append((x, y + (rnd() - 0.5) * 7))
+    elif policy.peril_key == "flight_delay":
+        # scheduled, then the step the delay puts in
+        n = 44
+        at = 0.44 + rnd() * 0.2
+        for i in range(n + 1):
+            k = i / n
+            x = left + span * k
+            y = bottom - 60 if k < at else bottom - 60 - (bottom - line_y) * 1.25
+            points.append((x, y + (rnd() - 0.5) * 5))
+    elif policy.peril_key == "storm":
+        # a gust train: fewer, longer swings under one rising envelope
+        n = 44
+        crest = 0.44 + rnd() * 0.22
+        for i in range(n + 1):
+            k = i / n
+            x = left + span * k
+            envelope = max(0.0, 1.0 - ((k - crest) / 0.46) ** 2)
+            swing = envelope * (bottom - line_y) * 1.25 * (1 if i % 2 else -0.45)
+            points.append((x, bottom - 50 - swing * (0.55 + rnd() * 0.5)))
+    else:
+        # rain on a day, and the water it leaves: the line climbs and stays up
+        n = 60
+        onset = 0.3 + rnd() * 0.2
+        rise = 0.0
+        for i in range(n + 1):
+            k = i / n
+            x = left + span * k
+            if k > onset:
+                rise = min(1.0, rise + (0.055 + rnd() * 0.05))
+            points.append((x, bottom - 50 - rise * (bottom - line_y) * 1.3 + (rnd() - 0.5) * 6))
+
+    trace = "M" + " ".join(f"{x:.1f} {max(top - 10, min(bottom + 10, y)):.1f}" for x, y in points)
+
+    weather = ""
+    if policy.peril_key == "vehicle_flood":
+        drops = []
+        for _ in range(34):
+            x = left + span * rnd()
+            y = top + (line_y - top - 20) * rnd()
+            drops.append(f'<line x1="{x:.1f}" y1="{y:.1f}" x2="{x - 3:.1f}" y2="{y + 13:.1f}"/>')
+        weather = ('<g stroke="#5C6A78" stroke-width="1.6" stroke-linecap="round" opacity=".55">'
+                   + "".join(drops) + '</g>')
+
+    # The terms hash, as a bar rather than as sixty-four characters: the same
+    # information, in a form that can be compared at a glance.
+    digest = hashlib.sha256(str(seed).encode()).digest()
+    bars = []
+    for i in range(32):
+        h = 6 + (digest[i] / 255.0) * 26
+        bars.append(f'<rect x="{70 + i * 22:.0f}" y="{766 - h:.1f}" width="10" '
+                    f'height="{h:.1f}" rx="2" fill="#2A3644"/>')
+
+    cross = ""
+    met = [(x, y) for x, y in points if (y > line_y if below else y < line_y)]
+    if met:
+        cx, cy = met[0]
+        cross = (f'<circle cx="{cx:.1f}" cy="{line_y:.1f}" r="7" fill="{tone}" opacity=".9"/>'
+                 f'<circle cx="{cx:.1f}" cy="{line_y:.1f}" r="14" fill="none" stroke="{tone}" opacity=".35"/>')
+
+    return (
+        _peril_mark(policy.peril_key, W - 322, top - 34, 240, "#E9EFF5")
+        + f'<line x1="{left}" y1="{line_y:.1f}" x2="{right}" y2="{line_y:.1f}" '
+        'stroke="#5C6A78" stroke-width="1.5" stroke-dasharray="7 7"/>'
+        f'<path d="{trace}" fill="none" stroke="{tone}" stroke-width="2.4" '
+        'stroke-linejoin="round" stroke-linecap="round"/>'
+        + weather + cross + "".join(bars)
+    )
+
+
+def token_metadata(policy: Any) -> dict[str, Any]:
+    """The policy token: the bargain as a picture, the terms as attributes.
+
+    A wallet renders attributes itself, in the reader's own interface, so the
+    image does not repeat them. What it carries instead is the one thing no
+    list of traits can show: the index this cover watches and the level it has
+    to reach, drawn from the policy's own id so that every token is its own.
+    """
     import base64
     from html import escape
-    from ..protocol.wallet import shorten
 
     token = policy.metadata["token"]
     meta = policy.metadata or {}
@@ -5328,86 +5516,106 @@ def token_metadata(policy: Any) -> dict[str, Any]:
     unit = peril.unit_for(policy.subject)
     ends = dt.datetime.fromtimestamp(policy.ends_at, dt.timezone.utc).strftime("%d %b %Y")
     starts = dt.datetime.fromtimestamp(policy.starts_at, dt.timezone.utc).strftime("%d %b %Y")
-    steps = policy.curve.describe(unit)[:3]
+    steps = policy.curve.describe(unit)
     carrier = meta.get("carrier")
     carrier = (_CARRIER_NAMES.get(carrier) or carrier) if carrier else None
     issuer = (meta.get("interest") or {}).get("country", "")
     status = policy.status.value
-    colour = {"active": "#2fb37c", "paid": "#2fb37c", "lapsed": "#8a8f98",
-              "expired": "#8a8f98", "cancelled": "#8a8f98"}.get(status, "#8a8f98")
-    contract_hash = str(meta.get("contract_hash") or "")
-    W, H = 600, 840
+    contract_hash = str(meta.get("contract_hash") or token.get("terms_hash") or "")
 
-    def t(x, y, text, size=14, fill="#f2f2f0", weight="400", family="monospace", anchor="start", spacing=0):
+    # The palette the rest of this protocol uses, so a token in a wallet and
+    # the page it came from are plainly the same thing.
+    tone = {"active": "#FF6A2B", "paid": "#24D3A5"}.get(status, "#7A8895")
+    tier, metal_light, metal_dark = _tier(policy.limit)
+    W = 840
+    seed = int.from_bytes(
+        hashlib.sha256((policy.policy_id + contract_hash).encode()).digest()[:8], "big")
+
+    curve = (peril.curve_in_mm(policy.subject, policy.curve)
+             if policy.peril_key == "drought" else policy.curve)
+    level = curve.attachment
+    trigger = (f"M{level:g}" if "magnitude" in unit
+               else f"{level:g} {unit}" if unit else f"{level:g}")
+
+    def t(x, y, text, size=14, fill="#E9EFF5", weight="400",
+          family="ui-sans-serif,system-ui,sans-serif", anchor="start", spacing=0, opacity=1):
         return (f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" font-weight="{weight}" '
-                f'font-family="{family}" text-anchor="{anchor}" letter-spacing="{spacing}">{escape(str(text))}</text>')
+                f'font-family="{family}" text-anchor="{anchor}" letter-spacing="{spacing}" '
+                f'opacity="{opacity}">{escape(str(text))}</text>')
 
-    def wrap(text, width):
-        out, line = [], ""
-        for word in str(text).split():
-            if len(line) + len(word) + 1 > width:
-                out.append(line); line = word
-            else:
-                line = (line + " " + word).strip()
-        if line:
-            out.append(line)
-        return out[:2]
-
-    body = []
-    y = 250
-    for label, value in (("COVER", title), ("WHERE", what), ("PAYS UP TO", f"{policy.limit:,.0f} USDC"),
-                         ("TERM", f"{starts} to {ends}")):
-        body.append(t(40, y, label, 10, "#8a8f98", spacing=2))
-        for i, line in enumerate(wrap(value, 46)):
-            body.append(t(40, y + 22 + i * 20, line, 16, "#f2f2f0", "600", "sans-serif"))
-        y += 22 + 20 * max(1, len(wrap(value, 46))) + 22
-    body.append(t(40, y, "PAYS AT", 10, "#8a8f98", spacing=2))
-    for i, line in enumerate(steps):
-        body.append(t(40, y + 22 + i * 20, line, 13, "#cfd3da"))
-    y += 22 + 20 * len(steps) + 22
-    body.append(t(40, y, "HELD BY", 10, "#8a8f98", spacing=2))
-    body.append(t(40, y + 22, policy.holder, 12, "#f2f2f0"))
-    body.append(t(40, y + 52, "ISSUED BY", 10, "#8a8f98", spacing=2))
-    body.append(t(40, y + 74, (carrier or "the Clause pool") + (f" · {issuer}" if issuer else ""), 13, "#cfd3da"))
+    mono = "ui-monospace,SFMono-Regular,Menlo,monospace"
     svg = (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="monospace">'
-        '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'
-        '<stop offset="0" stop-color="#15181f"/><stop offset="1" stop-color="#0b0d11"/></linearGradient>'
-        '<pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">'
-        '<path d="M24 0H0V24" fill="none" stroke="#1f232b" stroke-width="1"/></pattern></defs>'
-        f'<rect width="{W}" height="{H}" rx="32" fill="url(#g)"/>'
-        f'<rect x="20" y="20" width="{W-40}" height="{H-40}" rx="24" fill="url(#grid)" stroke="#2a2e37"/>'
-        f'<rect x="20" y="20" width="{W-40}" height="150" rx="24" fill="#f05a24"/>'
-        f'<rect x="20" y="120" width="{W-40}" height="50" fill="#f05a24"/>'
-        '<path d="M48 88h26l13-40 20 76 17-56 13 22h50" fill="none" stroke="#0b0d11" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
-        + t(200, 96, "Clause", 40, "#0b0d11", "700", "sans-serif")
-        + t(48, 140, "NON-TRANSFERABLE POLICY TOKEN", 11, "#0b0d11", "600", spacing=3)
-        + t(W-48, 140, policy.policy_id, 13, "#0b0d11", "700", anchor="end")
-        + f'<rect x="{W-200}" y="196" width="160" height="30" rx="15" fill="{colour}22" stroke="{colour}"/>'
-        + t(W-120, 216, status.upper(), 11, colour, "700", anchor="middle", spacing=2)
-        + t(40, 216, (f"minted in block {token['minted_block']:,}"
-                      + (f", burned in block {token['burned_block']:,}" if token.get("burned_at") else "")), 11, "#8a8f98")
-        + "".join(body)
-        + f'<line x1="40" y1="{H-96}" x2="{W-40}" y2="{H-96}" stroke="#2a2e37"/>'
-        + t(40, H-72, "CONTRACT", 9, "#8a8f98", spacing=2)
-        + t(40, H-54, (contract_hash or token["terms_hash"])[:64], 10, "#5d626c")
-        + t(40, H-34, "This token cannot be transferred: cover belongs to the person with an interest in what it insures.", 9, "#5d626c")
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {W}">'
+        '<defs>'
+        f'<radialGradient id="glow" cx="50%" cy="46%" r="62%">'
+        f'<stop offset="0" stop-color="{tone}" stop-opacity=".16"/>'
+        '<stop offset="1" stop-color="#07090D" stop-opacity="0"/></radialGradient>'
+        '<pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">'
+        '<circle cx="1" cy="1" r="1" fill="#E9EFF5" opacity=".05"/></pattern>'
+        '<linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">'
+        f'<stop offset="0" stop-color="{metal_light}"/>'
+        f'<stop offset=".5" stop-color="{metal_dark}"/>'
+        f'<stop offset="1" stop-color="{metal_light}"/></linearGradient>'
+        '</defs>'
+        f'<rect width="{W}" height="{W}" fill="#07090D"/>'
+        f'<rect width="{W}" height="{W}" fill="url(#dots)"/>'
+        f'<rect width="{W}" height="{W}" fill="url(#glow)"/>'
+        f'<rect x="2" y="2" width="{W-4}" height="{W-4}" rx="40" fill="none" '
+        'stroke="url(#metal)" stroke-width="3" opacity=".7"/>'
+        f'<rect x="13" y="13" width="{W-26}" height="{W-26}" rx="31" fill="none" '
+        'stroke="#1D2631" stroke-width="1.5"/>'
+
+        # the mark, and which policy this is
+        '<path d="M70 92h34l17-44 26 84 22-62 17 22h34" fill="none" stroke="#FF6A2B" '
+        'stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'
+        + f'<path d="M{W-206} 84l9-11 9 11-9 11Z" fill="url(#metal)" opacity=".9"/>'
+        + t(W - 178, 90, tier, 15, "url(#metal)", "700", mono, anchor="start", spacing=4)
+        + t(W - 70, 124, policy.policy_id, 19, "#8D9BA9", "500", mono, anchor="end")
+
+        # the bargain, drawn
+        + _token_art(policy, seed, tone)
+        + t(70, 235, trigger, 22, "#E9EFF5", "600", mono)
+        + t(70, 208, "PAYS FROM", 12, "#7A8895", "600", mono, spacing=4)
+
+        # what it is worth, as one number
+        + t(70, 664, f"{policy.limit:,.0f}", 92, "#E9EFF5", "700",
+            "ui-sans-serif,system-ui,sans-serif", spacing=-3)
+        + t(70, 700, f"USDC · {title}", 19, "#8D9BA9", "500")
+
+        # the terms hash sits behind the bar above; the state, and the lock
+        + f'<circle cx="77" cy="{800}" r="5" fill="{tone}"/>'
+        + t(92, 805, status.upper(), 13, tone, "700", mono, spacing=3)
+        + t(W - 70, 805, "NON-TRANSFERABLE", 13, "#7A8895", "600", mono, anchor="end", spacing=3)
         + '</svg>'
     )
     return {
         "name": f"Clause policy {policy.policy_id}",
-        "description": (f"{title}: {what}. Cover of {policy.limit:,.0f} USDC. This token belongs to "
-                        "the address that bought the cover and cannot be transferred."),
+        "description": (f"{title}: {what}. Cover of {policy.limit:,.0f} USDC, paying from "
+                        f"{trigger}. The drawing is this policy's own index and the level it "
+                        "has to reach, generated from the policy id and the hash of its terms. "
+                        f"Its tier, {tier.title()}, is the band the cover falls in: a grade "
+                        "of size, not a grade of quality. "
+                        "This token belongs to the address that bought the cover and cannot be "
+                        "transferred."),
         "image": "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode(),
         "locked": True,
         "transferable": False,
         "token": token,
         "burned": bool(token.get("burned_at")),
         "attributes": [
+            {"trait_type": "Tier", "value": tier.title()},
             {"trait_type": "Peril", "value": title},
+            {"trait_type": "Where", "value": what},
             {"trait_type": "Limit (USDC)", "value": round(policy.limit, 2)},
-            {"trait_type": "Status", "value": policy.status.value},
+            {"trait_type": "Pays from", "value": trigger},
+            {"trait_type": "Pays at", "value": " · ".join(steps)},
+            {"trait_type": "Status", "value": status},
+            {"trait_type": "Starts", "value": starts},
             {"trait_type": "Ends", "value": ends},
+            {"trait_type": "Issued by", "value": (carrier or "the Clause pool")
+                + (f" ({issuer})" if issuer else "")},
+            {"trait_type": "Held by", "value": policy.holder},
+            {"trait_type": "Minted in block", "value": token.get("minted_block")},
             {"trait_type": "Terms hash", "value": token["terms_hash"]},
         ],
     }
