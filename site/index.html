@@ -349,7 +349,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .reg + .reg{border-top:1px solid var(--edge)}
 .reg-who{display:flex;gap:10px;align-items:center;justify-content:space-between;
   flex-wrap:wrap}
-.reg-id{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none}
+/* A policy id is a link of its own in its row, not one inside a sentence,
+   so it has to be big enough to hit: WCAG 2.5.8 wants 24 by 24. */
+.reg-id{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none;
+  display:inline-flex;align-items:center;min-height:24px}
 .reg-id:hover{text-decoration:underline}
 .reg-what{display:grid;gap:8px;min-width:0}
 .reg-where{font-size:14px;color:var(--ink-2)}
@@ -613,7 +616,7 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
   @keyframes heroDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-2%,1.5%,0) scale(1.06)}}
 }
 .home-hero .hero-text h1{font-size:clamp(34px,4.9vw,60px);letter-spacing:-.035em;line-height:1.02}
-.stage .hx-card{filter:drop-shadow(0 18px 28px rgba(12,17,22,.16))}
+.stage .phone{filter:none}
 /* The hero arrives in order: the headline, the sentence, the buttons, the marks. */
 @media (prefers-reduced-motion:no-preference){
   .home-hero .hero-text>*{animation:fadeUp .7s cubic-bezier(.2,.7,.2,1) both}
@@ -691,7 +694,42 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
 }
 .stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
   box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
-.stage > svg{display:block;width:100%;height:auto}
+.stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,150px);
+  gap:12px;padding:12px;align-items:center}
+.stage-body > svg{display:block;width:100%;height:auto;min-width:0}
+/* The handset is written, not drawn. A label in an SVG is one line at a fixed
+   size that cannot wrap, so the policy's own sentence ran out of the card and
+   over the bezel the moment it was not English. */
+.phone{border:1px solid var(--edge);border-radius:18px;background:var(--panel);
+  padding:10px 10px 8px;display:grid;gap:8px;align-content:start;min-width:0;
+  box-shadow:var(--lift-1)}
+.phone-bar{width:34px;height:4px;border-radius:2px;background:var(--sunk);margin:0 auto}
+.phone-app{font-size:9px;letter-spacing:.16em}
+.ph-card{border-radius:10px;padding:9px 10px;display:grid;gap:5px;min-width:0}
+.ph-rule{background:var(--sunk);border:1px solid var(--edge)}
+.ph-rule .ph-id{font-size:10px;color:var(--ink-3)}
+.ph-rule p{font-size:10px;line-height:1.5;color:var(--ink-2);overflow-wrap:anywhere}
+.ph-rule .ph-then{color:var(--ink);font-weight:500}
+.ph-paid{background:var(--settled-wash);border:1px solid var(--settled);
+  grid-template-columns:auto minmax(0,1fr);align-items:start;gap:8px}
+.ph-tick{width:20px;height:20px;border-radius:50%;background:var(--settled);
+  color:var(--panel);display:grid;place-items:center}
+.ph-tick svg{width:12px;height:12px}
+.ph-paid-text{display:grid;gap:2px;min-width:0}
+.ph-paid-text .label{font-size:8.5px;color:var(--ink-2)}
+.ph-paid-text b{font-family:var(--display);font-size:17px;font-weight:700;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ph-paid-text span:last-child{font-size:9.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.phone-foot{display:flex;gap:8px;align-items:baseline;justify-content:space-between;
+  border-top:1px solid var(--edge);padding-top:7px;font-size:9px;color:var(--ink-3);
+  flex-wrap:wrap}
+.phone-foot b{font-size:9px;font-weight:500;color:var(--ink-2);font-variant-numeric:tabular-nums}
+/* A layer that is off takes no room, so the card below it does not sit on a
+   gap where the other card used to be. */
+.stage .layer{display:none}
+@media (max-width:430px){
+  .stage-body{grid-template-columns:1fr;gap:10px}
+}
 .stage-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;
   padding:9px 13px;border-top:1px solid var(--edge);background:var(--sunk)}
 .ticks{display:flex;gap:5px}
@@ -703,26 +741,27 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
 
 /* Layers arrive in order and stay. Nothing is removed except the rule card,
    which the payout notice replaces on the same phone. */
-.stage .layer{opacity:0;transition:opacity .5s ease}
-.stage.on-1 .l-clause,.stage.on-2 .l-ground,.stage.on-3 .l-validators,
-.stage.on-4 .l-trigger,.stage.on-5 .l-payout{opacity:1}
-.stage.on-5 .l-clause{opacity:0}
+.stage svg .layer{display:revert;opacity:0;transition:opacity .5s ease}
+.stage.on-2 svg .l-ground,.stage.on-3 svg .l-validators,
+.stage.on-4 svg .l-trigger{opacity:1}
+.stage.on-1 .l-clause,.stage.on-5 .l-payout,.stage.on-4 .cap.l-trigger{display:revert}
+.stage.on-5 .l-clause{display:none}
+.stage .cap.l-trigger{color:var(--signal)}
 .stage .hx-trace{stroke-dasharray:var(--len,1100);stroke-dashoffset:var(--len,1100);
   transition:stroke-dashoffset 1.9s cubic-bezier(.3,.6,.35,1)}
 .stage.on-2 .hx-trace{stroke-dashoffset:0}
 .stage .hx-trigger{stroke-width:1;opacity:.55;transition:stroke-width .3s,opacity .3s}
 .stage.on-4 .hx-trigger{stroke-width:2.4;opacity:1}
-.stage .hx-card{transform-box:fill-box;transform-origin:center;transform:scale(.95);
-  transition:transform .5s cubic-bezier(.2,.9,.3,1)}
-.stage.on-5 .hx-card{transform:scale(1)}
+.stage .ph-paid{transform:scale(.96);transition:transform .45s cubic-bezier(.2,.9,.3,1)}
+.stage.on-5 .ph-paid{transform:scale(1)}
 .stage .hx-check{stroke-dasharray:22;stroke-dashoffset:22;
   transition:stroke-dashoffset .5s linear .25s}
 .stage.on-5 .hx-check{stroke-dashoffset:0}
 @media (prefers-reduced-motion:reduce){
-  .stage .layer,.stage .hx-trace,.stage .hx-trigger,.stage .hx-card,.stage .hx-check,
+  .stage .layer,.stage .hx-trace,.stage .hx-trigger,.stage .ph-paid,.stage .hx-check,
   .ticks i,.beat{transition:none}
   .stage .hx-trace{stroke-dashoffset:0}
-  .stage .hx-card{transform:none}
+  .stage .ph-paid{transform:none}
   .stage .hx-check{stroke-dashoffset:0}
   .beat[data-live="off"]{opacity:1}
 }
@@ -763,6 +802,7 @@ h1 span{color:var(--signal)}
 .pick h3{font-size:18px}
 .pick p{font-size:13.5px;color:var(--ink-2);line-height:1.4}
 .pick .banner{margin:0 0 2px;max-height:88px;overflow:hidden}
+@media (max-width:640px){.pick .banner{max-height:none}}
 .pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
 /* ---------------- flow ---------------- */
@@ -1451,18 +1491,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 
       <figure class="hero-art">
         <div class="stage on-1" id="hero-stage" data-beat="1">
-        <svg class="art" viewBox="0 0 560 340" role="img" aria-label="A policy written as a rule, a seismic reading crossing its trigger, validators attesting it, and the payout landing on a phone in the same block" data-i18n-aria>
+        <div class="stage-body">
+        <svg class="art" viewBox="0 0 320 340" role="img" aria-label="A seismic reading crossing the line a policy was written on, with validators attesting it" data-i18n-aria>
           <defs>
             <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
               <path d="M0 0 10 5 0 10Z" fill="var(--ink-3)"/>
             </marker>
           </defs>
-
-          <!-- the phone, which is there from the first step -->
-          <rect class="a-panel" x="352" y="20" width="192" height="298" rx="26"/>
-          <rect class="a-edge" x="352" y="20" width="192" height="298" rx="26" stroke-width="1.2"/>
-          <rect class="a-sunk" x="424" y="32" width="48" height="7" rx="3.5"/>
-          <text x="372" y="74" font-size="9" letter-spacing="1.4">CLAUSE</text>
 
           <!-- the source the policy listens to, quiet, from the first step -->
           <line class="a-edge-soft" x1="24" y1="238" x2="286" y2="238" stroke-width="1"/>
@@ -1470,37 +1505,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <line class="a-edge-soft" x1="155" y1="234" x2="155" y2="242" stroke-width="1"/>
           <line class="a-edge-soft" x1="286" y1="230" x2="286" y2="246" stroke-width="1"/>
           <text x="24" y="218" font-size="8.5" letter-spacing="1" data-i18n>LISTENING</text>
-
-          <!-- 1. the policy, as the rule it is -->
-          <g class="layer l-clause">
-            <rect class="a-sunk" x="370" y="88" width="156" height="126" rx="12"/>
-            <rect class="a-edge-soft" x="370" y="88" width="156" height="126" rx="12" stroke-width="1"/>
-            <text x="382" y="110" font-size="9.5" class="t-2">CLS-7F42</text>
-            <text x="382" y="132" font-size="9" data-i18n>if shaking ≥ M5.5</text>
-            <text x="382" y="148" font-size="9" data-i18n>within 50 km of</text>
-            <text x="382" y="164" font-size="9">40.99, 29.03</text>
-            <text x="382" y="186" font-size="9" class="t-ink" data-i18n>then pay 25,000</text>
-            <text x="370" y="238" font-size="9" data-i18n>written in block</text>
-            <text x="526" y="238" font-size="9" text-anchor="end" class="t-2" data-i18n>412,166</text>
-          </g>
-
-          <!-- 5. what it paid -->
-          <g class="layer l-payout">
-            <g class="hx-card">
-              <rect class="a-settled-w" x="370" y="88" width="156" height="92" rx="12"/>
-              <rect class="a-settled" x="370" y="88" width="156" height="92" rx="12" stroke-width="1.1"/>
-              <circle class="a-settled-f" cx="392" cy="114" r="11"/>
-              <path class="hx-check" d="M387 114.5 390.5 118 397.5 110.5" fill="none" stroke="var(--panel)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
-              <text x="411" y="111" font-size="9.5" letter-spacing="1.1" class="t-2" data-i18n>PAID TO YOU</text>
-              <text x="411" y="131" font-size="19" class="big" data-i18n>25,000</text>
-              <text x="386" y="162" font-size="9.5" class="t-2" data-i18n>no claim was filed</text>
-            </g>
-            <rect class="a-sunk" x="370" y="196" width="156" height="11" rx="5.5"/>
-            <rect class="a-sunk" x="370" y="215" width="118" height="11" rx="5.5"/>
-            <line class="a-edge-soft" x1="370" y1="248" x2="526" y2="248" stroke-width="1"/>
-            <text x="370" y="268" font-size="9" data-i18n>settled in block</text>
-            <text x="526" y="268" font-size="9" text-anchor="end" class="t-2" data-i18n>412,388</text>
-          </g>
 
           <!-- 2. the ground moves, and is recorded -->
           <g class="layer l-ground">
@@ -1523,20 +1527,45 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
             <line class="a-edge-soft a-dash" x1="64" y1="70" x2="64" y2="126" stroke-width="1"/>
             <line class="a-edge-soft a-dash" x1="152" y1="56" x2="152" y2="126" stroke-width="1"/>
             <line class="a-edge-soft a-dash" x1="240" y1="72" x2="240" y2="126" stroke-width="1"/>
-            <text x="152" y="24" font-size="9" text-anchor="middle" class="t-2" letter-spacing="1" data-i18n>3 OF 4 ATTESTED</text>
           </g>
 
           <!-- 4. the line the rule was written on -->
           <g class="layer l-trigger">
             <line class="a-signal a-dash hx-trigger" x1="24" y1="182" x2="286" y2="182"/>
-            <text x="24" y="174" font-size="9.5" letter-spacing="1.2" class="t-2" data-i18n>TRIGGER  M5.5</text>
-            <line class="a-edge" x1="298" y1="238" x2="338" y2="238" marker-end="url(#ah)" stroke-width="1.2"/>
             <circle class="a-signal-f" cx="299" cy="238" r="2.6"/>
-            <text x="318" y="228" font-size="8.5" text-anchor="middle" letter-spacing="1">TRUE</text>
+            <line class="a-edge" x1="296" y1="238" x2="316" y2="238" marker-end="url(#ah)" stroke-width="1.2"/>
           </g>
         </svg>
+
+        <!-- what the policy says, and then what it paid: writing, not drawing -->
+        <div class="phone">
+          <div class="phone-bar" aria-hidden="true"></div>
+          <div class="phone-app label">CLAUSE</div>
+          <div class="layer l-clause ph-card ph-rule">
+            <div class="ph-id mono">CLS-7F42</div>
+            <p class="mono" data-i18n>if shaking ≥ M5.5 within 50 km of 40.99, 29.03</p>
+            <p class="mono ph-then" data-i18n>then pay 25,000</p>
+          </div>
+          <div class="layer l-payout ph-card ph-paid">
+            <div class="ph-tick" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path class="hx-check" d="M5 12.5 10 17.5 19 7"/></svg>
+            </div>
+            <div class="ph-paid-text">
+              <span class="label" data-i18n>PAID TO YOU</span>
+              <b data-i18n>25,000</b>
+              <span data-i18n>no claim was filed</span>
+            </div>
+          </div>
+          <div class="phone-foot">
+            <span class="layer l-clause" data-i18n>written in block</span>
+            <span class="layer l-payout" data-i18n>settled in block</span>
+            <b class="mono"><span class="layer l-clause" data-i18n>412,166</span><span class="layer l-payout" data-i18n>412,388</span></b>
+          </div>
+        </div>
+        </div>
         <div class="stage-foot">
           <div class="ticks" aria-hidden="true"><i class="lit"></i><i></i><i></i><i></i><i></i></div>
+          <span class="cap layer l-trigger" data-i18n>TRIGGER  M5.5</span>
           <span class="cap" id="hero-cap">CLS-7F42 · written</span>
         </div>
         </div>
@@ -1641,7 +1670,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <rect class="bd-fill" x="231" y="72" width="24" height="25" rx="5" fill="var(--signal)" opacity=".85"/>
           <path d="M218 44h50" stroke="var(--ink-2)" stroke-width="1.1" stroke-dasharray="3 3"/>
           <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-2)">
-            <text x="272" y="47" data-i18n>NORMAL</text><text x="272" y="88" fill="var(--signal)" data-i18n>THIS YEAR</text>
+            <text x="314" y="47" text-anchor="end" data-i18n>NORMAL</text><text x="314" y="88" text-anchor="end" fill="var(--signal)" data-i18n>THIS YEAR</text>
           </g>
         </svg></figure>
         <h3 data-i18n>My harvest</h3>
@@ -9729,6 +9758,10 @@ function buildMap(){
   for(i=0;i<TR.length;i++)d+=(i?"L":"M")+px(TR[i][0]).toFixed(1)+" "+py(TR[i][1]).toFixed(1);
   out+='<path class="outline" d="'+d+'Z"/>';
   out+='<circle class="ring" id="ring" cx="0" cy="0" r="0"/><circle class="epi" id="epi" cx="0" cy="0" r="0"/>';
+  // A label that would land on one already placed steps down instead. Kadıköy
+  // and Bakırköy are the same city: six units apart on this map, with names
+  // ninety units long, so side by side they were one smear in every language.
+  var placed=[];
   BOOK.forEach(function(e,index){
     var p=PLACES[e.code],cx=px(p.lon),cy=py(p.lat);
     for(j=0;j<e.n;j++){
@@ -9736,7 +9769,12 @@ function buildMap(){
       out+='<circle class="pt" data-code="'+e.code+'" data-limit="'+e.limit+'" cx="'+(cx+ox).toFixed(1)+
            '" cy="'+(cy+oy).toFixed(1)+'" r="5"/>';
     }
-    out+='<text class="lbl" x="'+(cx+14).toFixed(1)+'" y="'+(cy+4).toFixed(1)+'">'+esc(p.name.toUpperCase())+'</text>';
+    var lx=cx+14,ly=cy+4,guard=0;
+    while(guard++<6&&placed.some(function(q){
+      return Math.abs(q.x-lx)<Math.max(q.w,p.name.length*5.6)&&Math.abs(q.y-ly)<11;
+    }))ly+=13;
+    placed.push({x:lx,y:ly,w:p.name.length*5.6});
+    out+='<text class="lbl" x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'">'+esc(p.name.toUpperCase())+'</text>';
   });
   $("map").innerHTML=out;
 }

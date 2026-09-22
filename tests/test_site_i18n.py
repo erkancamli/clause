@@ -227,6 +227,55 @@ def test_every_cover_name_and_subject_line_is_translated(lang) -> None:
     assert not missing, missing[:6]
 
 
+def refusals() -> dict[str, str]:
+    """Every sentence the protocol can put in front of a person.
+
+    The page's own words are covered twice over, by the literal scan and the
+    markup scan, but a refusal is written in Python: ``Refused(409, "that
+    policy cannot be cancelled")``, or the fallback ``safe_detail`` hands out
+    in place of an internal error. Nothing was reading those, and forty of
+    them had no translation in any language, so the one moment a person is
+    told no was the one moment the page dropped into English.
+
+    Only what actually reaches a browser is collected. Internal ``ValueError``
+    text does not: ``safe_detail`` logs it and answers with the fallback.
+    """
+    import ast
+
+    root = Path(__file__).resolve().parent.parent / "clause"
+    found: dict[str, str] = {}
+    for path in sorted(root.rglob("*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError:  # pragma: no cover - a file we cannot parse is not a message
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            name = (node.func.id if isinstance(node.func, ast.Name)
+                    else node.func.attr if isinstance(node.func, ast.Attribute) else None)
+            texts = []
+            if name == "Refused":
+                texts += [a.value for a in node.args
+                          if isinstance(a, ast.Constant) and isinstance(a.value, str)]
+            texts += [k.value.value for k in node.keywords
+                      if k.arg == "fallback" and isinstance(k.value, ast.Constant)
+                      and isinstance(k.value.value, str)]
+            for text in texts:
+                text = text.strip()
+                if len(text) > 4 and re.search(r"[a-z]{3}", text):
+                    found.setdefault(text, f"{path.name}:{node.lineno}")
+    return found
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_every_refusal_can_be_read(lang) -> None:
+    data = dictionary(lang)
+    missing = [f"{where}: {text}" for text, where in sorted(refusals().items())
+               if not _resolves(text, data)]
+    assert not missing, missing[:6]
+
+
 def table_sentences() -> dict[str, list[str]]:
     """English the page translates through a variable rather than a literal.
 
