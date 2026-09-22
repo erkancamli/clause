@@ -37,6 +37,7 @@ def test_only_offered_ways_can_be_asked_for_and_nothing_is_credited_until_confir
 
 def test_a_wallet_deposit_names_the_sender_and_the_reference(monkeypatch) -> None:
     monkeypatch.setenv("CLAUSE_FUNDING_RIALO", RIALO)
+    monkeypatch.setenv("CLAUSE_FUNDING_RIALO_CHAIN", "Rialo testnet")
     monkeypatch.setenv("CLAUSE_FUNDING_IBAN", "TR33 0006 1005 1978 6457 8413 26")
     monkeypatch.setenv("CLAUSE_FUNDING_NAME", "Specimen Ltd")
     app = create_app(trials=400, seed=11, run_chain=False, seed_book=True,
@@ -47,6 +48,8 @@ def test_a_wallet_deposit_names_the_sender_and_the_reference(monkeypatch) -> Non
         auth = {"authorization": f"Bearer {session_for(client, device, address)}"}
         how = client.get("/api/funding", headers=auth).json()["how"]
         assert how["methods"] == ["bank", "rialo"] and how["rialo"] == RIALO
+        # The address alone is not an instruction: the reply names the chain.
+        assert how["networks"] == {"rialo": "Rialo testnet"}
         assert how["bank"]["iban"] == "TR330006100519786457841326"
         asked = client.post("/api/funding", headers=auth,
                             json={"method": "rialo", "amount": 250, "sender": RIALO})
@@ -74,7 +77,8 @@ def test_the_watcher_credits_a_solana_deposit_by_its_memo_and_an_evm_one_by_its_
     from clause.protocol.funding import Watcher, TRANSFER_TOPIC, SOLANA_USDC_MINT
     wallets = Wallets(demo_balance=0.0)
     wallets.connect("a", fund=False); wallets.connect("b", fund=False)
-    dest = Destinations(solana=RIALO, evm="0x52908400098527886E0F7030069857D2E4169EE7")
+    dest = Destinations(solana=RIALO, evm="0x52908400098527886E0F7030069857D2E4169EE7",
+                        solana_chain="Solana devnet", evm_chain="Base Sepolia", testnet=True)
     funding = Funding(wallets, dest)
     sol = funding.request("a", {"method": "solana", "amount": 100})
     evm = funding.request("b", {"method": "evm", "amount": 50, "sender": "0x8617E340B3D01FA5F11F306F4090FD50E238070D"})
@@ -108,3 +112,34 @@ def test_the_watcher_credits_a_solana_deposit_by_its_memo_and_an_evm_one_by_its_
     # A second pass sees nothing new and credits nothing twice.
     assert w.run() == 0
     assert wallets.require("a").balance == pytest.approx(99.5)
+
+
+def test_an_address_without_its_chain_is_not_offered() -> None:
+    """The same twenty bytes exist on every EVM chain and on their test
+    networks. An address shown without the name of the chain it is watched on
+    asks the sender to guess, and a wrong guess does not bounce, so the
+    destination is withheld until the deployment says where it lives."""
+    from clause.protocol.funding import Destinations
+
+    guessing = Destinations(evm="0x52908400098527886E0F7030069857D2E4169EE7")
+    assert guessing.offered() == []
+    assert guessing.unnamed() == ["evm"]
+
+    named = Destinations(evm="0x52908400098527886E0F7030069857D2E4169EE7",
+                         evm_chain="Base Sepolia", testnet=True)
+    assert named.offered() == ["evm"]
+    assert named.describe()["networks"] == {"evm": "Base Sepolia"}
+    assert named.describe()["testnet"] is True
+
+
+def test_play_money_has_to_be_declared_rather_than_inferred(monkeypatch) -> None:
+    """A deployment that means test money says so. Reading it off the chain's
+    name would make "Base Sepolia" safe and a chain we have not heard of
+    dangerous, which is the wrong way round."""
+    from clause.protocol.funding import Destinations
+
+    monkeypatch.setenv("CLAUSE_FUNDING_EVM", "0x52908400098527886E0F7030069857D2E4169EE7")
+    monkeypatch.setenv("CLAUSE_FUNDING_EVM_CHAIN", "Base Sepolia")
+    assert Destinations.from_env().testnet is False
+    monkeypatch.setenv("CLAUSE_FUNDING_TESTNET", "1")
+    assert Destinations.from_env().testnet is True

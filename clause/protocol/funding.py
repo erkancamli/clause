@@ -57,7 +57,16 @@ class FundingError(ValueError):
 @dataclass(frozen=True, slots=True)
 class Destinations:
     """Where the operator receives money. From the environment; each is
-    shown only if it is set."""
+    shown only if it is set.
+
+    A wallet address is not an instruction on its own. The same twenty bytes
+    exist on Ethereum, on Base, on every other EVM chain and on their test
+    networks, and money sent to the right address on the wrong one is gone.
+    So each wallet destination carries the name of the chain it is watched on,
+    and that name is shown beside the address rather than assumed. ``testnet``
+    is set by hand rather than guessed from the name: a deployment that means
+    play money has to say so.
+    """
 
     iban: str = ""
     account_name: str = ""
@@ -65,6 +74,10 @@ class Destinations:
     rialo: str = ""
     solana: str = ""
     evm: str = ""
+    rialo_chain: str = ""
+    solana_chain: str = ""
+    evm_chain: str = ""
+    testnet: bool = False
 
     @classmethod
     def from_env(cls) -> "Destinations":
@@ -75,22 +88,46 @@ class Destinations:
                 clean(value)          # a mistyped address in the environment fails at start, loudly
         return cls(iban=get("CLAUSE_FUNDING_IBAN").replace(" ", "").upper(),
                    account_name=get("CLAUSE_FUNDING_NAME"), bank=get("CLAUSE_FUNDING_BANK"),
-                   rialo=rialo, solana=solana, evm=evm)
+                   rialo=rialo, solana=solana, evm=evm,
+                   rialo_chain=get("CLAUSE_FUNDING_RIALO_CHAIN")[:48],
+                   solana_chain=get("CLAUSE_FUNDING_SOLANA_CHAIN")[:48],
+                   evm_chain=get("CLAUSE_FUNDING_EVM_CHAIN")[:48],
+                   testnet=get("CLAUSE_FUNDING_TESTNET") == "1")
 
     def offered(self) -> list[str]:
         out = []
         if self.iban:
             out.append("bank")
         for name in ("rialo", "solana", "evm"):
-            if getattr(self, name):
+            # An address without the name of its chain is withheld rather than
+            # shown: whoever reads it would have to guess, and a wrong guess
+            # does not bounce.
+            if getattr(self, name) and getattr(self, name + "_chain"):
                 out.append(name)
         return out
+
+    def networks(self) -> dict[str, str]:
+        """The chain each wallet destination is watched on, by method."""
+        return {name: getattr(self, name + "_chain")
+                for name in ("rialo", "solana", "evm")
+                if getattr(self, name) and getattr(self, name + "_chain")}
+
+    def unnamed(self) -> list[str]:
+        """Wallet destinations offered without saying which chain they are on.
+
+        Refusing to offer these is the safe reading: an address with no chain
+        beside it is an invitation to send money to the wrong one.
+        """
+        return [name for name in ("rialo", "solana", "evm")
+                if getattr(self, name) and not getattr(self, name + "_chain")]
 
     def describe(self) -> dict[str, Any]:
         return {
             "methods": self.offered(),
             "bank": {"iban": self.iban, "account_name": self.account_name, "bank": self.bank} if self.iban else None,
             "rialo": self.rialo or None, "solana": self.solana or None, "evm": self.evm or None,
+            "networks": self.networks(),
+            "testnet": self.testnet,
             "min_amount": MIN_AMOUNT, "max_amount": MAX_AMOUNT,
         }
 

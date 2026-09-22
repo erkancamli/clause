@@ -1859,10 +1859,6 @@
     "Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.": "Su derecho de desistimiento de {days} días corre desde el día en que recibió el contrato; lo que se devuelve se paga en {refund_days} días, aquí al instante.",
     "You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below.": "No se le entregó el contrato en un soporte duradero antes de comprar, así que puede desistir durante un año. Descargue su copia abajo.",
     "Your copy of the contract": "Su copia del contrato",
-    "The settlement: it paid nothing, or the wrong amount": "La liquidación: no pagó nada o pagó un importe erróneo",
-    "The payment: it was decided but has not arrived": "El pago: se decidió pero no ha llegado",
-    "The cover: it is not what I bought": "La cobertura: no es lo que compré",
-    "The company: how it dealt with me": "La empresa: cómo me ha tratado",
     "waiting for the company": "a la espera de la empresa",
     "answered by the company": "respondida por la empresa",
     "taken to the ombudsman": "llevada al defensor del asegurado",
@@ -1998,7 +1994,24 @@
     "25,000": "25.000",
     "412,388": "412.388",
     "412,166": "412.166",
-    "LISTENING": "A LA ESCUCHA"
+    "LISTENING": "A LA ESCUCHA",
+    "It paid nothing, or it paid the wrong amount": "No pagó nada, o pagó un importe equivocado",
+    "The payment was decided, but the money has not arrived": "Se decidió el pago, pero el dinero no ha llegado",
+    "The cover is not what I was sold": "La cobertura no es la que me vendieron",
+    "How the company treated me": "El trato que me dio la empresa",
+    "Storm, on extreme wind at the address": "Tormenta, por viento extremo en la dirección",
+    "Vehicle, flood from extreme rainfall": "Vehículo, inundación por lluvia extrema",
+    "{place}, within {radius} km": "{place}, en un radio de {radius} km",
+    "{place}, shaking at the address": "{place}, sacudida en la dirección",
+    "{place}, wind read at {station} ({distance} km)": "{place}, viento medido en {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)": "{place}, lluvia medida en {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}": "{flight}, {origin}–{destination}, {date}",
+    "Network": "Red",
+    "Send it on {chain} and nowhere else.": "Envíelo por {chain} y por ninguna otra red.",
+    "The same address exists on other chains, and a transfer sent on one of those cannot be recovered.": "La misma dirección existe en otras cadenas, y una transferencia enviada por una de ellas no se puede recuperar.",
+    "This is a test network.": "Esta es una red de prueba.",
+    "Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either.": "Envíe solo USDC de prueba. Cualquier cosa de valor enviada aquí se pierde, y el saldo que acredita tampoco es dinero.",
+    "Wallet transfers are watched on {chains}.": "Las transferencias desde monedero se vigilan en {chains}."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2065,6 +2078,11 @@
     "a bank payout takes about {days} days",
     "{days} extra days to change your mind, beyond the {law} the law gives",
     "inside the {days} day cooling off period under {law}: all of it comes back",
-    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing"
+    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing",
+    "{place}, within {radius} km",
+    "{place}, shaking at the address",
+    "{place}, wind read at {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}"
   ]
 }

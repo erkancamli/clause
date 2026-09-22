@@ -1859,10 +1859,6 @@
     "Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.": "Votre droit de renonciation de {days} jours court à compter du jour où vous avez reçu le contrat ; ce qui revient est payé sous {refund_days} jours, ici immédiatement.",
     "You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below.": "Le contrat ne vous a pas été remis sur un support durable avant l’achat ; vous pouvez donc y renoncer pendant un an. Téléchargez votre copie ci-dessous.",
     "Your copy of the contract": "Votre copie du contrat",
-    "The settlement: it paid nothing, or the wrong amount": "Le règlement : il n’a rien payé, ou le mauvais montant",
-    "The payment: it was decided but has not arrived": "Le paiement : décidé mais pas arrivé",
-    "The cover: it is not what I bought": "La couverture : ce n’est pas ce que j’ai acheté",
-    "The company: how it dealt with me": "L’entreprise : la façon dont elle m’a traité",
     "waiting for the company": "en attente de l’entreprise",
     "answered by the company": "répondue par l’entreprise",
     "taken to the ombudsman": "portée au médiateur",
@@ -1998,7 +1994,24 @@
     "25,000": "25 000",
     "412,388": "412 388",
     "412,166": "412 166",
-    "LISTENING": "À L’ÉCOUTE"
+    "LISTENING": "À L’ÉCOUTE",
+    "It paid nothing, or it paid the wrong amount": "Rien n’a été payé, ou le montant est faux",
+    "The payment was decided, but the money has not arrived": "Le versement a été décidé, mais l’argent n’est pas arrivé",
+    "The cover is not what I was sold": "La couverture n’est pas celle qu’on m’a vendue",
+    "How the company treated me": "La façon dont l’entreprise m’a traité",
+    "Storm, on extreme wind at the address": "Tempête, sur le vent extrême à l’adresse",
+    "Vehicle, flood from extreme rainfall": "Véhicule, inondation due à une pluie extrême",
+    "{place}, within {radius} km": "{place}, dans un rayon de {radius} km",
+    "{place}, shaking at the address": "{place}, secousse à l’adresse",
+    "{place}, wind read at {station} ({distance} km)": "{place}, vent mesuré à {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)": "{place}, pluie mesurée à {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}": "{flight}, {origin}–{destination}, {date}",
+    "Network": "Réseau",
+    "Send it on {chain} and nowhere else.": "Envoyez-le sur {chain} et nulle part ailleurs.",
+    "The same address exists on other chains, and a transfer sent on one of those cannot be recovered.": "La même adresse existe sur d’autres chaînes, et un virement envoyé sur l’une d’elles est irrécupérable.",
+    "This is a test network.": "Ceci est un réseau de test.",
+    "Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either.": "N’envoyez que de l’USDC de test. Tout ce qui a de la valeur et qui est envoyé ici est perdu, et le solde crédité n’est pas de l’argent non plus.",
+    "Wallet transfers are watched on {chains}.": "Les virements depuis un portefeuille sont surveillés sur {chains}."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2065,6 +2078,11 @@
     "a bank payout takes about {days} days",
     "{days} extra days to change your mind, beyond the {law} the law gives",
     "inside the {days} day cooling off period under {law}: all of it comes back",
-    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing"
+    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing",
+    "{place}, within {radius} km",
+    "{place}, shaking at the address",
+    "{place}, wind read at {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}"
   ]
 }

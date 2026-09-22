@@ -1859,10 +1859,6 @@
     "Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.": "{days}日間の撤回権は、契約書を受け取った日から起算されます。戻る金額は{refund_days}日以内に支払われますが、ここでは即時です。",
     "You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below.": "ご購入前に契約書が耐久性のある媒体で交付されなかったため、1年間は撤回できます。以下からお客様の控えをダウンロードしてください。",
     "Your copy of the contract": "契約書の控え",
-    "The settlement: it paid nothing, or the wrong amount": "決済：何も支払われなかった、または金額が違う",
-    "The payment: it was decided but has not arrived": "支払い：決定されたが届いていない",
-    "The cover: it is not what I bought": "補償：購入した内容と違う",
-    "The company: how it dealt with me": "会社：自分への対応",
     "waiting for the company": "会社の回答待ち",
     "answered by the company": "会社が回答済み",
     "taken to the ombudsman": "オンブズマンに申立て済み",
@@ -1998,7 +1994,24 @@
     "25,000": "25,000",
     "412,388": "412,388",
     "412,166": "412,166",
-    "LISTENING": "待機中"
+    "LISTENING": "待機中",
+    "It paid nothing, or it paid the wrong amount": "支払がなかった、または金額が違う",
+    "The payment was decided, but the money has not arrived": "支払が決まったのに、お金が届かない",
+    "The cover is not what I was sold": "補償が、販売時の説明と違う",
+    "How the company treated me": "会社の対応について",
+    "Storm, on extreme wind at the address": "暴風、住所での極端な風に基づく",
+    "Vehicle, flood from extreme rainfall": "車両、極端な降雨による冠水",
+    "{place}, within {radius} km": "{place}、半径{radius}km以内",
+    "{place}, shaking at the address": "{place}、住所での揺れ",
+    "{place}, wind read at {station} ({distance} km)": "{place}、風は{station}で測定（{distance}km）",
+    "{place}, rainfall read at {station} ({distance} km)": "{place}、雨は{station}で測定（{distance}km）",
+    "{flight} on {origin} to {destination}, {date}": "{flight}、{origin}–{destination}、{date}",
+    "Network": "ネットワーク",
+    "Send it on {chain} and nowhere else.": "{chain}でのみ送金してください。他のネットワークは不可です。",
+    "The same address exists on other chains, and a transfer sent on one of those cannot be recovered.": "同じアドレスは他のチェーンにも存在し、そちらに送った送金は取り戻せません。",
+    "This is a test network.": "これはテストネットワークです。",
+    "Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either.": "テスト用USDCのみを送ってください。価値のあるものをここへ送れば失われ、計上される残高もお金ではありません。",
+    "Wallet transfers are watched on {chains}.": "ウォレットからの送金は{chains}で監視されています。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2065,6 +2078,11 @@
     "a bank payout takes about {days} days",
     "{days} extra days to change your mind, beyond the {law} the law gives",
     "inside the {days} day cooling off period under {law}: all of it comes back",
-    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing"
+    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing",
+    "{place}, within {radius} km",
+    "{place}, shaking at the address",
+    "{place}, wind read at {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}"
   ]
 }

@@ -1859,10 +1859,6 @@
     "Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.": "Ваше право на отказ в течение {days} дн. отсчитывается со дня получения договора; возврат выплачивается в течение {refund_days} дн., здесь — сразу.",
     "You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below.": "Договор не был передан вам на долговременном носителе до покупки, поэтому отказаться можно в течение года. Скачайте свою копию ниже.",
     "Your copy of the contract": "Ваша копия договора",
-    "The settlement: it paid nothing, or the wrong amount": "Урегулирование: ничего не выплачено или выплачена неверная сумма",
-    "The payment: it was decided but has not arrived": "Выплата: назначена, но не пришла",
-    "The cover: it is not what I bought": "Покрытие: не то, что было куплено",
-    "The company: how it dealt with me": "Компания: как со мной обошлись",
     "waiting for the company": "ожидает ответа компании",
     "answered by the company": "компания ответила",
     "taken to the ombudsman": "передана омбудсмену",
@@ -1998,7 +1994,24 @@
     "25,000": "25 000",
     "412,388": "412 388",
     "412,166": "412 166",
-    "LISTENING": "СЛУШАЕТ"
+    "LISTENING": "СЛУШАЕТ",
+    "It paid nothing, or it paid the wrong amount": "Ничего не выплатили или выплатили не ту сумму",
+    "The payment was decided, but the money has not arrived": "Выплату назначили, но деньги не пришли",
+    "The cover is not what I was sold": "Покрытие не то, которое мне продали",
+    "How the company treated me": "Как компания со мной обошлась",
+    "Storm, on extreme wind at the address": "Шторм, по экстремальному ветру по адресу",
+    "Vehicle, flood from extreme rainfall": "Автомобиль, затопление из-за экстремального дождя",
+    "{place}, within {radius} km": "{place}, в радиусе {radius} км",
+    "{place}, shaking at the address": "{place}, сотрясение по адресу",
+    "{place}, wind read at {station} ({distance} km)": "{place}, ветер измеряется на {station} ({distance} км)",
+    "{place}, rainfall read at {station} ({distance} km)": "{place}, дождь измеряется на {station} ({distance} км)",
+    "{flight} on {origin} to {destination}, {date}": "{flight}, {origin}–{destination}, {date}",
+    "Network": "Сеть",
+    "Send it on {chain} and nowhere else.": "Отправляйте только в сети {chain} и нигде больше.",
+    "The same address exists on other chains, and a transfer sent on one of those cannot be recovered.": "Тот же адрес существует и в других сетях, и перевод, отправленный в одну из них, вернуть нельзя.",
+    "This is a test network.": "Это тестовая сеть.",
+    "Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either.": "Отправляйте только тестовые USDC. Всё ценное, отправленное сюда, будет потеряно, а начисленный баланс — тоже не деньги.",
+    "Wallet transfers are watched on {chains}.": "Переводы из кошелька отслеживаются в сети {chains}."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2065,6 +2078,11 @@
     "a bank payout takes about {days} days",
     "{days} extra days to change your mind, beyond the {law} the law gives",
     "inside the {days} day cooling off period under {law}: all of it comes back",
-    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing"
+    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing",
+    "{place}, within {radius} km",
+    "{place}, shaking at the address",
+    "{place}, wind read at {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}"
   ]
 }

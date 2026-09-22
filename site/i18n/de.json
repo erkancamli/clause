@@ -1859,10 +1859,6 @@
     "Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.": "Ihr {days}-tägiges Widerrufsrecht läuft ab dem Tag, an dem Sie den Vertrag erhalten haben; die Rückzahlung erfolgt binnen {refund_days} Tagen, hier sofort.",
     "You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below.": "Der Vertrag wurde Ihnen vor dem Kauf nicht auf einem dauerhaften Datenträger übergeben, daher können Sie ein Jahr lang widerrufen. Laden Sie unten Ihre Kopie herunter.",
     "Your copy of the contract": "Ihre Kopie des Vertrags",
-    "The settlement: it paid nothing, or the wrong amount": "Die Abwicklung: nichts gezahlt oder der falsche Betrag",
-    "The payment: it was decided but has not arrived": "Die Zahlung: entschieden, aber nicht angekommen",
-    "The cover: it is not what I bought": "Der Versicherungsschutz: nicht das, was ich gekauft habe",
-    "The company: how it dealt with me": "Das Unternehmen: wie es mit mir umgegangen ist",
     "waiting for the company": "wartet auf das Unternehmen",
     "answered by the company": "vom Unternehmen beantwortet",
     "taken to the ombudsman": "an die Schlichtungsstelle gegeben",
@@ -1998,7 +1994,24 @@
     "25,000": "25.000",
     "412,388": "412.388",
     "412,166": "412.166",
-    "LISTENING": "HÖRT ZU"
+    "LISTENING": "HÖRT ZU",
+    "It paid nothing, or it paid the wrong amount": "Es wurde nichts gezahlt, oder der Betrag war falsch",
+    "The payment was decided, but the money has not arrived": "Die Zahlung wurde entschieden, aber das Geld ist nicht angekommen",
+    "The cover is not what I was sold": "Der Versicherungsschutz ist nicht der, den man mir verkauft hat",
+    "How the company treated me": "Wie das Unternehmen mich behandelt hat",
+    "Storm, on extreme wind at the address": "Sturm, auf extremen Wind an der Adresse",
+    "Vehicle, flood from extreme rainfall": "Fahrzeug, Überschwemmung durch extremen Regen",
+    "{place}, within {radius} km": "{place}, im Umkreis von {radius} km",
+    "{place}, shaking at the address": "{place}, Erschütterung an der Adresse",
+    "{place}, wind read at {station} ({distance} km)": "{place}, Wind gemessen an {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)": "{place}, Regen gemessen an {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}": "{flight}, {origin}–{destination}, {date}",
+    "Network": "Netzwerk",
+    "Send it on {chain} and nowhere else.": "Senden Sie es über {chain} und über kein anderes Netzwerk.",
+    "The same address exists on other chains, and a transfer sent on one of those cannot be recovered.": "Dieselbe Adresse gibt es auf anderen Chains, und eine dorthin gesendete Überweisung ist nicht zurückzuholen.",
+    "This is a test network.": "Dies ist ein Testnetzwerk.",
+    "Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either.": "Senden Sie nur Test-USDC. Alles von Wert, das hierher geschickt wird, ist verloren, und das gutgeschriebene Guthaben ist ebenfalls kein Geld.",
+    "Wallet transfers are watched on {chains}.": "Überweisungen aus einer Wallet werden auf {chains} beobachtet."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2065,6 +2078,11 @@
     "a bank payout takes about {days} days",
     "{days} extra days to change your mind, beyond the {law} the law gives",
     "inside the {days} day cooling off period under {law}: all of it comes back",
-    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing"
+    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing",
+    "{place}, within {radius} km",
+    "{place}, shaking at the address",
+    "{place}, wind read at {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}"
   ]
 }

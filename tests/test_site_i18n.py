@@ -168,6 +168,65 @@ def test_the_legal_warnings_survived_translation(lang) -> None:
         assert strings.get(key) and strings[key] != key, key
 
 
+def _resolves(text: str, data: dict) -> bool:
+    """Whether ``ts()`` would find a translation for this sentence."""
+    strings = data["strings"]
+    if text in strings:
+        return True
+    for template in data["patterns"]:
+        source = re.escape(template).replace(r"\{", "{").replace(r"\}", "}")
+        source = re.sub(r"\{(\w+)\}", "(.+?)", source)
+        if re.fullmatch(source, text) and template in strings:
+            return True
+    return False
+
+
+def peril_sentences() -> list[tuple[str, str]]:
+    """Every cover name and subject line the protocol composes.
+
+    These reach the page through ``ts(policy.peril_name)``, so neither the
+    literal scan nor the markup scan can see them, and nothing was checking
+    them. A buyer with a storm policy read "Storm, on extreme wind at the
+    address" in English on an otherwise Turkish page, and the address line
+    ended "wind read at İstanbul (17 km)" in the middle of a Turkish
+    sentence.
+    """
+    from clause.perils import REGISTRY
+
+    subjects: dict[str, list[dict]] = {
+        "earthquake": [
+            {"location": "IST-KADIKOY", "radius_km": 50.0},
+            {"latitude": 40.99, "longitude": 29.03, "radius_km": 25.0, "place": "A street"},
+            {"latitude": 40.99, "longitude": 29.03, "radius_km": 25.0,
+             "place": "A street", "index": "shaking", "built": 1998},
+        ],
+        "storm": [{"latitude": 40.99, "longitude": 29.03, "place": "A street"}],
+        "vehicle_flood": [{"latitude": 40.99, "longitude": 29.03, "place": "A street"}],
+        "drought": [{"station": "TR-KONYA", "distance_km": 6.0, "hectares": 60.0}],
+        "flight_delay": [{"route": "TK-IST-LHR", "flight_number": "TK1979",
+                          "departure_date": "2026-10-05"}],
+    }
+    out: list[tuple[str, str]] = []
+    for key, rows in subjects.items():
+        peril = REGISTRY[key]
+        for row in rows:
+            try:
+                subject = peril.validate_subject(dict(row))
+            except Exception:  # a shape this peril does not accept
+                continue
+            out.append(("cover name", peril.title_for(subject)))
+            out.append(("subject line", peril.describe_subject(subject)))
+    return out
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_every_cover_name_and_subject_line_is_translated(lang) -> None:
+    data = dictionary(lang)
+    missing = [f"{kind}: {text}" for kind, text in peril_sentences()
+               if not _resolves(text, data)]
+    assert not missing, missing[:6]
+
+
 def table_sentences() -> dict[str, list[str]]:
     """English the page translates through a variable rather than a literal.
 

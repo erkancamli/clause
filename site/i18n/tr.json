@@ -1867,10 +1867,6 @@
     "Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.": "{days} günlük cayma hakkınız sözleşmeyi aldığınız günden başlar; iade en geç {refund_days} gün içinde, burada hemen ödenir.",
     "You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below.": "Satın almadan önce sözleşme size kalıcı bir ortamda verilmediği için bir yıl boyunca cayabilirsiniz. Kopyanızı aşağıdan indirin.",
     "Your copy of the contract": "Sözleşme kopyanız",
-    "The settlement: it paid nothing, or the wrong amount": "Sonuçlandırma: hiç ödemedi ya da yanlış tutar ödedi",
-    "The payment: it was decided but has not arrived": "Ödeme: karar verildi ama gelmedi",
-    "The cover: it is not what I bought": "Teminat: aldığım şey bu değil",
-    "The company: how it dealt with me": "Şirket: bana nasıl davrandığı",
     "waiting for the company": "şirketin yanıtı bekleniyor",
     "answered by the company": "şirket yanıtladı",
     "taken to the ombudsman": "tahkime taşındı",
@@ -2006,7 +2002,24 @@
     "25,000": "25.000",
     "412,388": "412.388",
     "412,166": "412.166",
-    "LISTENING": "DİNLİYOR"
+    "LISTENING": "DİNLİYOR",
+    "It paid nothing, or it paid the wrong amount": "Hiç ödeme yapılmadı ya da yanlış tutar ödendi",
+    "The payment was decided, but the money has not arrived": "Ödeme kararı verildi ama para gelmedi",
+    "The cover is not what I was sold": "Teminat, bana satılan şey değil",
+    "How the company treated me": "Şirketin bana karşı tutumu",
+    "Storm, on extreme wind at the address": "Fırtına, adresteki aşırı rüzgâra göre",
+    "Vehicle, flood from extreme rainfall": "Araç, aşırı yağıştan gelen su baskını",
+    "{place}, within {radius} km": "{place}, {radius} km içinde",
+    "{place}, shaking at the address": "{place}, adresteki sarsıntı",
+    "{place}, wind read at {station} ({distance} km)": "{place}, rüzgâr {station} istasyonunda ölçülüyor ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)": "{place}, yağış {station} istasyonunda ölçülüyor ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}": "{flight}, {origin}–{destination}, {date}",
+    "Network": "Ağ",
+    "Send it on {chain} and nowhere else.": "Yalnızca {chain} üzerinden gönderin, başka hiçbir ağdan değil.",
+    "The same address exists on other chains, and a transfer sent on one of those cannot be recovered.": "Aynı adres başka zincirlerde de vardır; yanlış zincirden gönderilen transfer geri alınamaz.",
+    "This is a test network.": "Bu bir test ağıdır.",
+    "Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either.": "Yalnızca test USDC gönderin. Buraya gönderilen değerli hiçbir şey geri gelmez; karşılığında yüklenen bakiye de para değildir.",
+    "Wallet transfers are watched on {chains}.": "Cüzdan transferleri {chains} üzerinde izleniyor."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2073,6 +2086,11 @@
     "a bank payout takes about {days} days",
     "{days} extra days to change your mind, beyond the {law} the law gives",
     "inside the {days} day cooling off period under {law}: all of it comes back",
-    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing"
+    "the unexpired {share} of the term comes back: an earthquake cannot be seen coming, so leaving early tells the pool nothing",
+    "{place}, within {radius} km",
+    "{place}, shaking at the address",
+    "{place}, wind read at {station} ({distance} km)",
+    "{place}, rainfall read at {station} ({distance} km)",
+    "{flight} on {origin} to {destination}, {date}"
   ]
 }

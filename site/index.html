@@ -3943,8 +3943,14 @@ function cancelHtml(policy){
    page shows the clock, lets the holder write, and when the clock has run
    out or the answer has come, hands over the file the ombudsman's form asks
    for: the policy, its readings and settlements, the thread, the links. */
-var COMPLAINT_SUBJECTS={settlement:N("The settlement: it paid nothing, or the wrong amount"),payment:N("The payment: it was decided but has not arrived"),
-  cover:N("The cover: it is not what I bought"),service:N("The company: how it dealt with me"),other:N("Something else")};
+/* What went wrong, said the way somebody would say it. These used to be a
+   label, a colon and a fragment — "The company: how it dealt with me" is not
+   a sentence in English either, which is why every translation of it came out
+   broken. A complaint form offers statements, not headings. */
+var COMPLAINT_SUBJECTS={settlement:N("It paid nothing, or it paid the wrong amount"),
+  payment:N("The payment was decided, but the money has not arrived"),
+  cover:N("The cover is not what I was sold"),service:N("How the company treated me"),
+  other:N("Something else")};
 var COMPLAINT_STATUS={open:N("waiting for the company"),answered:N("answered by the company"),closed:N("closed"),escalated:N("taken to the ombudsman")};
 var WHO={holder:N("You"),company:N("The company"),operator:N("The operator")};
 function complaintWhen(x){ return new Date(x*1000).toLocaleString(LOCALES[LANG]||"en-US"); }
@@ -4432,8 +4438,16 @@ function fundingPanel(f){
       '<td>'+esc(t(FUNDING_STATUS[r.status]||r.status))+(r.status==="received"?' · '+money(r.received)+' USDC':'')+(r.note?' · '+esc(r.note):'')+'</td>'+
       '<td>'+(r.status==="waiting"?'<button class="btn btn-ghost btn-sm" type="button" data-fund-cancel="'+esc(r.request_id)+'">'+esc(t("Cancel"))+'</button>':'')+'</td></tr>';
   }).join("");
+  var nets=how.networks||{};
+  var netline=Object.keys(nets).length
+    ? '<p class="fine"><b>'+esc(t("Wallet transfers are watched on {chains}.",
+        {chains:listText(Object.keys(nets).map(function(k){return nets[k];}))}))+'</b></p>' : "";
+  var testline=how.testnet
+    ? '<div class="verdict" style="margin:8px 0"><p><b>'+esc(t("This is a test network."))+'</b> '+
+      esc(t("Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either."))+'</p></div>' : "";
   return '<details class="more" id="funding-box"'+(waiting.length?' open':'')+'><summary>'+esc(t("Add balance"))+': <b>'+
       esc(waiting.length?t("{n} transfer waiting",{n:waiting.length}):t("bank transfer or a wallet"))+'</b></summary><div class="inner">'+
+    testline+netline+
     '<p class="fine">'+esc(t("Balance here is USDC. Announce what you will send and how; you get the account or address to send it to and a reference to write on the transfer. When it arrives, the operator confirms it and your balance is credited. A bank transfer usually takes a working day."))+
       ((how.watched&&(how.watched.solana||how.watched.evm))?' '+esc(t("Deposits from a Solana or Ethereum wallet are seen on chain and credited within a minute of arriving; write the reference in the memo, or give the sending wallet below.")):'')+'</p>'+
     '<div class="seg" id="fund-method" role="radiogroup">'+how.methods.map(function(m,i){
@@ -4452,9 +4466,16 @@ function fundingDetailsHtml(req,how){
     var b=how.bank||{};
     lines=[[t("To"),b.account_name],[t("Bank"),b.bank],["IBAN",b.iban.replace(/(.{4})/g,"$1 ").trim()],[t("Amount"),money(req.amount)+" USDC "+t("(or its value in the account's currency)")],[t("Reference, written on the transfer"),req.reference]];
   }else{
-    lines=[[t("Send USDC to"),how[req.method]],[t("Amount"),money(req.amount)+" USDC"],[t("Memo or reference"),req.reference]];
+    lines=[[t("Network"),(how.networks||{})[req.method]||""],[t("Send USDC to"),how[req.method]],
+           [t("Amount"),money(req.amount)+" USDC"],[t("Memo or reference"),req.reference]];
   }
-  return '<div class="verdict ok" style="margin-top:10px"><p><b>'+esc(t("Send it exactly like this."))+'</b> '+esc(t("The reference is how the transfer is matched to your address; without it the money waits."))+'</p>'+
+  var chain=(how.networks||{})[req.method]||"";
+  var warn=req.method==="bank"?"":
+    '<p style="margin-top:8px"><b>'+esc(t("Send it on {chain} and nowhere else.",{chain:chain}))+'</b> '+
+    esc(t("The same address exists on other chains, and a transfer sent on one of those cannot be recovered."))+'</p>'+
+    (how.testnet?'<p style="margin-top:8px"><b>'+esc(t("This is a test network."))+'</b> '+
+      esc(t("Send test USDC only. Anything of value sent here is lost, and the balance it credits is not money either."))+'</p>':'');
+  return '<div class="verdict '+(how.testnet&&req.method!=="bank"?"":"ok")+'" style="margin-top:10px"><p><b>'+esc(t("Send it exactly like this."))+'</b> '+esc(t("The reference is how the transfer is matched to your address; without it the money waits."))+'</p>'+warn+
     '<div class="holding" style="margin-top:8px">'+lines.filter(function(l){return l[1];}).map(function(l){
       return '<div class="hrow"><span>'+esc(l[0])+'</span><b class="mono" style="word-break:break-all">'+esc(l[1])+'</b></div>'; }).join("")+'</div></div>';
 }
