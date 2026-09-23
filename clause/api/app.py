@@ -17,6 +17,7 @@ import os
 import re
 import threading
 import time
+from types import SimpleNamespace
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator
@@ -51,6 +52,7 @@ from ..protocol.valuation import KIND_FOR, ValuationError, schedule, value_of
 from ..live import QUIET_DAY, aeroapi_feed, airlabs_feed, flight_feed, quake_feed, quake_week_feed, select_quakes
 from ..protocol.auth import AuthError, Authenticator
 from ..protocol import kyb
+from ..protocol.property import Register as PropertyRegister, key_for as property_key
 from ..protocol.instalments import part as plan_part, rescheduled
 from ..protocol.carrier import (
     Appetite,
@@ -649,6 +651,12 @@ def create_app(
     # Where the book is kept between restarts. CLAUSE_STATE_DIR in a
     # deployment; nowhere in a test, which keeps its book in memory.
     from ..store import Keeper, Store, checkpoint, default_path, restore
+    # Which property has been proved to belong to whom, and what that allows.
+    # Two policies on one flat pay twice for one earthquake, because this pays
+    # on an index and not on a loss, so the rule that stops it has to be
+    # written rather than left to the loss itself.
+    properties = PropertyRegister()
+
     path = default_path() if store_path == "env" else store_path
     store = Store(path) if path else None
     keeper = None
@@ -659,7 +667,7 @@ def create_app(
             mandates=mandates, applications=applications, funding=funding,
             links=links, instructions=instructions, assets=assets, pipeline=pipeline,
             documents=documents, fees=fees, anchor=anchor, complaints=complaints,
-            papers=papers, counting=counting))
+            papers=papers, counting=counting, properties=properties))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -848,7 +856,7 @@ def create_app(
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
                              pipeline=pipeline, documents=documents, fees=fees, anchor=anchor, complaints=complaints,
-                             papers=papers, counting=counting)
+                             papers=papers, counting=counting, properties=properties)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -1103,6 +1111,7 @@ def create_app(
     app.state.complaints = complaints
     app.state.papers = papers
     app.state.counting = counting
+    app.state.properties = properties
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -1391,6 +1400,41 @@ def create_app(
         return model.card()
 
     # -- quoting and buying -----------------------------------------------
+
+    def property_of(peril: str, subject: dict[str, Any], address: dict[str, str] | None,
+                    interest: Any, size: dict[str, Any] | None):
+        """The key for what this cover is written on, or None if it names no
+        property. Flights and fields have no address and none is invented.
+
+        The coordinate is taken from the resolved subject and not the one that
+        arrived: a buyer who named a place sends "IST-KADIKOY" and the peril
+        turns it into a point, and computing the key on one of those at the
+        gate and on the other at the write gave one flat two identities and
+        enforced nothing.
+        """
+        latitude, longitude = place_of(peril, subject)
+        return property_key(
+            address,
+            country=str(getattr(interest, "country", "") or "").upper(),
+            latitude=latitude, longitude=longitude,
+            building=str((size or {}).get("building", "")),
+        )
+
+    def property_refusals(holder: str, peril: str, subject: dict[str, Any],
+                          address: dict[str, str] | None, interest: Any,
+                          limit: float, value_at_risk: float) -> list[str]:
+        """Why this property may not carry this cover, in the buyer's words."""
+        key = property_of(peril, subject, address, interest,
+                          getattr(interest, "size", None))
+        if key is None:
+            return []
+        with money:
+            properties.reconcile(pool.policies.values())
+            allowed, reasons = properties.may_write(
+                key, holder, peril=peril, limit=limit, declared=value_at_risk,
+                property_value=value_at_risk,
+            )
+        return [] if allowed else reasons
 
     def clean_address(address: dict[str, Any] | None) -> dict[str, str] | None:
         if not address:
@@ -1698,6 +1742,23 @@ def create_app(
                     "basis": valuation.basis if valuation else None,
                     "professional": interest.holder_is_professional,
                 }
+                # Which property this is written on, as an identifier and not
+                # as an address. The address itself is deliberately not on the
+                # policy record - only a fingerprint of it is - and that is
+                # right, but it left the book unable to say whether one home
+                # already carried cover. The identifier is the same kind of
+                # thing as the fingerprint already there: it names the property
+                # to anyone who knows the address and to nobody who does not.
+                # declared, not interest: the address is on what the buyer
+                # sent, and the Interest the gate is given deliberately
+                # carries no address at all.
+                place = property_of(peril, policy_.subject,
+                                    clean_address(getattr(declared, "address", None)),
+                                    interest, valuation.size if valuation else None)
+                if place is not None:
+                    policy_.metadata["property"] = {
+                        "id": place.property_id, "unit": place.unit_level,
+                    }
                 # Which claims were satisfied and when they run out. Not the
                 # statements themselves, and nothing that identifies anyone.
                 policy_.metadata["eligibility"] = {
@@ -2033,6 +2094,14 @@ def create_app(
             # the application path: the signature binds the buyer to that text.
             terms["contract_hash"] = request.contract_hash
         holder = signed(request.holder, "buy", request.nonce, request.signature, terms)
+        # The same three rules as the application path. A deployment with
+        # direct_buy on writes a home policy here instead of applying for one,
+        # and a rule enforced on one of two doors is not enforced.
+        refused = property_refusals(holder, request.peril, subject,
+                                    clean_address(request.interest.address),
+                                    request.interest, limit, value_at_risk)
+        if refused:
+            raise Refused(409, "; ".join(refused))
         if KIND_FOR.get(request.peril) in ("home", "vehicle") and not settings.direct_buy:
             # A home or a car is checked by the issuing company first: its
             # address, its ownership, the contract read and accepted. That is
@@ -3594,6 +3663,14 @@ def create_app(
         if kind in ("home", "vehicle") and not address:
             raise Refused(422, "give the address of the home, or where the car is kept: the insurer "
                                "checks that it is yours")
+        # Double insurance. This pays on an index rather than on a loss, so two
+        # covers on one home pay twice for one earthquake and no claim has to be
+        # filed for it to happen. The register holds the three rules that an
+        # indemnity policy gets from the loss itself.
+        refused = property_refusals(holder, request.peril, subject, address,
+                                    request.interest, limit, value_at_risk)
+        if refused:
+            raise Refused(409, "; ".join(refused))
         need, ruling, info = await issue(
             holder=holder, peril=request.peril, subject=subject, limit=limit,
             term_days=term_days, declared=request.interest, size=size,
@@ -4145,6 +4222,20 @@ def create_app(
         with money:
             applications.close(app_, "approved", by=reviewer, note=request.note,
                                checked=list(request.checked), policy_id=policy.policy_id)
+            # Approval is the company accepting the paper that says this home is
+            # the applicant's, so it is what verifies the property. Recorded
+            # with who accepted it: a decision on a document, not a search of a
+            # land registry, and the record does not claim to be one.
+            proved = property_of(app_.peril, app_.subject, app_.address,
+                                 SimpleNamespace(country=(app_.declared or {}).get("country", ""),
+                                                 size=app_.size),
+                                 app_.size)
+            if proved is not None:
+                properties.verify(
+                    proved, app_.holder, value_at_risk=app_.value_at_risk,
+                    by=app_.carrier_id or reviewer, application_id=app_.app_id,
+                    country=str((app_.declared or {}).get("country", "")),
+                )
             documents.purge(app_.app_id)
         try:
             papers.give(app_.holder, "decision", f"Your cover is in force, {policy.policy_id}",

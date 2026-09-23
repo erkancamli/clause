@@ -321,9 +321,13 @@ def _books(payouts: Any, partners: Any, mandates: Any,
            instructions: Any = None, assets: Any = None, pipeline: Any = None,
            documents: Any = None, fees: Any = None, anchor: Any = None,
            complaints: Any = None, papers: Any = None,
-           counting: Any = None) -> dict[str, dict[str, Any]]:
+           counting: Any = None, properties: Any = None) -> dict[str, dict[str, Any]]:
     """The newer books, each a plain dict of stored kinds, when present."""
     out: dict[str, dict[str, Any]] = {}
+    if properties is not None:
+        # Which property has been proved to belong to whom. What is in force
+        # on each is read from the book and not kept, so only this is saved.
+        out["property"] = properties.holdings
     if counting is not None:
         # How many of each thing happened on each day. No person is in here.
         out["count"] = counting.days
@@ -386,7 +390,8 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
                mandates: Any = None, applications: Any = None, funding: Any = None,
                links: Any = None, instructions: Any = None, assets: Any = None,
                pipeline: Any = None, documents: Any = None, fees: Any = None, anchor: Any = None,
-               complaints: Any = None, papers: Any = None, counting: Any = None) -> None:
+               complaints: Any = None, papers: Any = None, counting: Any = None,
+               properties: Any = None) -> None:
     with pool.lock, chain.lock:
         meta = {
             "format": FORMAT,
@@ -415,7 +420,7 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
             "privy": dict(accounts._by_user),
         }
         books.update({kind: dict(book) for kind, book in
-                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints, papers, counting).items()})
+                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints, papers, counting, properties).items()})
         docs = {kind: {str(id_): _text(item) for id_, item in book.items()} for kind, book in books.items()}
         # Only what is not on disk yet is encoded. Encoding the whole
         # settlement log on every cycle to write its last few entries was,
@@ -430,7 +435,8 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
             mandates: Any = None, applications: Any = None, funding: Any = None,
             links: Any = None, instructions: Any = None, assets: Any = None,
             pipeline: Any = None, documents: Any = None, fees: Any = None, anchor: Any = None,
-            complaints: Any = None, papers: Any = None, counting: Any = None) -> dict[str, int]:
+            complaints: Any = None, papers: Any = None, counting: Any = None,
+            properties: Any = None) -> dict[str, int]:
     """Put a saved book back. Returns counts, for the log line."""
     from .protocol.auth import load_public_key
 
@@ -458,6 +464,8 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
 
     wallets.accounts = store.docs("wallet")
     registry.carriers = store.docs("carrier")
+    if properties is not None:
+        properties.holdings = store.docs("property")
 
     for address, encoded in store.docs("key").items():
         try:
