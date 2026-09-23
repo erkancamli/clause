@@ -658,7 +658,7 @@ def create_app(
             mandates=mandates, applications=applications, funding=funding,
             links=links, instructions=instructions, assets=assets, pipeline=pipeline,
             documents=documents, fees=fees, anchor=anchor, complaints=complaints,
-            papers=papers))
+            papers=papers, counting=counting))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -732,6 +732,9 @@ def create_app(
     # Complaints: a thread on the policy, the company's clock, the file for the ombudsman.
     from ..protocol.complaints import ComplaintError, Complaints, route_for
     complaints = Complaints()
+    # How many, and nothing about who: the only measurement this protocol has.
+    from ..protocol.counting import Counting
+    counting = Counting()
     # What each buyer was given: the confirmation, the terms, the reminder of
     # the right to withdraw. Kept because there is nowhere to send them.
     from ..protocol.papers import PaperError, Papers
@@ -844,7 +847,7 @@ def create_app(
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
                              pipeline=pipeline, documents=documents, fees=fees, anchor=anchor, complaints=complaints,
-                             papers=papers)
+                             papers=papers, counting=counting)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -1090,6 +1093,7 @@ def create_app(
     app.state.anchor = anchor
     app.state.complaints = complaints
     app.state.papers = papers
+    app.state.counting = counting
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -1717,6 +1721,7 @@ def create_app(
         request including the live stream.
         """
         guard(http, "quote", limit=20, window=60.0)
+        counting.count("priced", request.peril)
         return await price(request)
 
     async def price(request: QuoteRequest) -> dict[str, Any]:
@@ -1794,6 +1799,7 @@ def create_app(
         subject = clean_subject(request.subject)
         limit = bounded(request.limit, "limit", MIN_LIMIT, MAX_LIMIT)
         term_days = bounded(request.term_days, "term_days", MIN_TERM_DAYS, MAX_TERM_DAYS)
+        counting.count("contracted", request.peril)
 
         def priced():
             held = promised(request.quote_id, request.peril, subject, limit, term_days)
@@ -1852,6 +1858,7 @@ def create_app(
         """
         from ..protocol.cancellation import cooling_off_for
         guard(http, "quote", limit=20, window=60.0)
+        counting.count("offered", request.peril)
         answer = await price(request)
         subject = answer["subject"]
         peril = get_peril(request.peril)
@@ -1987,6 +1994,7 @@ def create_app(
                 logger.exception("could not write the contract onto %s", policy.policy_id)
         give_papers(holder, policy, (policy.metadata or {}).get("contract", ""),
                     (policy.metadata or {}).get("contract_hash", ""))
+        counting.count("bought", request.peril)
         return {
             "policy": policy.to_dict(),
             "account": armed.account,
@@ -3547,6 +3555,7 @@ def create_app(
                             terms_hash=getattr(app_, "contract_hash", "") or "")
         except Exception:
             logger.exception("could not write the papers for %s", app_.app_id)
+        counting.count("applied", request.peril)
         return {"application": with_documents(app_), "wallet": wallets.require(holder).as_dict(),
                 "session": auth.issue_session(holder)}
 
@@ -4160,6 +4169,17 @@ def create_app(
                     about=reference)
         except Exception:      # a paper is a copy; the cover is the thing
             logger.exception("could not write the papers for %s", getattr(policy, "policy_id", "?"))
+
+    @app.get("/api/operator/funnel")
+    async def operator_funnel(days: int = Query(30, ge=1, le=400),
+                              token: str | None = Depends(bearer),
+                              operator: str | None = Header(None, alias="x-operator-token")) -> dict[str, Any]:
+        """How many got as far as each stage. Counts of requests, never of
+        people: this protocol cannot tell two requests from one buyer apart
+        and has nothing that could be made to."""
+        reviewer_of(operator, token)
+        return {**counting.funnel(days),
+                "by_day": [d.to_dict() for d in counting.since(days)]}
 
     @app.get("/api/papers")
     async def papers_mine(token: str | None = Depends(bearer)) -> dict[str, Any]:

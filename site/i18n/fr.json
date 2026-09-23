@@ -2078,7 +2078,12 @@
     "Your right to withdraw": "Votre droit de rétractation",
     "The insurer's decision": "La décision de l’assureur",
     "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "Conservés ici parce que rien n’est envoyé nulle part : aucune adresse e-mail ni numéro de téléphone n’est demandé. L’ouverture d’un document est consignée, et aucun n’est jamais supprimé.",
-    "The papers themselves are in English, which is the binding text, as the contract is.": "Les documents eux-mêmes sont en anglais, qui est le texte qui fait foi, comme pour le contrat."
+    "The papers themselves are in English, which is the binding text, as the contract is.": "Les documents eux-mêmes sont en anglais, qui est le texte qui fait foi, comme pour le contrat.",
+    "Add the paper that shows it is yours": "Ajoutez le document qui prouve que cela vous appartient",
+    "Title deed, lease or vehicle registration": "Titre de propriété, bail ou carte grise",
+    "The company will want to see the paper that shows it is yours. Send it now, or later from My cover; it does not have to be today.": "La compagnie voudra voir le document qui prouve que cela vous appartient. Envoyez-le maintenant ou plus tard depuis Ma couverture ; ce n’est pas obligé d’être aujourd’hui.",
+    "The company will want to see the paper that shows it is yours. You send it after buying, from the screen that follows or from My cover: nothing about the price depends on it, and the company decides afterwards either way.": "La compagnie voudra voir le document qui prouve que cela vous appartient. Vous l’envoyez après l’achat, depuis l’écran suivant ou depuis Ma couverture : cela n’influe pas sur le prix, et la compagnie décide de toute façon ensuite.",
+    "The company will want to see the vehicle registration. You send it after buying, from the screen that follows or from My cover: nothing about the price depends on it, and the company decides afterwards either way.": "La compagnie voudra voir la carte grise. Vous l’envoyez après l’achat, depuis l’écran suivant ou depuis Ma couverture : cela n’influe pas sur le prix, et la compagnie décide de toute façon ensuite."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

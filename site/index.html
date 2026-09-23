@@ -1874,12 +1874,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           </div>
           <p class="fine" id="addr-offered" hidden></p>
           <p class="fine" id="addr-note" data-i18n>Seen only by the company that issues the policy, which checks that the home is yours or that you live in it (title deed or lease). The protocol keeps a fingerprint of it, not the address.</p>
-          <div class="field" style="margin-top:12px">
-            <label class="label" for="docs" id="docs-label" data-i18n>Documents for that check: title deed, lease or vehicle registration</label>
-            <input id="docs" type="file" accept="application/pdf,image/png,image/jpeg" multiple>
-            <p class="fine" id="docs-note" data-i18n>Optional. Up to 4 files, PDF, PNG or JPEG, 4 MB each. Each is sealed in this browser to the company that will decide your application, and opens nowhere else: not at the protocol, not for its operator. My cover shows what you sent and who opened it; once the application is decided the sealed copies are deleted.</p>
-            <p class="fine" id="docs-picked"></p>
-          </div>
+          <p class="fine" id="docs-note" data-i18n>The company will want to see the paper that shows it is yours. You send it after buying, from the screen that follows or from My cover: nothing about the price depends on it, and the company decides afterwards either way.</p>
         </div>
         <div class="field" id="value-field">
           <label class="label" for="value"><span id="value-label">What the trip cost</span><span class="val" id="value-val"></span></label>
@@ -2023,6 +2018,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         <div class="bar"><span class="lamp"></span><span class="label" id="done-state" data-i18n>Armed on chain</span><span class="right label mono" id="done-id"></span></div>
         <div class="body">
           <div class="kvs" id="done-kvs"></div>
+          <div id="done-docs-ask"></div>
           <div class="code" id="done-pred"></div>
         </div>
       </div>
@@ -5169,11 +5165,20 @@ function renderMineApplications(){
           return '<div>'+esc(d.filename)+' ('+esc(docSize(d.bytes))+') · '+esc(docStateText(d))+
             (a.status==="pending"&&d.available?' <button class="btn btn-ghost btn-sm" type="button" data-doc-remove="'+esc(a.app_id)+'/'+esc(d.doc_id)+'">'+esc(t("Take it back"))+'</button>':'')+'</div>';
         }).join("")+'</div>':'')+
+        // The page has been telling people they could add documents here. Now
+        // it lets them, for as long as the application is still open.
+        (a.status==="pending"&&(a.checks||[]).indexOf("ownership")>=0
+          ? '<div data-docs-for="'+esc(a.app_id)+'">'+docPickerHtml("app-docs-"+esc(a.app_id),
+              t("Add the paper that shows it is yours"))+'</div>' : '')+
         (a.status==="pending"&&reply.demo?'<p class="fine">'+esc(t("On this demonstration you approve it yourself: sign out, sign in as a company, take the issuer's desk on the Company page and decide it there; or decide it as the operator, under Applications."))+'</p>':'')+
         (a.status==="pending"?'<div><button class="btn btn-ghost btn-sm" type="button" data-withdraw-app="'+esc(a.app_id)+'">'+
           esc(t("Withdraw the application"))+'</button></div>':'')+
         '</div></div>';
     }).join("")+'</div>';
+    Array.prototype.forEach.call(box.querySelectorAll("[data-docs-for]"),function(slot){
+      var a=rows.filter(function(x){return x.app_id===slot.dataset.docsFor;})[0];
+      if(a)bindDocPicker("app-docs-"+a.app_id,a,function(){ renderMineApplications(); });
+    });
     Array.prototype.forEach.call(box.querySelectorAll("[data-withdraw-app]"),function(b){
       b.addEventListener("click",function(){
         b.disabled=true;
@@ -6922,19 +6927,9 @@ function renderInterest(){
     var offered=$("addr-offered");
     if(offered){ offered.hidden=!(interest.addressOffered&&!interest.addressTouched);
       offered.textContent=t("Filled in from the place you chose. Correct it if it is not right."); }
-    $("docs-label").textContent=flow.peril==="car"?t("Documents for that check: the vehicle registration"):t("Documents for that check: title deed, lease or vehicle registration");
-    var docs=$("docs");
-    if(!docs.dataset.bound){ docs.dataset.bound="1"; docs.addEventListener("change",function(){
-      var files=Array.prototype.slice.call(docs.files||[]), bad=null;
-      if(files.length>4)bad=t("At most 4 documents.");
-      files.forEach(function(f){
-        if(f.size>4000000)bad=bad||t("Each document is at most 4 MB.");
-        if(["application/pdf","image/png","image/jpeg"].indexOf(f.type)<0)bad=bad||t("Documents are PDF, PNG or JPEG.");
-      });
-      if(bad){ docs.value=""; flow.interest.documents=[]; $("docs-picked").textContent=bad; return; }
-      flow.interest.documents=files;
-      $("docs-picked").textContent=files.length?t("{n} to send, sealed, with the application: {names}",{n:files.length,names:files.map(function(f){return f.name;}).join(", ")}):"";
-    }); }
+    $("docs-note").textContent=flow.peril==="car"
+      ? t("The company will want to see the vehicle registration. You send it after buying, from the screen that follows or from My cover: nothing about the price depends on it, and the company decides afterwards either way.")
+      : t("The company will want to see the paper that shows it is yours. You send it after buying, from the screen that follows or from My cover: nothing about the price depends on it, and the company decides afterwards either way.");
   }
   $("inside-sub").textContent=t("It is inside {area}.",{area:areaSentence()});
   $("inside").setAttribute("aria-pressed",String(!!interest.inside));
@@ -7585,27 +7580,57 @@ function showBuyError(error){
 }
 
 var LAST_DONE=null;
-/* The documents chosen at the address step, sealed here to whoever will
-   decide and sent once the application exists to attach them to. */
-function sendDocuments(a){
-  var out=$("done-docs"), files=flow.interest.documents||[];
-  if(!out)return;
-  if(!files.length){ out.textContent=(a.documents||[]).map(function(d){return d.filename;}).join(", "); return; }
+/* ---- the papers that show the thing is yours ---------------------------
+   These are asked for after the purchase, not during it. The insurer decides
+   afterwards in any case, and nothing about the price depends on them, so
+   putting a file picker in front of somebody who is still choosing cover
+   only delays the cover. They can be sent from the screen that follows the
+   purchase, or from My cover at any time while the application is open. */
+var DOC_TYPES=["application/pdf","image/png","image/jpeg"];
+function badDocuments(files){
+  if(files.length>4)return t("At most 4 documents.");
+  for(var i=0;i<files.length;i++){
+    if(files[i].size>4000000)return t("Each document is at most 4 MB.");
+    if(DOC_TYPES.indexOf(files[i].type)<0)return t("Documents are PDF, PNG or JPEG.");
+  }
+  return null;
+}
+function docPickerHtml(id,label){
+  return '<div class="field" style="margin-top:10px"><label class="label" for="'+esc(id)+'">'+esc(label)+'</label>'+
+    '<input id="'+esc(id)+'" type="file" accept="application/pdf,image/png,image/jpeg" multiple>'+
+    '<p class="fine" id="'+esc(id)+'-msg" role="status"></p></div>';
+}
+function bindDocPicker(id,app,done){
+  var input=$(id), out=$(id+"-msg");
+  if(!input||input.dataset.bound)return;
+  input.dataset.bound="1";
+  input.addEventListener("change",function(){
+    var files=Array.prototype.slice.call(input.files||[]), bad=badDocuments(files);
+    if(bad){ input.value=""; out.textContent=bad; return; }
+    if(!files.length){ out.textContent=""; return; }
+    input.disabled=true;
+    sealAndSend(files,app,out).then(function(sent){
+      input.value=""; input.disabled=false;
+      if(sent&&done)done();
+    },function(){ input.disabled=false; });
+  });
+}
+function sealAndSend(files,a,out){
   out.textContent=t("Sealing…");
-  api("/api/applications/recipient?carrier_id="+encodeURIComponent(a.carrier_id||"")).then(function(who){
+  return api("/api/applications/recipient?carrier_id="+encodeURIComponent(a.carrier_id||"")).then(function(who){
     if(!who.reading_key){
       out.textContent=t("Not sent: {company} has no reading key yet, so nothing can be sealed to it. It will ask for its documents another way.",{company:ts(who.name||"")});
-      return null;
+      return false;
     }
     return Promise.all(files.map(function(f){ return sealFile(f,who.reading_key,a.app_id); })).then(function(sealed){
       out.textContent=t("Sending…");
       return api("/api/applications/"+encodeURIComponent(a.app_id)+"/documents",{method:"POST",timeout:60000,token:identity.token,body:{documents:sealed}});
     }).then(function(reply){
-      flow.interest.documents=[]; $("docs").value=""; $("docs-picked").textContent="";
       out.textContent=t("{n} sent, sealed to {company}. Only that company's browser can open them; you will see on My cover when it does.",
         {n:reply.documents.length,company:ts(who.name||"")});
+      return true;
     });
-  }).catch(function(e){ out.textContent=refusalText(e); });
+  }).catch(function(e){ out.textContent=refusalText(e); return false; });
 }
 function showApplied(reply){
   var a=reply.application;
@@ -7624,8 +7649,18 @@ function showApplied(reply){
     kv(t("The insurer checks"),esc(a.checks.map(function(c){return t(CHECK_NAMES[c]||c);}).join(", ")))+
     kv(t("Decision due by"),esc(new Date(a.decide_by*1000).toLocaleString(LOCALES[LANG]||"en-US")))+
     kv(t("Held by"),esc(short(identity.address)),"mono")+
-    ((flow.interest.documents||[]).length||(a.documents||[]).length?'<div class="kv"><div class="k">'+esc(t("Documents"))+'</div><div class="v" id="done-docs"></div></div>':'');
-  sendDocuments(a);
+    ((a.documents||[]).length?'<div class="kv"><div class="k">'+esc(t("Documents"))+'</div><div class="v">'+
+      esc((a.documents||[]).map(function(d){return d.filename;}).join(", "))+'</div></div>':'');
+  // The one thing still to do, offered where the buyer is rather than made a
+  // condition of getting here.
+  var ask=$("done-docs-ask");
+  if(ask){
+    ask.innerHTML=(a.checks||[]).indexOf("ownership")>=0
+      ? '<p class="fine">'+esc(t("The company will want to see the paper that shows it is yours. Send it now, or later from My cover; it does not have to be today."))+'</p>'+
+        docPickerHtml("done-docs-pick",t("Title deed, lease or vehicle registration"))
+      : "";
+    bindDocPicker("done-docs-pick",a,null);
+  }
   $("done-pred").innerHTML="";
   $("done-links").innerHTML=
     '<a class="btn btn-line" href="#/mine">'+esc(t("See it on My cover"))+'</a>'+
