@@ -675,15 +675,24 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
 .beat p{color:var(--ink-2);max-width:52ch;font-size:clamp(14.5px,1.6vw,16px)}
 .beat .num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
-.beat .num b{color:var(--signal);font-weight:500}
+.beat .num b{color:var(--ink-3);font-weight:500}
+.beat[data-live="on"] .num b{color:var(--signal)}
 .beat .said{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
   background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
   padding:9px 12px;line-height:1.75;overflow-wrap:anywhere;max-width:52ch}
-/* The step being read is the one in full ink. This is a reading aid, not a
-   way of hiding anything: every step is legible at every moment, and with
-   motion switched off they are all in full ink. */
-.beat[data-live="off"]{opacity:.5;transition:opacity .4s}
-.beat[data-live="on"]{opacity:1}
+/* The step being read is marked, and the others are left alone.
+   It used to be the other way round: the step being read was in full ink and
+   the rest were faded to half. Measured, that fade put every word in them at
+   about 2 to 1 against the page, which is not legible and not lawful, and no
+   amount of fading fixes it — at 0.85 the worst of them is still 3.5 to 1,
+   against the 4.5 the rule asks for. So the emphasis is added to one rather
+   than taken from four: a rule down its side and its number in the signal
+   colour, with the mark and the colour saying it together, since colour on
+   its own says nothing to somebody who cannot see that colour. */
+.beat{position:relative;padding-left:14px;transition:border-color .4s}
+.beat::before{content:"";position:absolute;left:0;top:.2em;bottom:.2em;width:2px;
+  border-radius:2px;background:var(--edge);transition:background .4s}
+.beat[data-live="on"]::before{background:var(--signal)}
 
 .hero-art{max-width:520px;margin:clamp(14px,3vw,22px) auto 0;width:100%;
   /* The header stays at the top and is 61px tall, so the stage stops
@@ -1036,7 +1045,7 @@ tr:last-child td{border-bottom:0}
 .flowline .n{font-family:var(--mono);font-size:11px;letter-spacing:0;color:var(--signal);
   display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;
   border-radius:50%;border:1px solid var(--signal);font-variant-numeric:tabular-nums}
-.flowline h3{font-size:16.5px;margin-top:8px}
+.flowline h2{font-size:16.5px;margin-top:8px}
 .flowline p{font-size:13.5px;color:var(--ink-2);margin-top:6px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:820px){.two{grid-template-columns:1fr}}
@@ -1371,6 +1380,8 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 .tstack .t-first_loss,.tdot.t-first_loss{background:var(--signal)}
 .tdot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px;vertical-align:baseline}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* Focusable, so the one way to scroll it is not the pointer. */
+.table-scroll:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
 .ttable{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
 .ttable th{text-align:left;font-weight:500;color:var(--ink-3);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--edge)}
 .ttable td,.ttable th{white-space:nowrap}
@@ -1452,7 +1463,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14h3.2l1.7-6 2.6 11 2.3-8 1.6 3h6.6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span data-i18n>Clause</span>
     </a>
-    <nav class="mainnav" id="mainnav">
+    <nav class="mainnav" id="mainnav" aria-label="Site" data-i18n-aria>
       <a href="#/" data-route="/" data-i18n>Home</a>
       <a href="#/cover" data-route="/cover" data-for="person" data-i18n>Get cover</a>
       <a href="#/mine" data-route="/mine" data-for="person" data-i18n>My cover</a>
@@ -1487,8 +1498,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   </div>
 </header>
 
-<div id="link-state" class="linkstate" hidden></div>
-<div id="lang-note" class="linkstate langnote" hidden></div>
+<div role="status" aria-label="Connection and language" data-i18n-aria>
+  <div id="link-state" class="linkstate" hidden></div>
+  <div id="lang-note" class="linkstate langnote" hidden></div>
+</div>
 
 <main id="main" tabindex="-1">
 
@@ -1818,6 +1831,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <!-- ============================== COVER ============================== -->
 <section class="view" id="view-cover">
   <div class="wrap pad">
+    <!-- The steps carry the page visually. A reader moving by headings had
+         nothing to land on, so the page's own name is here for them. -->
+    <h1 class="sr" data-i18n>Get cover</h1>
     <div class="steps" id="steps"></div>
 
     <div class="q" id="s1" hidden>
@@ -2049,10 +2065,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     </p>
 
     <div class="flowline" style="margin-top:26px">
-      <div><div class="n">01</div><h3 data-i18n>You choose the number</h3><p data-i18n>A magnitude, a rainfall total, a delay in minutes. It goes into the policy in plain sight.</p></div>
-      <div><div class="n">02</div><h3 data-i18n>It is registered on chain</h3><p data-i18n>As a predicate: a condition the network itself watches. No bot, no keeper, no company.</p></div>
-      <div><div class="n">03</div><h3 data-i18n>The measurement arrives</h3><p data-i18n>Read from the official source and attested by validators, so it is the figure the world sees.</p></div>
-      <div><div class="n">04</div><h3 data-i18n>You are paid, that block</h3><p data-i18n>Settlement runs in the same block the reading lands. You may not have heard about the event yet.</p></div>
+      <div><div class="n">01</div><h2 data-i18n>You choose the number</h2><p data-i18n>A magnitude, a rainfall total, a delay in minutes. It goes into the policy in plain sight.</p></div>
+      <div><div class="n">02</div><h2 data-i18n>It is registered on chain</h2><p data-i18n>As a predicate: a condition the network itself watches. No bot, no keeper, no company.</p></div>
+      <div><div class="n">03</div><h2 data-i18n>The measurement arrives</h2><p data-i18n>Read from the official source and attested by validators, so it is the figure the world sees.</p></div>
+      <div><div class="n">04</div><h2 data-i18n>You are paid, that block</h2><p data-i18n>Settlement runs in the same block the reading lands. You may not have heard about the event yet.</p></div>
     </div>
 
     <figure class="chainfig" style="margin-top:26px">
@@ -2197,7 +2213,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       </p>
       <div class="panel tranche-panel">
         <div class="tstack" id="tstack" aria-hidden="true"></div>
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Table, scrolls sideways" data-i18n-aria>
           <table class="ttable">
             <thead><tr>
               <th data-i18n>Tranche</th><th data-i18n>Capital</th><th data-i18n>Takes losses from</th>
@@ -2672,7 +2688,7 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
   <div class="wrap foot">
     <strong style="font-family:var(--display);color:var(--ink)" data-i18n>Clause</strong>
     <span data-i18n>Parametric cover that settles itself, on Rialo.</span>
-    <nav>
+    <nav aria-label="Footer" data-i18n-aria>
       <a href="https://rialo.io" target="_blank" rel="noreferrer noopener" style="display:inline-flex;align-items:center"><i class="rialo-mark" aria-hidden="true"></i><span data-i18n>Rialo</span></a>
       <a href="https://rialo.io/for-devs" target="_blank" rel="noreferrer noopener" data-i18n>For devs</a>
       <a href="#/faq" data-i18n>Questions</a>
@@ -4644,7 +4660,7 @@ function fundingPanel(f){
       '<label id="fund-sender-wrap" hidden><span>'+esc(t("Sending wallet"))+'</span><input id="fund-sender" spellcheck="false" style="min-width:330px"></label>'+
       '<button class="btn btn-primary btn-sm" type="button" id="fund-go">'+esc(t("Get the details"))+'</button></div>'+
     '<div id="fund-out"></div>'+
-    (rows?'<div class="table-scroll" style="margin-top:12px"><table class="ttable"><thead><tr><th>'+esc(t("Reference"))+'</th><th>'+esc(t("How"))+'</th><th class="num">'+esc(t("Announced"))+'</th><th>'+esc(t("Status"))+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+
+    (rows?'<div class="table-scroll" tabindex="0" role="region" aria-label="'+esc(t("Table, scrolls sideways"))+'" style="margin-top:12px"><table class="ttable"><thead><tr><th>'+esc(t("Reference"))+'</th><th>'+esc(t("How"))+'</th><th class="num">'+esc(t("Announced"))+'</th><th>'+esc(t("Status"))+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'')+
     '<p class="fine" id="fund-msg" role="status"></p></div></details>';
 }
 function fundingDetailsHtml(req,how){
@@ -4729,7 +4745,7 @@ function payoutPanel(p){
       ? t("Payouts to a bank, a mobile wallet or a wallet on another chain are made by the issuing company or a licensed payment partner, in their currency, and each one is checked and sent by hand for now. Your details are kept only to make the payment and are shown back to you masked.")
       : t("Payouts to a bank or a mobile wallet are sent to a licensed payment partner as soon as they settle, in its currency. Your details are kept only to make the payment and are shown back to you masked."))+'</p>'+
     cashout+
-    (orders?'<div class="table-scroll" style="margin-top:12px"><table class="ttable"><thead><tr><th>'+esc(t("Order"))+'</th><th>'+esc(t("Kind"))+'</th><th class="num">'+esc(t("Amount"))+'</th><th>'+
+    (orders?'<div class="table-scroll" tabindex="0" role="region" aria-label="'+esc(t("Table, scrolls sideways"))+'" style="margin-top:12px"><table class="ttable"><thead><tr><th>'+esc(t("Order"))+'</th><th>'+esc(t("Kind"))+'</th><th class="num">'+esc(t("Amount"))+'</th><th>'+
       esc(t("Currency"))+'</th><th>'+esc(t("To"))+'</th><th>'+esc(t("Status"))+'</th></tr></thead><tbody>'+orders+'</tbody></table></div>':'')+
     '<p class="fine" id="pay-msg" role="status"></p></div></details>';
 }
@@ -7458,7 +7474,7 @@ function instructionsPanel(i){
   }).join("");
   return '<details class="more" id="instructions-box" open><summary>'+esc(t("Standing instructions"))+': <b>'+esc(t("{n} given",{n:i.instructions.length}))+'</b></summary><div class="inner">'+
     '<p class="fine">'+esc(t("Each one is a purchase you signed in advance. The protocol makes it when its moment comes, at the price then, never above the cap; a home or a car is still applied for and the insurer still decides. Every attempt is written here."))+'</p>'+
-    '<div class="table-scroll"><table class="ttable"><thead><tr><th>'+esc(t("Instruction"))+'</th><th>'+esc(t("Status"))+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<div class="table-scroll" tabindex="0" role="region" aria-label="Table, scrolls sideways" data-i18n-aria><table class="ttable"><thead><tr><th>'+esc(t("Instruction"))+'</th><th>'+esc(t("Status"))+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     '<p class="fine" id="ins-msg" role="status"></p></div></details>';
 }
 function bindInstructionsPanel(){
@@ -9120,7 +9136,7 @@ function opPayoutsHtml(p){
       '<button class="btn btn-line btn-sm" type="button" data-pay="'+esc(o.order_id)+'" data-st="failed">'+esc(t("Mark failed"))+'</button></div></div>';
   });
   if(p.recent.length){
-    out+='<h3 style="font-size:16px;margin:24px 0 10px">'+esc(t("Recently decided"))+'</h3><div class="table-scroll"><table class="ttable"><tbody>'+
+    out+='<h3 style="font-size:16px;margin:24px 0 10px">'+esc(t("Recently decided"))+'</h3><div class="table-scroll" tabindex="0" role="region" aria-label="Table, scrolls sideways" data-i18n-aria><table class="ttable"><tbody>'+
       p.recent.map(function(o){ return '<tr><td class="mono">'+esc(o.order_id)+'</td><td class="num">'+money(o.amount)+'</td><td>'+esc(o.currency)+'</td><td>'+
         esc(o.destination)+'</td><td>'+esc(t(PAYOUT_STATUS[o.status]||o.status))+'</td><td class="mono">'+esc(o.rail_reference||"")+'</td></tr>'; }).join("")+
       '</tbody></table></div>';
@@ -9143,7 +9159,7 @@ function opFundingHtml(f){
       '<button class="btn btn-line btn-sm" type="button" data-fund="'+esc(r.request_id)+'" data-st="cancelled">'+esc(t("Nothing arrived"))+'</button></div></div>';
   });
   if(f.recent.length){
-    out+='<h3 style="font-size:16px;margin:24px 0 10px">'+esc(t("Recently decided"))+'</h3><div class="table-scroll"><table class="ttable"><tbody>'+
+    out+='<h3 style="font-size:16px;margin:24px 0 10px">'+esc(t("Recently decided"))+'</h3><div class="table-scroll" tabindex="0" role="region" aria-label="Table, scrolls sideways" data-i18n-aria><table class="ttable"><tbody>'+
       f.recent.map(function(r){ return '<tr><td class="mono">'+esc(r.reference)+'</td><td>'+esc(t(FUNDING_NAMES[r.method]||r.method))+'</td><td class="num">'+money(r.received||r.amount)+'</td><td class="mono">'+esc(short(r.account))+'</td><td>'+esc(t(FUNDING_STATUS[r.status]||r.status))+'</td><td>'+esc(r.note||"")+'</td></tr>'; }).join("")+
       '</tbody></table></div>';
   }
@@ -9164,7 +9180,7 @@ function opPartnersHtml(p){
     '<div id="pt-key">'+(OP.newKey?keyHtml(OP.newKey):'')+'</div></div>';
   OP.newKey=null;
   if(!p.partners.length) return out+'<div class="panel" style="padding:20px"><p>'+esc(t("No partners yet."))+'</p></div>';
-  out+='<div class="table-scroll"><table class="ttable"><thead><tr><th>'+esc(t("Partner"))+'</th><th>'+esc(t("Covers"))+'</th><th class="num">'+
+  out+='<div class="table-scroll" tabindex="0" role="region" aria-label="Table, scrolls sideways" data-i18n-aria><table class="ttable"><thead><tr><th>'+esc(t("Partner"))+'</th><th>'+esc(t("Covers"))+'</th><th class="num">'+
     esc(t("Sold"))+'</th><th class="num">'+esc(t("Premium"))+'</th><th class="num">'+esc(t("Commission"))+'</th><th class="num">'+esc(t("Balance"))+'</th><th>'+
     esc(t("Status"))+'</th><th></th></tr></thead><tbody>'+
     p.partners.map(function(x){
@@ -9491,7 +9507,7 @@ function renderProof(id){
           '<div><b>'+esc(f0.format(book.paid||0))+'</b><span>'+esc(t("paid without a claim"))+'</span></div>'+
           '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
         '</div>'+
-        '<h3 style="font-size:19px">'+esc(t("What the chain decided last"))+'</h3>'+
+        '<h2 style="font-size:19px">'+esc(t("What the chain decided last"))+'</h2>'+
         '<p style="font-size:14.5px;color:var(--ink-2);max-width:66ch">'+esc(t("Both halves are here. A policy that ran its term without the index ever reaching the line is the harder promise to keep, and hiding it would make this page an advertisement."))+'</p>'+
         (rows.length
           ? '<div class="register">'+rows.map(decidedRow).join("")+'</div>'

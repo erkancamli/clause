@@ -27,3 +27,6 @@ RELEASE-*.md
 
 # Local virtual environment
 .venv/
+
+# The accessibility engine, fetched from npm when the audit first runs.
+.axe/
