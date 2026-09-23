@@ -1019,6 +1019,8 @@ def create_app(
     app.state.pool = pool
     app.state.instructions = instructions
     _CARRIER_NAMES.update({c.carrier_id: c.name for c in registry.carriers.values()})
+    global _SITE_ORIGIN
+    _SITE_ORIGIN = settings.allowed_origins[0].rstrip("/") if settings.allowed_origins else ""
 
     def place_of(peril: str, subject: dict[str, Any]) -> tuple[float | None, float | None]:
         """Where the insured thing is, for a rule that names a circle."""
@@ -5335,6 +5337,10 @@ def create_app(
 _DEMO_KEYS: dict[str, Any] = {}
 # Company names by id, filled by create_app so a token can name its issuer.
 _CARRIER_NAMES: dict[str, str] = {}
+# Where the site lives, filled by create_app so a token in a stranger's wallet
+# carries a way back to the record it is about. Empty when the API is running
+# on its own, and then the token simply has no outward link.
+_SITE_ORIGIN = ""
 
 
 # Demonstration top ups: how much one press adds, and the most an address may hold.
@@ -5346,6 +5352,17 @@ FAUCET_CEILING = 1_000_000.0
 # read at the size of a thumbnail in a list of tokens, and at that size a
 # generated trace says "this is a Clause policy" but not which kind. The
 # subject says which kind before a word is read.
+# What a marketplace puts on a filter button. The peril's full name says how it
+# is measured as well as what it covers, which is a sentence, and a sentence on
+# a filter button is a truncated sentence.
+_PERIL_LABELS = {
+    "earthquake": "Earthquake",
+    "storm": "Storm",
+    "drought": "Drought",
+    "flight_delay": "Flight delay",
+    "vehicle_flood": "Vehicle flood",
+}
+
 _PERIL_MARKS = {
     "earthquake": (
         "M14 50 50 20 86 50M24 46V84H76V46M42 84V62H58V84",          # a house
@@ -5547,8 +5564,6 @@ def token_metadata(policy: Any) -> dict[str, Any]:
     what = peril.describe_subject(policy.subject)
     title = peril.title_for(policy.subject)
     unit = peril.unit_for(policy.subject)
-    ends = dt.datetime.fromtimestamp(policy.ends_at, dt.timezone.utc).strftime("%d %b %Y")
-    starts = dt.datetime.fromtimestamp(policy.starts_at, dt.timezone.utc).strftime("%d %b %Y")
     steps = policy.curve.describe(unit)
     carrier = meta.get("carrier")
     carrier = (_CARRIER_NAMES.get(carrier) or carrier) if carrier else None
@@ -5621,10 +5636,22 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         + t(W - 70, 805, "NON-TRANSFERABLE", 13, "#7A8895", "600", mono, anchor="end", spacing=3)
         + '</svg>'
     )
-    return {
+    # Drought's subject line carries the area and the season as well as the
+    # place, which is right on the page and too long for a chip. The place is
+    # what belongs on the chip; the rest is in the description's first
+    # sentence, where it is read in full.
+    where = (peril.station(policy.subject).name
+             if policy.peril_key == "drought" else what)
+
+    # An attribute is a label a reader filters on, and every viewer shortens one
+    # that does not fit. So the ladder, which is three clauses long and is the
+    # substance of the bargain, is written out in the description where it is
+    # read in full, and the attributes stay short enough to survive a chip.
+    meta_out: dict[str, Any] = {
         "name": f"Clause policy {policy.policy_id}",
         "description": (f"{title}: {what}. Cover of {policy.limit:,.0f} USDC, paying from "
-                        f"{trigger}. The drawing is this policy's own index and the level it "
+                        f"{trigger}. It pays in steps: " + "; ".join(steps) + ". "
+                        "The drawing is this policy's own index and the level it "
                         "has to reach, generated from the policy id and the hash of its terms. "
                         f"Its tier, {tier.title()}, is the band the cover falls in: a grade "
                         "of size, not a grade of quality. "
@@ -5637,21 +5664,26 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         "burned": bool(token.get("burned_at")),
         "attributes": [
             {"trait_type": "Tier", "value": tier.title()},
-            {"trait_type": "Peril", "value": title},
-            {"trait_type": "Where", "value": what},
-            {"trait_type": "Limit (USDC)", "value": round(policy.limit, 2)},
+            {"trait_type": "Peril", "value": _PERIL_LABELS.get(policy.peril_key, title)},
+            {"trait_type": "Where", "value": where},
+            {"trait_type": "Limit (USDC)", "value": round(policy.limit, 2),
+             "display_type": "number"},
             {"trait_type": "Pays from", "value": trigger},
-            {"trait_type": "Pays at", "value": " · ".join(steps)},
             {"trait_type": "Status", "value": status},
-            {"trait_type": "Starts", "value": starts},
-            {"trait_type": "Ends", "value": ends},
+            {"trait_type": "Starts", "value": int(policy.starts_at), "display_type": "date"},
+            {"trait_type": "Ends", "value": int(policy.ends_at), "display_type": "date"},
             {"trait_type": "Issued by", "value": (carrier or "the Clause pool")
                 + (f" ({issuer})" if issuer else "")},
-            {"trait_type": "Held by", "value": policy.holder},
-            {"trait_type": "Minted in block", "value": token.get("minted_block")},
+            {"trait_type": "Minted in block", "value": token.get("minted_block"),
+             "display_type": "number"},
             {"trait_type": "Terms hash", "value": token["terms_hash"]},
         ],
     }
+    # Who holds it is not an attribute: a viewer already names the owner, and a
+    # trait that differs for every token is noise in a rarity count.
+    if _SITE_ORIGIN:
+        meta_out["external_url"] = f"{_SITE_ORIGIN}/#/proof/{policy.policy_id}"
+    return meta_out
 
 
 def _seed_verifiers(engine: EligibilityEngine) -> list[str]:
