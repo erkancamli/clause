@@ -2063,7 +2063,14 @@
     "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Действующее покрытие приносит RIALO: лимит, за то время, что оно реально в силе. Год покрытия приносит годовую величину, а полис, расторгнутый на второй день, — два дня. Каждый срок, продлённый без перерыва дольше {days} дней, повышает ставку начисления.",
     "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Это не скидка: цена на экране — цена пула, и она такой и остаётся. Платит платформа из собственной комиссии, которая приходит от компании-эмитента, а не от вас, так что страховщику и пулу это не стоит ничего.",
     "On this demonstration it is an accrual, not a token.": "В этой демонстрации это начисление, а не токен.",
-    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Цепочка здесь смоделирована, и баланс тоже: ничего не хранится в кошельке и ничего нельзя потратить. Начисленное — это учёт того, что причиталось бы."
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Цепочка здесь смоделирована, и баланс тоже: ничего не хранится в кошельке и ничего нельзя потратить. Начисленное — это учёт того, что причиталось бы.",
+    "Worth looking at": "Стоит посмотреть",
+    "Ends today": "Заканчивается сегодня",
+    "Ends in {days} days": "Заканчивается через {days} дн.",
+    "Ended {days} days ago, and has not been replaced": "Закончился {days} дн. назад и не заменён",
+    "Buy it again": "Купить снова",
+    "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене. Дни между ними покрыты не были и покрыты быть не могут.",
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Это покрытие закончилось {days} дн. назад, и с тех пор у вас его нет. Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене; дни между ними покрыты не были и покрыты быть не могут."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

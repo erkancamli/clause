@@ -1380,6 +1380,21 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 .tform label{display:grid;gap:6px;font-size:13px;color:var(--ink-3)}
 .tform select,.tform input{height:40px;border-radius:10px;border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
   font:inherit;font-size:15px;padding:0 10px;min-width:150px}
+/* What needs looking at, at the top of My cover. */
+.due-panel{margin-top:22px;padding:18px 20px;border-left:3px solid var(--accent)}
+.due-head{font-size:16px;margin:0 0 12px}
+.due-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.due-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--edge)}
+.due-row:last-child{padding-bottom:0;border-bottom:0}
+.due-what{flex:1 1 220px;display:grid;gap:2px;min-width:0}
+.due-what b{word-break:break-word}
+.due-when{font-size:14px;color:var(--ink-2);flex:0 1 auto}
+/* On a phone the row stacks, so every entry reads the same way down the
+   page instead of the button landing beside a short line and under a long one. */
+@media (max-width:560px){
+  .due-row{display:grid;gap:8px;justify-items:start}
+  .due-when{font-size:14px}
+}
 .whomenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:230px;display:grid;gap:2px;padding:8px;
   border:1px solid var(--edge);border-radius:14px;background:var(--float);box-shadow:var(--lift-2),var(--hairline)}
 .whomenu[hidden]{display:none}
@@ -4177,7 +4192,57 @@ function bindCancels(root){
     },function(){});
   });
 }
-function renderMineExtras(){
+/* ---- what needs attention, at the top of My cover ----------------------
+   Telling somebody their own cover is about to end is not a campaign: it is
+   about a policy this address already holds, it needs no name and no address
+   to send it to, and it is read here because they signed in rather than
+   pushed at them anywhere. Two rules keep it that way. It never nags
+   somebody whose policy already renews itself, and the one case worth
+   saying out loud is the one the page has been silent about: cover that has
+   already ended, where the honest sentence is that there is none now. */
+var ENDS_SOON_DAYS=30;
+var ENDED_RECENTLY_DAYS=30;
+function needsAttention(policies,instructions){
+  var now=Date.now()/1000, standing={}, ending=[], ended=[];
+  (instructions||[]).forEach(function(x){
+    if(x.kind==="renew"&&(x.status==="live"||x.status==="waiting"))standing[x.policy_id]=true;
+  });
+  (policies||[]).forEach(function(p){
+    if(!p.ends_at||standing[p.policy_id])return;
+    var days=Math.ceil((p.ends_at-now)/86400);
+    if(p.status==="active"){ if(days<=ENDS_SOON_DAYS)ending.push({policy:p,days:Math.max(0,days)}); }
+    else if(p.status==="lapsed"&&days<0&&-days<=ENDED_RECENTLY_DAYS)ended.push({policy:p,days:-days});
+  });
+  ending.sort(function(a,b){return a.days-b.days;});
+  ended.sort(function(a,b){return a.days-b.days;});
+  return {ending:ending,ended:ended};
+}
+function dueRow(item,gone){
+  return '<li class="due-row"><span class="due-what"><b>'+esc(ts(item.policy.peril_name||""))+'</b>'+
+    '<span class="fine">'+esc(ts(item.policy.subject_text||""))+'</span></span>'+
+    '<span class="due-when">'+esc(gone
+      ? t("Ended {days} days ago, and has not been replaced",{days:item.days})
+      : (item.days?t("Ends in {days} days",{days:item.days}):t("Ends today")))+'</span>'+
+    '<button class="btn '+(gone?"btn-line":"btn-primary")+' btn-sm" type="button" data-due-renew="'+
+      esc(item.policy.policy_id)+'">'+esc(gone?t("Buy it again"):t("Renew"))+'</button></li>';
+}
+function renderDue(policies,instructions){
+  var box=$("mine-due"); if(!box)return;
+  var due=needsAttention(policies,instructions);
+  if(!due.ending.length&&!due.ended.length){ box.innerHTML=""; return; }
+  box.innerHTML='<div class="panel due-panel"><h2 class="due-head">'+esc(t("Worth looking at"))+'</h2>'+
+    '<ul class="due-list">'+due.ended.map(function(x){return dueRow(x,true);}).join("")+
+    due.ending.map(function(x){return dueRow(x,false);}).join("")+'</ul>'+
+    (due.ended.length?'<p class="fine">'+esc(t("Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be."))+'</p>':'')+
+    '</div>';
+  Array.prototype.forEach.call(box.querySelectorAll("[data-due-renew]"),function(b){
+    b.addEventListener("click",function(){
+      var p=(policies||[]).filter(function(x){return x.policy_id===b.dataset.dueRenew;})[0];
+      if(p)renewFrom(p);
+    });
+  });
+}
+function renderMineExtras(policies){
   var box=$("mine-extras"); if(!box||!identity.token)return;
   Promise.all([
     api("/api/payouts",{token:identity.token}).catch(function(){return null;}),
@@ -4189,6 +4254,7 @@ function renderMineExtras(){
     box.innerHTML=rewardsPanel(all[3])+fundingPanel(all[2])+payoutPanel(all[0])+instructionsPanel(all[4])+mandatePanel(all[1]);
     bindFundingPanel(all[2]); bindPayoutPanel(all[0]); bindInstructionsPanel(); bindMandatePanel(all[1]);
     bindAutoRenew(document,(all[4]||{}).instructions||[]);
+    renderDue(policies||[],(all[4]||{}).instructions||[]);
   });
 }
 /* ---------------- what is given back for cover held ----------------
@@ -7642,7 +7708,7 @@ function renderMine(){
       api("/api/wallet/faucet",{method:"POST",token:identity.token}).then(function(){ renderMine(); },
         function(e){ faucetGo.textContent=refusalText(e); });
     });
-    renderMineExtras();
+    renderMineExtras(reply.policies||[]);
     renderMineApplications();
     renderNfts(reply.policies||[]);
     var signout=$("mine-signout");
@@ -7669,7 +7735,7 @@ function mineHtml(reply){
     '<div class="hrow"><span>'+esc(t("Armed"))+'</span><b>'+f0.format(view.policies_open||0)+'</b></div>'+
     '<div class="hrow"><span>'+esc(t("Settled"))+'</span><b>'+f0.format(view.policies_settled||0)+'</b></div>'+
     '<div class="hrow"><span>'+esc(t("Profile"))+'</span><b><a class="btn btn-line btn-sm" href="#/profile">'+esc(t("My things, wallets, X"))+'</a></b></div>'+
-    '</div><div id="mine-nfts"></div><div id="mine-apps"></div><div id="mine-extras" class="mine-extras"></div>';
+    '</div><div id="mine-due"></div><div id="mine-nfts"></div><div id="mine-apps"></div><div id="mine-extras" class="mine-extras"></div>';
 
   if(!policies.length){
     out+='<div style="margin-top:22px">'+minePanel(t("Nothing here yet"),
@@ -7697,6 +7763,12 @@ function mineHtml(reply){
       (policy.status==="active"&&policy.ends_at&&policy.ends_at-Date.now()/1000<30*86400?'<div class="verdict" style="margin:0 0 12px"><p>'+
         esc(t("This cover ends in {days} days. Renew it and the new term runs from the day the insurer approves it, at today's price.",{days:Math.max(0,Math.ceil((policy.ends_at-Date.now()/1000)/86400))}))+
         ' <button class="btn btn-primary btn-sm" type="button" data-renew="'+esc(policy.policy_id)+'">'+esc(t("Renew"))+'</button></p></div>':'')+
+      /* The case the page used to pass over in silence. A policy that ran its
+         term and ended says "lapsed" and nothing else, which does not tell
+         somebody the thing they need to know: that they have no cover now. */
+      (policy.status==="lapsed"&&policy.ends_at&&Date.now()/1000-policy.ends_at<30*86400?'<div class="verdict" style="margin:0 0 12px"><p>'+
+        esc(t("This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.",{days:Math.max(1,Math.floor((Date.now()/1000-policy.ends_at)/86400))}))+
+        ' <button class="btn btn-line btn-sm" type="button" data-renew="'+esc(policy.policy_id)+'">'+esc(t("Buy it again"))+'</button></p></div>':'')+
       (policy.settlement_note?'<p style="font-size:13.5px;color:var(--ink-2)">'+
         tsHtml(policy.settlement_note)+'</p>':'')+
       ((policy.metadata||{}).reinstated?'<p class="fine">'+esc(t("Put back in force on {date}: an earlier build had closed it by the demonstration's clock while its term was still running.",{date:new Date(policy.metadata.reinstated.at*1000).toLocaleDateString(LANG)}))+'</p>':'')+

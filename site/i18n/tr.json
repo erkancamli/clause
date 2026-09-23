@@ -2071,7 +2071,14 @@
     "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Yürürlükte tutulan teminat RIALO kazandırır: teminat tutarı, gerçekten yürürlükte kaldığı süre boyunca. Bir yıllık teminat bir yıllık kazandırır; ikinci gününde iptal edilen poliçe iki gün kazandırır. {days} günden uzun ara vermeden yenilenen her dönem, kazanma oranını yükseltir.",
     "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Bu bir indirim değildir: ekrandaki fiyat havuzun fiyatıdır ve öyle kalır. Ödülü platform kendi ücretinden öder; o ücret poliçeyi düzenleyen şirketten gelir, sizden değil. Yani sigortacıya da havuza da hiçbir maliyeti yoktur.",
     "On this demonstration it is an accrual, not a token.": "Bu gösterimde bu bir tahakkuktur, token değil.",
-    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Buradaki zincir simüle edilmiştir, bakiye de öyle: hiçbir şey bir cüzdanda tutulmuyor ve hiçbir şey harcanamaz. Hesaba geçen şey, borçlanılacak olanın kaydıdır."
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Buradaki zincir simüle edilmiştir, bakiye de öyle: hiçbir şey bir cüzdanda tutulmuyor ve hiçbir şey harcanamaz. Hesaba geçen şey, borçlanılacak olanın kaydıdır.",
+    "Worth looking at": "Bakmaya değer",
+    "Ends today": "Bugün bitiyor",
+    "Ends in {days} days": "{days} gün sonra bitiyor",
+    "Ended {days} days ago, and has not been replaced": "{days} gün önce bitti ve yerine yenisi alınmadı",
+    "Buy it again": "Yeniden al",
+    "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Yeniden almak, sigortacının onayladığı günden başlayan yeni bir dönem açar ve bugünün fiyatından olur. Aradaki günler teminat altında değildi ve geriye dönük olarak da olamaz.",
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Bu teminat {days} gün önce bitti ve o günden beri hiç teminatınız yok. Yeniden almak, sigortacının onayladığı günden başlayan yeni bir dönem açar ve bugünün fiyatından olur; aradaki günler teminat altında değildi ve olamaz da."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

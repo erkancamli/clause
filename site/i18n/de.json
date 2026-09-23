@@ -2063,7 +2063,14 @@
     "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "Gehaltener Versicherungsschutz verdient RIALO: die Summe, für die Zeit, in der er tatsächlich in Kraft ist. Ein Jahr Schutz verdient ein Jahr, und eine am zweiten Tag gekündigte Police verdient zwei Tage. Jede ohne Unterbrechung von mehr als {days} Tagen verlängerte Laufzeit erhöht den Satz, zu dem verdient wird.",
     "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Das ist kein Rabatt: der Preis auf dem Bildschirm ist der Preis des Pools und bleibt es. Gezahlt wird aus der eigenen Gebühr der Plattform, die vom ausstellenden Unternehmen kommt und nie von Ihnen, also kostet es den Versicherer nichts und den Pool nichts.",
     "On this demonstration it is an accrual, not a token.": "In dieser Demonstration ist es eine Gutschrift, kein Token.",
-    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Die Kette ist hier simuliert und das Guthaben ebenso: nichts liegt in einer Wallet und nichts lässt sich ausgeben. Gutgeschrieben wird eine Aufstellung dessen, was geschuldet wäre."
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "Die Kette ist hier simuliert und das Guthaben ebenso: nichts liegt in einer Wallet und nichts lässt sich ausgeben. Gutgeschrieben wird eine Aufstellung dessen, was geschuldet wäre.",
+    "Worth looking at": "Einen Blick wert",
+    "Ends today": "Endet heute",
+    "Ends in {days} days": "Endet in {days} Tagen",
+    "Ended {days} days ago, and has not been replaced": "Vor {days} Tagen beendet und nicht ersetzt",
+    "Buy it again": "Erneut kaufen",
+    "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis. Die Tage dazwischen waren nicht gedeckt und können es nicht werden.",
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Diese Deckung endete vor {days} Tagen, und seither haben Sie keine. Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis; die Tage dazwischen waren nicht gedeckt und können es nicht werden."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -2063,7 +2063,14 @@
     "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "La cobertura mantenida gana RIALO: el límite, por el tiempo que está realmente en vigor. Un año de cobertura gana lo de un año, y una póliza cancelada en su segundo día gana dos días. Cada periodo renovado sin una interrupción mayor de {days} días eleva el ritmo al que gana.",
     "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "Esto no es un descuento: el precio en pantalla es el precio del fondo y así se queda. Lo paga la plataforma con su propia comisión, que procede de la empresa emisora y nunca de usted, así que no le cuesta nada a la aseguradora ni al fondo.",
     "On this demonstration it is an accrual, not a token.": "En esta demostración es una acumulación, no un token.",
-    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "La cadena aquí está simulada y el saldo también: nada se guarda en un monedero y nada se puede gastar. Lo abonado es un registro de lo que se debería."
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "La cadena aquí está simulada y el saldo también: nada se guarda en un monedero y nada se puede gastar. Lo abonado es un registro de lo que se debería.",
+    "Worth looking at": "Conviene mirarlo",
+    "Ends today": "Termina hoy",
+    "Ends in {days} days": "Termina dentro de {days} días",
+    "Ended {days} days ago, and has not been replaced": "Terminó hace {days} días y no se ha sustituido",
+    "Buy it again": "Contratarlo de nuevo",
+    "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Contratarlo de nuevo abre un nuevo periodo desde el día en que la aseguradora lo aprueba, al precio de hoy. Los días intermedios no estaban cubiertos y no pueden estarlo.",
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Esta cobertura terminó hace {days} días y desde entonces no ha tenido ninguna. Contratarla de nuevo abre un nuevo periodo desde el día en que la aseguradora lo aprueba, al precio de hoy; los días intermedios no estaban cubiertos y no pueden estarlo."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

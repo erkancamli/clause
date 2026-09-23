@@ -2063,7 +2063,14 @@
     "Cover held earns RIALO: the limit, for the time it is actually in force. A year of cover earns a year's worth, and a policy cancelled on its second day earns two days. Each term renewed without a break longer than {days} days raises the rate it earns at.": "保有している補償がRIALOを獲得します。対象は限度額で、実際に有効だった期間に応じます。1年間の補償は1年分、2日目に解約された保険は2日分です。{days}日を超える空白なく更新された期間ごとに、獲得率が上がります。",
     "This is not a discount: the price on the screen is the pool's price and stays so. It is paid by the platform out of its own fee, which comes from the issuing company and never from you, so it costs the insurer nothing and the pool nothing.": "これは割引ではありません。画面の価格はプールの価格であり、そのままです。支払うのはプラットフォームで、原資は自社の手数料です。その手数料は発行会社から来るものであり、お客様からではないため、保険会社にもプールにも費用はかかりません。",
     "On this demonstration it is an accrual, not a token.": "このデモでは、これはトークンではなく計上額です。",
-    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "ここでのチェーンは模擬であり、残高も同じです。ウォレットに保有されているものはなく、使うこともできません。計上されるのは、支払われるべき額の記録です。"
+    "The chain here is simulated and so is the balance: nothing is held in a wallet and nothing can be spent. What is credited is an account of what would be owed.": "ここでのチェーンは模擬であり、残高も同じです。ウォレットに保有されているものはなく、使うこともできません。計上されるのは、支払われるべき額の記録です。",
+    "Worth looking at": "確認しておきたいこと",
+    "Ends today": "本日で終了します",
+    "Ends in {days} days": "あと {days} 日で終了します",
+    "Ended {days} days ago, and has not been replaced": "{days} 日前に終了し、その後は入っていません",
+    "Buy it again": "もう一度加入する",
+    "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。",
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "この補償は {days} 日前に終了し、それ以降は補償がありません。もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
