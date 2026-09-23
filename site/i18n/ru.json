@@ -2108,7 +2108,10 @@
     "pays from {mm} mm of rain in a day": "платит от {mm} мм дождя за сутки",
     "pays from wind of {kmh} km/h": "платит от ветра {kmh} км/ч",
     "pays below {mm} mm of rain for the season": "платит ниже {mm} мм дождя за сезон",
-    "pays from two hours late": "платит от двух часов задержки"
+    "pays from two hours late": "платит от двух часов задержки",
+    "This cover follows your account, so another device can reach it.": "Это покрытие привязано к вашей учётной записи, поэтому доступно с другого устройства.",
+    "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "Это покрытие хранится на этом устройстве. Ключ к нему создан здесь и никогда его не покидает: потерянное устройство, к которому ничего не привязано, унесёт с собой и покрытие, и выплату.",
+    "Link an account so another device can reach it": "Привяжите учётную запись, чтобы открыть это с другого устройства"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

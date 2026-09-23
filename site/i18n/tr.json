@@ -2116,7 +2116,10 @@
     "pays from {mm} mm of rain in a day": "bir günde {mm} mm yağmurdan itibaren öder",
     "pays from wind of {kmh} km/h": "{kmh} km/sa rüzgârdan itibaren öder",
     "pays below {mm} mm of rain for the season": "mevsim boyunca {mm} mm yağmurun altında öder",
-    "pays from two hours late": "iki saat gecikmeden itibaren öder"
+    "pays from two hours late": "iki saat gecikmeden itibaren öder",
+    "This cover follows your account, so another device can reach it.": "Bu teminat hesabınıza bağlı, yani başka bir cihazdan da ulaşabilirsiniz.",
+    "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "Bu teminat bu cihazda duruyor. Ona ulaşan anahtar burada üretildi ve buradan hiç çıkmıyor; dolayısıyla hiçbir şey bağlanmamış bir cihaz kaybolursa teminatı da ödemeyi de beraberinde götürür.",
+    "Link an account so another device can reach it": "Başka bir cihazdan ulaşabilmek için bir hesap bağlayın"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

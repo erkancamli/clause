@@ -2108,7 +2108,10 @@
     "pays from {mm} mm of rain in a day": "1日{mm}mmの雨から支払われます",
     "pays from wind of {kmh} km/h": "風速{kmh}km/hから支払われます",
     "pays below {mm} mm of rain for the season": "シーズンの雨量が{mm}mmを下回ると支払われます",
-    "pays from two hours late": "2時間の遅延から支払われます"
+    "pays from two hours late": "2時間の遅延から支払われます",
+    "This cover follows your account, so another device can reach it.": "この補償はアカウントに紐づいているため、別の端末からも開けます。",
+    "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "この補償はこの端末にあります。開くための鍵はここで作られ、端末から出ることはありません。何も紐づけないまま端末を失うと、補償も支払いも一緒に失われます。",
+    "Link an account so another device can reach it": "別の端末から開けるようにアカウントを紐づける"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

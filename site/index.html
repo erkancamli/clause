@@ -2233,6 +2233,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <div class="code" id="done-pred"></div>
         </div>
       </div>
+      <div id="done-reach"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap" id="done-links"></div>
     </div>
 
@@ -8077,6 +8078,44 @@ function showApplied(reply){
     }).catch(function(){ $("contract-dl").textContent=t("Could not fetch the contract; open My cover and try again."); });
   });
 }
+/* Where this cover can be reached from, said on the one screen that can say it.
+
+   The key is made on this device and never leaves it, which is the whole
+   reason nothing here asks for a name or an email. It also means a phone lost
+   with nothing linked to it takes the cover with it: the payout is credited to
+   the address that key derives (pool.py, PAYOUT to policy.holder), and nobody
+   else can sign for it. A linked Ethereum wallet does not change that — it
+   only decides where the token is minted.
+
+   The site has always said the first half of this plainly and has never said
+   the second. The last screen of a purchase is where it belongs, because a
+   product that collects no email has no second chance to reach anybody, and
+   because linking is free and takes one press.
+
+   Linking gives the protocol no name and no email either: Privy checks who
+   somebody is, the protocol stores only which address they act as, and each
+   later device is then allowed to sign for that same address. */
+function reachHtml(){
+  if(identity.via==="privy")
+    return '<p class="fine">'+esc(t("This cover follows your account, so another device can reach it."))+'</p>';
+  return '<p class="fine" id="done-reach-said">'+
+    esc(t("This cover lives on this device. The key that reaches it was made here and "+
+          "never leaves, so a device lost with nothing linked to it takes the cover "+
+          "and the payout with it."))+'</p><div id="done-reach-do"></div>';
+}
+function bindReach(){
+  var slot=$("done-reach-do"); if(!slot)return;
+  privyConfig().then(function(config){
+    if(!config||!config.enabled)return;
+    slot.innerHTML='<button class="btn btn-line btn-sm" type="button" id="done-link">'+
+      esc(t("Link an account so another device can reach it"))+'</button>';
+    $("done-link").addEventListener("click",function(){
+      var button=$("done-link"); button.disabled=true;
+      privySignIn().then(function(){ renderWho(); $("done-reach").innerHTML=reachHtml(); },
+                         function(){ button.disabled=false; });
+    });
+  },function(){});
+}
 function showDone(reply){
   var policy=reply.policy;
   LAST_DONE=function(){ showDone(reply); };
@@ -8100,6 +8139,7 @@ function showDone(reply){
     ((reply.compliance&&reply.compliance.carrier&&reply.compliance.carrier.specimen)
       ? kv(t("Is this real cover"),esc(t("No. The issuer is a stand in and holds no licence."))) : '');
   $("done-pred").innerHTML=predicateHtml();
+  $("done-reach").innerHTML=reachHtml(); bindReach();
   $("done-links").innerHTML=
     '<a class="btn btn-line" href="#/proof/'+encodeURIComponent(policy.policy_id)+'">'+esc(t("See its record on chain"))+'</a>'+
     '<a class="btn btn-line" href="#/mine">'+esc(t("What you hold"))+'</a>'+

@@ -2108,7 +2108,10 @@
     "pays from {mm} mm of rain in a day": "zahlt ab {mm} mm Regen an einem Tag",
     "pays from wind of {kmh} km/h": "zahlt ab Wind von {kmh} km/h",
     "pays below {mm} mm of rain for the season": "zahlt unter {mm} mm Regen in der Saison",
-    "pays from two hours late": "zahlt ab zwei Stunden Verspätung"
+    "pays from two hours late": "zahlt ab zwei Stunden Verspätung",
+    "This cover follows your account, so another device can reach it.": "Dieser Schutz folgt Ihrem Konto, ein anderes Gerät kann ihn also erreichen.",
+    "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "Dieser Schutz liegt auf diesem Gerät. Der Schlüssel dazu wurde hier erzeugt und verlässt es nie; ein verlorenes Gerät ohne verknüpftes Konto nimmt Schutz und Auszahlung mit sich.",
+    "Link an account so another device can reach it": "Verknüpfen Sie ein Konto, damit ein anderes Gerät darauf zugreifen kann"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
