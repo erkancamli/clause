@@ -110,7 +110,7 @@ from .security import (
 
 logger = logging.getLogger("clause.api")
 
-WEB_ROOT = Path(__file__).resolve().parent.parent.parent / "web"
+SITE_ROOT = Path(__file__).resolve().parent.parent.parent / "site"
 
 
 # ---------------------------------------------------------------------------
@@ -5307,21 +5307,27 @@ def create_app(
 
     # -- interface --------------------------------------------------------
 
-    if (WEB_ROOT / "static").is_dir():
-        app.mount("/static", StaticFiles(directory=WEB_ROOT / "static"), name="static")
-
     @app.get("/")
     async def index() -> Any:
-        """The API host has no page of its own: a person who lands here is
-        sent to the site, and a developer running only this service gets the
-        built in interface if it has been built."""
+        """The API host has no page of its own. In production the site lives
+        on its own host, so a person who lands here is sent there. A
+        developer running only this service has no such host, and gets the
+        site out of the repository, from here."""
         from fastapi.responses import RedirectResponse
-        page = WEB_ROOT / "index.html"
         if settings.allowed_origins:
             return RedirectResponse(settings.allowed_origins[0], status_code=302)
+        page = SITE_ROOT / "index.html"
         if not page.is_file():
-            raise HTTPException(500, "the interface is not built")
+            raise HTTPException(500, "the site is not in this checkout")
         return FileResponse(page)
+
+    # The site's own files: its translations, the map and the sign in bundle.
+    # This is for the developer case only, and it is mounted last so that
+    # every route above is matched first. In production nothing is served
+    # from here: the site has a host, that host has the headers, and two
+    # copies of a page on two origins is one copy too many.
+    if not settings.allowed_origins and SITE_ROOT.is_dir():
+        app.mount("/", StaticFiles(directory=SITE_ROOT), name="site")
 
     return app
 

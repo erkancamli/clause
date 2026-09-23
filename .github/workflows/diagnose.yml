@@ -82,9 +82,15 @@ jobs:
             PY
             echo "    (above is this shell's environment, not the service's)"
             sudo systemctl show clause -p ExecMainStartTimestamp --value | sed 's/^/    service started: /'
-            sudo tr '\0' '\n' < /proc/$(systemctl show clause -p MainPID --value)/environ 2>/dev/null \
-              | grep -E '^CLAUSE_FUNDING_(EVM_CHAIN|SOLANA_CHAIN|RIALO_CHAIN|TESTNET)=' \
-              | sed 's/^/    running with: /' || echo "    running with: no funding chain named"
+            env=$(sudo tr '\0' '\n' < /proc/$(systemctl show clause -p MainPID --value)/environ 2>/dev/null)
+            chains=$(printf '%s\n' "$env" | grep -E '^CLAUSE_FUNDING_(EVM_CHAIN|SOLANA_CHAIN|RIALO_CHAIN|TESTNET)=')
+            printf '%s\n' "${chains:-no funding chain named}" | sed 's/^/    running with: /'
+            # A chain with no address behind it offers nobody anywhere to send
+            # to, and reads as configured all the same. So say which receiving
+            # addresses the service holds, by name: a value here would be an
+            # address in a log.
+            held=$(printf '%s\n' "$env" | grep -oE '^CLAUSE_FUNDING_(EVM|SOLANA|RIALO|IBAN)=.' | sed 's/=.$//')
+            printf '%s\n' "${held:-no receiving address}" | sed 's/^/    holds: /'
             echo "==> book, by kind"; sudo /opt/clause/.venv/bin/python - <<'PY'
             import json, sqlite3, collections
             db = sqlite3.connect("file:/var/lib/clause/clause.sqlite?mode=ro", uri=True)
