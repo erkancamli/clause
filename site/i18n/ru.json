@@ -2070,7 +2070,8 @@
     "Ended {days} days ago, and has not been replaced": "Закончился {days} дн. назад и не заменён",
     "Buy it again": "Купить снова",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене. Дни между ними покрыты не были и покрыты быть не могут.",
-    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Это покрытие закончилось {days} дн. назад, и с тех пор у вас его нет. Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене; дни между ними покрыты не были и покрыты быть не могут."
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Это покрытие закончилось {days} дн. назад, и с тех пор у вас его нет. Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене; дни между ними покрыты не были и покрыты быть не могут.",
+    "Filled in from the place you chose. Correct it if it is not right.": "Заполнено по выбранному вами месту. Исправьте, если это не так."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

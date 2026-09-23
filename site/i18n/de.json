@@ -2070,7 +2070,8 @@
     "Ended {days} days ago, and has not been replaced": "Vor {days} Tagen beendet und nicht ersetzt",
     "Buy it again": "Erneut kaufen",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis. Die Tage dazwischen waren nicht gedeckt und können es nicht werden.",
-    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Diese Deckung endete vor {days} Tagen, und seither haben Sie keine. Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis; die Tage dazwischen waren nicht gedeckt und können es nicht werden."
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Diese Deckung endete vor {days} Tagen, und seither haben Sie keine. Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis; die Tage dazwischen waren nicht gedeckt und können es nicht werden.",
+    "Filled in from the place you chose. Correct it if it is not right.": "Aus dem von Ihnen gewählten Ort eingetragen. Korrigieren Sie es, wenn es nicht stimmt."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

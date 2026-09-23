@@ -2070,7 +2070,8 @@
     "Ended {days} days ago, and has not been replaced": "{days} 日前に終了し、その後は入っていません",
     "Buy it again": "もう一度加入する",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。",
-    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "この補償は {days} 日前に終了し、それ以降は補償がありません。もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。"
+    "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "この補償は {days} 日前に終了し、それ以降は補償がありません。もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。",
+    "Filled in from the place you chose. Correct it if it is not right.": "選ばれた場所から入力しました。違っていれば直してください。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

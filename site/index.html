@@ -1861,6 +1861,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
             <div class="field"><label class="label" for="addr-postcode" data-i18n>Postcode</label><input id="addr-postcode" class="dlg-input" maxlength="12" autocomplete="postal-code"></div>
             <div class="field"><label class="label" for="addr-city" data-i18n>City</label><input id="addr-city" class="dlg-input" maxlength="60" autocomplete="address-level2"></div>
           </div>
+          <p class="fine" id="addr-offered" hidden></p>
           <p class="fine" id="addr-note" data-i18n>Seen only by the company that issues the policy, which checks that the home is yours or that you live in it (title deed or lease). The protocol keeps a fingerprint of it, not the address.</p>
           <div class="field" style="margin-top:12px">
             <label class="label" for="docs" id="docs-label" data-i18n>Documents for that check: title deed, lease or vehicle registration</label>
@@ -4824,6 +4825,29 @@ function searchAddress(query){
     },function(){});
   },450);
 }
+/* The street and the town, as the place the buyer already found says them.
+   They are an offer, not an answer: the fields stay editable, and a buyer who
+   has typed their own is never overwritten. Somebody who searched their own
+   address on the previous screen should not be made to type it again on this
+   one; 6563 m.4(2) wants the answer correctable, and it stays correctable. */
+function offerAddress(parts){
+  if(!parts)return;
+  var have=flow.interest.address||{};
+  var kept={street:have.street||"", number:have.number||"", flat:have.flat||"",
+            postcode:have.postcode||"", city:have.city||""};
+  var touched=!!(flow.interest.addressTouched);
+  if(!touched){
+    if(parts.street)kept.street=String(parts.street).slice(0,80);
+    if(parts.city)kept.city=String(parts.city).slice(0,60);
+  }
+  flow.interest.address=kept;
+  flow.interest.addressOffered=!touched&&!!(parts.street||parts.city);
+  // If the person is already looking at the fields, fill them in front of them.
+  if($("addr-street")&&!touched){
+    if(kept.street)$("addr-street").value=kept.street;
+    if(kept.city)$("addr-city").value=kept.city;
+  }
+}
 function setPoint(lat,lon,label,country){
   flow.subject=lat.toFixed(5)+","+lon.toFixed(5);
   flow.place=label||(lat.toFixed(4)+", "+lon.toFixed(4));
@@ -4845,6 +4869,7 @@ function locateMe(auto){
     api("/api/reverse?latitude="+lat.toFixed(5)+"&longitude="+lon.toFixed(5)+"&lang="+LANG,{timeout:9000}).then(function(r){
       var p=r.place||{};
       setPoint(lat,lon,[p.name,p.region].filter(Boolean).join(", "),p.country);
+      offerAddress({street:p.street,city:p.city});
       centreMap(16);
     },function(){ setPoint(lat,lon,null,null); centreMap(16); });
   },function(error){
@@ -4894,6 +4919,7 @@ function movePin(latlng){
     if(coordinates()&&Math.abs(coordinates().latitude-lat)<1e-6){
       flow.place=[p.name,p.region].filter(Boolean).join(", ")||flow.place;
       flow.placeCountry=p.country||null;
+      offerAddress({street:p.street,city:p.city});
       if($("place"))$("place").value=flow.place;
       loadHazard();
     }
@@ -6437,6 +6463,7 @@ function renderResults(query){
             : (place.region || "");
     return '<button class="opt' + (off ? ' off' : '') + '" type="button" data-value="' + esc(value) +
       '" data-name="' + esc(place.name) + '" data-kind="' + esc(place.kind || "") + '" data-country="' + esc(place.country || "") +
+      '" data-street="' + esc(place.street || "") + '" data-city="' + esc(place.city || "") +
       '" aria-pressed="' + chosen + '"' + (off ? ' disabled' : '') + '>' +
       '<span class="lead">' + esc(place.kind === "point" ? "◎" : place.kind === "address" ? "⌂" : abroad ? place.country : place.name.slice(0,2).toUpperCase()) + '</span>' +
       '<span><span class="t">' + esc(place.name) + '</span>' +
@@ -6453,6 +6480,7 @@ function renderResults(query){
       flow.subject = button.dataset.value;
       flow.place = button.dataset.name;
       flow.placeCountry = button.dataset.country || null;
+      offerAddress({street: button.dataset.street, city: button.dataset.city});
       markPressed(box, ".opt", function(n){ return n === button; });
       loadHazard(); centreMap(button.dataset.kind === "address" || button.dataset.kind === "point" ? 16 : 11);
     });
@@ -6827,9 +6855,17 @@ function renderInterest(){
       : t("Seen only by the company that issues the policy, which checks that the home is yours or that you live in it (title deed or lease). The protocol keeps a fingerprint of it, not the address.");
     var a=interest.address||{};
     ["street","number","flat","postcode","city"].forEach(function(k){ var el=$("addr-"+k); if(el&&!el.dataset.bound){ el.dataset.bound="1";
-      el.addEventListener("input",function(e){ (interest.address=interest.address||{})[k]=e.target.value; setNextLabel(); }); }
+      el.addEventListener("input",function(e){ (interest.address=interest.address||{})[k]=e.target.value;
+        // Once they have written any of it themselves, nothing offers over it again.
+        interest.addressTouched=true; var offered=$("addr-offered"); if(offered)offered.hidden=true;
+        setNextLabel(); }); }
       if(el&&el.value!==(a[k]||""))el.value=a[k]||""; });
     if(!a.city&&flow.place){ var parts=String(flow.place).split(", "); if(parts.length>=2){ a.city=parts[parts.length-2]; (interest.address=a); $("addr-city").value=a.city; } }
+    // Said out loud when it was filled in for them, because an answer somebody
+    // did not write is one they have not checked.
+    var offered=$("addr-offered");
+    if(offered){ offered.hidden=!(interest.addressOffered&&!interest.addressTouched);
+      offered.textContent=t("Filled in from the place you chose. Correct it if it is not right."); }
     $("docs-label").textContent=flow.peril==="car"?t("Documents for that check: the vehicle registration"):t("Documents for that check: title deed, lease or vehicle registration");
     var docs=$("docs");
     if(!docs.dataset.bound){ docs.dataset.bound="1"; docs.addEventListener("change",function(){

@@ -177,6 +177,11 @@ def _from_photon(feature: dict[str, Any]) -> dict[str, Any] | None:
         "latitude": round(float(coords[1]), 5),
         "longitude": round(float(coords[0]), 5),
         "country": str(props.get("countrycode") or "").upper() or None,
+        # The parts, as well as the label. A buyer who has already found their
+        # street here should not be asked to type it again two screens later;
+        # what is offered back to them is still theirs to correct.
+        "street": street,
+        "city": town,
         "kind": "address",
     }
 
@@ -196,5 +201,7 @@ def _from_nominatim(data: Any, lat: float, lon: float) -> dict[str, Any] | None:
         "latitude": lat,
         "longitude": lon,
         "country": str(address.get("country_code") or "").upper() or None,
+        "street": street,
+        "city": town,
         "kind": "address",
     }
