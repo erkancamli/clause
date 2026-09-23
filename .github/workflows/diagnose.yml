@@ -108,7 +108,10 @@ jobs:
             print(f"    policy contract: {contract}")
             # The service's own client, not a hand rolled request: a node that
             # answers the anchor every minute will answer this too, and a
-            # plain urllib call is refused by some of them.
+            # plain urllib call is refused by some of them. It is imported the
+            # way the service imports it, from the deployed tree, because the
+            # copy in site-packages is whatever was installed there last.
+            sys.path.insert(0, "/opt/clause")
             from clause.anchor.rpc import Rpc
             try:
                 result = Rpc(url).call("eth_call", [
