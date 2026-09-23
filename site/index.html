@@ -5705,9 +5705,13 @@ function subjectOptions(){
   var out="",key;
   flightDefaults();
   var tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10), year=new Date(Date.now()+365*86400000).toISOString().slice(0,10);
-  out+='<div class="tform" style="margin-bottom:12px"><label><span>'+esc(t("Flight number"))+'</span><input id="flight-no" maxlength="8" spellcheck="false" placeholder="TK1979" value="'+esc(flow.flightNumber||"")+'"></label>'+
+  // The note belongs to the time field and not to its name, so it hangs off
+  // aria-describedby rather than sitting inside the label, where it would be
+  // read out as part of the field's own name every time.
+  out+='<div class="tform"><label><span>'+esc(t("Flight number"))+'</span><input id="flight-no" maxlength="8" spellcheck="false" placeholder="TK1979" value="'+esc(flow.flightNumber||"")+'"></label>'+
        '<label><span>'+esc(t("Departure date"))+'</span><input id="flight-date" type="date" min="'+tomorrow+'" max="'+year+'" value="'+esc(flow.flightDate||"")+'"></label>'+
-       '<label><span>'+esc(t("Scheduled departure"))+'</span><input id="flight-time" type="time" value="'+esc(flow.flightTime||"")+'"><small class="fine" data-i18n>The time on the ticket, in the airport\'s own clock. Cover has to be bought 24 hours before it.</small></label></div>';
+       '<label><span>'+esc(t("Scheduled departure"))+'</span><input id="flight-time" type="time" aria-describedby="flight-time-note" value="'+esc(flow.flightTime||"")+'"></label></div>'+
+       '<p class="fine" id="flight-time-note" style="margin:6px 0 12px" data-i18n>The time on the ticket, in the airport\'s own clock. Cover has to be bought 24 hours before it.</p>';
   for(key in ROUTES){ if(!Object.prototype.hasOwnProperty.call(ROUTES,key))continue;
     var r=ROUTES[key];
     out+=optHtml(key,t("{from} to {to}",{from:r.from,to:r.to}),
