@@ -91,6 +91,41 @@ jobs:
             # address in a log.
             held=$(printf '%s\n' "$env" | grep -oE '^CLAUSE_FUNDING_(EVM|SOLANA|RIALO|IBAN)=.' | sed 's/=.$//')
             printf '%s\n' "${held:-no receiving address}" | sed 's/^/    holds: /'
+            # The way a stranger's wallet reaches the token. tokenURI is built as
+            # baseURI + the policy id, so an empty baseURI leaves every token
+            # pointing at a relative path nobody can fetch: the metadata can be
+            # perfect and a marketplace still sees nothing. It is set once, at
+            # deployment, and there is no other way to tell from here.
+            echo "==> the token's way home"
+            sudo /opt/clause/.venv/bin/python - \
+              "$(printf '%s\n' "$env" | sed -n 's/^CLAUSE_ANCHOR_RPC=//p')" \
+              "$(printf '%s\n' "$env" | sed -n 's/^CLAUSE_ANCHOR_POLICY=//p')" <<'PY'
+            import json, sys, urllib.request
+            url, contract = (sys.argv + ["", ""])[1:3]
+            if not url or not contract:
+                print("    baseURI: no anchor configured on this host")
+                raise SystemExit
+            print(f"    policy contract: {contract}")
+            body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_call", "params": [
+                # keccak256("baseURI()")[:4]
+                {"to": contract, "data": "0x6c0360eb"}, "latest"]}).encode()
+            try:
+                request = urllib.request.Request(
+                    url, data=body, headers={"content-type": "application/json"})
+                with urllib.request.urlopen(request, timeout=20) as reply:
+                    result = json.load(reply).get("result") or ""
+                raw = bytes.fromhex(result[2:])
+                at = int.from_bytes(raw[:32], "big")
+                size = int.from_bytes(raw[at:at + 32], "big")
+                base = raw[at + 32:at + 32 + size].decode()
+            except Exception as error:
+                # Never the message: the node's URL carries its key.
+                print(f"    baseURI: the node did not answer ({type(error).__name__})")
+            else:
+                print(f"    baseURI: {base}" if base else
+                      "    baseURI: EMPTY -- tokenURI resolves to nothing, "
+                      "so no wallet or marketplace can read these tokens")
+            PY
             echo "==> book, by kind"; sudo /opt/clause/.venv/bin/python - <<'PY'
             import json, sqlite3, collections
             db = sqlite3.connect("file:/var/lib/clause/clause.sqlite?mode=ro", uri=True)
