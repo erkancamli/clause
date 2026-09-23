@@ -1,0 +1,71 @@
+"""What the router owes a reader who cannot see the screen change.
+
+A single page application changes everything but the address bar, and the two
+things a browser would otherwise have done for it — name the page, and put the
+reader at the top of the new one — it has to do itself. This site did neither:
+twelve screens in seven languages shared the title "Clause", and focus stayed
+on whatever link had been clicked.
+
+These are static checks over the markup and the dictionaries, so they cost
+nothing and run everywhere. The behaviour they stand for — that the title
+really changes and that focus really lands — is checked in a browser by
+scripts/accessibility.py's sweep.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+SITE = Path(__file__).resolve().parent.parent / "site"
+PAGE = (SITE / "index.html").read_text(encoding="utf-8")
+LANGS = ["tr", "es", "fr", "de", "ru", "ja"]
+
+#: The switcher applies the reader's choice the moment it is made, which 3.2.2
+#: permits only where the reader was told it would. This sentence is the
+#: telling (technique G13), so it is not a label anyone may quietly shorten.
+SWITCHER = "Language — choosing one changes the page at once"
+
+
+def views() -> dict[str, str]:
+    """Each routed screen's markup, by element id."""
+    found = {}
+    for match in re.finditer(r'<section class="view" id="(view-[a-z]+)">', PAGE):
+        start = match.end()
+        end = PAGE.index("\n</section>", start)
+        found[match.group(1)] = PAGE[start:end]
+    return found
+
+
+def test_every_screen_is_routed_and_has_one_name():
+    """The title is read off the screen's own h1, so there must be exactly one.
+
+    Not zero, or the screen keeps the name of the one before it; not two, or
+    which of them names the page is whichever the browser reaches first.
+    """
+    routed = set(re.findall(r'"(view-[a-z]+)"', PAGE))
+    screens = views()
+    assert routed <= set(screens), sorted(routed - set(screens))
+    assert len(screens) >= 13, sorted(screens)
+    for name, markup in screens.items():
+        assert markup.count("<h1") == 1, f"{name} has {markup.count('<h1')} first-level headings"
+
+
+def test_the_router_names_the_page_and_moves_focus():
+    """2.4.2 and 2.4.3, in the one function that can honour them."""
+    assert "document.title =" in PAGE, "nothing ever sets the page's name"
+    # The name is derived, not tabulated: a second table is a second place for
+    # the words to go stale, and the h1 is already translated.
+    assert 'querySelector("h1")' in PAGE
+    # Focus moves only when somebody navigated, never on the first render.
+    assert 'addEventListener("hashchange",function(){show(currentRoute(), true);});' in PAGE
+    assert 'heading.setAttribute("tabindex", "-1")' in PAGE
+
+
+def test_the_language_switcher_says_what_choosing_does():
+    assert SWITCHER in PAGE, "the switcher's label no longer warns that it acts at once"
+    for lang in LANGS:
+        strings = json.loads((SITE / "i18n" / f"{lang}.json").read_text(encoding="utf-8"))["strings"]
+        assert SWITCHER in strings, f"{lang} has no translation for the switcher's label"
+        assert strings[SWITCHER].strip(), f"{lang}'s translation of the switcher's label is empty"
