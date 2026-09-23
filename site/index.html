@@ -174,6 +174,14 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
      never broken in the middle of a word to fit a seventh of a phone. */
   .mainnav{display:flex!important;overflow-x:auto;gap:2px;scroll-snap-type:x proximity}
   .mainnav a{scroll-snap-align:start}
+  /* Sixteen pixels, or iOS Safari zooms the whole page the moment the field
+     is touched and leaves the reader to pinch their way back. The threshold
+     is the computed size, not the declared one, and eleven fields were under
+     it: the operator's two at 15, the proof search at 13.5, the country box
+     at 12.5. Typing fields only — a select opens a picker rather than a
+     caret, and the language control has eight pixels to spare at 320. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+  textarea{font-size:16px}
   /* The bar is fixed to the bottom of the screen, so it has to be told to
      twice: once so the end of the page is not underneath it, and once so
      that a control the reader tabs to is not scrolled to rest under it.
@@ -199,6 +207,24 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
   font:inherit;font-size:13px;padding:0 2px;min-height:26px;cursor:pointer;max-width:92px}
 .langsel select:focus{outline:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Held blank until the dictionary has been applied, because English words
+   that turn into Turkish ones a second later are worse than a moment of
+   nothing. It is the most expensive line in this file for five readers in
+   six — the screen stays empty until then — so it has been attacked twice,
+   and the measurements are recorded here so that it is not attacked a third
+   time for the same reasons.
+
+   Asking for the dictionary in the head rather than at the foot of the
+   script: it arrives before the page does either way, so this changed
+   nothing. Applying the translation from a small script placed before the
+   eight hundred kilobyte one, so the words are on the screen before that is
+   read: also nothing, because Chromium compiles a script on a background
+   thread while the one before it runs, so there is no "before" to move into.
+   Both were measured nine times a side and both came back inside the noise
+   (tr 1984 ms against 1991 ms). Splitting the pass at the fold was worse.
+
+   What is left is the compile and run of the script itself, which nothing
+   but a smaller script will shorten. scripts/vitals.py has the numbers. */
 html.i18n-wait body{visibility:hidden}
 .langnote{background:var(--hold-wash);color:var(--ink-2);padding-block:5px;font-size:12px}
 .note-x{margin-left:auto;border:0;background:none;color:var(--ink-3);font-size:18px;line-height:1;
