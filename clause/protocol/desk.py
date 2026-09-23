@@ -68,7 +68,9 @@ def row_of(policy: Any, *, names: dict[str, str] | None = None, now: float | Non
     return {
         "policy_id": policy.policy_id, "peril": policy.peril_key,
         "subject": policy.peril.describe_subject(policy.subject),
-        "place": policy.subject.get("place") or policy.subject.get("station") or policy.subject.get("route") or "",
+        "place": policy.subject.get("place") or policy.subject.get("station") or policy.subject.get("route")
+                 or (f"{policy.subject['origin']}-{policy.subject['destination']}"
+                     if policy.subject.get("origin") else "") or "",
         "province": province_of(policy),
         "country": ((meta.get("compliance") or {}).get("country") or (meta.get("interest") or {}).get("country") or ""),
         "limit": round(policy.limit, 2), "premium": round(policy.premium, 2),

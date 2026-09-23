@@ -3532,7 +3532,21 @@ var SOLVENCY=.995,COST_OF_CAPITAL=.12,EXPENSE=.08,REINSURANCE_MULTIPLE=3;
 
 function droughtExc(code){var s=STATIONS[code],shape=1/(s.cv*s.cv),scale=s.normal/shape;
   return function(mm){return mm<=0?0:gammaCdf(mm,shape,scale);};}
-function flightExc(key){var r=ROUTES[key],mu=Math.log(r.median);
+/* Published on-time performance exists for a handful of routes and people fly
+   all of them, so most flights are priced on what routes of that length do.
+   The bands are the protocol's, kept here so the page can show a figure before
+   the protocol answers; the protocol's own price replaces it when it does. */
+var SECTOR_BANDS=[[1500,.016,.22,33],[4000,.013,.25,40],[8000,.010,.28,50],[Infinity,.008,.30,58]];
+function routeStats(key,km){
+  var known=ROUTES[key];
+  if(known)return known;
+  var d=(km===undefined||km===null)?2000:km;
+  for(var i=0;i<SECTOR_BANDS.length;i++)
+    if(d<=SECTOR_BANDS[i][0])
+      return {cancel:SECTOR_BANDS[i][1],late:SECTOR_BANDS[i][2],median:SECTOR_BANDS[i][3]};
+  return {cancel:.008,late:.30,median:58};
+}
+function flightExc(key,km){var r=routeStats(key,km),mu=Math.log(r.median);
   return function(x){if(x<=0)return 1;if(x>=CANCEL_MIN)return r.cancel;
     return r.cancel+(1-r.cancel)*r.late*(1-normalCdf(Math.log(x),mu,LOG_SIGMA));};}
 
@@ -5711,15 +5725,65 @@ function subjectOptions(){
   out+='<div class="tform"><label><span>'+esc(t("Flight number"))+'</span><input id="flight-no" maxlength="8" spellcheck="false" placeholder="TK1979" value="'+esc(flow.flightNumber||"")+'"></label>'+
        '<label><span>'+esc(t("Departure date"))+'</span><input id="flight-date" type="date" min="'+tomorrow+'" max="'+year+'" value="'+esc(flow.flightDate||"")+'"></label>'+
        '<label><span>'+esc(t("Scheduled departure"))+'</span><input id="flight-time" type="time" aria-describedby="flight-time-note" value="'+esc(flow.flightTime||"")+'"></label></div>'+
-       '<p class="fine" id="flight-time-note" style="margin:6px 0 12px" data-i18n>The time on the ticket, in the airport\'s own clock. Cover has to be bought 24 hours before it.</p>';
+       '<p class="fine" id="flight-time-note" style="margin:6px 0 12px">'+
+       esc(t("The time on the ticket, in the airport's own clock. Cover has to be bought 24 hours before it."))+'</p>';
+  // Where it leaves from and where it lands, searched. The six routes below
+  // used to be the whole offer, which is not a product: a traveller whose
+  // flight is not one of them has nothing to insure. They are quick picks now,
+  // and the two boxes above them reach every airport there is.
+  out+='<div class="tform" style="align-items:flex-start">'+
+       airportField("from",t("From"),flow.flightFrom,flow.flightFromText)+
+       airportField("to",t("To"),flow.flightTo,flow.flightToText)+
+       '</div>';
+  out+='<p class="fine" style="margin:10px 0 6px">'+esc(t("Or one of the routes with a published record:"))+'</p>';
   for(key in ROUTES){ if(!Object.prototype.hasOwnProperty.call(ROUTES,key))continue;
-    var r=ROUTES[key];
-    out+=optHtml(key,t("{from} to {to}",{from:r.from,to:r.to}),
+    var r=ROUTES[key], ends=key.split("-");
+    out+=optHtml(ends[1]+"-"+ends[2],t("{from} to {to}",{from:r.from,to:r.to}),
       t("{carrier} · {late} arrive late, median delay {minutes} minutes",
         {carrier:r.carrier,late:pct(r.late,0),minutes:f0.format(r.median)}),
       r.carrier.slice(0,2).toUpperCase(),"data-value");
   }
   return out;
+}
+/* One end of the flight: a box to search in, what was chosen, and room for
+   the answers. Rendered as its own block so a keystroke redraws the list and
+   not the step, which would take the focus out of the box being typed in. */
+function airportField(side,label,code,text){
+  return '<label style="flex:1 1 220px"><span>'+esc(label)+'</span>'+
+    '<input id="air-'+side+'" type="text" autocomplete="off" spellcheck="false" '+
+      'placeholder="'+esc(t("City or airport code"))+'" value="'+esc(text||"")+'">'+
+    '<small class="fine" id="air-'+side+'-said">'+(code?esc(code):"")+'</small>'+
+    '<span class="results" id="air-'+side+'-hits"></span></label>';
+}
+/* What the page knows about airports it has been told about, so a code chosen
+   once can still be named after the list has moved on. */
+var AIRPORTS={};
+function airportHits(side){
+  var input=$("air-"+side), box=$("air-"+side+"-hits");
+  if(!input||!box)return;
+  var q=input.value.trim();
+  if(q.length<2){ box.innerHTML=""; return; }
+  var seq=(airportHits.seq=(airportHits.seq||0)+1);
+  api("/api/airports?query="+encodeURIComponent(q)).then(function(reply){
+    if(seq!==airportHits.seq)return;
+    var hits=(reply&&reply.airports)||[];
+    hits.forEach(function(a){ AIRPORTS[a.iata]=a; });
+    if(!hits.length){ box.innerHTML='<div class="empty">'+esc(t("No airport matched that."))+'</div>'; return; }
+    box.innerHTML=hits.map(function(a){
+      return '<button class="opt" type="button" data-air="'+esc(a.iata)+'" data-side="'+esc(side)+'">'+
+        '<span class="lead">'+esc(a.iata)+'</span><span class="opt-text"><b>'+
+        esc([a.city,a.name].filter(Boolean).join(" · "))+'</b><small>'+
+        esc(regionName(a.country)||a.country)+'</small></span></button>';
+    }).join("");
+  },function(){ box.innerHTML=""; });
+}
+function setAirport(side,code){
+  var a=AIRPORTS[code]||{iata:code,city:"",name:code};
+  var text=[a.city||a.name,"("+code+")"].join(" ");
+  if(side==="from"){ flow.flightFrom=code; flow.flightFromText=text; }
+  else { flow.flightTo=code; flow.flightToText=text; }
+  flow.subject=(flow.flightFrom&&flow.flightTo)?flow.flightFrom+"-"+flow.flightTo:null;
+  flow.quoted=null; flow.offers=null;
 }
 
 function gapInside(system,centre,radius){
@@ -5821,7 +5885,8 @@ function placeLabel(){
   return parts.join(", ").slice(0,60);
 }
 function subjectPayload(){
-  if (flow.peril === "flight"){ flightDefaults(); return {route: flow.subject,
+  if (flow.peril === "flight"){ flightDefaults(); return {
+    origin: flow.flightFrom, destination: flow.flightTo,
     flight_number: flow.flightNumber, departure_date: flow.flightDate,
     departure_time: flow.flightTime}; }
   var at = coordinates();
@@ -5868,7 +5933,13 @@ function structure(){
   return {shape:"ramp",pts:CURVES.drought.pts.map(function(pt){return [pt[0]*st.normal,pt[1]];})};
 }
 function exceedance(){
-  if(flow.peril==="flight")return flightExc(flow.subject);
+  if(flow.peril==="flight"){
+    // The protocol tells the page how long the sector is; until it has, the
+    // middle band stands in, and the bar says the figure is the page's own.
+    var q=flow.quoted&&flow.quoted.flight;
+    var key=(flow.flightNumber||"").slice(0,2).toUpperCase()+"-"+flow.flightFrom+"-"+flow.flightTo;
+    return flightExc(key,q?q.sector_km:null);
+  }
   if(flow.peril==="car")return carExc(PERILS.car.term);
   if(flow.peril==="storm")return stormExc(PERILS.storm.term);
   var at = coordinates();
@@ -6019,8 +6090,10 @@ function stationFor(){return STATIONS[nearestStation(coordinates())];}
 
 function subjectLabel(){
   if(flow.peril==="flight"){
-    var r=ROUTES[flow.subject];
-    return r?t("{from} to {to}",{from:r.from,to:r.to}):String(flow.subject||"");
+    if(flow.flightFrom&&flow.flightTo)
+      return t("{from} to {to}",{from:flow.flightFromText||flow.flightFrom,
+                                 to:flow.flightToText||flow.flightTo});
+    return String(flow.subject||"");
   }
   return flow.place||String(flow.subject||"").replace(",",", ");
 }
@@ -6390,6 +6463,15 @@ function whatIsMissing(){
   var it=flow.interest;
   if(flow.step===1)return flow.chosen?null:{say:t("Choose what to protect"),at:"s1-picks"};
   if(flow.step===2){
+    if(flow.peril==="flight"){
+      // Each end named separately, because "choose a place" is no help when
+      // what is missing is the airport it lands at.
+      if(!flow.flightFrom)return {say:t("Choose the airport it leaves from"),at:"air-from"};
+      if(!flow.flightTo)return {say:t("Choose the airport it lands at"),at:"air-to"};
+      if(flow.flightFrom===flow.flightTo)return {say:t("Choose two different airports"),at:"air-to"};
+      if(!flightReady())return {say:t("Enter the flight number and date"),at:"flight-no"};
+      return null;
+    }
     if(!flow.subject)return {say:t("Choose a place"),at:"place"};
     if(!flightReady())return {say:t("Enter the flight number and date"),at:"flight-no"};
     if(!quakeReady()||!stormReady()||!carReady())return {say:t("Still reading the place"),at:""};
@@ -7004,23 +7086,51 @@ function quakeReady(){
 
 function flightReady(){
   if(flow.peril!=="flight")return true;
-  return !!flow.subject&&/^[A-Za-z0-9]{2}[0-9]{1,4}[A-Za-z]?$/.test(flow.flightNumber||"")
+  return !!flow.flightFrom&&!!flow.flightTo&&flow.flightFrom!==flow.flightTo
+    &&/^[A-Za-z0-9]{2}[0-9]{1,4}[A-Za-z]?$/.test(flow.flightNumber||"")
     &&/^\d{4}-\d{2}-\d{2}$/.test(flow.flightDate||"")&&/^\d{2}:\d{2}$/.test(flow.flightTime||"");
 }
 function bindSubjectOptions(){
   var box = $("s2-opts");
   markPressed(box, ".opt", function(n){ return n.dataset.value === flow.subject; });
   var no=$("flight-no"), date=$("flight-date");
-  if(no)no.addEventListener("input",function(){ flow.flightNumber=no.value.toUpperCase().replace(/\s+/g,""); setNextLabel(); });
+  if(no)no.addEventListener("input",function(){ flow.flightNumber=no.value.toUpperCase().replace(/\s+/g,""); setNextLabel(); updatePriceBar(); });
   if(date)date.addEventListener("change",function(){ flow.flightDate=date.value; setNextLabel(); updatePriceBar(); });
   var clock=$("flight-time");
   if(clock)clock.addEventListener("change",function(){ flow.flightTime=clock.value; setNextLabel(); updatePriceBar(); });
+  ["from","to"].forEach(function(side){
+    var input=$("air-"+side);
+    if(!input)return;
+    input.addEventListener("input",function(){
+      // Typing loosens what was chosen: the code and the words in the box
+      // have to agree, or the buyer reads one flight and buys another.
+      if(side==="from"){ flow.flightFrom=null; flow.flightFromText=input.value; }
+      else { flow.flightTo=null; flow.flightToText=input.value; }
+      flow.subject=null; flow.quoted=null;
+      var said=$("air-"+side+"-said"); if(said)said.textContent="";
+      airportHits(side);
+      setNextLabel(); updatePriceBar();
+    });
+  });
   Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(button){
     button.addEventListener("click", function(){
-      flow.subject = button.dataset.value;
+      if(button.dataset.air){
+        setAirport(button.dataset.side, button.dataset.air);
+        renderResults($("place")?$("place").value:"");
+        var next=$("air-to");
+        if(button.dataset.side==="from"&&next&&!flow.flightTo)next.focus();
+        updatePriceBar(); setNextLabel();
+        return;
+      }
+      // A quick pick names both ends at once.
+      var ends=String(button.dataset.value||"").split("-");
+      if(ends.length===2){ setAirport("from",ends[0]); setAirport("to",ends[1]); }
       flow.place = null;
-      if(!flow.flightNumber||!/^[A-Za-z]{2}/.test(flow.flightNumber)){ flow.flightNumber=flow.subject.split("-")[0]+"1979"; if(no)no.value=flow.flightNumber; }
-      markPressed(box, ".opt", function(n){ return n === button; });
+      if(!flow.flightNumber||!/^[A-Za-z]{2}/.test(flow.flightNumber)){
+        var carrier=(Object.keys(ROUTES).filter(function(k){return k.endsWith("-"+ends[0]+"-"+ends[1]);})[0]||"XX-").split("-")[0];
+        flow.flightNumber=carrier+"1979"; if(no)no.value=flow.flightNumber;
+      }
+      renderResults($("place")?$("place").value:"");
       updatePriceBar();
       setNextLabel();
     });
@@ -7253,6 +7363,7 @@ function choosePeril(key){
     flow.place=null; flow.quoted=null; flow.refusal=null;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
+    flow.flightFrom=null; flow.flightTo=null; flow.flightFromText=""; flow.flightToText="";
     if($("place"))$("place").value="";
     flow.reached=1;
   }

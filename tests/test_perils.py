@@ -130,9 +130,35 @@ def flight_subject() -> dict:
     )
 
 
-def test_flight_rejects_an_unknown_route() -> None:
-    with pytest.raises(ValueError, match="unknown route"):
-        FLIGHT_DELAY.validate_subject({"route": "XX-AAA-BBB", "flight_number": "X1", "departure_date": "d"})
+def test_flight_takes_any_two_airports() -> None:
+    """There is no list of routes to be off any more. Six of them used to be
+    the whole offer, which is not a product: a traveller whose flight was not
+    one of them had nothing to insure. What is refused now is a code that is
+    not an airport, and a flight that lands where it left."""
+    both = FLIGHT_DELAY.validate_subject({
+        "origin": "gru", "destination": "GIG", "flight_number": "G31234",
+        "departure_date": FLIGHT_DATE, "departure_time": "07:15",
+    })
+    assert both["origin"] == "GRU" and both["destination"] == "GIG"
+    assert not FLIGHT_DELAY.published(both)
+    assert 300 < FLIGHT_DELAY.sector_km(both) < 400
+
+    with pytest.raises(ValueError, match="not an airport code"):
+        FLIGHT_DELAY.validate_subject({"origin": "ZZZ", "destination": "LHR",
+                                       "flight_number": "X1", "departure_date": FLIGHT_DATE})
+    with pytest.raises(ValueError, match="one airport and lands at another"):
+        FLIGHT_DELAY.validate_subject({"origin": "IST", "destination": "IST",
+                                       "flight_number": "X1", "departure_date": FLIGHT_DATE})
+
+
+def test_a_flight_cover_written_before_the_catalogue_still_reads() -> None:
+    """Policies sold when the six routes were the offer name a route and no
+    airports. They still have to describe and settle the same way."""
+    old = FLIGHT_DELAY.validate_subject(
+        {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": FLIGHT_DATE}
+    )
+    assert old["origin"] == "IST" and old["destination"] == "LHR"
+    assert FLIGHT_DELAY.published(old)
 
 
 def test_flight_requires_a_number_and_a_date() -> None:

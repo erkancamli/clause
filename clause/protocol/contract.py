@@ -47,7 +47,9 @@ def render(
     company = (carrier or {}).get("name") or "the issuing company named at approval"
     authority = (carrier or {}).get("authority") or "its insurance supervisor"
     specimen = bool((carrier or {}).get("specimen"))
-    steps = "\n".join(f"    {line}" for line in curve.describe(unit))
+    steps = "\n".join(
+        f"    {line}" for line in peril.reading_curve(subject, curve).describe(unit)
+    )
     where = peril.describe_subject(subject)
     if address:
         parts = [address.get(k, "") for k in ("street", "number", "flat", "postcode", "city")]

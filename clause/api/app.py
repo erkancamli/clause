@@ -1125,7 +1125,7 @@ def create_app(
             out.append(
                 {
                     **peril.to_dict(),
-                    "structure": curve.describe(peril.unit),
+                    "structure": curve.describe(peril.structure_unit()),
                     "direction": curve.direction.value,
                     "shape": curve.shape.value,
                     "attachment": curve.attachment,
@@ -1195,6 +1195,24 @@ def create_app(
         found = search_world(query, limit=12, country=country.upper() if country else None)
         return {"places": found, "count": len(found),
                 "attribution": world_places().get("attribution", "")}
+
+    @app.get("/api/airports")
+    async def airports(
+        query: str = Query("", max_length=48),
+        country: str | None = Query(None, min_length=2, max_length=2),
+    ) -> dict[str, Any]:
+        """Airports by code, city or name, so a buyer can name their own flight.
+
+        The cover used to offer six routes and nothing else, which is not a
+        product: a traveller who cannot find their flight has nothing to
+        insure. Every airport with an IATA code is here, and the zone each
+        stands in, which is what makes "24 hours before departure" mean the
+        same thing everywhere.
+        """
+        from ..perils.airports import attribution, search
+
+        found = search(query, limit=8, country=country.upper() if country else None)
+        return {"airports": found, "count": len(found), "attribution": attribution()}
 
     @app.get("/api/geocode")
     async def geocode(
@@ -1743,6 +1761,29 @@ def create_app(
         counting.count("priced", request.peril)
         return await price(request)
 
+    def flight_basis(peril: Any, subject: dict[str, Any]) -> dict[str, Any]:
+        """For a flight, where its numbers came from and how far it flies.
+
+        Published on-time performance exists for a handful of routes and people
+        fly all of them, so most flights are priced on what routes of that
+        length do. A buyer is owed that distinction: it is the difference
+        between a price about their flight and a price about flights like it.
+        """
+        if getattr(peril, "key", "") != "flight_delay":
+            return {}
+        from ..perils.airports import find
+
+        ends = {which: find(subject.get(which, "")) for which in ("origin", "destination")}
+        return {"flight": {
+            "published": peril.published(subject),
+            "sector_km": round(peril.sector_km(subject)),
+            "airports": {
+                which: {"iata": a["iata"], "name": a["name"], "city": a["city"],
+                        "country": a["country"], "tz": a["tz"]}
+                for which, a in ends.items() if a is not None
+            },
+        }}
+
     def cover_starts(peril: Any, subject: dict[str, Any], *, now: float | None = None) -> dict[str, Any]:
         """When cover on this subject would start, and the rule behind it."""
         at = now if now is not None else time.time()
@@ -1804,7 +1845,7 @@ def create_app(
             "aggregation_rule": chain.aggregator.describe(),
             "subject": subject,
             "subject_text": peril.describe_subject(subject),
-            "structure": curve.describe(peril.unit),
+            "structure": peril.reading_curve(subject, curve).describe(peril.unit),
             "basis_risk": peril.basis_risk,
             "basis_risk_level": peril.basis_risk_level,
             "data_source": {
@@ -1820,6 +1861,7 @@ def create_app(
             # told after paying that the cover begins next week has been told
             # too late.
             "cover": cover_starts(peril, subject),
+            **flight_basis(peril, subject),
         }
 
     @app.get("/api/instalments")
@@ -5222,7 +5264,7 @@ def create_app(
         "storm": {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "Kadıköy"},
         "vehicle_flood": {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "Kadıköy"},
         "drought": {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 50.0},
-        "flight_delay": {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"},
+        "flight_delay": {"origin": "IST", "destination": "LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"},
     }
 
     @app.get("/api/rulebook")
@@ -5727,7 +5769,7 @@ def token_metadata(policy: Any) -> dict[str, Any]:
     what = peril.describe_subject(policy.subject)
     title = peril.title_for(policy.subject)
     unit = peril.unit_for(policy.subject)
-    steps = policy.curve.describe(unit)
+    steps = peril.reading_curve(policy.subject, policy.curve).describe(unit)
     carrier = meta.get("carrier")
     carrier = (_CARRIER_NAMES.get(carrier) or carrier) if carrier else None
     issuer = (meta.get("interest") or {}).get("country", "")
@@ -5987,10 +6029,10 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
         ("drought", {"station": "TR-EDIRNE", "distance_km": 4.0, "hectares": 80.0}, 70_000, 150, "edirne.farm"),
         ("drought", {"station": "TR-ADANA", "distance_km": 9.0, "hectares": 55.0}, 65_000, 140, "cukurova.farm"),
         ("drought", {"station": "TR-SANLIURFA", "distance_km": 22.0, "hectares": 40.0}, 55_000, 140, "urfa.farm"),
-        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"}, 1_500, 2, "traveller.a"),
-        ("flight_delay", {"route": "TK-IST-JFK", "flight_number": "TK0003", "departure_date": _soon(), "departure_time": "13:20"}, 2_000, 2, "traveller.b"),
-        ("flight_delay", {"route": "PC-SAW-ESB", "flight_number": "PC2310", "departure_date": _soon(1), "departure_time": "18:05"}, 800, 2, "traveller.c"),
-        ("flight_delay", {"route": "BA-LHR-IST", "flight_number": "BA0676", "departure_date": _soon(1), "departure_time": "09:15"}, 1_200, 2, "traveller.d"),
+        ("flight_delay", {"origin": "IST", "destination": "LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"}, 1_500, 2, "traveller.a"),
+        ("flight_delay", {"origin": "IST", "destination": "JFK", "flight_number": "TK0003", "departure_date": _soon(), "departure_time": "13:20"}, 2_000, 2, "traveller.b"),
+        ("flight_delay", {"origin": "SAW", "destination": "ESB", "flight_number": "PC2310", "departure_date": _soon(1), "departure_time": "18:05"}, 800, 2, "traveller.c"),
+        ("flight_delay", {"origin": "LHR", "destination": "IST", "flight_number": "BA0676", "departure_date": _soon(1), "departure_time": "09:15"}, 1_200, 2, "traveller.d"),
     ]
 
     for peril, subject, limit, term, label in opening:
@@ -6039,9 +6081,9 @@ async def _arrivals(
         ("drought", {"station": "TR-KONYA", "distance_km": 7.0, "hectares": 55.0}, (40_000, 95_000), 150),
         ("drought", {"station": "TR-EDIRNE", "distance_km": 5.0, "hectares": 70.0}, (40_000, 85_000), 150),
         ("drought", {"station": "TR-ADANA", "distance_km": 11.0, "hectares": 60.0}, (35_000, 80_000), 140),
-        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(7), "departure_time": "07:45"}, (900, 2_400), 2),
-        ("flight_delay", {"route": "TK-IST-AMS", "flight_number": "TK1953", "departure_date": _soon(7), "departure_time": "11:30"}, (900, 2_200), 2),
-        ("flight_delay", {"route": "LH-FRA-IST", "flight_number": "LH1302", "departure_date": _soon(8), "departure_time": "16:40"}, (800, 2_000), 2),
+        ("flight_delay", {"origin": "IST", "destination": "LHR", "flight_number": "TK1979", "departure_date": _soon(7), "departure_time": "07:45"}, (900, 2_400), 2),
+        ("flight_delay", {"origin": "IST", "destination": "AMS", "flight_number": "TK1953", "departure_date": _soon(7), "departure_time": "11:30"}, (900, 2_200), 2),
+        ("flight_delay", {"origin": "FRA", "destination": "IST", "flight_number": "LH1302", "departure_date": _soon(8), "departure_time": "16:40"}, (800, 2_000), 2),
     ]
     from ..perils import STORM
     if STORM.territory:

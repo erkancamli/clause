@@ -478,6 +478,12 @@ class Drought(Peril):
             direction=Direction.BELOW,
         )
 
+    def structure_unit(self) -> str:
+        return "of the station's normal rainfall for the season"
+
+    def reading_curve(self, subject: dict[str, Any], curve: PayoutCurve) -> PayoutCurve:
+        return self.curve_in_mm(subject, curve)
+
     def curve_in_mm(self, subject: dict[str, Any], curve: PayoutCurve) -> PayoutCurve:
         """Convert a curve expressed in shares of normal into millimetres."""
         station = self.station(subject)

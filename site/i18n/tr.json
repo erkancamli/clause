@@ -2137,7 +2137,14 @@
     "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "Bu teminatın ölçtüğü sezon, istasyonda açılacak ilk sezondur; bir sezonun satışları, o sezon başlamadan on beş gün önce kapanır.",
     "When does my cover start? Can I buy it once the event is coming?": "Teminatım ne zaman başlar? Olay yaklaşırken alabilir miyim?",
     "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "Hayır, ve bu bilinçli bir tercih. Teminat bir bekleme süresinden sonra başlar: depremde yedi gün, fırtına ve araç su baskınında on gün. Bekleme süresi içindeki bir olay ödeme yapmaz; poliçeyi de sona erdirmez — teminat, sözleşmenizde yazan günde başlar ve süresini baştan sona işler. Kuraklık farklı işler, çünkü kurak bir sezon beklenerek geçirilemez: poliçenin ölçtüğü sezon, istasyonda açılacak ilk sezondur ve bir sezonun satışları o sezon başlamadan on beş gün önce kapanır. Uçuşta bekleme süresi yoktur, çünkü teminat tek bir uçuşu adıyla yazar; bunun yerine tarifeli kalkıştan en az 24 saat önce alınmış olması gerekir. Gerekçe hepsinde aynı: fiyat, bir olayın geleceğini bilmeyen biri için hesaplanmış olasılıktır ve fırtına, gelmesine bir hafta kala haberlerdedir.",
-    "When the cover applies": "Teminat ne zaman geçerli"
+    "When the cover applies": "Teminat ne zaman geçerli",
+    "From": "Nereden",
+    "City or airport code": "Şehir ya da havalimanı kodu",
+    "No airport matched that.": "Buna uyan bir havalimanı yok.",
+    "Or one of the routes with a published record:": "Ya da yayınlanmış sicili olan hatlardan biri:",
+    "Choose the airport it leaves from": "Kalkış havalimanını seçin",
+    "Choose the airport it lands at": "Varış havalimanını seçin",
+    "Choose two different airports": "İki farklı havalimanı seçin"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

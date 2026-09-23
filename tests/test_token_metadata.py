@@ -104,7 +104,11 @@ def test_the_payment_ladder_is_written_out_where_it_is_read_in_full(tokens) -> N
     """It is the substance of the bargain and it is three clauses long, so it
     belongs in the description and not in a chip that would cut it short."""
     for policy, meta in tokens:
-        steps = policy.curve.describe(policy.peril.unit_for(policy.subject))
+        # The curve in the units the index is read in, which for drought is
+        # millimetres and not the shares of the station's normal season that
+        # the structure is stored as. The token says what the reading will say.
+        steps = policy.peril.reading_curve(policy.subject, policy.curve).describe(
+            policy.peril.unit_for(policy.subject))
         for step in steps:
             assert step in meta["description"], f"{step!r} is not in the description"
         assert not any(a["trait_type"] == "Pays at" for a in meta["attributes"])

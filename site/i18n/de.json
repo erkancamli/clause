@@ -2129,7 +2129,14 @@
     "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "Die Saison, die diese Deckung misst, ist die nächste, die an der Station beginnt; der Verkauf für eine Saison endet fünfzehn Tage vor ihrem Beginn.",
     "When does my cover start? Can I buy it once the event is coming?": "Wann beginnt meine Deckung? Kann ich sie noch kaufen, wenn das Ereignis bevorsteht?",
     "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "Nein, und das ist Absicht. Die Deckung beginnt nach einer Wartezeit: sieben Tage bei Erdbeben, zehn bei Sturm und Fahrzeugüberschwemmung. Ein Ereignis innerhalb der Wartezeit zahlt nichts, beendet die Police aber auch nicht — die Deckung beginnt an dem im Vertrag genannten Tag und läuft von dort ihre volle Laufzeit. Dürre funktioniert anders, denn eine trockene Saison lässt sich nicht abwarten: die Saison, die eine Police misst, ist die nächste, die an ihrer Station beginnt, und der Verkauf für eine Saison endet fünfzehn Tage vor ihrem Beginn. Ein Flug hat keine Wartezeit, weil die Deckung einen bestimmten Flug benennt; stattdessen muss sie mindestens 24 Stunden vor dem planmäßigen Abflug gekauft werden. Der Grund ist überall derselbe: der Preis ist die Wahrscheinlichkeit eines Ereignisses für jemanden, der nicht weiß, dass es kommt — und ein Sturm steht eine Woche vorher in den Nachrichten.",
-    "When the cover applies": "Wann die Deckung gilt"
+    "When the cover applies": "Wann die Deckung gilt",
+    "From": "Von",
+    "City or airport code": "Stadt oder Flughafencode",
+    "No airport matched that.": "Kein Flughafen passt dazu.",
+    "Or one of the routes with a published record:": "Oder eine der Strecken mit veröffentlichter Statistik:",
+    "Choose the airport it leaves from": "Abflughafen wählen",
+    "Choose the airport it lands at": "Zielflughafen wählen",
+    "Choose two different airports": "Zwei verschiedene Flughäfen wählen"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

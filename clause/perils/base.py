@@ -312,6 +312,30 @@ class Peril(ABC):
     def unit_for(self, subject: dict[str, Any]) -> str:
         return self.unit
 
+    def structure_unit(self) -> str:
+        """The unit the standard structure is written in, with no subject yet.
+
+        The catalogue describes a peril before anybody has chosen a station or
+        an address, so there is nothing to convert drought's shares of normal
+        into. Naming them "mm" there was the same mistake in a quieter place.
+        """
+        return self.unit
+
+    def reading_curve(self, subject: dict[str, Any], curve: PayoutCurve) -> PayoutCurve:
+        """The structure in the units the index is actually read in.
+
+        For every peril but one this is the curve itself. Drought's structure
+        is written in shares of the station's normal season, because one
+        structure then reads the same at every station, and it has to be
+        converted to millimetres before it can be shown to anybody or settled
+        on. That conversion was done in the settlement path and nowhere else,
+        so the contract a farmer signed said "at or below 0.8 mm, pays 0% of
+        the limit" where it meant 94 mm. It is here now, so that everything
+        which describes a structure and the thing that settles it read the
+        same number.
+        """
+        return curve
+
     def title_for(self, subject: dict[str, Any]) -> str:
         """The name of the cover for this subject, as the buyer sees it."""
         return self.name

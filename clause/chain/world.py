@@ -677,7 +677,9 @@ class Chain:
                     policy.data_reference,
                     "arrival_delay_minutes",
                     resolves_in_days=resolves,
-                    route=str(policy.subject.get("route", "")), pace=pace,
+                    route=str(policy.subject.get("route")
+                              or f"{policy.subject.get('origin', '')}-"
+                                 f"{policy.subject.get('destination', '')}"), pace=pace,
                 )
                 if real and flight.progress_days < 0:
                     # Counted from when the cover started, so a restart does

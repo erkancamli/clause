@@ -2129,7 +2129,14 @@
     "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "Сезон, который измеряет это покрытие, — ближайший на станции, а продажи на сезон закрываются за пятнадцать дней до его начала.",
     "When does my cover start? Can I buy it once the event is coming?": "Когда начинается покрытие? Можно ли купить его, когда событие уже на подходе?",
     "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "Нет, и это сделано намеренно. Покрытие начинается после ожидания: семь дней для землетрясения, десять для бури и затопления автомобиля. Событие внутри срока ожидания ничего не выплачивает и полис не прекращает — покрытие начинается в день, названный в договоре, и идёт оттуда весь свой срок. С засухой иначе, потому что сухой сезон нельзя переждать: сезон, который измеряет полис, — ближайший на его станции, а продажи на сезон закрываются за пятнадцать дней до его начала. У рейса ожидания нет, потому что покрытие названо по конкретному рейсу; вместо этого его нужно купить не позднее чем за 24 часа до вылета по расписанию. Причина везде одна: цена — это вероятность события для того, кто не знает, что оно идёт, а буря попадает в новости за неделю до того, как дойдёт.",
-    "When the cover applies": "Когда действует покрытие"
+    "When the cover applies": "Когда действует покрытие",
+    "From": "Откуда",
+    "City or airport code": "Город или код аэропорта",
+    "No airport matched that.": "Подходящего аэропорта нет.",
+    "Or one of the routes with a published record:": "Или один из маршрутов с опубликованной статистикой:",
+    "Choose the airport it leaves from": "Выберите аэропорт вылета",
+    "Choose the airport it lands at": "Выберите аэропорт прилёта",
+    "Choose two different airports": "Выберите два разных аэропорта"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

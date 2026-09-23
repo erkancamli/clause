@@ -2129,7 +2129,14 @@
     "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "La temporada que mide esta cobertura es la siguiente que se abre en la estación, y la venta de una temporada cierra quince días antes de que empiece.",
     "When does my cover start? Can I buy it once the event is coming?": "¿Cuándo empieza mi cobertura? ¿Puedo comprarla cuando el fenómeno ya se acerca?",
     "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "No, y es deliberado. La cobertura empieza tras una espera: siete días para terremoto, diez para tormenta e inundación del vehículo. Un suceso dentro de la espera no paga nada, y tampoco termina la póliza: la cobertura empieza el día que dice su contrato y corre su plazo completo desde ahí. La sequía funciona de otro modo, porque una temporada seca no se puede esperar: la temporada que mide una póliza es la siguiente que se abre en su estación, y la venta de una temporada cierra quince días antes de que empiece. Un vuelo no tiene espera, porque la cobertura nombra un vuelo concreto; en su lugar debe comprarse al menos 24 horas antes de la salida programada. La razón es la misma en todos los casos: el precio es la probabilidad de un suceso para quien no sabe que viene, y una tormenta sale en las noticias una semana antes de llegar.",
-    "When the cover applies": "Cuándo se aplica la cobertura"
+    "When the cover applies": "Cuándo se aplica la cobertura",
+    "From": "Desde",
+    "City or airport code": "Ciudad o código de aeropuerto",
+    "No airport matched that.": "Ningún aeropuerto coincide.",
+    "Or one of the routes with a published record:": "O una de las rutas con historial publicado:",
+    "Choose the airport it leaves from": "Elija el aeropuerto de salida",
+    "Choose the airport it lands at": "Elija el aeropuerto de llegada",
+    "Choose two different airports": "Elija dos aeropuertos distintos"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

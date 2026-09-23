@@ -107,7 +107,8 @@ class Policy:
             "peril_name": peril.title_for(self.subject),
             "subject": dict(self.subject),
             "subject_text": peril.describe_subject(self.subject),
-            "structure": self.curve.describe(peril.unit_for(self.subject)),
+            "structure": peril.reading_curve(self.subject, self.curve).describe(
+                peril.unit_for(self.subject)),
             "unit": peril.unit_for(self.subject),
             "limit": round(self.limit, 2),
             "premium": round(self.premium, 2),
@@ -206,9 +207,6 @@ def build_policy(
 def settle_index(policy: Policy, index_value: float) -> float:
     """What a policy pays at an observed index value."""
     peril = policy.peril
-    curve = (
-        peril.curve_in_mm(policy.subject, policy.curve)
-        if policy.peril_key == "drought"
-        else policy.curve
+    return peril.reading_curve(policy.subject, policy.curve).payout(
+        index_value, policy.limit
     )
-    return curve.payout(index_value, policy.limit)

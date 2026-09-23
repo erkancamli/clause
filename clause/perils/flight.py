@@ -77,19 +77,20 @@ class RouteStatistics:
 #: inside that day is bought on information the price does not have.
 BOOK_AHEAD_HOURS = 24
 
-#: Where each airport stands, so a departure written in the local time of the
-#: airport can be turned into an instant. Without this the twenty-four hours
-#: above would be out by up to a day, and the rule would either refuse flights
-#: it should sell or sell flights it should refuse.
-AIRPORTS: dict[str, str] = {
-    "IST": "Europe/Istanbul",
-    "SAW": "Europe/Istanbul",
-    "ESB": "Europe/Istanbul",
-    "LHR": "Europe/London",
-    "AMS": "Europe/Amsterdam",
-    "FRA": "Europe/Berlin",
-    "JFK": "America/New_York",
-}
+#: How a route nobody has published figures for is priced. Distance is the
+#: only thing about an unknown flight that is known, and it is the thing that
+#: matters: a longer sector has more places to lose time and fewer chances to
+#: make it up, and its aircraft has usually flown that day already. The bands
+#: are the published industry averages by sector length, rounded. Indicative,
+#: like every other figure of this kind here, and replaced by the carrier's own
+#: record the moment there is one.
+DISTANCE_BANDS: tuple[tuple[float, float, float, float], ...] = (
+    # up to km, cancellation rate, share arriving late, median late minutes
+    (1_500.0, 0.016, 0.22, 33.0),
+    (4_000.0, 0.013, 0.25, 40.0),
+    (8_000.0, 0.010, 0.28, 50.0),
+    (float("inf"), 0.008, 0.30, 58.0),
+)
 
 ROUTES: dict[str, RouteStatistics] = {
     "TK-IST-LHR": RouteStatistics("TK", "IST", "LHR", 0.012, 0.243, 41.0),
@@ -123,12 +124,30 @@ class FlightDelay(Peril):
 
 
     def validate_subject(self, subject: dict[str, Any]) -> dict[str, Any]:
+        from .airports import find
+
+        # Where it leaves from and where it lands, as IATA codes. A policy
+        # written before the catalogue existed names one of six routes instead;
+        # it is read back into the two airports so that cover already sold
+        # still describes and settles the same way.
+        origin = str(subject.get("origin", "")).upper().strip()
+        destination = str(subject.get("destination", "")).upper().strip()
         route = str(subject.get("route", "")).upper().strip()
-        if route not in ROUTES:
+        if not (origin and destination) and route in ROUTES:
+            known = ROUTES[route]
+            origin, destination = known.origin, known.destination
+        if find(origin) is None:
             raise ValueError(
-                f"unknown route {route!r}; offered routes are "
-                f"{', '.join(sorted(ROUTES))}"
+                f"{origin or 'the departure airport'} is not an airport code; "
+                f"a code is three letters, like IST"
             )
+        if find(destination) is None:
+            raise ValueError(
+                f"{destination or 'the arrival airport'} is not an airport code; "
+                f"a code is three letters, like LHR"
+            )
+        if origin == destination:
+            raise ValueError("a flight leaves from one airport and lands at another")
         flight_number = str(subject.get("flight_number", "")).upper().strip().replace(" ", "")
         if not re.fullmatch(r"[A-Z0-9]{2}[0-9]{1,4}[A-Z]?", flight_number):
             raise ValueError("a flight number is an airline code and up to four digits, like TK1979")
@@ -159,7 +178,8 @@ class FlightDelay(Peril):
             )
         at = dt.time(hour, minute)
         return {
-            "route": route,
+            "origin": origin,
+            "destination": destination,
             "flight_number": flight_number,
             "departure_date": departure,
             "departure_time": at.strftime("%H:%M"),
@@ -173,8 +193,10 @@ class FlightDelay(Peril):
         twenty-four hour rule a real twenty-four hours rather than a number of
         calendar days that means something different in every timezone.
         """
-        route = ROUTES[subject["route"]]
-        zone = ZoneInfo(AIRPORTS.get(route.origin, "UTC"))
+        from .airports import find
+
+        airport = find(subject["origin"])
+        zone = ZoneInfo(airport["tz"] if airport else "UTC")
         day = dt.date.fromisoformat(str(subject["departure_date"]))
         clock = dt.time.fromisoformat(str(subject.get("departure_time") or "00:00"))
         return dt.datetime.combine(day, clock, zone).timestamp()
@@ -198,7 +220,44 @@ class FlightDelay(Peril):
         )
 
     def statistics(self, subject: dict[str, Any]) -> RouteStatistics:
-        return ROUTES[subject["route"]]
+        """What this flight's route is expected to do.
+
+        The published record where there is one. Where there is not — which is
+        almost every flight, because published on-time performance exists for a
+        handful of routes and people fly all of them — the sector's length
+        stands in for it. The quote says which of the two it used, because a
+        buyer should know whether the price is about their route or about
+        routes of that length.
+        """
+        known = ROUTES.get(self.route_key(subject))
+        if known is not None:
+            return known
+        carrier = str(subject.get("flight_number", ""))[:2].upper()
+        origin, destination = subject["origin"], subject["destination"]
+        km = self.sector_km(subject)
+        for limit, cancelled, late, median in DISTANCE_BANDS:
+            if km <= limit:
+                return RouteStatistics(carrier, origin, destination, cancelled, late, median)
+        raise ValueError("no band for this distance")  # unreachable: the last is infinite
+
+    def route_key(self, subject: dict[str, Any]) -> str:
+        carrier = str(subject.get("flight_number", ""))[:2].upper()
+        return f"{carrier}-{subject.get('origin', '')}-{subject.get('destination', '')}"
+
+    def published(self, subject: dict[str, Any]) -> bool:
+        """Whether this route's own record was used, or the distance band."""
+        return self.route_key(subject) in ROUTES
+
+    def sector_km(self, subject: dict[str, Any]) -> float:
+        from .airports import find, great_circle_km
+
+        origin, destination = find(subject["origin"]), find(subject["destination"])
+        if origin is None or destination is None:
+            return 2_000.0
+        return great_circle_km(
+            (origin["latitude"], origin["longitude"]),
+            (destination["latitude"], destination["longitude"]),
+        )
 
     def data_source(self, subject: dict[str, Any]) -> DataSource:
         flight = subject["flight_number"]
@@ -271,9 +330,11 @@ class FlightDelay(Peril):
         )
 
     def describe_subject(self, subject: dict[str, Any]) -> str:
-        stats = self.statistics(subject)
         return (
-            f"{subject['flight_number']} on {stats.origin} to {stats.destination}, "
-            f"{subject['departure_date']}"
+            f"{subject['flight_number']} on {subject['origin']} to "
+            f"{subject['destination']}, {subject['departure_date']}"
             + (f" at {subject['departure_time']}" if subject.get("departure_time") else "")
         )
+
+    def title_for(self, subject: dict[str, Any]) -> str:
+        return self.name
