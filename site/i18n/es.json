@@ -346,7 +346,6 @@
     "Try again": "Intentar de nuevo",
     "The pool will not carry this.": "El fondo no asumirá esto.",
     "a coordinate you gave": "una coordenada que usted indicó",
-    "Nothing matched. Try a province, a district, or a coordinate as \"40.99, 29.03\".": "No hay coincidencias. Pruebe con una provincia, un distrito o una coordenada como \"40.99, 29.03\".",
     "The most this policy can pay you.": "Lo máximo que esta póliza puede pagarle.",
     "choose a place to see the price": "elija un lugar para ver el precio",
     "{cover} of cover for {days} days": "{cover} de cobertura durante {days} días",
@@ -818,7 +817,6 @@
     "No tested earthquake model covers this point yet.": "Ningún modelo de terremotos probado cubre todavía este punto.",
     "No tested earthquake model covers {country} yet, so cover cannot be priced here.": "Ningún modelo de terremotos probado cubre todavía {country}, así que la cobertura no se puede tarificar aquí.",
     "Nothing about you is stored: the public half of the key is your account": "No se almacena nada sobre usted: la mitad pública de la clave es su cuenta",
-    "Nothing matched. Try a city, a district, or a coordinate as \"35.68, 139.69\".": "No hay coincidencias. Pruebe con una ciudad, un distrito o una coordenada como \"35.68, 139.69\".",
     "Only this browser holds it, so the policies bought here are opened here. Clearing the browser's data removes the key": "Solo este navegador la guarda, así que las pólizas contratadas aquí se abren aquí. Borrar los datos del navegador elimina la clave",
     "Other ways in, not built yet": "Otras formas de acceder, aún no construidas",
     "Passkeys, so the same key follows you to your other devices through your phone's own keychain": "Llaves de acceso, para que la misma clave le acompañe a sus otros dispositivos a través del propio llavero de su teléfono",
@@ -2138,7 +2136,12 @@
     "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Los escalones están en los niveles propios de este lugar para una vez cada diez, veinticinco y cincuenta años, de modo que una costa lluviosa y una meseta seca pagan cada una por lo que es extremo para ellas. Por eso el precio es casi el mismo en una y otra: lo que cambia es cuántos milímetros hacen falta, no con qué frecuencia ocurre.",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Los escalones están en los niveles propios de este lugar para una vez cada veinticinco, cincuenta y cien años, de modo que una costa expuesta y un valle resguardado pagan cada uno por lo que es extremo para ellos. Por eso el precio apenas cambia de un sitio a otro: lo que cambia es el viento que hace falta, no con qué frecuencia llega.",
     "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Estos milímetros son el promedio sobre una celda de unos cincuenta kilómetros, no la lectura de un pluviómetro en su calle: un pluviómetro marcaría más ese mismo día. El disparador se fija sobre las mismas cifras con las que la póliza liquida, así que ambos concuerdan.",
-    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Estas velocidades son la media de la hora más fuerte sobre una celda de unos cincuenta kilómetros, no la racha que registra una estación meteorológica: una estación marcaría más ese mismo día. El disparador se fija sobre las mismas cifras con las que la póliza liquida, así que ambos concuerdan."
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Estas velocidades son la media de la hora más fuerte sobre una celda de unos cincuenta kilómetros, no la racha que registra una estación meteorológica: una estación marcaría más ese mismo día. El disparador se fija sobre las mismas cifras con las que la póliza liquida, así que ambos concuerdan.",
+    "Nothing matched.": "No hubo coincidencias.",
+    "Try a city there, or a coordinate as \"35.68, 139.69\".": "Pruebe con una ciudad de allí, o una coordenada como \"35.68, 139.69\".",
+    "Drought cover is written only in Türkiye for now.": "La cobertura de sequía se suscribe por ahora solo en Türkiye.",
+    "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "La cobertura de terremoto puede tarificarse en {countries}: solo para esos países existe por ahora un modelo probado.",
+    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Pruebe con una provincia, un distrito o una coordenada como \"40.99, 29.03\"."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

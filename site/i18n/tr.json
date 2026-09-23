@@ -346,7 +346,6 @@
     "Try again": "Tekrar deneyin",
     "The pool will not carry this.": "Havuz bunu taşımayacak.",
     "a coordinate you gave": "verdiğiniz bir koordinat",
-    "Nothing matched. Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Eşleşen bir şey bulunamadı. Bir il, bir ilçe ya da \"40.99, 29.03\" gibi bir koordinat deneyin.",
     "The most this policy can pay you.": "Bu poliçenin size ödeyebileceği en yüksek tutar.",
     "choose a place to see the price": "fiyatı görmek için bir yer seçin",
     "{cover} of cover for {days} days": "{days} gün için {cover} teminat",
@@ -818,7 +817,6 @@
     "No tested earthquake model covers this point yet.": "Bu noktayı kapsayan test edilmiş bir deprem modeli henüz yok.",
     "No tested earthquake model covers {country} yet, so cover cannot be priced here.": "{country} ülkesini kapsayan test edilmiş bir deprem modeli henüz yok; bu yüzden teminat burada fiyatlanamaz.",
     "Nothing about you is stored: the public half of the key is your account": "Sizinle ilgili hiçbir şey saklanmaz: anahtarın açık yarısı hesabınızdır",
-    "Nothing matched. Try a city, a district, or a coordinate as \"35.68, 139.69\".": "Eşleşen bir şey bulunamadı. Bir şehir, bir ilçe ya da \"35.68, 139.69\" gibi bir koordinat deneyin.",
     "Only this browser holds it, so the policies bought here are opened here. Clearing the browser's data removes the key": "Anahtarı yalnızca bu tarayıcı tutar; bu yüzden burada satın alınan poliçeler burada açılır. Tarayıcının verilerini temizlemek anahtarı siler",
     "Other ways in, not built yet": "Diğer giriş yolları, henüz yapılmadı",
     "Passkeys, so the same key follows you to your other devices through your phone's own keychain": "Geçiş anahtarları; böylece aynı anahtar, telefonunuzun kendi anahtar zinciri aracılığıyla diğer cihazlarınıza da gelir",
@@ -2146,7 +2144,12 @@
     "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Basamaklar bu yerin kendi on, yirmi beş ve elli yılda bir görülen seviyelerinde; böylece yağışlı bir kıyı da kurak bir plato da kendileri için aşırı olana göre öder. Fiyatın Rize'de de Konya'da da aşağı yukarı aynı olmasının sebebi budur: iki yer arasında değişen, kaç milimetre gerektiği; ne sıklıkta olduğu değil.",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Basamaklar bu yerin kendi yirmi beş, elli ve yüz yılda bir görülen seviyelerinde; böylece açık bir kıyı da korunaklı bir vadi de kendileri için aşırı olana göre öder. Fiyatın iki yer arasında neredeyse hiç değişmemesinin sebebi budur: değişen, kaç km/s gerektiği; ne sıklıkta geldiği değil.",
     "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Bu milimetreler yaklaşık elli kilometrelik bir hücrenin ortalamasıdır; sokağınızdaki bir yağmur ölçerin okuduğu değil: ölçer aynı gün daha fazlasını gösterirdi. Tetik, poliçenin üzerinde ödendiği rakamlarla aynı ölçekte kuruludur, yani ikisi birbirini tutar.",
-    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Bu rüzgâr hızları, yaklaşık elli kilometrelik bir hücrede en güçlü saatin ortalamasıdır; bir meteoroloji istasyonunun kaydettiği ani rüzgâr değil: istasyon aynı gün daha fazlasını gösterirdi. Tetik, poliçenin üzerinde ödendiği rakamlarla aynı ölçekte kuruludur, yani ikisi birbirini tutar."
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Bu rüzgâr hızları, yaklaşık elli kilometrelik bir hücrede en güçlü saatin ortalamasıdır; bir meteoroloji istasyonunun kaydettiği ani rüzgâr değil: istasyon aynı gün daha fazlasını gösterirdi. Tetik, poliçenin üzerinde ödendiği rakamlarla aynı ölçekte kuruludur, yani ikisi birbirini tutar.",
+    "Nothing matched.": "Eşleşen bir şey yok.",
+    "Try a city there, or a coordinate as \"35.68, 139.69\".": "Oradan bir şehir deneyin ya da \"35.68, 139.69\" gibi bir koordinat.",
+    "Drought cover is written only in Türkiye for now.": "Kuraklık teminatı şimdilik yalnızca Türkiye'de yazılıyor.",
+    "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "Deprem teminatı şu ülkelerde fiyatlanabiliyor: {countries}. Sınanmış bir model şimdilik yalnızca oralar için var.",
+    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Bir il, bir ilçe ya da \"40.99, 29.03\" gibi bir koordinat deneyin."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -5172,6 +5172,19 @@ function bindMandatePanel(m){
    question is where. The map shows the point being insured; dragging the pin
    moves it. Tiles are OpenStreetMap's and credited on the map. */
 var ADDR = {query:"", hits:[], seq:0}, addrTimer = null;
+/* Where this cover can actually be priced, in the reader's own language and
+   grammar. Named rather than implied: a buyer who cannot find their country
+   is owed the list, not an empty box. */
+function whereItIsWritten(){
+  if(flow.peril!=="quake")
+    return flow.peril==="car" ? t("Vehicle cover is written only in Türkiye for now.")
+         : flow.peril==="storm" ? t("Storm cover is written only in Türkiye for now.")
+         : t("Drought cover is written only in Türkiye for now.");
+  var where=(COVERAGE&&COVERAGE.__priceable&&COVERAGE.__priceable.earthquake)||["TR"];
+  var names=where.map(function(c){ return regionName(c)||c; }).sort();
+  return t("Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.",
+           {countries:listText(names)});
+}
 function quakePriced(country){
   if(!country)return false;
   var p=(COVERAGE&&COVERAGE.__priceable&&COVERAGE.__priceable.earthquake);
@@ -6974,9 +6987,15 @@ function renderResults(query){
   if (addresses.length) hits = hits.slice(0, 5).concat(addresses).slice(0, 11);
   searchWorld(query);
   if (!hits.length){
-    box.innerHTML = '<div class="empty">' + esc(flow.peril === "quake"
-      ? t('Nothing matched. Try a city, a district, or a coordinate as "35.68, 139.69".')
-      : t('Nothing matched. Try a province, a district, or a coordinate as "40.99, 29.03".')) + '</div>';
+    // Nothing matched, and for most of the world nothing ever will: the
+    // catalogue only holds places in countries a model was built and tested
+    // for. Somebody typing "Brasil" got an empty box and no reason for it,
+    // which reads as a broken search rather than as an answer. So the empty
+    // state says where the cover can be bought.
+    box.innerHTML = '<div class="empty">' + esc(t("Nothing matched.")) + " " +
+      esc(whereItIsWritten()) + " " + esc(flow.peril === "quake"
+        ? t('Try a city there, or a coordinate as "35.68, 139.69".')
+        : t('Try a province, a district, or a coordinate as "40.99, 29.03".')) + '</div>';
     return;
   }
 

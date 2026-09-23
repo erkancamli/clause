@@ -346,7 +346,6 @@
     "Try again": "再試行",
     "The pool will not carry this.": "プールはこれを負担しません。",
     "a coordinate you gave": "お客様が入力した座標",
-    "Nothing matched. Try a province, a district, or a coordinate as \"40.99, 29.03\".": "一致するものがありません。県、地区、または「40.99, 29.03」のような座標をお試しください。",
     "The most this policy can pay you.": "この保険契約で支払われる最大額。",
     "choose a place to see the price": "場所を選ぶと価格が表示されます",
     "{cover} of cover for {days} days": "{days}日間、{cover}の補償",
@@ -818,7 +817,6 @@
     "No tested earthquake model covers this point yet.": "この地点を対象とする検証済みの地震モデルはまだありません。",
     "No tested earthquake model covers {country} yet, so cover cannot be priced here.": "{country}を対象とする検証済みの地震モデルはまだないため、ここでは補償に価格を付けられません。",
     "Nothing about you is stored: the public half of the key is your account": "お客様に関する情報は何も保存されません。鍵の公開側の半分がお客様のアカウントです",
-    "Nothing matched. Try a city, a district, or a coordinate as \"35.68, 139.69\".": "一致するものがありません。都市、地区、または「35.68, 139.69」のような座標をお試しください。",
     "Only this browser holds it, so the policies bought here are opened here. Clearing the browser's data removes the key": "鍵を保持しているのはこのブラウザだけなので、ここで購入した保険契約はここでしか開けません。ブラウザのデータを消去すると鍵は削除されます",
     "Other ways in, not built yet": "ほかの入口（まだ作られていません）",
     "Passkeys, so the same key follows you to your other devices through your phone's own keychain": "パスキー。お使いのスマートフォン自体のキーチェーンを通じて、同じ鍵をほかの端末でも使えるようにするものです",
@@ -2138,7 +2136,12 @@
     "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "各段は、その土地自身の10年・25年・50年に一度の水準に置かれています。雨の多い海岸も乾いた高原も、それぞれにとっての極端さで支払われます。価格が両者でほぼ同じなのもそのためです。違うのは何ミリ必要かであって、どれくらいの頻度で起きるかではありません。",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "各段は、その土地自身の25年・50年・100年に一度の水準に置かれています。風の通る海岸も守られた谷も、それぞれにとっての極端さで支払われます。場所が変わっても価格がほとんど動かないのはそのためです。違うのは必要な風速であって、来る頻度ではありません。",
     "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "このミリ数は約50キロ四方の格子の平均であり、お住まいの通りの雨量計の値ではありません。同じ日に雨量計はもっと多くを示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。",
-    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "この風速は約50キロ四方の格子における最も強い1時間の平均であり、気象観測所が記録する突風ではありません。同じ日に観測所はもっと高い値を示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。"
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "この風速は約50キロ四方の格子における最も強い1時間の平均であり、気象観測所が記録する突風ではありません。同じ日に観測所はもっと高い値を示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。",
+    "Nothing matched.": "一致するものがありません。",
+    "Try a city there, or a coordinate as \"35.68, 139.69\".": "その国の都市名か、「35.68, 139.69」のような座標をお試しください。",
+    "Drought cover is written only in Türkiye for now.": "干ばつ補償は現在トルコでのみ引き受けています。",
+    "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "地震補償の保険料を算出できるのは{countries}です。検証済みのモデルが存在するのは、今のところこれらの国だけです。",
+    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "県・地区名か、「40.99, 29.03」のような座標をお試しください。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

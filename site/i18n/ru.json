@@ -346,7 +346,6 @@
     "Try again": "Попробовать снова",
     "The pool will not carry this.": "Пул не примет это.",
     "a coordinate you gave": "указанные вами координаты",
-    "Nothing matched. Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Ничего не найдено. Попробуйте провинцию, район или координаты в виде «40.99, 29.03».",
     "The most this policy can pay you.": "Максимум, который может выплатить вам этот полис.",
     "choose a place to see the price": "выберите место, чтобы увидеть цену",
     "{cover} of cover for {days} days": "Покрытие {cover} на {days} дн.",
@@ -818,7 +817,6 @@
     "No tested earthquake model covers this point yet.": "Для этой точки пока нет проверенной модели землетрясений.",
     "No tested earthquake model covers {country} yet, so cover cannot be priced here.": "Для страны {country} пока нет проверенной модели землетрясений, поэтому рассчитать цену покрытия здесь нельзя.",
     "Nothing about you is stored: the public half of the key is your account": "О вас ничего не хранится: открытая половина ключа и есть ваша учётная запись",
-    "Nothing matched. Try a city, a district, or a coordinate as \"35.68, 139.69\".": "Ничего не найдено. Попробуйте город, район или координаты в виде «35.68, 139.69».",
     "Only this browser holds it, so the policies bought here are opened here. Clearing the browser's data removes the key": "Он хранится только в этом браузере, поэтому полисы, купленные здесь, открываются здесь. Очистка данных браузера удаляет ключ",
     "Other ways in, not built yet": "Другие способы входа, ещё не созданы",
     "Passkeys, so the same key follows you to your other devices through your phone's own keychain": "Ключи доступа (passkeys), чтобы тот же ключ переходил на другие ваши устройства через собственную связку ключей вашего телефона",
@@ -2138,7 +2136,12 @@
     "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Ступени стоят на собственных для этого места уровнях «раз в десять, двадцать пять и пятьдесят лет», так что дождливое побережье и сухое плато платят каждое за то, что экстремально для него. Поэтому цена в них почти одинакова: различается, сколько нужно миллиметров, а не как часто это бывает.",
     "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Ступени стоят на собственных для этого места уровнях «раз в двадцать пять, пятьдесят и сто лет», так что открытое побережье и укрытая долина платят каждое за то, что экстремально для него. Поэтому цена почти не меняется от места к месту: различается, какой нужен ветер, а не как часто он приходит.",
     "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Эти миллиметры — среднее по ячейке около пятидесяти километров, а не показание дождемера на вашей улице: дождемер в тот же день показал бы больше. Порог задан на тех же цифрах, по которым полис рассчитывается, так что они согласованы.",
-    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Эти скорости — среднее за самый сильный час по ячейке около пятидесяти километров, а не порыв, который записывает метеостанция: станция в тот же день показала бы больше. Порог задан на тех же цифрах, по которым полис рассчитывается, так что они согласованы."
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Эти скорости — среднее за самый сильный час по ячейке около пятидесяти километров, а не порыв, который записывает метеостанция: станция в тот же день показала бы больше. Порог задан на тех же цифрах, по которым полис рассчитывается, так что они согласованы.",
+    "Nothing matched.": "Ничего не найдено.",
+    "Try a city there, or a coordinate as \"35.68, 139.69\".": "Попробуйте город оттуда или координату вида \"35.68, 139.69\".",
+    "Drought cover is written only in Türkiye for now.": "Покрытие засухи пока оформляется только в Türkiye.",
+    "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "Покрытие землетрясения можно оценить в {countries}: проверенная модель пока существует только для них.",
+    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Попробуйте провинцию, район или координату вида \"40.99, 29.03\"."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
