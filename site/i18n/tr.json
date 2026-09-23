@@ -958,7 +958,6 @@
     "Shaking below intensity VI": "VI şiddetinin altında sarsıntı",
     "Something else": "Başka bir şey",
     "Source silent": "Kaynak sessiz",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.": "Basamaklar bu yerin kendi on, yirmi beş ve elli yılda bir görülen seviyelerindedir; böylece yağışlı bir kıyı da kurak bir plato da kendileri için aşırı olana göre öder.",
     "Sugar beet": "Şeker pancarı",
     "Sunflower": "Ayçiçeği",
     "The area must be between {min} and {max} hectares.": "Alan {min} ile {max} hektar arasında olmalıdır.",
@@ -1608,7 +1607,6 @@
     "{kmh} km/h in one day": "bir günde {kmh} km/sa",
     "{kmh} km/h or more in a day": "bir günde {kmh} km/sa veya daha fazla",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Teminat, oradaki tek bir günün rüzgârı o yer için aşırı olduğunda öder: yirmi beş, elli ya da yüz yılda bir görülen seviye.",
-    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Basamaklar bu yerin kendi yirmi beş, elli ve yüz yılda bir görülen seviyelerindedir; böylece açık bir kıyı da korunaklı bir vadi de kendisi için aşırı olana göre öder.",
     "1 IN 25 YEARS": "25 YILDA 1",
     "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "Protokole ulaşılamadı ya da sayfanın okuyamadığı bir hata döndü. Hiçbir ücret alınmadı.",
     "The protocol could not read what the page sent:": "Protokol sayfanın gönderdiğini okuyamadı:",
@@ -2144,7 +2142,11 @@
     "Or one of the routes with a published record:": "Ya da yayınlanmış sicili olan hatlardan biri:",
     "Choose the airport it leaves from": "Kalkış havalimanını seçin",
     "Choose the airport it lands at": "Varış havalimanını seçin",
-    "Choose two different airports": "İki farklı havalimanı seçin"
+    "Choose two different airports": "İki farklı havalimanı seçin",
+    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Basamaklar bu yerin kendi on, yirmi beş ve elli yılda bir görülen seviyelerinde; böylece yağışlı bir kıyı da kurak bir plato da kendileri için aşırı olana göre öder. Fiyatın Rize'de de Konya'da da aşağı yukarı aynı olmasının sebebi budur: iki yer arasında değişen, kaç milimetre gerektiği; ne sıklıkta olduğu değil.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Basamaklar bu yerin kendi yirmi beş, elli ve yüz yılda bir görülen seviyelerinde; böylece açık bir kıyı da korunaklı bir vadi de kendileri için aşırı olana göre öder. Fiyatın iki yer arasında neredeyse hiç değişmemesinin sebebi budur: değişen, kaç km/s gerektiği; ne sıklıkta geldiği değil.",
+    "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Bu milimetreler yaklaşık elli kilometrelik bir hücrenin ortalamasıdır; sokağınızdaki bir yağmur ölçerin okuduğu değil: ölçer aynı gün daha fazlasını gösterirdi. Tetik, poliçenin üzerinde ödendiği rakamlarla aynı ölçekte kuruludur, yani ikisi birbirini tutar.",
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Bu rüzgâr hızları, yaklaşık elli kilometrelik bir hücrede en güçlü saatin ortalamasıdır; bir meteoroloji istasyonunun kaydettiği ani rüzgâr değil: istasyon aynı gün daha fazlasını gösterirdi. Tetik, poliçenin üzerinde ödendiği rakamlarla aynı ölçekte kuruludur, yani ikisi birbirini tutar."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

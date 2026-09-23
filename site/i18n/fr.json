@@ -958,7 +958,6 @@
     "Shaking below intensity VI": "Secousses inférieures à l’intensité VI",
     "Something else": "Autre chose",
     "Source silent": "Source muette",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.": "Paliers aux niveaux propres à ce lieu atteints une fois tous les dix, vingt-cinq et cinquante ans, de sorte qu’une côte humide et un plateau sec paient chacun selon ce qui est extrême pour eux.",
     "Sugar beet": "Betterave sucrière",
     "Sunflower": "Tournesol",
     "The area must be between {min} and {max} hectares.": "La superficie doit être comprise entre {min} et {max} hectares.",
@@ -1608,7 +1607,6 @@
     "{kmh} km/h in one day": "{kmh} km/h en une journée",
     "{kmh} km/h or more in a day": "{kmh} km/h ou plus en une journée",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "La couverture paie lorsque le vent d’une seule journée y est extrême pour ce lieu : le niveau atteint une fois tous les vingt-cinq, cinquante ou cent ans.",
-    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Des paliers aux niveaux propres à ce lieu, une fois tous les vingt-cinq, cinquante et cent ans, de sorte qu’une côte exposée et une vallée abritée paient chacune sur ce qui est extrême pour elles.",
     "1 IN 25 YEARS": "1 FOIS EN 25 ANS",
     "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "Le protocole n’a pas pu être joint, ou a répondu par une erreur que la page n’a pas pu lire. Rien n’a été prélevé.",
     "The protocol could not read what the page sent:": "Le protocole n’a pas pu lire ce que la page a envoyé :",
@@ -2136,7 +2134,11 @@
     "Or one of the routes with a published record:": "Ou l'une des lignes dont le bilan est publié :",
     "Choose the airport it leaves from": "Choisissez l'aéroport de départ",
     "Choose the airport it lands at": "Choisissez l'aéroport d'arrivée",
-    "Choose two different airports": "Choisissez deux aéroports différents"
+    "Choose two different airports": "Choisissez deux aéroports différents",
+    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Les paliers sont aux niveaux propres à ce lieu pour une fois tous les dix, vingt-cinq et cinquante ans, si bien qu'une côte pluvieuse et un plateau sec paient chacun sur ce qui est extrême chez eux. C'est aussi pourquoi le prix est presque le même de l'un à l'autre : ce qui change, c'est le nombre de millimètres qu'il faut, pas la fréquence.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Les paliers sont aux niveaux propres à ce lieu pour une fois tous les vingt-cinq, cinquante et cent ans, si bien qu'une côte exposée et une vallée abritée paient chacune sur ce qui est extrême chez elles. C'est aussi pourquoi le prix bouge à peine d'un lieu à l'autre : ce qui change, c'est le vent qu'il faut, pas la fréquence.",
+    "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Ces millimètres sont la moyenne sur une maille d'environ cinquante kilomètres, et non le relevé d'un pluviomètre dans votre rue : un pluviomètre afficherait davantage le même jour. Le seuil est fixé sur les chiffres mêmes qui règlent la police, donc les deux concordent.",
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Ces vitesses sont la moyenne de l'heure la plus forte sur une maille d'environ cinquante kilomètres, et non la rafale qu'enregistre une station météo : une station afficherait davantage le même jour. Le seuil est fixé sur les chiffres mêmes qui règlent la police, donc les deux concordent."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

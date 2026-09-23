@@ -958,7 +958,6 @@
     "Shaking below intensity VI": "Сотрясения ниже интенсивности VI",
     "Something else": "Другое",
     "Source silent": "Источник молчит",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.": "Ступени соответствуют собственным уровням этого места, которые бывают раз в десять, двадцать пять и пятьдесят лет, поэтому и влажное побережье, и засушливое плато получают выплату по тому, что экстремально именно для них.",
     "Sugar beet": "Сахарная свёкла",
     "Sunflower": "Подсолнечник",
     "The area must be between {min} and {max} hectares.": "Площадь должна быть от {min} до {max} га.",
@@ -1608,7 +1607,6 @@
     "{kmh} km/h in one day": "{kmh} км/ч за один день",
     "{kmh} km/h or more in a day": "{kmh} км/ч и выше за день",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Покрытие выплачивается, когда количество осадков за один день там экстремально для этого места: достигает уровня, который бывает раз в двадцать пять, пятьдесят или сто лет.",
-    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Ступени соответствуют собственным уровням этого места, которые бывают раз в двадцать пять, пятьдесят и сто лет, поэтому и открытое побережье, и укрытая долина получают выплату по тому, что экстремально именно для них.",
     "1 IN 25 YEARS": "1 РАЗ В 25 ЛЕТ",
     "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "Протокол недоступен или ответил ошибкой, которую страница не смогла прочитать. Ничего не списано.",
     "The protocol could not read what the page sent:": "Протокол не смог прочитать то, что отправила страница:",
@@ -2136,7 +2134,11 @@
     "Or one of the routes with a published record:": "Или один из маршрутов с опубликованной статистикой:",
     "Choose the airport it leaves from": "Выберите аэропорт вылета",
     "Choose the airport it lands at": "Выберите аэропорт прилёта",
-    "Choose two different airports": "Выберите два разных аэропорта"
+    "Choose two different airports": "Выберите два разных аэропорта",
+    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Ступени стоят на собственных для этого места уровнях «раз в десять, двадцать пять и пятьдесят лет», так что дождливое побережье и сухое плато платят каждое за то, что экстремально для него. Поэтому цена в них почти одинакова: различается, сколько нужно миллиметров, а не как часто это бывает.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Ступени стоят на собственных для этого места уровнях «раз в двадцать пять, пятьдесят и сто лет», так что открытое побережье и укрытая долина платят каждое за то, что экстремально для него. Поэтому цена почти не меняется от места к месту: различается, какой нужен ветер, а не как часто он приходит.",
+    "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Эти миллиметры — среднее по ячейке около пятидесяти километров, а не показание дождемера на вашей улице: дождемер в тот же день показал бы больше. Порог задан на тех же цифрах, по которым полис рассчитывается, так что они согласованы.",
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Эти скорости — среднее за самый сильный час по ячейке около пятидесяти километров, а не порыв, который записывает метеостанция: станция в тот же день показала бы больше. Порог задан на тех же цифрах, по которым полис рассчитывается, так что они согласованы."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

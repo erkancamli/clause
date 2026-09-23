@@ -6278,6 +6278,17 @@ function markPressed(container,selector,match){
    direct laballed rather than given a value axis full of numbers, because what
    the reader wants is the amount at each band, not a ruler. */
 var ROMAN={5:"V",6:"VI",7:"VII",8:"VIII",9:"IX"};
+/* What the numbers on the chart are measured on, where that is not what a
+   reader will assume. Only the two perils read from a reanalysis need it; the
+   magnitude of an earthquake and the minutes a flight is late are the same
+   figure everywhere. */
+function scaleSaid(){
+  if(flow.peril==="car")
+    return t("These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.");
+  if(flow.peril==="storm")
+    return t("These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.");
+  return "";
+}
 function drawCurve(){
   var svg=$("curve"); if(!svg)return;
   var W=540,H=272,L=58,R=20,T=34,B=50;
@@ -6293,13 +6304,13 @@ function drawCurve(){
     x0=Math.max(0,Math.floor(cps[0][0]*0.6/10)*10); x1=Math.ceil(cps[2][0]*1.2/10)*10;
     xlabel=t("RAIN IN ONE DAY, MM");
     ticks=[x0,Math.round(cps[0][0]),Math.round(cps[1][0]),Math.round(cps[2][0]),x1];
-    note=t("Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.");
+    note=t("Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.");
   } else if(flow.peril==="storm"){
     var sps=structure().pts;
     x0=Math.max(0,Math.floor(sps[0][0]*0.6/10)*10); x1=Math.ceil(sps[2][0]*1.2/10)*10;
     xlabel=t("WIND IN ONE DAY, KM/H");
     ticks=[x0,Math.round(sps[0][0]),Math.round(sps[1][0]),Math.round(sps[2][0]),x1];
-    note=t("Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.");
+    note=t("Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.");
   } else if(flow.peril==="drought"){
     var st=stationFor();
     x0=Math.round(st.normal*.30);x1=Math.round(st.normal*1.05);
@@ -6366,7 +6377,14 @@ function drawCurve(){
   out+='<text x="'+L+'" y="15" font-size="10.5" class="t-ink">'+esc(t("What this policy pays, at every level of the index"))+'</text>';
   svg.innerHTML=out;
   svg.setAttribute("aria-label",t("What this policy pays at every level of the index, from nothing below the trigger up to {amount} USDC",{amount:money(l)}));
-  $("curve-cap").textContent=note;
+  // The millimetres and the kilometres an hour on this chart are grid cell
+  // averages from a reanalysis, and a person reads them against a rain gauge
+  // or a weather report. Said here, beside the figure, rather than left in the
+  // basis risk paragraph: 53 mm in Rize is an ordinary wet day on a gauge and
+  // a once in ten years day on this scale, and a buyer who does not know that
+  // will expect to be paid several times a year.
+  var scale=scaleSaid();
+  $("curve-cap").textContent=note+(scale?" "+scale:"");
 }
 
 function renderStep(){

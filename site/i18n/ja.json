@@ -958,7 +958,6 @@
     "Shaking below intensity VI": "メルカリ震度VI未満の揺れ",
     "Something else": "その他",
     "Source silent": "データソース応答なし",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.": "段階はこの場所固有の10年、25年、50年に1度の水準に置かれるため、雨の多い海岸も乾いた高原も、それぞれにとって極端な水準に基づいて支払われます。",
     "Sugar beet": "テンサイ",
     "Sunflower": "ヒマワリ",
     "The area must be between {min} and {max} hectares.": "面積は{min}〜{max}ヘクタールの範囲でなければなりません。",
@@ -1608,7 +1607,6 @@
     "{kmh} km/h in one day": "1日{kmh} km/h",
     "{kmh} km/h or more in a day": "1日{kmh} km/h以上",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "補償は、その場所での1日の風がその場所にとって極端な水準、つまり25年、50年または100年に1度の水準に達したときに支払われます。",
-    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "段階はこの場所固有の25年、50年、100年に1度の水準に置かれるため、風当たりの強い海岸も守られた谷も、それぞれにとって極端な水準に基づいて支払われます。",
     "1 IN 25 YEARS": "25年に1度",
     "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "プロトコルに接続できないか、ページが読み取れないエラーが返されました。請求は発生していません。",
     "The protocol could not read what the page sent:": "プロトコルはページが送信した内容を読み取れませんでした：",
@@ -2136,7 +2134,11 @@
     "Or one of the routes with a published record:": "または、実績が公表されている路線から:",
     "Choose the airport it leaves from": "出発空港を選んでください",
     "Choose the airport it lands at": "到着空港を選んでください",
-    "Choose two different airports": "異なる2つの空港を選んでください"
+    "Choose two different airports": "異なる2つの空港を選んでください",
+    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "各段は、その土地自身の10年・25年・50年に一度の水準に置かれています。雨の多い海岸も乾いた高原も、それぞれにとっての極端さで支払われます。価格が両者でほぼ同じなのもそのためです。違うのは何ミリ必要かであって、どれくらいの頻度で起きるかではありません。",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "各段は、その土地自身の25年・50年・100年に一度の水準に置かれています。風の通る海岸も守られた谷も、それぞれにとっての極端さで支払われます。場所が変わっても価格がほとんど動かないのはそのためです。違うのは必要な風速であって、来る頻度ではありません。",
+    "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "このミリ数は約50キロ四方の格子の平均であり、お住まいの通りの雨量計の値ではありません。同じ日に雨量計はもっと多くを示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。",
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "この風速は約50キロ四方の格子における最も強い1時間の平均であり、気象観測所が記録する突風ではありません。同じ日に観測所はもっと高い値を示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

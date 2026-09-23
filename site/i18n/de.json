@@ -958,7 +958,6 @@
     "Shaking below intensity VI": "Erschütterung unter Intensität VI",
     "Something else": "Etwas anderes",
     "Source silent": "Quelle schweigt",
-    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them.": "Die Stufen liegen auf den Niveaus, die an diesem Ort einmal in zehn, fünfundzwanzig und fünfzig Jahren erreicht werden, sodass eine nasse Küste und eine trockene Hochebene jeweils nach dem zahlen, was für sie extrem ist.",
     "Sugar beet": "Zuckerrübe",
     "Sunflower": "Sonnenblume",
     "The area must be between {min} and {max} hectares.": "Die Fläche muss zwischen {min} und {max} Hektar liegen.",
@@ -1608,7 +1607,6 @@
     "{kmh} km/h in one day": "{kmh} km/h an einem Tag",
     "{kmh} km/h or more in a day": "{kmh} km/h oder mehr an einem Tag",
     "Cover pays when a single day's wind there is extreme for that place: the once in twenty five, fifty or a hundred years level.": "Der Versicherungsschutz zahlt, wenn der Wind eines einzelnen Tages dort für diesen Ort extrem ist: auf dem Niveau, das einmal in fünfundzwanzig, fünfzig oder hundert Jahren erreicht wird.",
-    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them.": "Die Stufen liegen auf den Niveaus, die an diesem Ort einmal in fünfundzwanzig, fünfzig und hundert Jahren erreicht werden, sodass eine exponierte Küste und ein geschütztes Tal jeweils nach dem zahlen, was für sie extrem ist.",
     "1 IN 25 YEARS": "1-MAL IN 25 JAHREN",
     "The protocol could not be reached, or answered with an error the page could not read. Nothing was charged.": "Das Protokoll war nicht erreichbar oder antwortete mit einem Fehler, den die Seite nicht lesen konnte. Ihnen wurde nichts berechnet.",
     "The protocol could not read what the page sent:": "Das Protokoll konnte nicht lesen, was die Seite gesendet hat:",
@@ -2136,7 +2134,11 @@
     "Or one of the routes with a published record:": "Oder eine der Strecken mit veröffentlichter Statistik:",
     "Choose the airport it leaves from": "Abflughafen wählen",
     "Choose the airport it lands at": "Zielflughafen wählen",
-    "Choose two different airports": "Zwei verschiedene Flughäfen wählen"
+    "Choose two different airports": "Zwei verschiedene Flughäfen wählen",
+    "Steps at this place's own once in ten, twenty five and fifty years levels, so a wet coast and a dry plateau each pay on what is extreme for them. That is also why the price is about the same in Rize as in Konya: what changes between them is how many millimetres it takes, not how often it happens.": "Die Stufen liegen auf den ortseigenen Werten für einmal in zehn, fünfundzwanzig und fünfzig Jahren, sodass eine regenreiche Küste und ein trockenes Hochland jeweils auf das zahlen, was für sie extrem ist. Deshalb ist der Preis an beiden Orten etwa gleich: unterschiedlich ist, wie viele Millimeter nötig sind, nicht wie oft es vorkommt.",
+    "Steps at this place's own once in twenty five, fifty and a hundred years levels, so an exposed coast and a sheltered valley each pay on what is extreme for them. That is also why the price barely moves between two places: what changes is the wind it takes, not how often it comes.": "Die Stufen liegen auf den ortseigenen Werten für einmal in fünfundzwanzig, fünfzig und hundert Jahren, sodass eine offene Küste und ein geschütztes Tal jeweils auf das zahlen, was für sie extrem ist. Deshalb bewegt sich der Preis zwischen zwei Orten kaum: unterschiedlich ist, welcher Wind nötig ist, nicht wie oft er kommt.",
+    "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Diese Millimeter sind der Mittelwert über eine Rasterzelle von etwa fünfzig Kilometern, nicht die Ablesung eines Regenmessers in Ihrer Straße: ein Messgerät zeigte am selben Tag mehr. Der Auslöser ist auf denselben Zahlen gesetzt, auf denen die Police abrechnet, also passen beide zusammen.",
+    "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "Diese Windgeschwindigkeiten sind das Mittel der stärksten Stunde über eine Rasterzelle von etwa fünfzig Kilometern, nicht die Bö, die eine Wetterstation aufzeichnet: eine Station zeigte am selben Tag mehr. Der Auslöser ist auf denselben Zahlen gesetzt, auf denen die Police abrechnet, also passen beide zusammen."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
