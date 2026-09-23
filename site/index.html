@@ -101,7 +101,8 @@
    which is the case a margin cannot reach. --pricebar-h is measured and
    is 0px when no bar is up. */
 html{-webkit-text-size-adjust:100%;
-  scroll-padding-top:96px;scroll-padding-bottom:calc(var(--pricebar-h,0px) + 24px)}
+  scroll-padding-top:96px;
+  scroll-padding-bottom:calc(var(--pricebar-h,0px) + var(--tabbar-h,0px) + 24px)}
 /* A column the height of the window, so a short page keeps its footer at
    the bottom instead of leaving it halfway up with dark ground beneath. */
 body{margin:0;min-height:100svh;display:flex;flex-direction:column;
@@ -173,7 +174,14 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
      never broken in the middle of a word to fit a seventh of a phone. */
   .mainnav{display:flex!important;overflow-x:auto;gap:2px;scroll-snap-type:x proximity}
   .mainnav a{scroll-snap-align:start}
-  body{padding-bottom:64px}
+  /* The bar is fixed to the bottom of the screen, so it has to be told to
+     twice: once so the end of the page is not underneath it, and once so
+     that a control the reader tabs to is not scrolled to rest under it.
+     Only the first was said, and a sweep at 390 px found the second in five
+     languages — a summary on the questions page, a button on the operator's
+     page, a peril card. One number, both jobs. (2.4.11) */
+  :root{--tabbar-h:64px}
+  body{padding-bottom:var(--tabbar-h)}
   /* A blurred backdrop makes the header the containing block for anything
      fixed inside it, which pinned this bar to the header instead of the
      bottom of the screen. Opaque on phones instead. */
@@ -1360,7 +1368,33 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
    name at all for anyone not looking at it. Hidden from the eye only. */
 @media (max-width:400px){
   .brand span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  .brand{padding:0 6px}.top-in{gap:6px}}
+  .brand{padding:0 6px}.top-in{gap:6px}
+  /* A grid cell is as wide as its longest unbreakable word, and German has
+     words that are wider than a 320 px screen: "Versicherungsschutz" set at
+     34px pushed the whole hero four pixels off the side of the page. The
+     language is declared on <html>, so the browser already knows where this
+     one may be broken; it was only never asked. (1.4.10) */
+  .hero-text>*{min-width:0}
+  /* hyphens:auto first, where the reader's browser has the dictionary for
+     their language. Where it does not, the headline steps down a size rather
+     than being snapped in half: "Versicherungssc / hutz" is worse than four
+     pixels of overflow, and both are worse than a headline that fits. */
+  .home-hero .hero-text h1,.home-hero .hero-text p{hyphens:auto;overflow-wrap:break-word}
+  /* And the headline gives up its reading measure. 13ch is the rule for a
+     column standing beside the art on a wide screen; on a 320px phone it was
+     holding the line to 244px of an available 288, which is what actually
+     broke the word. Measured: the longest German compound is 275px at 24px
+     and 299px at 26px, so 24px is the largest size that keeps it whole. */
+  .hero-text h1{max-width:none}
+  html[lang=de] .home-hero .hero-text h1,
+  html[lang=ru] .home-hero .hero-text h1{font-size:24px;letter-spacing:-.025em}
+  /* And the globe goes too. At 320 css px the row has nothing left to give:
+     Spanish asks eight pixels more than the screen has, because "Iniciar
+     sesión" is forty pixels longer than "Sign in". The globe is decoration —
+     it is aria-hidden, and the control beside it already says the language
+     in the language. Decoration yields before words do. (1.4.10) */
+  .langsel svg{display:none}
+  .langsel{padding-inline:8px}}
 .whobox{position:relative}
 .sizegrid.addr{grid-template-columns:2fr 1fr 1fr 1fr 2fr}
 @media (max-width:700px){.sizegrid.addr{grid-template-columns:1fr 1fr}}
