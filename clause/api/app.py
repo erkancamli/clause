@@ -25,6 +25,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -1012,6 +1013,14 @@ def create_app(
                        f"(reference {reference}, in the server log)"},
             status_code=500, headers=headers,
         )
+
+    # Everything this service sends is text: JSON, and, for a developer
+    # running it alone, the page itself. The page is 660 KB of it, which on a
+    # phone on a slow connection is three and a half seconds of waiting before
+    # the first word can be drawn. Compressed it is a fifth of that. Pictures
+    # and the event stream are excluded by the middleware's own defaults, so
+    # nothing that is already packed is packed twice and no event is held back.
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
 
     if settings.allowed_origins:
         # Named origins only. A wildcard here, with every write being a POST,

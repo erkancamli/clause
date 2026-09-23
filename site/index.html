@@ -201,9 +201,13 @@ html.i18n-wait body{visibility:hidden}
   border:1px solid var(--signal);font-weight:600;text-decoration:none}
 .skip:focus{left:16px}
 /* Grows to fill the window on a short page, and never shrinks below its
-   content on a long one, so the price bar stuck to its bottom edge
-   still reaches the bottom of the window. */
-main{flex:1 0 auto}
+   content on a long one, so the price bar stuck to its bottom edge still
+   reaches the bottom of the window. A whole window of it, and not merely
+   what is left after the footer, because two of these screens are assembled
+   by the script: the footer landed halfway up the phone and then dropped
+   out of sight as the questions filled in above it, which is a third of the
+   screen moving under the reader. Below the fold is where a footer belongs. */
+main{flex:1 0 auto;min-height:100svh}
 main:focus{outline:none}
 input[type=file]{font:inherit;font-size:13.5px;padding:4px 0;min-height:28px}
 .leaflet-container .leaflet-control-attribution a{display:inline-block;padding-block:4px}
@@ -253,6 +257,30 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 /* ---------------- views ---------------- */
 .view{display:none}
 .view.on{display:block;animation:fade .38s cubic-bezier(.2,.7,.2,1)}
+/* Except the opening one, which the stylesheet below already put on the
+   screen. Fading in something the reader has been looking at for a second
+   is a blink, not an entrance. */
+.view.on.settled{animation:none}
+/* Every screen is display:none until the router has run, and the router is
+   at the bottom of a page that is most of a megabyte: on a throttled phone
+   the headline arrived four seconds after the html did, and the browser
+   took the connection strip for the largest thing on the page because it
+   was the only thing on it. The route is in the address from the first byte, so
+   the opening screen is chosen here, by the stylesheet, and is painted while
+   the script is still being read. show() drops the attribute on its first run. */
+html[data-first="/"] #view-home,
+html[data-first="/cover"] #view-cover,
+html[data-first="/mine"] #view-mine,
+html[data-first="/profile"] #view-profile,
+html[data-first="/how"] #view-how,
+html[data-first="/pool"] #view-pool,
+html[data-first="/proof"] #view-proof,
+html[data-first="/insurers"] #view-insurers,
+html[data-first="/privacy"] #view-privacy,
+html[data-first="/faq"] #view-faq,
+html[data-first="/rules"] #view-rules,
+html[data-first="/company"] #view-company,
+html[data-first="/admin"] #view-admin{display:block}
 @media (prefers-reduced-motion:no-preference){
   .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*70ms)}
   .reveal.in{opacity:1;transform:none}
@@ -288,8 +316,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 
 /* Whether this page is talking to a live protocol or running on its own. Said
    plainly, because a demonstration presented as a live system is a lie. */
-.linkstate{padding:6px var(--gutter);font-size:12.5px;display:flex;gap:9px;align-items:center;
-  border-bottom:1px solid var(--edge);background:var(--sunk);color:var(--ink-2)}
+.linkstate{padding:6px var(--gutter);font-size:12.5px;line-height:19px;display:flex;gap:9px;
+  align-items:center;border-bottom:1px solid var(--edge);background:var(--sunk);color:var(--ink-2)}
+/* The strip cannot say whether the protocol is live until it has asked, and
+   the asking takes a moment. Its one line is held open from the first paint
+   so that the answer arrives into a space rather than pushing the page down:
+   6 + 19 + 6 and the rule underneath. */
+.statusdock{min-height:32px}
 .linkstate b{color:var(--ink);font-weight:600}
 /* On a phone the state bar is one line, cut short with an ellipsis, rather
    than three lines above the headline. */
@@ -627,7 +660,14 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
   .home-hero .hero-text>*:nth-child(2){animation-delay:.08s}
   .home-hero .hero-text>*:nth-child(3){animation-delay:.16s}
   .home-hero .hero-text>*:nth-child(4){animation-delay:.24s}
+  /* The headline rises but does not fade. There is nothing on the screen for
+     it to fade in from, it is the first thing a reader wants, and a browser
+     measuring how soon a page shows its largest thing refuses to count
+     anything first painted at zero opacity: the fade cost the reading and
+     the measurement both, and bought a seventh of a second of elegance. */
+  .home-hero .hero-text>h1{animation-name:riseUp}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes riseUp{from{transform:translateY(14px)}to{transform:none}}
 }
 .hero-fx-clip::after{content:"";position:absolute;inset:0;pointer-events:none;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
@@ -819,7 +859,9 @@ h1 span{color:var(--signal)}
 .pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
 /* ---------------- flow ---------------- */
-.steps{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:nowrap}
+/* The height of one dot, held whether or not the script has drawn them yet,
+   so the question below does not step down 22 pixels as they appear. */
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:nowrap;min-height:22px}
 .step-dot{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3);flex:none;white-space:nowrap}
 .step-dot i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
   border:1px solid var(--edge-2);font-family:var(--mono);font-size:11px;font-style:normal;flex:none}
@@ -1453,6 +1495,53 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 .drop:focus-within{outline:none;
   box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
 </style>
+<script>
+/* Two things this page can settle before it has been read: which screen was
+   asked for, and which language to read it in. Both are otherwise decided at
+   the foot of a file that takes a second to get through, and the cost of
+   waiting is the whole of it — a blank screen, and then a dictionary fetched
+   only once the reading is done. So they are settled here, first, in a dozen
+   lines. The stylesheet above does the showing; show() and setLang() below
+   pick this up where it left it. */
+(function(){
+  var hash=(location.hash||"#/").replace(/^#/,"");
+  document.documentElement.setAttribute("data-first",(hash.match(/^\/[a-z]*/)||["/"])[0]);
+
+  // The codes only. Their names, which the picker needs, stay with the picker.
+  var CODES=["en","tr","es","fr","de","ru","ja"];
+  function known(code){ return CODES.indexOf(code)>=0; }
+  var code="";
+  try{ var asked=new URLSearchParams(location.search).get("lang");
+       if(asked&&known(asked))code=asked; }catch(e){}
+  if(!code){ try{ var kept=localStorage.getItem("clause-lang");
+                  if(kept&&known(kept))code=kept; }catch(e){} }
+  if(!code){
+    var prefs=(navigator.languages&&navigator.languages.length)?navigator.languages
+                                                              :[navigator.language||"en"];
+    for(var i=0;i<prefs.length&&!code;i++){
+      var want=String(prefs[i]||"").slice(0,2).toLowerCase();
+      if(known(want))code=want;
+    }
+  }
+  if(!code)code="en";
+  var boot=window.__boot={lang:code, dictionary:null};
+  if(code!=="en"){
+    // Hidden from the first paint, not from the moment the script at the
+    // bottom runs: otherwise a reader of Turkish now sees English, then
+    // nothing, then Turkish. And the dictionary is asked for alongside the
+    // page rather than after it, which is most of the wait.
+    document.documentElement.classList.add("i18n-wait");
+    if(window.fetch)boot.dictionary=fetch("i18n/"+code+".json",{cache:"no-cache"});
+    // Nothing below this line may leave a page permanently blank. If the
+    // script at the foot of this file never runs at all, the words are on
+    // the screen four seconds from now, in English. Four and not two: the
+    // script gives up on a slow dictionary well before then, and a failsafe
+    // that fires during an ordinary load shows English and then replaces it,
+    // which is the flicker this whole arrangement exists to prevent.
+    setTimeout(function(){ document.documentElement.classList.remove("i18n-wait"); },4000);
+  }
+})();
+</script>
 </head>
 <body data-role="guest">
 <a class="skip" href="#main" data-i18n>Skip to content</a>
@@ -1498,7 +1587,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   </div>
 </header>
 
-<div role="status" aria-label="Connection and language" data-i18n-aria>
+<div class="statusdock" role="status" aria-label="Connection and language" data-i18n-aria>
   <div id="link-state" class="linkstate" hidden></div>
   <div id="lang-note" class="linkstate langnote" hidden></div>
 </div>
@@ -1836,7 +1925,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <h1 class="sr" data-i18n>Get cover</h1>
     <div class="steps" id="steps"></div>
 
-    <div class="q" id="s1" hidden>
+    <!-- Not hidden, alone among the steps. Opened cold this screen always
+         starts here, so the question can be on the page before the script
+         has been read rather than a second and a half after it. renderStep()
+         sets every step's visibility on its first run and from then on. -->
+    <div class="q" id="s1">
       <h2 data-i18n>What would you like to protect?</h2>
       <p class="hint" data-i18n>Pick one. You can change it at any point.</p>
       <div class="q-body picks" id="s1-picks"></div>
@@ -2840,17 +2933,11 @@ function supported(code){
   for(var i=0;i<LANGS.length;i++)if(LANGS[i][0]===code)return true;
   return false;
 }
+/* Chosen in the head, where it had to be chosen to be of any use, and only
+   read here. The asked-for language, then the kept one, then the browser's. */
 function pickLang(){
-  var asked=null;
-  try{ asked=new URLSearchParams(location.search).get("lang"); }catch(e){}
-  if(asked&&supported(asked))return asked;
-  try{ var kept=localStorage.getItem("clause-lang"); if(kept&&supported(kept))return kept; }catch(e){}
-  var prefs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||"en"];
-  for(var i=0;i<prefs.length;i++){
-    var code=String(prefs[i]||"").slice(0,2).toLowerCase();
-    if(supported(code))return code;
-  }
-  return "en";
+  var code=window.__boot&&window.__boot.lang;
+  return (code&&supported(code))?code:"en";
 }
 
 /* Translate a sentence. Values are filled after translation, so a translator
@@ -2968,7 +3055,14 @@ function translateStatic(root){
   Array.prototype.forEach.call(scope.querySelectorAll("[data-i18n]"),function(el){
     var en=el.__en!==undefined?el.__en:el.getAttribute("data-en");
     if(en==null)return;
-    el.innerHTML=t(en);
+    var said=t(en);
+    // Only if it is going to say something different. Rewriting an element
+    // with the words it already holds is a new element as far as the browser
+    // is concerned: it repaints, and it restarts the clock that measures when
+    // the page showed its largest thing. In English that was every marked
+    // element on the page, for nothing but collapsed whitespace.
+    if(normHtml(el.innerHTML)===said)return;
+    el.innerHTML=said;
   });
   if(root)return;
   STATIC_ATTRS.forEach(function(pair){
@@ -3002,7 +3096,13 @@ function translateStatic(root){
 
 function loadDict(code){
   if(code==="en")return Promise.resolve({dict:{},patterns:[]});
-  return fetch("i18n/"+code+".json",{cache:"no-cache"}).then(function(r){
+  // The head asked for this language's dictionary before the page had
+  // finished arriving. Taken once: a reader who then chooses another
+  // language is asking a new question and gets a new request.
+  var early=window.__boot&&window.__boot.dictionary;
+  var got=(early&&window.__boot.lang===code)?early:fetch("i18n/"+code+".json",{cache:"no-cache"});
+  if(window.__boot)window.__boot.dictionary=null;
+  return got.then(function(r){
     if(!r.ok)throw new Error("no dictionary");
     return r.json();
   }).then(function(data){
@@ -3030,7 +3130,6 @@ function setLang(code, first){
 
 var I18N_READY=(function(){
   var first=pickLang();
-  if(first!=="en")document.documentElement.classList.add("i18n-wait");
   var done=function(){ document.documentElement.classList.remove("i18n-wait"); };
   // Never hold the page hostage to a dictionary: after a second and a half it
   // renders in English and switches when the translation arrives.
@@ -3811,7 +3910,14 @@ function show(route){
   if (proof) { route = "/proof"; renderProof(proof[1] ? decodeURIComponent(proof[1]) : null); }
   if (route === "/rules") renderRules();
   if(!VIEWS[route])route="/";
-  Object.keys(VIEWS).forEach(function(k){$(VIEWS[k]).classList.toggle("on",k===route);});
+  // Which screen, if any, the stylesheet showed before this script was read.
+  var already=document.documentElement.getAttribute("data-first");
+  document.documentElement.removeAttribute("data-first");
+  Object.keys(VIEWS).forEach(function(k){
+    var view=$(VIEWS[k]);
+    view.classList.toggle("settled",k===already&&k===route);
+    view.classList.toggle("on",k===route);
+  });
   Array.prototype.forEach.call($("mainnav").querySelectorAll("a"),function(a){
     if(a.dataset.route===route)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");
   });
@@ -3835,8 +3941,16 @@ addEventListener("hashchange",function(){show(currentRoute());});
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
   },{rootMargin:"0px 0px -8% 0px",threshold:.08});
   var groups=["#home-picks .pick",".flowline > div",".view .card",".vrule",".trust > span"];
+  var fold=(window.innerHeight||0)*0.92;
   groups.forEach(function(sel){
     Array.prototype.forEach.call(document.querySelectorAll(sel),function(el,i){
+      // The stylesheet paints the opening screen before this script is read,
+      // so by now the top of it has been on the reader's screen for a second
+      // or more. Fading in what somebody is already looking at is a blink,
+      // not an entrance: only what is still below the fold rises. A screen
+      // that is not the opening one has no box yet, and keeps its entrance.
+      var box=el.getBoundingClientRect();
+      if(box.height && box.top < fold)return;
       el.classList.add("reveal"); el.style.setProperty("--i",String(i%6)); io.observe(el);
     });
   });
