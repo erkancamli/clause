@@ -512,7 +512,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .verdict p:first-child{margin-top:0}
 .verdict .vrow{background:none;padding:0;margin-bottom:10px;
   grid-template-columns:auto 1fr;font-family:var(--sans);font-size:13px;color:var(--ink-2)}
-.fine,.verdict .fine{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+/* The quietest ink is for what is genuinely incidental. This class is not:
+   it carries "the English text is the binding one", "anything wrong can be
+   changed before you pay", what the company will ask to see. A hundred and
+   eighty-two places, and it was the smallest text on the site set in the
+   faintest of three tiers — the worst pairing available. Measured at 4.86:1
+   in light, which clears AA and is the floor of it. The tiers themselves are
+   unchanged; this stops using the third one for sentences that carry
+   obligations. 4.86 → 6.32 in light, 5.49 → 6.57 in dark. */
+.fine,.verdict .fine{font-size:12.5px;color:var(--ink-2);line-height:1.55}
 #country-why{margin-top:8px}
 .lamp.off{background:var(--ink-3);animation:none}
 

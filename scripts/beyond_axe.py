@@ -39,6 +39,13 @@ ROUTES = ["/", "/cover", "/mine", "/proof", "/how", "/pool", "/company", "/priva
           "/rules", "/faq", "/admin", "/profile"]
 LANGS = ["en", "tr", "es", "fr", "de", "ru", "ja"]
 CHECKS = ["reflow", "spacing", "obscured", "target", "visible", "order"]
+#: 320 because the criterion says so, and then a width on either side of every
+#: breakpoint this stylesheet has, because a breakpoint is where a layout was
+#: told to change its mind and those are the places it changes it wrongly.
+WIDTHS = [(320, 256), (360, 740), (390, 844), (412, 900), (430, 932), (480, 800),
+          (520, 800), (560, 800), (600, 900), (640, 900), (700, 900), (760, 900),
+          (780, 900), (820, 1000), (860, 1000), (900, 1000), (1000, 900),
+          (1120, 900), (1180, 900), (1280, 900), (1440, 900)]
 
 #: 1.4.12's four values, exactly as the criterion states them.
 TEXT_SPACING = """
@@ -219,17 +226,24 @@ def look(page, route: str, lang: str, checks: list[str]) -> dict[str, list]:
     where = f"{lang} {route}"
 
     if "reflow" in checks:
-        # 320 by 256 css px, which is what the criterion actually asks for:
-        # "1280px wide at 400% zoom" is the same measurement said the other
-        # way round, and faking it with a zoom property measures the property.
-        page.set_viewport_size({"width": 320, "height": 256})
-        page.wait_for_timeout(350)
-        found = page.evaluate(REFLOW)
-        if found:
-            out["1.4.10 Reflow"].append(
-                f"{where} at 320×256 css px: {found['over']}px of sideways scroll"
-                + (f" — widest is {found['worst']['what']}, {found['worst']['past']}px past"
-                   if found.get("worst") else ""))
+        # 320 by 256 css px is what the criterion asks for; "1280px wide at
+        # 400% zoom" is the same measurement said the other way round, and
+        # faking it with a zoom property measures the property.
+        #
+        # And then every width between a small phone and a desktop, because
+        # this stylesheet has eighteen breakpoints and each one was put there
+        # when something broke. Whether they are too many is a question about
+        # the file; whether anything breaks between them is a question about
+        # the reader, and only the second one can be answered by looking.
+        for width, height in WIDTHS:
+            page.set_viewport_size({"width": width, "height": height})
+            page.wait_for_timeout(260)
+            found = page.evaluate(REFLOW)
+            if found:
+                out["1.4.10 Reflow"].append(
+                    f"{where} at {width}×{height} css px: {found['over']}px of sideways scroll"
+                    + (f" — widest is {found['worst']['what']}, {found['worst']['past']}px past"
+                       if found.get("worst") else ""))
 
     page.set_viewport_size({"width": 390, "height": 844})
     page.wait_for_timeout(250)
