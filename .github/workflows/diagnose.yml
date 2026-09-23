@@ -100,20 +100,20 @@ jobs:
             sudo /opt/clause/.venv/bin/python - \
               "$(printf '%s\n' "$env" | sed -n 's/^CLAUSE_ANCHOR_RPC=//p')" \
               "$(printf '%s\n' "$env" | sed -n 's/^CLAUSE_ANCHOR_POLICY=//p')" <<'PY'
-            import json, sys, urllib.request
+            import sys
             url, contract = (sys.argv + ["", ""])[1:3]
             if not url or not contract:
                 print("    baseURI: no anchor configured on this host")
                 raise SystemExit
             print(f"    policy contract: {contract}")
-            body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_call", "params": [
-                # keccak256("baseURI()")[:4]
-                {"to": contract, "data": "0x6c0360eb"}, "latest"]}).encode()
+            # The service's own client, not a hand rolled request: a node that
+            # answers the anchor every minute will answer this too, and a
+            # plain urllib call is refused by some of them.
+            from clause.anchor.rpc import Rpc
             try:
-                request = urllib.request.Request(
-                    url, data=body, headers={"content-type": "application/json"})
-                with urllib.request.urlopen(request, timeout=20) as reply:
-                    result = json.load(reply).get("result") or ""
+                result = Rpc(url).call("eth_call", [
+                    # keccak256("baseURI()")[:4]
+                    {"to": contract, "data": "0x6c0360eb"}, "latest"]) or ""
                 raw = bytes.fromhex(result[2:])
                 at = int.from_bytes(raw[:32], "big")
                 size = int.from_bytes(raw[at:at + 32], "big")
