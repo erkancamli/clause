@@ -61,6 +61,30 @@ jobs:
             echo "==> machine"; nproc; free -m | head -2; uptime
             echo "==> top"; top -bn1 | head -12
             echo "==> version"; curl -s --max-time 5 http://127.0.0.1:8080/api/health | head -c 300; echo
+            # Which ways in the deployment actually offers, and on which chains.
+            # EnvironmentFile is read when the service starts, so an edited
+            # clause.env with no restart behind it looks exactly like an
+            # unedited one; this is how that is told apart without guessing.
+            # The receiving addresses are not printed: the names are what says
+            # whether it is configured.
+            echo "==> money in"; sudo /opt/clause/.venv/bin/python - <<'PY'
+            import os
+            get = lambda k: os.environ.get(k, "")
+            print("config on disk:")
+            for key in ("CLAUSE_FUNDING_IBAN", "CLAUSE_FUNDING_RIALO", "CLAUSE_FUNDING_SOLANA",
+                        "CLAUSE_FUNDING_EVM", "CLAUSE_FUNDING_RIALO_CHAIN",
+                        "CLAUSE_FUNDING_SOLANA_CHAIN", "CLAUSE_FUNDING_EVM_CHAIN",
+                        "CLAUSE_FUNDING_TESTNET", "CLAUSE_FUNDING_SOLANA_RPC",
+                        "CLAUSE_FUNDING_EVM_RPC", "CLAUSE_FUNDING_EVM_USDC"):
+                value = get(key)
+                shown = value if key.endswith(("CHAIN", "TESTNET")) else ("set" if value else "")
+                print(f"  {key:32} {shown or '-'}")
+            PY
+            echo "    (above is this shell's environment, not the service's)"
+            sudo systemctl show clause -p ExecMainStartTimestamp --value | sed 's/^/    service started: /'
+            sudo tr '\0' '\n' < /proc/$(systemctl show clause -p MainPID --value)/environ 2>/dev/null \
+              | grep -E '^CLAUSE_FUNDING_(EVM_CHAIN|SOLANA_CHAIN|RIALO_CHAIN|TESTNET)=' \
+              | sed 's/^/    running with: /' || echo "    running with: no funding chain named"
             echo "==> book, by kind"; sudo /opt/clause/.venv/bin/python - <<'PY'
             import json, sqlite3, collections
             db = sqlite3.connect("file:/var/lib/clause/clause.sqlite?mode=ro", uri=True)
