@@ -2071,7 +2071,14 @@
     "Buy it again": "もう一度加入する",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。",
     "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "この補償は {days} 日前に終了し、それ以降は補償がありません。もう一度加入すると、保険会社が承認した日から新しい期間が始まり、価格は本日のものになります。その間の日々は補償されておらず、さかのぼって補償することもできません。",
-    "Filled in from the place you chose. Correct it if it is not right.": "選ばれた場所から入力しました。違っていれば直してください。"
+    "Filled in from the place you chose. Correct it if it is not right.": "選ばれた場所から入力しました。違っていれば直してください。",
+    "Your papers": "あなたの書類",
+    "{n} unread": "未読 {n} 件",
+    "Order confirmed": "注文を確認しました",
+    "Your right to withdraw": "お客様のクーリングオフの権利",
+    "The insurer's decision": "保険会社の判断",
+    "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "どこにも送られないため、ここに保管されています。メールアドレスも電話番号も求めていません。書類を開いたことは記録され、削除されることはありません。",
+    "The papers themselves are in English, which is the binding text, as the contract is.": "書類そのものは英語です。契約書と同じく、英語が拘束力のある本文です。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

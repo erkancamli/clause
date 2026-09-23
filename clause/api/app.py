@@ -657,7 +657,8 @@ def create_app(
             auth=auth, accounts=accounts, payouts=payouts, partners=partners,
             mandates=mandates, applications=applications, funding=funding,
             links=links, instructions=instructions, assets=assets, pipeline=pipeline,
-            documents=documents, fees=fees, anchor=anchor, complaints=complaints))
+            documents=documents, fees=fees, anchor=anchor, complaints=complaints,
+            papers=papers))
     # The registry is the thing that decides where this protocol operates, so it
     # is constructed once and everything else reads it: the gate, the coverage
     # map, and the company side of the interface.
@@ -731,6 +732,10 @@ def create_app(
     # Complaints: a thread on the policy, the company's clock, the file for the ombudsman.
     from ..protocol.complaints import ComplaintError, Complaints, route_for
     complaints = Complaints()
+    # What each buyer was given: the confirmation, the terms, the reminder of
+    # the right to withdraw. Kept because there is nowhere to send them.
+    from ..protocol.papers import PaperError, Papers
+    papers = Papers()
     from ..protocol.instructions import InstructionError, Instructions
     instructions = Instructions()
     from ..protocol.assets import AssetError, Assets
@@ -838,7 +843,8 @@ def create_app(
                              payouts=payouts, partners=partners, mandates=mandates,
                              applications=applications, funding=funding,
                              links=links, instructions=instructions, assets=assets,
-                             pipeline=pipeline, documents=documents, fees=fees, anchor=anchor, complaints=complaints)
+                             pipeline=pipeline, documents=documents, fees=fees, anchor=anchor, complaints=complaints,
+                             papers=papers)
             restored = True
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
@@ -1083,6 +1089,7 @@ def create_app(
     app.state.rewards = rewards
     app.state.anchor = anchor
     app.state.complaints = complaints
+    app.state.papers = papers
     app.state.chain = chain
     app.state.engine = engine
     app.state.wallets = wallets
@@ -1978,6 +1985,8 @@ def create_app(
                                                  "accepted_hash": request.contract_hash}
             except Exception:  # the policy stands; only its copy is missing
                 logger.exception("could not write the contract onto %s", policy.policy_id)
+        give_papers(holder, policy, (policy.metadata or {}).get("contract", ""),
+                    (policy.metadata or {}).get("contract_hash", ""))
         return {
             "policy": policy.to_dict(),
             "account": armed.account,
@@ -3522,6 +3531,22 @@ def create_app(
             raise Refused(422, safe_detail(error, fallback="that application was refused")) from error
         except PoolError as error:
             raise Refused(409, safe_detail(error, fallback="the pool cannot write this cover")) from error
+        # The order is confirmed now; the right to withdraw is given when the
+        # policy exists, since until the insurer decides there is no contract
+        # to withdraw from and the premium is only held.
+        try:
+            when = dt.datetime.fromtimestamp(app_.created_at, dt.timezone.utc).strftime("%d %b %Y, %H:%M UTC")
+            papers.give(holder, "confirmation", f"Your application, {app_.app_id}",
+                        (f"Cover of {app_.limit:,.0f} USDC for {app_.term_days:g} days, "
+                         f"for {app_.premium:,.2f} USDC. Asked for {when}. The premium is held, "
+                         "not taken, until the company that would issue it has decided."),
+                        about=app_.app_id)
+            if app_.contract:
+                papers.give(holder, "terms", f"The contract you accepted, {app_.app_id}",
+                            app_.contract, about=app_.app_id,
+                            terms_hash=getattr(app_, "contract_hash", "") or "")
+        except Exception:
+            logger.exception("could not write the papers for %s", app_.app_id)
         return {"application": with_documents(app_), "wallet": wallets.require(holder).as_dict(),
                 "session": auth.issue_session(holder)}
 
@@ -4032,6 +4057,16 @@ def create_app(
             applications.close(app_, "approved", by=reviewer, note=request.note,
                                checked=list(request.checked), policy_id=policy.policy_id)
             documents.purge(app_.app_id)
+        try:
+            papers.give(app_.holder, "decision", f"Your cover is in force, {policy.policy_id}",
+                        (f"The application {app_.app_id} was approved and the policy "
+                         f"{policy.policy_id} is registered on the chain. The premium that was "
+                         "held has been taken."),
+                        about=policy.policy_id)
+        except Exception:
+            logger.exception("could not write the decision paper for %s", app_.app_id)
+        give_papers(app_.holder, policy, (policy.metadata or {}).get("contract", ""),
+                    (policy.metadata or {}).get("contract_hash", ""))
         return {"application": with_documents(app_), "policy": policy.to_dict()}
 
     # -- payouts off the protocol -------------------------------------------
@@ -4077,6 +4112,76 @@ def create_app(
         except FundingError as error:
             raise Refused(409, str(error)) from error
         return {"request": req.to_dict()}
+
+    def give_papers(holder: str, policy: Any, contract_text: str, contract_hash: str,
+                    *, held: bool = False) -> None:
+        """Put the confirmation, the terms and the withdrawal notice in the
+        buyer's box.
+
+        There is no email address to send them to, so this is the giving: the
+        order confirmed without delay (6563 m.4(1)), the terms as accepted,
+        and the reminder of the right to withdraw. The reminder is written
+        whether or not the information went out a day ahead, because a
+        purchase made in one sitting never is, and Directive (EU) 2023/2673
+        answers that case with a reminder within the day.
+
+        A policy stands whether or not this succeeds; a missing paper is
+        logged, not raised at the buyer.
+        """
+        try:
+            from ..protocol.cancellation import withdrawal as withdrawal_of
+            reference = policy.policy_id
+            when = dt.datetime.fromtimestamp(policy.bought_at, dt.timezone.utc).strftime("%d %b %Y, %H:%M UTC")
+            what = policy.peril.title_for(policy.subject)
+            where = policy.peril.describe_subject(policy.subject)
+            money = f"{policy.premium:,.2f} USDC"
+            papers.give(
+                holder, "confirmation",
+                f"Your order, {reference}",
+                (f"{what}: {where}. Cover of {policy.limit:,.0f} USDC for {policy.term_days:g} days, "
+                 f"for {money}. Ordered {when}."
+                 + (" The premium is held, not taken, until the company that would issue it has decided."
+                    if held else " The cover is in force and registered on the chain.")),
+                about=reference)
+            if contract_text:
+                papers.give(holder, "terms", f"The contract you accepted, {reference}",
+                            contract_text, about=reference, terms_hash=contract_hash or "")
+            right = withdrawal_of(policy)
+            if right.get("days"):
+                until = (dt.datetime.fromtimestamp(right["until"], dt.timezone.utc).strftime("%d %b %Y")
+                         if right.get("until") else "")
+                papers.give(
+                    holder, "withdrawal", f"Your right to withdraw, {reference}",
+                    (f"You may withdraw from this contract within {right['days']:g} days, "
+                     + (f"until {until}, " if until else "")
+                     + f"under {right['law']}. Cancel it on the My cover page; what comes back is "
+                       f"due within {right['refund_within_days']:g} days of the notice. "
+                       "Nothing needs to be said about why."),
+                    about=reference)
+        except Exception:      # a paper is a copy; the cover is the thing
+            logger.exception("could not write the papers for %s", getattr(policy, "policy_id", "?"))
+
+    @app.get("/api/papers")
+    async def papers_mine(token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The list, without the words: the box is drawn from this."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        mine = papers.mine(address)
+        return {"papers": [p.summary() for p in mine],
+                "unread": sum(1 for p in mine if not p.opened_at)}
+
+    @app.get("/api/papers/{paper_id}")
+    async def paper_open(paper_id: str, token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """One paper, and the note that it was opened. Opening is the moment
+        worth recording, so reading it is what records it."""
+        address = session_of(token)
+        if address is None:
+            raise Refused(401, "sign in first")
+        try:
+            return {"paper": papers.open(address, paper_id).to_dict()}
+        except PaperError as error:
+            raise HTTPException(404, str(error)) from error
 
     # -- the profile: wallets and an X account joined to this address --------
 

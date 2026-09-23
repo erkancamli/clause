@@ -2071,7 +2071,14 @@
     "Buy it again": "Купить снова",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене. Дни между ними покрыты не были и покрыты быть не могут.",
     "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Это покрытие закончилось {days} дн. назад, и с тех пор у вас его нет. Покупка снова открывает новый срок со дня, когда страховщик её одобрит, по сегодняшней цене; дни между ними покрыты не были и покрыты быть не могут.",
-    "Filled in from the place you chose. Correct it if it is not right.": "Заполнено по выбранному вами месту. Исправьте, если это не так."
+    "Filled in from the place you chose. Correct it if it is not right.": "Заполнено по выбранному вами месту. Исправьте, если это не так.",
+    "Your papers": "Ваши документы",
+    "{n} unread": "{n} непрочитанных",
+    "Order confirmed": "Заказ подтверждён",
+    "Your right to withdraw": "Ваше право на отказ",
+    "The insurer's decision": "Решение страховщика",
+    "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "Хранятся здесь, потому что ничего никуда не отправляется: ни адрес электронной почты, ни номер телефона не запрашиваются. Открытие документа записывается, и ни один из них не удаляется.",
+    "The papers themselves are in English, which is the binding text, as the contract is.": "Сами документы на английском языке — это обязывающий текст, как и у договора."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -2079,7 +2079,14 @@
     "Buy it again": "Yeniden al",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Yeniden almak, sigortacının onayladığı günden başlayan yeni bir dönem açar ve bugünün fiyatından olur. Aradaki günler teminat altında değildi ve geriye dönük olarak da olamaz.",
     "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Bu teminat {days} gün önce bitti ve o günden beri hiç teminatınız yok. Yeniden almak, sigortacının onayladığı günden başlayan yeni bir dönem açar ve bugünün fiyatından olur; aradaki günler teminat altında değildi ve olamaz da.",
-    "Filled in from the place you chose. Correct it if it is not right.": "Seçtiğiniz yerden dolduruldu. Doğru değilse düzeltin."
+    "Filled in from the place you chose. Correct it if it is not right.": "Seçtiğiniz yerden dolduruldu. Doğru değilse düzeltin.",
+    "Your papers": "Belgeleriniz",
+    "{n} unread": "{n} okunmamış",
+    "Order confirmed": "Siparişiniz onaylandı",
+    "Your right to withdraw": "Cayma hakkınız",
+    "The insurer's decision": "Sigortacının kararı",
+    "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "Burada tutuluyor çünkü hiçbir yere bir şey gönderilmiyor: e-posta adresi ya da telefon numarası istenmiyor. Bir belgeyi açtığınız yazılır ve hiçbir belge kaldırılmaz.",
+    "The papers themselves are in English, which is the binding text, as the contract is.": "Belgelerin kendisi İngilizcedir; sözleşmede olduğu gibi bağlayıcı metin odur."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

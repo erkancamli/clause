@@ -2071,7 +2071,14 @@
     "Buy it again": "Contratarlo de nuevo",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Contratarlo de nuevo abre un nuevo periodo desde el día en que la aseguradora lo aprueba, al precio de hoy. Los días intermedios no estaban cubiertos y no pueden estarlo.",
     "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Esta cobertura terminó hace {days} días y desde entonces no ha tenido ninguna. Contratarla de nuevo abre un nuevo periodo desde el día en que la aseguradora lo aprueba, al precio de hoy; los días intermedios no estaban cubiertos y no pueden estarlo.",
-    "Filled in from the place you chose. Correct it if it is not right.": "Rellenado a partir del lugar que eligió. Corríjalo si no es correcto."
+    "Filled in from the place you chose. Correct it if it is not right.": "Rellenado a partir del lugar que eligió. Corríjalo si no es correcto.",
+    "Your papers": "Sus documentos",
+    "{n} unread": "{n} sin leer",
+    "Order confirmed": "Pedido confirmado",
+    "Your right to withdraw": "Su derecho de desistimiento",
+    "The insurer's decision": "La decisión de la aseguradora",
+    "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "Se guardan aquí porque no se envía nada a ninguna parte: no se pide dirección de correo ni número de teléfono. Cuando abre uno queda registrado, y nunca se elimina ninguno.",
+    "The papers themselves are in English, which is the binding text, as the contract is.": "Los documentos están en inglés, que es el texto vinculante, igual que el contrato."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

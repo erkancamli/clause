@@ -1389,6 +1389,17 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 .due-what{flex:1 1 220px;display:grid;gap:2px;min-width:0}
 .due-what b{word-break:break-word}
 .due-when{font-size:14px;color:var(--ink-2);flex:0 1 auto}
+.paper-panel{margin-top:22px;padding:18px 20px}
+.paper-row{border-bottom:1px solid var(--edge)}
+.paper-row:last-child{border-bottom:0}
+.paper-open{display:flex;width:100%;gap:12px;align-items:center;flex-wrap:wrap;
+  background:none;border:0;padding:10px 0;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:44px}
+.paper-open:hover .paper-what b{text-decoration:underline}
+.paper-what{flex:1 1 220px;display:grid;gap:2px;min-width:0}
+.paper-when{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+.paper-row.unread .paper-what b{font-weight:700}
+.paper-body{white-space:pre-wrap;font-size:14px;color:var(--ink-2);padding:0 0 12px;
+  max-height:340px;overflow:auto;word-break:break-word}
 /* On a phone the row stacks, so every entry reads the same way down the
    page instead of the button landing beside a short line and under a long one. */
 @media (max-width:560px){
@@ -4243,6 +4254,50 @@ function renderDue(policies,instructions){
     });
   });
 }
+/* ---- the papers this address was given --------------------------------
+   The protocol has no email address to send anything to, so what the law
+   requires it to give — the order confirmed, the terms accepted, the right
+   to withdraw — is kept here under the address that bought the cover. Opening
+   one is what records that it was read, so the list carries no text: the
+   words arrive when somebody actually asks for them. */
+var PAPER_KINDS={confirmation:N("Order confirmed"),terms:N("The contract"),
+  withdrawal:N("Your right to withdraw"),decision:N("The insurer's decision")};
+function paperRow(paper){
+  return '<li class="paper-row'+(paper.opened_at?"":" unread")+'" data-paper="'+esc(paper.paper_id)+'">'+
+    '<button class="paper-open" type="button">'+
+      '<span class="paper-what"><b>'+esc(t(PAPER_KINDS[paper.kind]||paper.kind))+'</b>'+
+        // The heading above is this paper's name in the reader's language, so
+        // the line under it carries only what it is about, not the same
+        // sentence again in English.
+        '<span class="fine mono">'+esc(paper.about||"")+'</span></span>'+
+      '<span class="paper-when fine">'+esc(new Date(paper.given_at*1000).toLocaleDateString(LANG))+
+        (paper.opened_at?"":' <span class="pill">'+esc(t("New"))+'</span>')+'</span>'+
+    '</button><div class="paper-body" hidden></div></li>';
+}
+function renderPapers(){
+  var box=$("mine-papers"); if(!box||!identity.token)return;
+  api("/api/papers",{token:identity.token}).then(function(reply){
+    var rows=(reply.papers||[]);
+    if(!rows.length){ box.innerHTML=""; return; }
+    box.innerHTML='<div class="panel paper-panel"><h2 class="due-head">'+esc(t("Your papers"))+
+      (reply.unread?' <span class="pill">'+esc(t("{n} unread",{n:reply.unread}))+'</span>':'')+'</h2>'+
+      '<p class="fine">'+esc(t("Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed."))+'</p>'+
+      '<p class="fine">'+esc(t("The papers themselves are in English, which is the binding text, as the contract is."))+'</p>'+
+      '<ul class="due-list">'+rows.map(paperRow).join("")+'</ul></div>';
+    Array.prototype.forEach.call(box.querySelectorAll(".paper-row"),function(row){
+      row.querySelector(".paper-open").addEventListener("click",function(){
+        var body=row.querySelector(".paper-body");
+        if(!body.hidden){ body.hidden=true; return; }
+        body.hidden=false; body.textContent=t("Opening…");
+        api("/api/papers/"+encodeURIComponent(row.dataset.paper),{token:identity.token}).then(function(r){
+          body.textContent=(r.paper||{}).body||"";
+          row.classList.remove("unread");
+          var pill=row.querySelector(".pill"); if(pill)pill.remove();
+        },function(e){ body.textContent=refusalText(e); });
+      });
+    });
+  },function(){});
+}
 function renderMineExtras(policies){
   var box=$("mine-extras"); if(!box||!identity.token)return;
   Promise.all([
@@ -4256,6 +4311,7 @@ function renderMineExtras(policies){
     bindFundingPanel(all[2]); bindPayoutPanel(all[0]); bindInstructionsPanel(); bindMandatePanel(all[1]);
     bindAutoRenew(document,(all[4]||{}).instructions||[]);
     renderDue(policies||[],(all[4]||{}).instructions||[]);
+    renderPapers();
   });
 }
 /* ---------------- what is given back for cover held ----------------
@@ -7771,7 +7827,7 @@ function mineHtml(reply){
     '<div class="hrow"><span>'+esc(t("Armed"))+'</span><b>'+f0.format(view.policies_open||0)+'</b></div>'+
     '<div class="hrow"><span>'+esc(t("Settled"))+'</span><b>'+f0.format(view.policies_settled||0)+'</b></div>'+
     '<div class="hrow"><span>'+esc(t("Profile"))+'</span><b><a class="btn btn-line btn-sm" href="#/profile">'+esc(t("My things, wallets, X"))+'</a></b></div>'+
-    '</div><div id="mine-due"></div><div id="mine-nfts"></div><div id="mine-apps"></div><div id="mine-extras" class="mine-extras"></div>';
+    '</div><div id="mine-due"></div><div id="mine-papers"></div><div id="mine-nfts"></div><div id="mine-apps"></div><div id="mine-extras" class="mine-extras"></div>';
 
   if(!policies.length){
     out+='<div style="margin-top:22px">'+minePanel(t("Nothing here yet"),

@@ -312,16 +312,20 @@ def _text(item: Any) -> str:
 
 KINDS = ("policy", "provider", "wallet", "carrier", "key", "signers", "privy",
          "application", "payout_pref", "payout_order", "partner", "mandate", "funding",
-         "link", "instruction", "asset", "rule", "reading_key", "document", "fee", "anchor", "complaint")
+         "link", "instruction", "asset", "rule", "reading_key", "document", "fee", "anchor", "complaint",
+         "paper")
 
 
 def _books(payouts: Any, partners: Any, mandates: Any,
            applications: Any = None, funding: Any = None, links: Any = None,
            instructions: Any = None, assets: Any = None, pipeline: Any = None,
            documents: Any = None, fees: Any = None, anchor: Any = None,
-           complaints: Any = None) -> dict[str, dict[str, Any]]:
+           complaints: Any = None, papers: Any = None) -> dict[str, dict[str, Any]]:
     """The newer books, each a plain dict of stored kinds, when present."""
     out: dict[str, dict[str, Any]] = {}
+    if papers is not None:
+        # What each buyer was given, and when they first opened it.
+        out["paper"] = papers.papers
     if complaints is not None:
         # Every complaint as a thread on its policy, with its deadline.
         out["complaint"] = complaints.complaints
@@ -378,7 +382,7 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
                mandates: Any = None, applications: Any = None, funding: Any = None,
                links: Any = None, instructions: Any = None, assets: Any = None,
                pipeline: Any = None, documents: Any = None, fees: Any = None, anchor: Any = None,
-               complaints: Any = None) -> None:
+               complaints: Any = None, papers: Any = None) -> None:
     with pool.lock, chain.lock:
         meta = {
             "format": FORMAT,
@@ -407,7 +411,7 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
             "privy": dict(accounts._by_user),
         }
         books.update({kind: dict(book) for kind, book in
-                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints).items()})
+                      _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints, papers).items()})
         docs = {kind: {str(id_): _text(item) for id_, item in book.items()} for kind, book in books.items()}
         # Only what is not on disk yet is encoded. Encoding the whole
         # settlement log on every cycle to write its last few entries was,
@@ -422,7 +426,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
             mandates: Any = None, applications: Any = None, funding: Any = None,
             links: Any = None, instructions: Any = None, assets: Any = None,
             pipeline: Any = None, documents: Any = None, fees: Any = None, anchor: Any = None,
-            complaints: Any = None) -> dict[str, int]:
+            complaints: Any = None, papers: Any = None) -> dict[str, int]:
     """Put a saved book back. Returns counts, for the log line."""
     from .protocol.auth import load_public_key
 
@@ -484,7 +488,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
     store.remember("key", {a: _pem(k) for a, k in auth.keys.items()})
     store.remember("signers", {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()})
     store.remember("privy", accounts._by_user)
-    for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints).items():
+    for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints, papers).items():
         book.clear()
         book.update(store.docs(kind))
         store.remember(kind, book)
@@ -503,7 +507,7 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
         store.remember("key", {a: _pem(k) for a, k in auth.keys.items()})
         store.remember("signers", {a: [_pem(k) for k in ks] for a, ks in auth.signers.items()})
         store.remember("privy", accounts._by_user)
-        for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints).items():
+        for kind, book in _books(payouts, partners, mandates, applications, funding, links, instructions, assets, pipeline, documents, fees, anchor, complaints, papers).items():
             store.remember(kind, book)
         logger.info("rewrote %s legacy 0x addresses in Rialo form", migrated)
     armed = 0

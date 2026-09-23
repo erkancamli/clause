@@ -2071,7 +2071,14 @@
     "Buy it again": "Le reprendre",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Le reprendre ouvre une nouvelle période à partir du jour où l’assureur l’approuve, au prix du jour. Les jours écoulés n’étaient pas couverts et ne peuvent pas l’être.",
     "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Cette couverture s’est terminée il y a {days} jours et vous n’en avez plus depuis. La reprendre ouvre une nouvelle période à partir du jour où l’assureur l’approuve, au prix du jour ; les jours écoulés n’étaient pas couverts et ne peuvent pas l’être.",
-    "Filled in from the place you chose. Correct it if it is not right.": "Rempli à partir du lieu que vous avez choisi. Corrigez-le si ce n’est pas exact."
+    "Filled in from the place you chose. Correct it if it is not right.": "Rempli à partir du lieu que vous avez choisi. Corrigez-le si ce n’est pas exact.",
+    "Your papers": "Vos documents",
+    "{n} unread": "{n} non lus",
+    "Order confirmed": "Commande confirmée",
+    "Your right to withdraw": "Votre droit de rétractation",
+    "The insurer's decision": "La décision de l’assureur",
+    "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "Conservés ici parce que rien n’est envoyé nulle part : aucune adresse e-mail ni numéro de téléphone n’est demandé. L’ouverture d’un document est consignée, et aucun n’est jamais supprimé.",
+    "The papers themselves are in English, which is the binding text, as the contract is.": "Les documents eux-mêmes sont en anglais, qui est le texte qui fait foi, comme pour le contrat."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

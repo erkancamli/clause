@@ -2071,7 +2071,14 @@
     "Buy it again": "Erneut kaufen",
     "Buying it again starts a new term from the day the insurer approves it, at today's price. The days in between were not covered and cannot be.": "Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis. Die Tage dazwischen waren nicht gedeckt und können es nicht werden.",
     "This cover ended {days} days ago and you have had none since. Buying it again starts a new term from the day the insurer approves it, at today's price; the days in between were not covered and cannot be.": "Diese Deckung endete vor {days} Tagen, und seither haben Sie keine. Ein erneuter Kauf beginnt eine neue Laufzeit ab dem Tag, an dem der Versicherer sie genehmigt, zum heutigen Preis; die Tage dazwischen waren nicht gedeckt und können es nicht werden.",
-    "Filled in from the place you chose. Correct it if it is not right.": "Aus dem von Ihnen gewählten Ort eingetragen. Korrigieren Sie es, wenn es nicht stimmt."
+    "Filled in from the place you chose. Correct it if it is not right.": "Aus dem von Ihnen gewählten Ort eingetragen. Korrigieren Sie es, wenn es nicht stimmt.",
+    "Your papers": "Ihre Unterlagen",
+    "{n} unread": "{n} ungelesen",
+    "Order confirmed": "Bestellung bestätigt",
+    "Your right to withdraw": "Ihr Widerrufsrecht",
+    "The insurer's decision": "Die Entscheidung des Versicherers",
+    "Kept here because nothing is sent anywhere: no email address or telephone number is asked for. Opening one is written down, and nothing is ever removed.": "Hier aufbewahrt, weil nichts irgendwohin gesendet wird: es wird weder eine E-Mail-Adresse noch eine Telefonnummer verlangt. Das Öffnen wird festgehalten, und nichts wird je entfernt.",
+    "The papers themselves are in English, which is the binding text, as the contract is.": "Die Unterlagen selbst sind auf Englisch, dem verbindlichen Text, wie beim Vertrag auch."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
