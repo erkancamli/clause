@@ -14,6 +14,12 @@ privy-bundle/node_modules/
 *.sqlite
 clause.env
 
+# Research working files: notes a session gathered and the report it wrote
+# from them. The report is delivered to whoever asked for it; neither
+# belongs in the product's history.
+research_notes/
+reports/
+
 # Release packages
 clause-*.tar.gz
 clause-site-*.zip
