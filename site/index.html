@@ -2593,6 +2593,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <details class="more" style="margin-top:8px"><summary data-i18n>Does the platform charge me anything?</summary><div class="inner"><p data-i18n>No. The price you see is the pool's price plus the issuing company's fee. The platform is paid by the company, out of that fee, and a fee that comes back to you takes the platform's share back with it.</p></div></details>
     <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>After buying</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>Where is my policy?</summary><div class="inner"><p data-i18n>On My cover, with its terms, its status and its token. The token is locked to your address and cannot be transferred; a cancelled policy's token is burned and leaves the wallet.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>When does my cover start? Can I buy it once the event is coming?</summary><div class="inner"><p data-i18n>No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How is the reading decided, and what if the source is silent?</summary><div class="inner"><p data-i18n>By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Is my policy on a public chain?</summary><div class="inner"><p data-i18n>The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How will I know it paid?</summary><div class="inner"><p data-i18n>Settlement happens on chain the moment the reading crosses the trigger; My cover shows the payout and the Proof page shows the reading, the block and the policy it settled. A bank payout, where you chose one, follows within the days the company states.</p></div></details>
@@ -3518,7 +3519,7 @@ var PLACES={
   "IZM-KONAK":{name:"İzmir, Konak",zone:"TR-AEGEAN",lat:38.42,lon:27.13,bg:2.40,cm:6.9,cr:210,fd:32},
   "ADY-MERKEZ":{name:"Adıyaman",zone:"TR-EAST",lat:37.76,lon:38.28,bg:1.10,cm:7.4,cr:140,fd:26},
   "ANK-CANKAYA":{name:"Ankara, Çankaya",zone:"TR-CENTRAL",lat:39.90,lon:32.85,bg:.18,cm:null,cr:null,fd:null}};
-var STATIONS={"TR-EDIRNE":{"name":"Edirne","lat":41.68,"lon":26.56,"season":"April to August","window":150,"normal":186.0,"cv":0.34},"TR-KIRKLARELI":{"name":"Kırklareli","lat":41.74,"lon":27.22,"season":"April to August","window":150,"normal":178.0,"cv":0.35},"TR-TEKIRDAG":{"name":"Tekirdağ","lat":40.98,"lon":27.51,"season":"April to August","window":150,"normal":165.0,"cv":0.36},"TR-BALIKESIR":{"name":"Balıkesir","lat":39.65,"lon":27.89,"season":"April to August","window":150,"normal":158.0,"cv":0.37},"TR-BURSA":{"name":"Bursa","lat":40.19,"lon":29.06,"season":"April to August","window":150,"normal":172.0,"cv":0.35},"TR-CANAKKALE":{"name":"Çanakkale","lat":40.15,"lon":26.41,"season":"April to August","window":150,"normal":148.0,"cv":0.38},"TR-SAKARYA":{"name":"Sakarya","lat":40.78,"lon":30.4,"season":"April to August","window":150,"normal":245.0,"cv":0.31},"TR-IZMIR":{"name":"İzmir","lat":38.42,"lon":27.14,"season":"April to August","window":150,"normal":112.0,"cv":0.42},"TR-MANISA":{"name":"Manisa","lat":38.62,"lon":27.43,"season":"April to August","window":150,"normal":126.0,"cv":0.41},"TR-AYDIN":{"name":"Aydın","lat":37.85,"lon":27.84,"season":"April to August","window":150,"normal":118.0,"cv":0.43},"TR-DENIZLI":{"name":"Denizli","lat":37.78,"lon":29.09,"season":"April to August","window":150,"normal":132.0,"cv":0.4},"TR-MUGLA":{"name":"Muğla","lat":37.22,"lon":28.36,"season":"April to August","window":150,"normal":124.0,"cv":0.44},"TR-USAK":{"name":"Uşak","lat":38.68,"lon":29.41,"season":"April to August","window":150,"normal":141.0,"cv":0.39},"TR-AFYON":{"name":"Afyonkarahisar","lat":38.76,"lon":30.54,"season":"April to August","window":150,"normal":136.0,"cv":0.39},"TR-KUTAHYA":{"name":"Kütahya","lat":39.42,"lon":29.99,"season":"April to August","window":150,"normal":152.0,"cv":0.38},"TR-ADANA":{"name":"Çukurova","lat":37.0,"lon":35.33,"season":"March to July","window":140,"normal":162.0,"cv":0.38},"TR-MERSIN":{"name":"Mersin","lat":36.81,"lon":34.64,"season":"March to July","window":140,"normal":148.0,"cv":0.4},"TR-HATAY":{"name":"Hatay","lat":36.2,"lon":36.16,"season":"March to July","window":140,"normal":186.0,"cv":0.39},"TR-ANTALYA":{"name":"Antalya","lat":36.9,"lon":30.69,"season":"March to July","window":140,"normal":138.0,"cv":0.45},"TR-ISPARTA":{"name":"Isparta","lat":37.77,"lon":30.55,"season":"April to August","window":150,"normal":164.0,"cv":0.38},"TR-BURDUR":{"name":"Burdur","lat":37.72,"lon":30.29,"season":"April to August","window":150,"normal":145.0,"cv":0.4},"TR-KMARAS":{"name":"Kahramanmaraş","lat":37.58,"lon":36.93,"season":"March to July","window":140,"normal":172.0,"cv":0.4},"TR-OSMANIYE":{"name":"Osmaniye","lat":37.07,"lon":36.25,"season":"March to July","window":140,"normal":178.0,"cv":0.39},"TR-KONYA":{"name":"Konya Plain","lat":37.87,"lon":32.48,"season":"April to August","window":150,"normal":118.0,"cv":0.41},"TR-ANKARA":{"name":"Ankara","lat":39.93,"lon":32.86,"season":"April to August","window":150,"normal":148.0,"cv":0.38},"TR-ESKISEHIR":{"name":"Eskişehir","lat":39.78,"lon":30.52,"season":"April to August","window":150,"normal":134.0,"cv":0.39},"TR-KAYSERI":{"name":"Kayseri","lat":38.73,"lon":35.49,"season":"April to August","window":150,"normal":142.0,"cv":0.4},"TR-SIVAS":{"name":"Sivas","lat":39.75,"lon":37.02,"season":"April to August","window":150,"normal":158.0,"cv":0.38},"TR-YOZGAT":{"name":"Yozgat","lat":39.82,"lon":34.81,"season":"April to August","window":150,"normal":166.0,"cv":0.37},"TR-AKSARAY":{"name":"Aksaray","lat":38.37,"lon":34.03,"season":"April to August","window":150,"normal":122.0,"cv":0.42},"TR-NIGDE":{"name":"Niğde","lat":37.97,"lon":34.68,"season":"April to August","window":150,"normal":128.0,"cv":0.41},"TR-NEVSEHIR":{"name":"Nevşehir","lat":38.62,"lon":34.71,"season":"April to August","window":150,"normal":131.0,"cv":0.41},"TR-KIRSEHIR":{"name":"Kırşehir","lat":39.15,"lon":34.16,"season":"April to August","window":150,"normal":139.0,"cv":0.39},"TR-KARAMAN":{"name":"Karaman","lat":37.18,"lon":33.22,"season":"April to August","window":150,"normal":115.0,"cv":0.43},"TR-CANKIRI":{"name":"Çankırı","lat":40.6,"lon":33.62,"season":"April to August","window":150,"normal":151.0,"cv":0.38},"TR-SANLIURFA":{"name":"Şanlıurfa","lat":37.16,"lon":38.79,"season":"March to July","window":140,"normal":96.0,"cv":0.47},"TR-DIYARBAKIR":{"name":"Diyarbakır","lat":37.91,"lon":40.24,"season":"March to July","window":140,"normal":118.0,"cv":0.45},"TR-GAZIANTEP":{"name":"Gaziantep","lat":37.07,"lon":37.38,"season":"March to July","window":140,"normal":142.0,"cv":0.43},"TR-MARDIN":{"name":"Mardin","lat":37.31,"lon":40.74,"season":"March to July","window":140,"normal":128.0,"cv":0.46},"TR-ADIYAMAN":{"name":"Adıyaman","lat":37.76,"lon":38.28,"season":"March to July","window":140,"normal":156.0,"cv":0.42},"TR-BATMAN":{"name":"Batman","lat":37.88,"lon":41.13,"season":"March to July","window":140,"normal":122.0,"cv":0.46},"TR-SIIRT":{"name":"Siirt","lat":37.93,"lon":41.94,"season":"March to July","window":140,"normal":148.0,"cv":0.44},"TR-KILIS":{"name":"Kilis","lat":36.72,"lon":37.12,"season":"March to July","window":140,"normal":134.0,"cv":0.44},"TR-MALATYA":{"name":"Eastern Anatolia","lat":38.36,"lon":38.31,"season":"April to August","window":150,"normal":144.0,"cv":0.41},"TR-ELAZIG":{"name":"Elazığ","lat":38.68,"lon":39.22,"season":"April to August","window":150,"normal":151.0,"cv":0.4},"TR-ERZURUM":{"name":"Erzurum","lat":39.9,"lon":41.27,"season":"April to August","window":150,"normal":172.0,"cv":0.38},"TR-VAN":{"name":"Van","lat":38.49,"lon":43.38,"season":"April to August","window":150,"normal":138.0,"cv":0.42},"TR-MUS":{"name":"Muş","lat":38.73,"lon":41.49,"season":"April to August","window":150,"normal":165.0,"cv":0.39},"TR-AGRI":{"name":"Ağrı","lat":39.72,"lon":43.05,"season":"April to August","window":150,"normal":158.0,"cv":0.4},"TR-SAMSUN":{"name":"Samsun","lat":41.29,"lon":36.33,"season":"April to August","window":150,"normal":268.0,"cv":0.29},"TR-TOKAT":{"name":"Tokat","lat":40.31,"lon":36.55,"season":"April to August","window":150,"normal":186.0,"cv":0.35},"TR-CORUM":{"name":"Çorum","lat":40.55,"lon":34.95,"season":"April to August","window":150,"normal":172.0,"cv":0.36},"TR-AMASYA":{"name":"Amasya","lat":40.65,"lon":35.83,"season":"April to August","window":150,"normal":178.0,"cv":0.35},"TR-ORDU":{"name":"Ordu","lat":40.98,"lon":37.88,"season":"April to August","window":150,"normal":312.0,"cv":0.27},"TR-TRABZON":{"name":"Trabzon","lat":41.0,"lon":39.72,"season":"April to August","window":150,"normal":296.0,"cv":0.28},"TR-DUZCE":{"name":"Düzce","lat":40.84,"lon":31.16,"season":"April to August","window":150,"normal":252.0,"cv":0.3},"TR-BOLU":{"name":"Bolu","lat":40.74,"lon":31.61,"season":"April to August","window":150,"normal":238.0,"cv":0.31},"TR-KASTAMONU":{"name":"Kastamonu","lat":41.39,"lon":33.78,"season":"April to August","window":150,"normal":196.0,"cv":0.34}};
+var STATIONS={"TR-EDIRNE":{"name":"Edirne","lat":41.68,"lon":26.56,"season":"April to August","opens":[4,1],"window":150,"normal":186.0,"cv":0.34},"TR-KIRKLARELI":{"name":"Kırklareli","lat":41.74,"lon":27.22,"season":"April to August","opens":[4,1],"window":150,"normal":178.0,"cv":0.35},"TR-TEKIRDAG":{"name":"Tekirdağ","lat":40.98,"lon":27.51,"season":"April to August","opens":[4,1],"window":150,"normal":165.0,"cv":0.36},"TR-BALIKESIR":{"name":"Balıkesir","lat":39.65,"lon":27.89,"season":"April to August","opens":[4,1],"window":150,"normal":158.0,"cv":0.37},"TR-BURSA":{"name":"Bursa","lat":40.19,"lon":29.06,"season":"April to August","opens":[4,1],"window":150,"normal":172.0,"cv":0.35},"TR-CANAKKALE":{"name":"Çanakkale","lat":40.15,"lon":26.41,"season":"April to August","opens":[4,1],"window":150,"normal":148.0,"cv":0.38},"TR-SAKARYA":{"name":"Sakarya","lat":40.78,"lon":30.4,"season":"April to August","opens":[4,1],"window":150,"normal":245.0,"cv":0.31},"TR-IZMIR":{"name":"İzmir","lat":38.42,"lon":27.14,"season":"April to August","opens":[4,1],"window":150,"normal":112.0,"cv":0.42},"TR-MANISA":{"name":"Manisa","lat":38.62,"lon":27.43,"season":"April to August","opens":[4,1],"window":150,"normal":126.0,"cv":0.41},"TR-AYDIN":{"name":"Aydın","lat":37.85,"lon":27.84,"season":"April to August","opens":[4,1],"window":150,"normal":118.0,"cv":0.43},"TR-DENIZLI":{"name":"Denizli","lat":37.78,"lon":29.09,"season":"April to August","opens":[4,1],"window":150,"normal":132.0,"cv":0.4},"TR-MUGLA":{"name":"Muğla","lat":37.22,"lon":28.36,"season":"April to August","opens":[4,1],"window":150,"normal":124.0,"cv":0.44},"TR-USAK":{"name":"Uşak","lat":38.68,"lon":29.41,"season":"April to August","opens":[4,1],"window":150,"normal":141.0,"cv":0.39},"TR-AFYON":{"name":"Afyonkarahisar","lat":38.76,"lon":30.54,"season":"April to August","opens":[4,1],"window":150,"normal":136.0,"cv":0.39},"TR-KUTAHYA":{"name":"Kütahya","lat":39.42,"lon":29.99,"season":"April to August","opens":[4,1],"window":150,"normal":152.0,"cv":0.38},"TR-ADANA":{"name":"Çukurova","lat":37.0,"lon":35.33,"season":"March to July","opens":[3,1],"window":140,"normal":162.0,"cv":0.38},"TR-MERSIN":{"name":"Mersin","lat":36.81,"lon":34.64,"season":"March to July","opens":[3,1],"window":140,"normal":148.0,"cv":0.4},"TR-HATAY":{"name":"Hatay","lat":36.2,"lon":36.16,"season":"March to July","opens":[3,1],"window":140,"normal":186.0,"cv":0.39},"TR-ANTALYA":{"name":"Antalya","lat":36.9,"lon":30.69,"season":"March to July","opens":[3,1],"window":140,"normal":138.0,"cv":0.45},"TR-ISPARTA":{"name":"Isparta","lat":37.77,"lon":30.55,"season":"April to August","opens":[4,1],"window":150,"normal":164.0,"cv":0.38},"TR-BURDUR":{"name":"Burdur","lat":37.72,"lon":30.29,"season":"April to August","opens":[4,1],"window":150,"normal":145.0,"cv":0.4},"TR-KMARAS":{"name":"Kahramanmaraş","lat":37.58,"lon":36.93,"season":"March to July","opens":[3,1],"window":140,"normal":172.0,"cv":0.4},"TR-OSMANIYE":{"name":"Osmaniye","lat":37.07,"lon":36.25,"season":"March to July","opens":[3,1],"window":140,"normal":178.0,"cv":0.39},"TR-KONYA":{"name":"Konya Plain","lat":37.87,"lon":32.48,"season":"April to August","opens":[4,1],"window":150,"normal":118.0,"cv":0.41},"TR-ANKARA":{"name":"Ankara","lat":39.93,"lon":32.86,"season":"April to August","opens":[4,1],"window":150,"normal":148.0,"cv":0.38},"TR-ESKISEHIR":{"name":"Eskişehir","lat":39.78,"lon":30.52,"season":"April to August","opens":[4,1],"window":150,"normal":134.0,"cv":0.39},"TR-KAYSERI":{"name":"Kayseri","lat":38.73,"lon":35.49,"season":"April to August","opens":[4,1],"window":150,"normal":142.0,"cv":0.4},"TR-SIVAS":{"name":"Sivas","lat":39.75,"lon":37.02,"season":"April to August","opens":[4,1],"window":150,"normal":158.0,"cv":0.38},"TR-YOZGAT":{"name":"Yozgat","lat":39.82,"lon":34.81,"season":"April to August","opens":[4,1],"window":150,"normal":166.0,"cv":0.37},"TR-AKSARAY":{"name":"Aksaray","lat":38.37,"lon":34.03,"season":"April to August","opens":[4,1],"window":150,"normal":122.0,"cv":0.42},"TR-NIGDE":{"name":"Niğde","lat":37.97,"lon":34.68,"season":"April to August","opens":[4,1],"window":150,"normal":128.0,"cv":0.41},"TR-NEVSEHIR":{"name":"Nevşehir","lat":38.62,"lon":34.71,"season":"April to August","opens":[4,1],"window":150,"normal":131.0,"cv":0.41},"TR-KIRSEHIR":{"name":"Kırşehir","lat":39.15,"lon":34.16,"season":"April to August","opens":[4,1],"window":150,"normal":139.0,"cv":0.39},"TR-KARAMAN":{"name":"Karaman","lat":37.18,"lon":33.22,"season":"April to August","opens":[4,1],"window":150,"normal":115.0,"cv":0.43},"TR-CANKIRI":{"name":"Çankırı","lat":40.6,"lon":33.62,"season":"April to August","opens":[4,1],"window":150,"normal":151.0,"cv":0.38},"TR-SANLIURFA":{"name":"Şanlıurfa","lat":37.16,"lon":38.79,"season":"March to July","opens":[3,1],"window":140,"normal":96.0,"cv":0.47},"TR-DIYARBAKIR":{"name":"Diyarbakır","lat":37.91,"lon":40.24,"season":"March to July","opens":[3,1],"window":140,"normal":118.0,"cv":0.45},"TR-GAZIANTEP":{"name":"Gaziantep","lat":37.07,"lon":37.38,"season":"March to July","opens":[3,1],"window":140,"normal":142.0,"cv":0.43},"TR-MARDIN":{"name":"Mardin","lat":37.31,"lon":40.74,"season":"March to July","opens":[3,1],"window":140,"normal":128.0,"cv":0.46},"TR-ADIYAMAN":{"name":"Adıyaman","lat":37.76,"lon":38.28,"season":"March to July","opens":[3,1],"window":140,"normal":156.0,"cv":0.42},"TR-BATMAN":{"name":"Batman","lat":37.88,"lon":41.13,"season":"March to July","opens":[3,1],"window":140,"normal":122.0,"cv":0.46},"TR-SIIRT":{"name":"Siirt","lat":37.93,"lon":41.94,"season":"March to July","opens":[3,1],"window":140,"normal":148.0,"cv":0.44},"TR-KILIS":{"name":"Kilis","lat":36.72,"lon":37.12,"season":"March to July","opens":[3,1],"window":140,"normal":134.0,"cv":0.44},"TR-MALATYA":{"name":"Eastern Anatolia","lat":38.36,"lon":38.31,"season":"April to August","opens":[4,1],"window":150,"normal":144.0,"cv":0.41},"TR-ELAZIG":{"name":"Elazığ","lat":38.68,"lon":39.22,"season":"April to August","opens":[4,1],"window":150,"normal":151.0,"cv":0.4},"TR-ERZURUM":{"name":"Erzurum","lat":39.9,"lon":41.27,"season":"April to August","opens":[4,1],"window":150,"normal":172.0,"cv":0.38},"TR-VAN":{"name":"Van","lat":38.49,"lon":43.38,"season":"April to August","opens":[4,1],"window":150,"normal":138.0,"cv":0.42},"TR-MUS":{"name":"Muş","lat":38.73,"lon":41.49,"season":"April to August","opens":[4,1],"window":150,"normal":165.0,"cv":0.39},"TR-AGRI":{"name":"Ağrı","lat":39.72,"lon":43.05,"season":"April to August","opens":[4,1],"window":150,"normal":158.0,"cv":0.4},"TR-SAMSUN":{"name":"Samsun","lat":41.29,"lon":36.33,"season":"April to August","opens":[4,1],"window":150,"normal":268.0,"cv":0.29},"TR-TOKAT":{"name":"Tokat","lat":40.31,"lon":36.55,"season":"April to August","opens":[4,1],"window":150,"normal":186.0,"cv":0.35},"TR-CORUM":{"name":"Çorum","lat":40.55,"lon":34.95,"season":"April to August","opens":[4,1],"window":150,"normal":172.0,"cv":0.36},"TR-AMASYA":{"name":"Amasya","lat":40.65,"lon":35.83,"season":"April to August","opens":[4,1],"window":150,"normal":178.0,"cv":0.35},"TR-ORDU":{"name":"Ordu","lat":40.98,"lon":37.88,"season":"April to August","opens":[4,1],"window":150,"normal":312.0,"cv":0.27},"TR-TRABZON":{"name":"Trabzon","lat":41.0,"lon":39.72,"season":"April to August","opens":[4,1],"window":150,"normal":296.0,"cv":0.28},"TR-DUZCE":{"name":"Düzce","lat":40.84,"lon":31.16,"season":"April to August","opens":[4,1],"window":150,"normal":252.0,"cv":0.3},"TR-BOLU":{"name":"Bolu","lat":40.74,"lon":31.61,"season":"April to August","opens":[4,1],"window":150,"normal":238.0,"cv":0.31},"TR-KASTAMONU":{"name":"Kastamonu","lat":41.39,"lon":33.78,"season":"April to August","opens":[4,1],"window":150,"normal":196.0,"cv":0.34}};
 var ROUTES={
   "TK-IST-LHR":{carrier:"Turkish Airlines",from:"Istanbul",to:"London",cancel:.012,late:.243,median:41},
   "TK-IST-JFK":{carrier:"Turkish Airlines",from:"Istanbul",to:"New York",cancel:.009,late:.281,median:52},
@@ -5693,6 +5694,10 @@ function optHtml(value,title,sub,lead,attr){
 function flightDefaults(){
   if(!flow.flightDate){ var d=new Date(Date.now()+14*86400000); flow.flightDate=d.toISOString().slice(0,10); }
   if(!flow.flightNumber&&flow.subject)flow.flightNumber=flow.subject.split("-")[0]+"1979";
+  // The scheduled departure, in the clock of the airport the flight leaves
+  // from, which is how a ticket writes it. Cover has to be bought a day before
+  // that moment, and a date on its own cannot say when the moment is.
+  if(!flow.flightTime)flow.flightTime="09:00";
 }
 function subjectOptions(){
   // Only flights are a list. A place is a point, and there are too many points
@@ -5701,7 +5706,8 @@ function subjectOptions(){
   flightDefaults();
   var tomorrow=new Date(Date.now()+86400000).toISOString().slice(0,10), year=new Date(Date.now()+365*86400000).toISOString().slice(0,10);
   out+='<div class="tform" style="margin-bottom:12px"><label><span>'+esc(t("Flight number"))+'</span><input id="flight-no" maxlength="8" spellcheck="false" placeholder="TK1979" value="'+esc(flow.flightNumber||"")+'"></label>'+
-       '<label><span>'+esc(t("Departure date"))+'</span><input id="flight-date" type="date" min="'+tomorrow+'" max="'+year+'" value="'+esc(flow.flightDate||"")+'"></label></div>';
+       '<label><span>'+esc(t("Departure date"))+'</span><input id="flight-date" type="date" min="'+tomorrow+'" max="'+year+'" value="'+esc(flow.flightDate||"")+'"></label>'+
+       '<label><span>'+esc(t("Scheduled departure"))+'</span><input id="flight-time" type="time" value="'+esc(flow.flightTime||"")+'"><small class="fine" data-i18n>The time on the ticket, in the airport\'s own clock. Cover has to be bought 24 hours before it.</small></label></div>';
   for(key in ROUTES){ if(!Object.prototype.hasOwnProperty.call(ROUTES,key))continue;
     var r=ROUTES[key];
     out+=optHtml(key,t("{from} to {to}",{from:r.from,to:r.to}),
@@ -5812,7 +5818,8 @@ function placeLabel(){
 }
 function subjectPayload(){
   if (flow.peril === "flight"){ flightDefaults(); return {route: flow.subject,
-    flight_number: flow.flightNumber, departure_date: flow.flightDate}; }
+    flight_number: flow.flightNumber, departure_date: flow.flightDate,
+    departure_time: flow.flightTime}; }
   var at = coordinates();
   if (flow.peril === "car" || flow.peril === "storm"){
     return {latitude: at.latitude, longitude: at.longitude, place: placeLabel()};
@@ -6475,6 +6482,13 @@ function renderAnswers(){
   if(it.what||addr)rows.push(row(t("At risk"),esc(it.what||"")+(addr?(it.what?"<br>":"")+'<small>'+esc(addr)+'</small>':""),RISK_STEP));
   if(it.value)rows.push(row(t("Declared at risk"),money(it.value)+" USDC",RISK_STEP));
   rows.push(row(t("How much"),esc(t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days})),AMOUNT_STEP));
+  // What it pays at each reading, and the day it starts paying at all. Both
+  // were things a buyer could only find by reading the contract or the chart,
+  // and both decide whether the cover is the cover they think they are buying.
+  rows.push(row(t("Pays"),esc(ladderSaid()),AMOUNT_STEP));
+  var startsOn=coverStartsAt(), why=waitWhy();
+  if(startsOn)rows.push(row(t("Cover starts"),
+    esc(startsOn.toLocaleDateString(LANG))+(why?'<br><small>'+esc(why)+'</small>':""),0));
   if(offer)rows.push(row(t("Company"),esc(ts(offer.name)),CONFIRM_STEP,"offers-box"));
   var total=offer?q.premium+offer.fee:q.premium, price=money(total)+" USDC";
   if(offer&&offer.fee>0)price+=' <small>'+esc(t("includes the company's fee of {fee}",{fee:money(offer.fee)}))+'</small>';
@@ -6986,14 +7000,17 @@ function quakeReady(){
 
 function flightReady(){
   if(flow.peril!=="flight")return true;
-  return !!flow.subject&&/^[A-Za-z0-9]{2}[0-9]{1,4}[A-Za-z]?$/.test(flow.flightNumber||"")&&/^\d{4}-\d{2}-\d{2}$/.test(flow.flightDate||"");
+  return !!flow.subject&&/^[A-Za-z0-9]{2}[0-9]{1,4}[A-Za-z]?$/.test(flow.flightNumber||"")
+    &&/^\d{4}-\d{2}-\d{2}$/.test(flow.flightDate||"")&&/^\d{2}:\d{2}$/.test(flow.flightTime||"");
 }
 function bindSubjectOptions(){
   var box = $("s2-opts");
   markPressed(box, ".opt", function(n){ return n.dataset.value === flow.subject; });
   var no=$("flight-no"), date=$("flight-date");
   if(no)no.addEventListener("input",function(){ flow.flightNumber=no.value.toUpperCase().replace(/\s+/g,""); setNextLabel(); });
-  if(date)date.addEventListener("change",function(){ flow.flightDate=date.value; setNextLabel(); });
+  if(date)date.addEventListener("change",function(){ flow.flightDate=date.value; setNextLabel(); updatePriceBar(); });
+  var clock=$("flight-time");
+  if(clock)clock.addEventListener("change",function(){ flow.flightTime=clock.value; setNextLabel(); updatePriceBar(); });
   Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(button){
     button.addEventListener("click", function(){
       flow.subject = button.dataset.value;
@@ -7067,6 +7084,83 @@ function skeleton(n){
    trigger is a figure with nothing to judge it against: the reader was being
    asked to weigh 17,790 USDC against nothing at all. It is the first thing
    the caption says now, before the term and before the monthly figure. */
+/* When the cover starts, and why that is not the day it is bought. Every peril
+   here waits out the window in which the event is already public knowledge: a
+   named storm is on the news a week before it lands, an aftershock sequence is
+   felt from the moment the mainshock is, and a dry season is half over before
+   anyone can see it. A policy bought inside that window is bought by someone
+   who knows something the price does not, and the pool loses the difference on
+   every one of them. The page carries the numbers so it can say the date
+   before the protocol has answered; the protocol's own date replaces them the
+   moment a price arrives, and it is the one that binds. */
+var WAITING={quake:7,car:10,storm:10,flight:0};
+function coverStartsAt(){
+  // Only worth saying when it is a different day from today. Flight cover
+  // starts the moment it is bought, and "cover starts today" beside the price
+  // is a line that costs attention and answers nothing.
+  var soon=Date.now()+86400000;
+  var q=flow.quoted&&flow.quoted.cover;
+  if(q&&q.starts_at)return q.starts_at*1000>soon?new Date(q.starts_at*1000):null;
+  if(flow.peril==="drought"){
+    var st=stationFor();
+    if(!st||!st.opens)return null;
+    var now=Date.now(), y=new Date(now).getUTCFullYear();
+    var open=Date.UTC(y,st.opens[0]-1,st.opens[1]);
+    if(open<now)open=Date.UTC(y+1,st.opens[0]-1,st.opens[1]);
+    return new Date(open);
+  }
+  var days=WAITING[flow.peril];
+  if(!days)return null;
+  return new Date(Date.now()+days*86400000);
+}
+function waitWhy(){
+  if(flow.peril==="quake")
+    return t("An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts seven days after it is bought.");
+  if(flow.peril==="storm"||flow.peril==="car")
+    return t("Weather this severe is forecast about a week ahead, so cover starts ten days after it is bought.");
+  if(flow.peril==="drought")
+    return t("The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.");
+  return "";
+}
+function coverStartSaid(){
+  var at=coverStartsAt();
+  if(!at)return "";
+  return t("cover starts {date}",{date:at.toLocaleDateString(LANG)});
+}
+
+/* The whole ladder, not only its bottom rung. "Pays from magnitude 5.5"
+   answers half of what a buyer is asking; the other half is how much, and at
+   which reading, and until now that half was only on the chart further down
+   the page. Three rungs fit on the line beside the price. */
+function rungWords(level){
+  if(flow.peril==="quake")
+    // The unit, then the reading, as the index itself is written: M5.5 for a
+    // magnitude and MMI VII for shaking. A roman numeral on its own beside a
+    // sum of money says nothing about what was measured.
+    return shakingIndex() ? "MMI "+(ROMAN[Math.round(level)]||String(level))
+                          : "M"+level.toFixed(1);
+  if(flow.peril==="storm")return f0.format(Math.round(level))+" km/h";
+  if(flow.peril==="car"||flow.peril==="drought")return f0.format(Math.round(level))+" mm";
+  return level>=1440 ? t("cancelled") : t("{n}h late",{n:Math.round(level/60)});
+}
+function ladderSaid(){
+  if(!flow.limit)return triggerSaid();
+  // Whole amounts across the whole ladder. money() carries cents below a
+  // thousand, which reads as an inconsistency when three rungs stand side by
+  // side and only the top one is over it.
+  function rung(v){ return f0.format(Math.round(v)); }
+  var c=structure(), rungs=[];
+  if(c.shape==="ramp")
+    // A ramp has no rungs: it pays a little more for every millimetre below the
+    // first point, so its two ends are the whole of what there is to say.
+    return t("pays from {from}, and the full {amount} at {to}",
+             {from:rungWords(c.pts[0][0]),to:rungWords(c.pts[c.pts.length-1][0]),
+              amount:rung(flow.limit)});
+  c.pts.forEach(function(pt){
+    if(pt[1]>0)rungs.push(rungWords(pt[0])+" "+rung(pt[1]*flow.limit));
+  });
+  return rungs.length?rungs.join(" · "):triggerSaid();
+}
 function triggerSaid(){
   var pts;
   if(flow.peril==="quake")
@@ -7106,7 +7200,9 @@ function updatePriceBar(){
     pays.hidden=!flow.limit;
     pays.innerHTML=esc(t("you receive up to"))+' <b>'+esc(money(flow.limit))+'</b>';
   }
-  var cap=triggerSaid()+" · "+t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days});
+  var cap=ladderSaid()+" · "+t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days});
+  var starts=coverStartSaid();
+  if(starts)cap+=" · "+starts;
   if(flow.step!==CONFIRM_STEP){
     if(offer){
       cap+=" · "+(days>=60?t("all in, about {monthly} a month",{monthly:money(total*30/days)}):t("all in, nothing to add"));
@@ -8311,6 +8407,12 @@ function mineHtml(reply){
         kv(t("Premium paid"),money(policy.premium))+
         kv(paid?t("Paid out"):t("Runs for"),
           paid?money(paid)+" USDC":esc(t("{days} days",{days:f0.format(policy.term_days)})))+
+        /* Cover starts after the peril's waiting period, so the day it starts
+           and the day it was bought are different days, and which one a
+           policy is in decides whether an event today pays. It is shown
+           until it has passed and then there is nothing to say. */
+        (policy.status==="active"&&policy.starts_at&&policy.starts_at>Date.now()/1000
+          ?kv(t("Starts on"),esc(new Date(policy.starts_at*1000).toLocaleDateString(LANG))):"")+
         (policy.status==="active"&&policy.ends_at?kv(t("Ends on"),esc(new Date(policy.ends_at*1000).toLocaleDateString(LANG))):"")+
       '</div>'+
       (policy.status==="active"&&policy.ends_at&&policy.ends_at-Date.now()/1000<30*86400?'<div class="verdict" style="margin:0 0 12px"><p>'+
@@ -9814,6 +9916,7 @@ function renderRules(){
           row(t("Fallbacks, in order"),'<ol style="margin:0;padding-left:18px">'+(x.fallbacks||[]).map(function(f){ return '<li>'+esc(ts(f))+'</li>'; }).join("")+'</ol>')+
           row(t("Final figure"),esc(ts(x.final_data))+' · '+esc(t("frozen {days} days after the event",{days:Math.round(x.freeze_hours/24)})))+
           row(t("Tests a reading must pass"),'<ul style="margin:0;padding-left:18px">'+(x.criteria||[]).map(function(c){ return '<li>'+esc(ts(c))+'</li>'; }).join("")+'</ul>')+
+          (x.waiting?row(t("When the cover applies"),esc(ts(x.waiting))):'')+
           row(t("Attestation"),esc(ts(x.attestation||"")))+
           (x.deadline_days?row(t("Silence"),esc(t("No final figure {days} days after the term ends: {then}",{days:x.deadline_days,then:ts(x.on_missing_data||"")}))):'')+
           row(t("Objection"),esc(t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days})))+

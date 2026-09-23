@@ -149,13 +149,21 @@ def build_policy(
     marginal_capital: float,
     curve: PayoutCurve | None = None,
     now: float | None = None,
-    starts_in_days: float = 0.0,
+    starts_in_days: float | None = None,
 ) -> Policy:
     """Assemble a policy from a priced quote.
 
     The predicate and the data reference are fixed here, at purchase, and are
     what the chain will act on. Neither the pool nor the holder can change them
     afterwards, which is the whole basis on which the cover can settle itself.
+
+    Cover starts after the peril's waiting period, not at the till. The term is
+    not shortened by it: ``term_days`` of cover are bought and ``term_days`` of
+    cover start on the day the wait ends, which is also why the price does not
+    change. The premium is the chance of an event inside a window of that
+    length, and for a hazard that does not know what day it is, a window of the
+    same length costs the same wherever it is put. What the wait buys is that
+    the buyer does not know what day it is either.
     """
     peril = get_peril(peril_key)
     subject = peril.validate_subject(subject)
@@ -163,6 +171,11 @@ def build_policy(
     source: DataSource = peril.data_source(subject)
 
     now = now if now is not None else time.time()
+    refusal = peril.refuse_to_write(subject, now=now)
+    if refusal:
+        raise ValueError(refusal)
+    if starts_in_days is None:
+        starts_in_days = peril.starts_in_days(subject, now=now)
     starts_at = now + starts_in_days * 86400
     ends_at = starts_at + term_days * 86400
 

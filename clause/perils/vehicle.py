@@ -81,6 +81,11 @@ class VehicleFlood(Peril):
     )
     basis_risk_level = "high"
 
+    # Ten days, for the same reason as storm: the rainfall that floods a street
+    # comes with the same forecast and the same ten day horizon, and a car can
+    # be insured in the hour the warning is issued and moved the next morning.
+    waiting_days = 10.0
+
     @property
     def territory(self) -> frozenset[str]:  # type: ignore[override]
         return frozenset({"TR"}) if model()["validation"].get("passed") else frozenset()

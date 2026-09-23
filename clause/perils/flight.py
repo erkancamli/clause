@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import datetime as dt
 import re
+from zoneinfo import ZoneInfo
 
 import math
 from dataclasses import dataclass
@@ -69,6 +70,27 @@ class RouteStatistics:
 # Published on time performance, rounded, for routes the demo offers. Real
 # figures for a live deployment come from the carrier or the regulator; these
 # are the shape of that input, not a claim about any particular airline today.
+#: How long before the flight leaves the cover has to be bought. A day is past
+#: the point where a delay is the airline's own knowledge rather than a guess:
+#: the aircraft that will fly the route is assigned, the crew is rostered, and
+#: a schedule already slipping is visible on any flight tracker. Cover bought
+#: inside that day is bought on information the price does not have.
+BOOK_AHEAD_HOURS = 24
+
+#: Where each airport stands, so a departure written in the local time of the
+#: airport can be turned into an instant. Without this the twenty-four hours
+#: above would be out by up to a day, and the rule would either refuse flights
+#: it should sell or sell flights it should refuse.
+AIRPORTS: dict[str, str] = {
+    "IST": "Europe/Istanbul",
+    "SAW": "Europe/Istanbul",
+    "ESB": "Europe/Istanbul",
+    "LHR": "Europe/London",
+    "AMS": "Europe/Amsterdam",
+    "FRA": "Europe/Berlin",
+    "JFK": "America/New_York",
+}
+
 ROUTES: dict[str, RouteStatistics] = {
     "TK-IST-LHR": RouteStatistics("TK", "IST", "LHR", 0.012, 0.243, 41.0),
     "TK-IST-JFK": RouteStatistics("TK", "IST", "JFK", 0.009, 0.281, 52.0),
@@ -92,6 +114,14 @@ class FlightDelay(Peril):
     )
     basis_risk_level = "low"
 
+    # Flight cover names one flight, so the waiting period every other peril
+    # uses would push the start of the cover past the flight it is meant to
+    # insure. The same job is done by refusing the sale instead: the cover has
+    # to be bought before the airline knows the aircraft is late, and an
+    # airline knows that in the last hours, not two days out.
+    waiting_days = 0.0
+
+
     def validate_subject(self, subject: dict[str, Any]) -> dict[str, Any]:
         route = str(subject.get("route", "")).upper().strip()
         if route not in ROUTES:
@@ -110,11 +140,62 @@ class FlightDelay(Peril):
         today = dt.date.today()
         if when < today or when > today + dt.timedelta(days=365):
             raise ValueError("the departure date is between today and a year from now")
+        # The scheduled departure in the airport's own clock, which is how a
+        # ticket writes it. A subject from before this field was asked for
+        # carries no time; midnight is the reading that can only refuse a sale
+        # and never allow one it should have refused.
+        clock = str(subject.get("departure_time", "")).strip()
+        written = re.fullmatch(r"(\d{1,2}):(\d{2})", clock) if clock else None
+        if clock and written is None:
+            raise ValueError(
+                "the departure time is written as HH:MM on a 24 hour clock, in "
+                "the time at the airport it leaves from"
+            )
+        hour, minute = (int(written[1]), int(written[2])) if written else (0, 0)
+        if hour > 23 or minute > 59:
+            raise ValueError(
+                "the departure time is written as HH:MM on a 24 hour clock, in "
+                "the time at the airport it leaves from"
+            )
+        at = dt.time(hour, minute)
         return {
             "route": route,
             "flight_number": flight_number,
             "departure_date": departure,
+            "departure_time": at.strftime("%H:%M"),
         }
+
+    def departs_at(self, subject: dict[str, Any]) -> float:
+        """The scheduled departure as an instant.
+
+        A flight leaves at a time written on a ticket in the clock of the
+        airport it leaves from. Turning that into an instant is what makes the
+        twenty-four hour rule a real twenty-four hours rather than a number of
+        calendar days that means something different in every timezone.
+        """
+        route = ROUTES[subject["route"]]
+        zone = ZoneInfo(AIRPORTS.get(route.origin, "UTC"))
+        day = dt.date.fromisoformat(str(subject["departure_date"]))
+        clock = dt.time.fromisoformat(str(subject.get("departure_time") or "00:00"))
+        return dt.datetime.combine(day, clock, zone).timestamp()
+
+    def refuse_to_write(self, subject: dict[str, Any], *, now: float | None = None) -> str:
+        """Checked at the moment of writing, not only when the flight was
+        typed: a price taken one evening can be paid for the next morning."""
+        import time as _time
+        try:
+            leaves = self.departs_at(subject)
+        except (KeyError, ValueError):
+            return ""
+        hours = (leaves - (now if now is not None else _time.time())) / 3600.0
+        if hours >= BOOK_AHEAD_HOURS:
+            return ""
+        if hours <= 0:
+            return "this flight has already left, so there is nothing left to insure"
+        return (
+            f"cover for a flight has to be bought {BOOK_AHEAD_HOURS} hours before "
+            f"it leaves, and this one leaves in {hours:.0f} hours"
+        )
 
     def statistics(self, subject: dict[str, Any]) -> RouteStatistics:
         return ROUTES[subject["route"]]
@@ -194,4 +275,5 @@ class FlightDelay(Peril):
         return (
             f"{subject['flight_number']} on {stats.origin} to {stats.destination}, "
             f"{subject['departure_date']}"
+            + (f" at {subject['departure_time']}" if subject.get("departure_time") else "")
         )

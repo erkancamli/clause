@@ -43,13 +43,28 @@ def built(seed: int = 3, trials: int = 2_000, capital: float = 20_000_000.0):
     return pool, Chain(pool, ChainConfig(seed=seed))
 
 
-def write(pool: Pool, chain: Chain, peril: str, subject: dict, limit: float, term: float):
+def write(pool: Pool, chain: Chain, peril: str, subject: dict, limit: float, term: float,
+           *, wait: bool = True):
     policy = pool.write(
         peril_key=peril, subject=subject, limit=limit,
         term_days=term, holder="holder",
     )
     chain.register(policy)
+    if wait:
+        start_cover(chain, policy)
     return policy
+
+
+def start_cover(chain: Chain, policy) -> None:
+    """Run the chain forward to the day this policy's cover starts.
+
+    Every peril waits out its own forecast before the cover begins, so a test
+    that attests a reading the moment it has bought would be testing the
+    waiting period instead of the thing it means to test. The tests that do
+    mean to test the waiting period pass ``wait=False`` and stay put.
+    """
+    while chain.world_now(policy) < policy.starts_at:
+        chain.produce_block()
 
 
 # ---------------------------------------------------------------------------
@@ -287,15 +302,17 @@ def test_blocks_are_retained_within_a_bound() -> None:
 
 
 @pytest.mark.parametrize(
-    "peril, subject, term, level",
+    "peril, subject, term, level, runs",
     [
-        ("earthquake", {"location": "IST-KADIKOY", "radius_km": 50.0}, 365, 5.5),
-        # None: the trigger level comes from the converted curve.
-        ("drought", {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 50.0}, 150, None),
+        ("earthquake", {"location": "IST-KADIKOY", "radius_km": 50.0}, 365, 5.5, 70),
+        # None: the trigger level comes from the converted curve. Fewer runs,
+        # because a drought policy has a season to wait for before its own
+        # season starts, and the band below widens to match on its own.
+        ("drought", {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 50.0}, 150, None, 40),
     ],
 )
 def test_the_chain_settles_at_the_frequency_the_price_assumes(
-    peril: str, subject: dict, term: float, level: float | None
+    peril: str, subject: dict, term: float, level: float | None, runs: int
 ) -> None:
     """The check that keeps the protocol coherent.
 
@@ -308,7 +325,6 @@ def test_the_chain_settles_at_the_frequency_the_price_assumes(
     chosen to fit. Seventy runs of a one in sixteen event is a noisy estimate,
     and a tolerance tighter than that noise would only be testing the seed.
     """
-    runs = 70
     engine = PricingEngine(trials=800, seed=2)
 
     if peril == "earthquake":

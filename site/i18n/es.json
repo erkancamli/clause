@@ -2111,7 +2111,25 @@
     "pays from two hours late": "paga a partir de dos horas de retraso",
     "This cover follows your account, so another device can reach it.": "Esta cobertura sigue a tu cuenta, así que otro dispositivo puede acceder a ella.",
     "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "Esta cobertura vive en este dispositivo. La clave que da acceso se creó aquí y nunca sale, así que un dispositivo perdido sin nada vinculado se lleva consigo la cobertura y el pago.",
-    "Link an account so another device can reach it": "Vincula una cuenta para poder acceder desde otro dispositivo"
+    "Link an account so another device can reach it": "Vincula una cuenta para poder acceder desde otro dispositivo",
+    "cover starts {date}": "la cobertura empieza el {date}",
+    "{n}h late": "{n} h de retraso",
+    "pays from {from}, and the full {amount} at {to}": "paga desde {from}, y el total de {amount} en {to}",
+    "Scheduled departure": "Salida programada",
+    "The time on the ticket, in the airport's own clock. Cover has to be bought 24 hours before it.": "La hora del billete, en el reloj del aeropuerto de salida. La cobertura debe comprarse 24 horas antes.",
+    "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours": "la cobertura de un vuelo debe comprarse {hours} horas antes de la salida, y este sale en {left} horas",
+    "this flight has already left, so there is nothing left to insure": "este vuelo ya ha salido, así que no queda nada que asegurar",
+    "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}": "la venta para la temporada de {opens} cerró el {closed}, {days} días antes de que empiece; la cobertura para la temporada siguiente se puede comprar desde el {next}",
+    "{flight} on {origin} to {destination}, {date} at {time}": "{flight} de {origin} a {destination}, {date} a las {time}",
+    "Starts on": "Empieza el",
+    "Pays": "Paga",
+    "Cover starts": "Inicio de la cobertura",
+    "An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts seven days after it is bought.": "Una secuencia de réplicas es de dominio público desde el momento en que se siente el terremoto principal, así que la cobertura empieza siete días después de comprarla.",
+    "Weather this severe is forecast about a week ahead, so cover starts ten days after it is bought.": "Un fenómeno así se pronostica con cerca de una semana de antelación, así que la cobertura empieza diez días después de comprarla.",
+    "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "La temporada que mide esta cobertura es la siguiente que se abre en la estación, y la venta de una temporada cierra quince días antes de que empiece.",
+    "When does my cover start? Can I buy it once the event is coming?": "¿Cuándo empieza mi cobertura? ¿Puedo comprarla cuando el fenómeno ya se acerca?",
+    "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "No, y es deliberado. La cobertura empieza tras una espera: siete días para terremoto, diez para tormenta e inundación del vehículo. Un suceso dentro de la espera no paga nada, y tampoco termina la póliza: la cobertura empieza el día que dice su contrato y corre su plazo completo desde ahí. La sequía funciona de otro modo, porque una temporada seca no se puede esperar: la temporada que mide una póliza es la siguiente que se abre en su estación, y la venta de una temporada cierra quince días antes de que empiece. Un vuelo no tiene espera, porque la cobertura nombra un vuelo concreto; en su lugar debe comprarse al menos 24 horas antes de la salida programada. La razón es la misma en todos los casos: el precio es la probabilidad de un suceso para quien no sabe que viene, y una tormenta sale en las noticias una semana antes de llegar.",
+    "When the cover applies": "Cuándo se aplica la cobertura"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2183,6 +2201,9 @@
     "{place}, shaking at the address",
     "{place}, wind read at {station} ({distance} km)",
     "{place}, rainfall read at {station} ({distance} km)",
-    "{flight} on {origin} to {destination}, {date}"
+    "{flight} on {origin} to {destination}, {date}",
+    "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours",
+    "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}",
+    "{flight} on {origin} to {destination}, {date} at {time}"
   ]
 }

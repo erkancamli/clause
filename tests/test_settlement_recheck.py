@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from conftest import cover_has_started
+
 from clause.api.app import create_app
 from clause.api.security import Settings
 from clause.protocol import PolicyStatus
@@ -36,6 +38,7 @@ def test_a_company_suspended_mid_term_stops_the_payout_and_returns_the_premium()
 
         chain, pool = app.state.chain, app.state.pool
         policy = pool.policies[policy_id]
+        cover_has_started(policy)
         chain.attest(policy.data_reference, "max_magnitude", 7.4)
         for _ in range(chain.confirm_blocks(policy) + 3):
             chain.produce_block()

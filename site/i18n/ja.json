@@ -2111,7 +2111,25 @@
     "pays from two hours late": "2時間の遅延から支払われます",
     "This cover follows your account, so another device can reach it.": "この補償はアカウントに紐づいているため、別の端末からも開けます。",
     "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "この補償はこの端末にあります。開くための鍵はここで作られ、端末から出ることはありません。何も紐づけないまま端末を失うと、補償も支払いも一緒に失われます。",
-    "Link an account so another device can reach it": "別の端末から開けるようにアカウントを紐づける"
+    "Link an account so another device can reach it": "別の端末から開けるようにアカウントを紐づける",
+    "cover starts {date}": "補償開始は{date}",
+    "{n}h late": "{n}時間の遅延",
+    "pays from {from}, and the full {amount} at {to}": "{from}から支払いが始まり、{to}で全額{amount}",
+    "Scheduled departure": "定刻出発時刻",
+    "The time on the ticket, in the airport's own clock. Cover has to be bought 24 hours before it.": "航空券に記載の時刻で、出発空港の現地時間です。補償はその24時間前までに購入する必要があります。",
+    "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours": "フライトの補償は出発の{hours}時間前までに購入する必要がありますが、この便の出発まで{left}時間です",
+    "this flight has already left, so there is nothing left to insure": "この便はすでに出発しているため、保険をかける対象がありません",
+    "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}": "{opens}からの作期の販売は、開始の{days}日前にあたる{closed}に締め切られました。次の作期の補償は{next}から購入できます",
+    "{flight} on {origin} to {destination}, {date} at {time}": "{origin}発{destination}行き {flight}、{date} {time}",
+    "Starts on": "開始日",
+    "Pays": "支払い",
+    "Cover starts": "補償開始",
+    "An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts seven days after it is bought.": "余震は本震が感じられた時点で誰もが知るところとなるため、補償は購入の7日後に開始します。",
+    "Weather this severe is forecast about a week ahead, so cover starts ten days after it is bought.": "この規模の気象は約1週間前に予報されるため、補償は購入の10日後に開始します。",
+    "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "この補償が計測する作期は、観測所で次に始まる作期です。各作期の販売は開始の15日前に締め切られます。",
+    "When does my cover start? Can I buy it once the event is coming?": "補償はいつ始まりますか。事象が近づいてからでも買えますか。",
+    "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "買えません。これは意図したものです。補償には待機期間があり、地震は7日、暴風と車両冠水は10日です。待機期間中の事象は支払いの対象にならず、またそれで契約が終わることもありません。補償は契約書に記された日に始まり、そこから所定の期間をまるごと走ります。干ばつは仕組みが異なります。乾いた作期は待ってやり過ごせないからです。契約が計測する作期は、その観測所で次に始まる作期であり、各作期の販売は開始の15日前に締め切られます。フライトには待機期間がありません。補償が特定の一便を指すためで、代わりに定刻出発の24時間前までに購入する必要があります。理由はどれも同じで、保険料は事象が来ることを知らない人にとっての確率であり、暴風は上陸の1週間前にはニュースになっています。",
+    "When the cover applies": "補償が適用される期間"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2183,6 +2201,9 @@
     "{place}, shaking at the address",
     "{place}, wind read at {station} ({distance} km)",
     "{place}, rainfall read at {station} ({distance} km)",
-    "{flight} on {origin} to {destination}, {date}"
+    "{flight} on {origin} to {destination}, {date}",
+    "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours",
+    "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}",
+    "{flight} on {origin} to {destination}, {date} at {time}"
   ]
 }

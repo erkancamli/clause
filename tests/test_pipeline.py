@@ -14,6 +14,8 @@ from __future__ import annotations
 import time
 
 import pytest
+
+from conftest import cover_has_started
 from fastapi.testclient import TestClient
 
 from clause.api.app import create_app
@@ -211,6 +213,7 @@ def test_an_address_refused_mid_term_is_not_paid_and_gets_the_premium_back() -> 
             "match": "address", "value": address, "reason": "named in a sanctions notice"})
         chain, pool = app.state.chain, app.state.pool
         policy = pool.policies[policy_id]
+        cover_has_started(policy)
         chain.attest(policy.data_reference, "max_magnitude", 7.4)
         for _ in range(chain.confirm_blocks(policy) + 3):
             chain.produce_block()

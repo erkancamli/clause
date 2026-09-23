@@ -2111,7 +2111,25 @@
     "pays from two hours late": "платит от двух часов задержки",
     "This cover follows your account, so another device can reach it.": "Это покрытие привязано к вашей учётной записи, поэтому доступно с другого устройства.",
     "This cover lives on this device. The key that reaches it was made here and never leaves, so a device lost with nothing linked to it takes the cover and the payout with it.": "Это покрытие хранится на этом устройстве. Ключ к нему создан здесь и никогда его не покидает: потерянное устройство, к которому ничего не привязано, унесёт с собой и покрытие, и выплату.",
-    "Link an account so another device can reach it": "Привяжите учётную запись, чтобы открыть это с другого устройства"
+    "Link an account so another device can reach it": "Привяжите учётную запись, чтобы открыть это с другого устройства",
+    "cover starts {date}": "покрытие начинается {date}",
+    "{n}h late": "опоздание на {n} ч",
+    "pays from {from}, and the full {amount} at {to}": "платит от {from}, полностью {amount} при {to}",
+    "Scheduled departure": "Время вылета по расписанию",
+    "The time on the ticket, in the airport's own clock. Cover has to be bought 24 hours before it.": "Время в билете, по часам аэропорта вылета. Покрытие нужно купить за 24 часа до него.",
+    "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours": "покрытие рейса нужно купить за {hours} часов до вылета, а этот вылетает через {left} часов",
+    "this flight has already left, so there is nothing left to insure": "этот рейс уже вылетел, страховать нечего",
+    "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}": "продажи на сезон {opens} закрылись {closed}, за {days} дней до его начала; покрытие на следующий сезон можно купить с {next}",
+    "{flight} on {origin} to {destination}, {date} at {time}": "{flight} из {origin} в {destination}, {date} в {time}",
+    "Starts on": "Начинается",
+    "Pays": "Выплата",
+    "Cover starts": "Начало покрытия",
+    "An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts seven days after it is bought.": "Серия афтершоков известна всем с момента главного толчка, поэтому покрытие начинается через семь дней после покупки.",
+    "Weather this severe is forecast about a week ahead, so cover starts ten days after it is bought.": "Такая погода прогнозируется примерно за неделю, поэтому покрытие начинается через десять дней после покупки.",
+    "The season this cover measures is the next one to open at the station, and sales for a season close fifteen days before it does.": "Сезон, который измеряет это покрытие, — ближайший на станции, а продажи на сезон закрываются за пятнадцать дней до его начала.",
+    "When does my cover start? Can I buy it once the event is coming?": "Когда начинается покрытие? Можно ли купить его, когда событие уже на подходе?",
+    "No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.": "Нет, и это сделано намеренно. Покрытие начинается после ожидания: семь дней для землетрясения, десять для бури и затопления автомобиля. Событие внутри срока ожидания ничего не выплачивает и полис не прекращает — покрытие начинается в день, названный в договоре, и идёт оттуда весь свой срок. С засухой иначе, потому что сухой сезон нельзя переждать: сезон, который измеряет полис, — ближайший на его станции, а продажи на сезон закрываются за пятнадцать дней до его начала. У рейса ожидания нет, потому что покрытие названо по конкретному рейсу; вместо этого его нужно купить не позднее чем за 24 часа до вылета по расписанию. Причина везде одна: цена — это вероятность события для того, кто не знает, что оно идёт, а буря попадает в новости за неделю до того, как дойдёт.",
+    "When the cover applies": "Когда действует покрытие"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2183,6 +2201,9 @@
     "{place}, shaking at the address",
     "{place}, wind read at {station} ({distance} km)",
     "{place}, rainfall read at {station} ({distance} km)",
-    "{flight} on {origin} to {destination}, {date}"
+    "{flight} on {origin} to {destination}, {date}",
+    "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours",
+    "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}",
+    "{flight} on {origin} to {destination}, {date} at {time}"
   ]
 }

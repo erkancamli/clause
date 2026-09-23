@@ -29,6 +29,7 @@ most parametric designs quietly worse than they look.
 
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import math
 import random
@@ -107,6 +108,20 @@ class EdgeReading:
     season_target: float = 0.0
     season_schedule: list[tuple[float, float]] = field(default_factory=list)
     season_index: int = 0
+    # When this window opened, on the demonstration's own calendar. A rainfall
+    # season is a range of calendar dates at the station, the same every year,
+    # so the source has to know which year's window it is measuring and when
+    # the next one opens.
+    season_opens_at: float = 0.0
+    # When this source's running maximum was last raised, which is not the same
+    # as when it last spoke: a quiet day on a wind source still reports, and it
+    # reports the same figure the storm before it left standing. A policy still
+    # inside its waiting period has to tell one from the other. Kept on both
+    # clocks, because the two kinds of policy reading it are on different ones:
+    # the demonstration's book runs on the chain's timestamp at forty thousand
+    # times the pace, and cover a person bought runs on the clock outside.
+    peak_at: float = 0.0
+    peak_wall: float = 0.0
     # Flight sources carry the route they are reporting on.
     route: str = ""
     # How fast this source's world moves, as a share of the demonstration's
@@ -356,11 +371,19 @@ class Chain:
         """Seed every source the offered perils can read."""
         now = self.timestamp
 
+        today = dt.datetime.fromtimestamp(now, dt.timezone.utc).date()
         for code, station in STATIONS.items():
             reference = f"api.meteo.example/v1/station/{code}/cumulative"
-            # Start each season partway through, so a demo does not wait for
-            # rain to accumulate from nothing.
-            fraction = self.rng.uniform(0.2, 0.45)
+            # Where the station stands in its own calendar right now. A season
+            # already under way is picked up partway through, so a demo started
+            # in June does not wait for rain to accumulate from nothing; one
+            # started between seasons stands at zero until the next opening,
+            # which is what the station itself would be doing.
+            this_year = dt.date(today.year, *station.opens)
+            if this_year <= today < this_year + dt.timedelta(days=station.window_days):
+                opens, progress = this_year, float((today - this_year).days)
+            else:
+                opens, progress = station.opens_on_or_after(today), 0.0
             reading = EdgeReading(
                 reference=reference,
                 fields={
@@ -371,7 +394,8 @@ class Chain:
                 attested_at=now,
                 publisher="national meteorological service",
                 index_field="rainfall_mm",
-                progress_days=station.window_days * fraction,
+                progress_days=progress,
+                season_opens_at=self._midnight(opens),
             )
             self._start_season(reading, station)
             self.readings[reference] = reading
@@ -598,6 +622,13 @@ class Chain:
             self.refused_rounds += 1
             return outcome
 
+        if (
+            field in self.RUNNING_MAX
+            and isinstance(settled, (int, float))
+            and float(settled) > float(reading.fields.get(field, 0.0) or 0.0)
+        ):
+            reading.peak_at = self.timestamp
+            reading.peak_wall = time.time()
         reading.fields[field] = settled
         reading.attested_at = self.timestamp
         if final is not None:
@@ -801,8 +832,20 @@ class Chain:
 
         return touched
 
+    @staticmethod
+    def _midnight(day: dt.date) -> float:
+        return dt.datetime.combine(day, dt.time(), dt.timezone.utc).timestamp()
+
     def _advance_rainfall(self, reading: EdgeReading, elapsed_days: float) -> bool:
-        """Accumulate rainfall through the season, then close the window.
+        """Accumulate rainfall through the station's season, then close it, then
+        wait for the next one.
+
+        The season is a range of dates in the calendar, the same every year at
+        that station, because that is what the policies written on it say. So
+        this source is not a hundred and fifty day timer that starts whenever
+        it is asked: it opens on the station's own day, fills, closes, and
+        stands at zero until the next year's opening. The months between two
+        seasons measure nothing, and no policy covers them.
 
         Nothing settles until the window closes. A running total that happens
         to be low in June says nothing about the harvest, and a policy that
@@ -811,6 +854,32 @@ class Chain:
         code = reading.reference.split("/station/")[1].split("/")[0]
         station = STATIONS.get(code)
         if station is None:
+            return False
+
+        world = self.world_clock()
+        if not reading.season_opens_at:
+            reading.season_opens_at = world - reading.progress_days * 86400.0
+
+        if float(reading.fields.get("window_closed", 0) or 0):
+            # Between two seasons. The next one opens on the station's day in
+            # the following year, and until then there is nothing to report.
+            opened = dt.datetime.fromtimestamp(
+                reading.season_opens_at, dt.timezone.utc
+            ).date()
+            nxt = self._midnight(station.opens_on_or_after(opened + dt.timedelta(days=1)))
+            if world < nxt:
+                return False
+            reading.fields["window_closed"] = 0
+            reading.progress_days = 0.0
+            reading.final = False
+            reading.season_opens_at = nxt
+            self._start_season(reading, station)
+            reading.attested_at = self.timestamp
+            return True
+
+        if world < reading.season_opens_at:
+            # Bought before the season opens, which is the ordinary case: the
+            # cover starts on the opening day and nothing before it is measured.
             return False
 
         reading.progress_days += elapsed_days
@@ -1062,6 +1131,15 @@ class Chain:
             if not result:
                 continue
 
+            if self._too_early(armed):
+                # Inside the waiting period, or paid on a figure from before
+                # it ended. Nothing happens and the policy stays armed.
+                armed.policy.metadata["held_in_waiting"] = {
+                    "block": height, "index": self._observed_index(armed),
+                    "starts_at": armed.policy.starts_at,
+                }
+                continue
+
             armed.condition_block = height
             final = height + self.confirm_blocks(armed.policy)
             index_now = self._observed_index(armed)
@@ -1136,6 +1214,8 @@ class Chain:
         if float(reading.fields.get(reading.index_field, 0.0) or 0.0) > 0:
             reading.fields[reading.index_field] = 0.0
             reading.attested_at = self.timestamp
+            reading.peak_at = 0.0
+            reading.peak_wall = 0.0
 
     def _disarm(self, account: str) -> None:
         armed = self.armed.pop(account, None)
@@ -1263,6 +1343,69 @@ class Chain:
             self._reset_if_idle(reference)
         return done
 
+    def world_now(self, policy: Policy) -> float:
+        """The time a policy's own term is measured in.
+
+        Cover bought by a person, who declared an interest in it, runs in the
+        time on the document, however fast the rest of the demonstration's
+        world is turning. A year of cover that ended in thirteen minutes would
+        be a lie to its holder. That is the clock, not the chain's timestamp,
+        which stands still while the service is down and moves at the block
+        rate. Everything else runs at the demonstration's pace.
+        """
+        if (policy.metadata or {}).get("interest"):
+            return time.time()
+        return self.world_time(self.timestamp, policy)
+
+    def world_clock(self) -> float:
+        """The demonstration's own calendar time: the chain's clock, run out at
+        the acceleration the demonstration's world turns at."""
+        return self.genesis + (self.timestamp - self.genesis) * self.config.world_acceleration
+
+    def world_time(self, at: float, policy: Policy) -> float:
+        """A moment on the chain's clock, read on the clock this policy's term
+        is written in. The two are the same for cover someone actually bought
+        and a long way apart for the demonstration's own book."""
+        if (policy.metadata or {}).get("interest"):
+            return at
+        return self.genesis + (at - self.genesis) * self.config.world_acceleration
+
+    def _too_early(self, armed: ArmedPolicy) -> bool:
+        """Whether this policy's cover has not started yet, or the figure that
+        would pay it belongs to a day before it started.
+
+        The waiting period is enforced here, at the one place that decides
+        whether a policy pays. Two ways an early event reaches this point. The
+        obvious one is that the block falls inside the waiting period. The
+        other is subtler: the sources whose index is a running maximum keep the
+        highest figure they have seen, so a storm during the wait would still
+        be standing in the reading on the morning the cover starts and would
+        settle a policy it has nothing to do with. Both are the same answer.
+        An event inside the wait pays nothing and ends nothing: the policy
+        stays armed and its cover starts on the day the document names.
+        """
+        policy = armed.policy
+        started = float(policy.starts_at or 0.0)
+        if not started:
+            return False
+        now = self.world_now(policy)
+        if now < started:
+            return True
+        reading = self.readings.get(policy.data_reference)
+        if reading is None or reading.index_field not in self.RUNNING_MAX:
+            return False
+        # Read on the clock this policy's term is written in. For cover a person
+        # bought that is the clock outside; for the demonstration's own book it
+        # is the chain's timestamp, run out at the pace its world turns.
+        if (policy.metadata or {}).get("interest"):
+            raised = float(reading.peak_wall or 0.0)
+        else:
+            raised = float(reading.peak_at or 0.0)
+            raised = self.world_time(raised, policy) if raised else 0.0
+        if not raised:
+            return False
+        return raised < started
+
     def _expire_overdue(self, height: int) -> list[Settlement]:
         """Close policies whose term and grace period have both passed.
 
@@ -1272,18 +1415,7 @@ class Chain:
         done: list[Settlement] = []
         for account, armed in list(self.armed.items()):
             policy = armed.policy
-            if (policy.metadata or {}).get("interest"):
-                # Bought by a person, who declared an interest in it: its term
-                # runs in the time on the document, however fast the rest of
-                # the demonstration's world is turning. A year of cover that
-                # ended in thirteen minutes would be a lie to its holder. The
-                # clock, not the chain's timestamp, which stands still while
-                # the service is down and moves at the block rate.
-                world_now = time.time()
-            else:
-                world_now = self.genesis + (
-                    (self.timestamp - self.genesis) * self.config.world_acceleration
-                )
+            world_now = self.world_now(policy)
             if world_now < policy.deadline_at:
                 continue
 

@@ -91,6 +91,13 @@ class Storm(Peril):
     )
     basis_risk_level = "high"
 
+    # Ten days. A named storm is forecast on the news roughly a week before it
+    # arrives, and the models that feed those forecasts run out to about ten
+    # days; past that the atmosphere is not predictable at all. So ten days is
+    # where cover stops being a bet on the weather and starts being a bet on
+    # the news.
+    waiting_days = 10.0
+
     @property
     def territory(self) -> frozenset[str]:  # type: ignore[override]
         return frozenset({"TR"}) if model()["validation"].get("passed") else frozenset()

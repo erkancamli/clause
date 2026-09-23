@@ -558,6 +558,12 @@ class Pool:
 
         reasons: list[str] = []
 
+        # Timing first: it is the one reason a bigger pool would not fix, and
+        # the buyer should hear it before anything about capital.
+        refusal = peril.refuse_to_write(candidate.subject)
+        if refusal:
+            reasons.append(refusal)
+
         required = self.required_capital(candidate, book=book)
         if required > balance:
             reasons.append(

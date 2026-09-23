@@ -1393,16 +1393,26 @@ def create_app(
         from ..protocol.instalments import build as build_plan
         peril = get_peril(peril_key)
         subject = peril.validate_subject(subject)
+        # The contract says when the cover starts, and for every peril here
+        # that is not the day it was bought. Worked out the same way the policy
+        # will work it out, so the document and the policy cannot disagree.
+        bought_at = time.time()
+        if starts_at is None:
+            starts_at = bought_at + peril.starts_in_days(subject, now=bought_at) * 86400.0
         rule = cooling_off_for(country)
         fee = fronting_fee_of(carrier_id, premium)
         carrier = registry.carriers.get(carrier_id or "")
         licence = None
         if carrier is not None:
             licence = next((l for l in carrier.licences if l.country == (peril.risk_country(subject) or country)), None)                 or (carrier.licences[0] if carrier.licences else None)
+        # Counted from the day the premium is paid, which is the day the policy
+        # is bought, and not from the day the cover starts: the first part is
+        # taken at the till and the rest fall due at even intervals after it.
         plan = build_plan(country, term_days, instalments, premium, fee,
-                          starts_at=starts_at or time.time())
+                          starts_at=bought_at)
         text = contract_mod.render(
             peril=peril, subject=subject, limit=limit, term_days=term_days, premium=premium, fee=fee,
+            starts_at=starts_at, bought_at=bought_at,
             carrier={"name": carrier.name, "authority": licence.authority if licence else "",
                      "specimen": carrier.specimen} if carrier else None,
             holder=holder, country=country,
@@ -1733,6 +1743,19 @@ def create_app(
         counting.count("priced", request.peril)
         return await price(request)
 
+    def cover_starts(peril: Any, subject: dict[str, Any], *, now: float | None = None) -> dict[str, Any]:
+        """When cover on this subject would start, and the rule behind it."""
+        at = now if now is not None else time.time()
+        wait = peril.starts_in_days(subject, now=at)
+        return {
+            # Days until the cover starts, which is the peril's waiting period
+            # for four of them and the time until the season opens for drought.
+            "starts_in_days": round(wait, 3),
+            "waiting_days": peril.waiting_days,
+            "starts_at": round(at + wait * 86400.0),
+            "refusal": peril.refuse_to_write(subject, now=at),
+        }
+
     async def price(request: QuoteRequest) -> dict[str, Any]:
         """The quote itself, for the route above and for the routes that
         build on it (offers, a partner's quote) without spending the
@@ -1792,6 +1815,11 @@ def create_app(
                 "on_missing_data": peril.data_source(subject).on_missing_data,
             },
             "predicate": peril.predicate(subject, curve, "quote"),
+            # When this cover would start if it were bought now, and why it is
+            # not today. The page shows it beside the price: a buyer who is
+            # told after paying that the cover begins next week has been told
+            # too late.
+            "cover": cover_starts(peril, subject),
         }
 
     @app.get("/api/instalments")
@@ -1994,7 +2022,8 @@ def create_app(
                     peril_key=request.peril, subject=subject, limit=limit, term_days=term_days,
                     premium=round(policy.premium, 2), carrier_id=(policy.metadata or {}).get("carrier"), holder="",
                     country=request.interest.country.upper(), instalments=getattr(request, "instalments", 1) or 1,
-                    address=clean_address(request.interest.address), value_basis=basis)
+                    address=clean_address(request.interest.address), value_basis=basis,
+                    starts_at=policy.starts_at)
                 policy.metadata["contract"] = text
                 policy.metadata["contract_hash"] = digest_
                 policy.metadata["disclosure"] = {"served_at": policy.bought_at, "hash": digest_,
@@ -5193,7 +5222,7 @@ def create_app(
         "storm": {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "Kadıköy"},
         "vehicle_flood": {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "Kadıköy"},
         "drought": {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 50.0},
-        "flight_delay": {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon()},
+        "flight_delay": {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"},
     }
 
     @app.get("/api/rulebook")
@@ -5958,10 +5987,10 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
         ("drought", {"station": "TR-EDIRNE", "distance_km": 4.0, "hectares": 80.0}, 70_000, 150, "edirne.farm"),
         ("drought", {"station": "TR-ADANA", "distance_km": 9.0, "hectares": 55.0}, 65_000, 140, "cukurova.farm"),
         ("drought", {"station": "TR-SANLIURFA", "distance_km": 22.0, "hectares": 40.0}, 55_000, 140, "urfa.farm"),
-        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon()}, 1_500, 2, "traveller.a"),
-        ("flight_delay", {"route": "TK-IST-JFK", "flight_number": "TK0003", "departure_date": _soon()}, 2_000, 2, "traveller.b"),
-        ("flight_delay", {"route": "PC-SAW-ESB", "flight_number": "PC2310", "departure_date": _soon(1)}, 800, 2, "traveller.c"),
-        ("flight_delay", {"route": "BA-LHR-IST", "flight_number": "BA0676", "departure_date": _soon(1)}, 1_200, 2, "traveller.d"),
+        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"}, 1_500, 2, "traveller.a"),
+        ("flight_delay", {"route": "TK-IST-JFK", "flight_number": "TK0003", "departure_date": _soon(), "departure_time": "13:20"}, 2_000, 2, "traveller.b"),
+        ("flight_delay", {"route": "PC-SAW-ESB", "flight_number": "PC2310", "departure_date": _soon(1), "departure_time": "18:05"}, 800, 2, "traveller.c"),
+        ("flight_delay", {"route": "BA-LHR-IST", "flight_number": "BA0676", "departure_date": _soon(1), "departure_time": "09:15"}, 1_200, 2, "traveller.d"),
     ]
 
     for peril, subject, limit, term, label in opening:
@@ -6010,9 +6039,9 @@ async def _arrivals(
         ("drought", {"station": "TR-KONYA", "distance_km": 7.0, "hectares": 55.0}, (40_000, 95_000), 150),
         ("drought", {"station": "TR-EDIRNE", "distance_km": 5.0, "hectares": 70.0}, (40_000, 85_000), 150),
         ("drought", {"station": "TR-ADANA", "distance_km": 11.0, "hectares": 60.0}, (35_000, 80_000), 140),
-        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(7)}, (900, 2_400), 2),
-        ("flight_delay", {"route": "TK-IST-AMS", "flight_number": "TK1953", "departure_date": _soon(7)}, (900, 2_200), 2),
-        ("flight_delay", {"route": "LH-FRA-IST", "flight_number": "LH1302", "departure_date": _soon(8)}, (800, 2_000), 2),
+        ("flight_delay", {"route": "TK-IST-LHR", "flight_number": "TK1979", "departure_date": _soon(7), "departure_time": "07:45"}, (900, 2_400), 2),
+        ("flight_delay", {"route": "TK-IST-AMS", "flight_number": "TK1953", "departure_date": _soon(7), "departure_time": "11:30"}, (900, 2_200), 2),
+        ("flight_delay", {"route": "LH-FRA-IST", "flight_number": "LH1302", "departure_date": _soon(8), "departure_time": "16:40"}, (800, 2_000), 2),
     ]
     from ..perils import STORM
     if STORM.territory:

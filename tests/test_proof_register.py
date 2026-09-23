@@ -15,6 +15,8 @@ policy it was.
 from __future__ import annotations
 
 import pytest
+
+from conftest import start_cover
 from fastapi.testclient import TestClient
 
 from clause.api.app import create_app
@@ -47,6 +49,7 @@ def write(pool: Pool, chain: Chain, subject: dict, limit: float, term: float):
         term_days=term, holder="holder",
     )
     chain.register(policy)
+    start_cover(chain, policy)
     return policy
 
 
@@ -132,6 +135,7 @@ def test_the_endpoint_is_public_and_carries_the_book_figures() -> None:
             holder=funded("proof-register-holder", 100_000.0),
         )
         chain.register(policy)
+        start_cover(chain, policy)
         chain.attest(KADIKOY, "max_magnitude", 7.2)
         for _ in range(chain.confirm_blocks(policy) + 4):
             chain.produce_block()

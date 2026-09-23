@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import pytest
 
+from conftest import start_cover
+
 from clause.chain import Chain, ChainConfig
 from clause.pricing import PricingEngine
 from clause.protocol import (
@@ -116,6 +118,7 @@ def test_a_payout_reaches_the_holder_without_the_holder_doing_anything() -> None
         limit=200_000, term_days=365, holder=buyer,
     )
     chain.register(policy)
+    start_cover(chain, policy)
     after_premium = wallets.require(buyer).balance
 
     chain.attest(KADIKOY, "max_magnitude", 7.2)
@@ -137,6 +140,7 @@ def test_a_refund_reaches_the_holder_when_the_source_goes_quiet() -> None:
         limit=55_000, term_days=140, holder=buyer,
     )
     chain.register(policy)
+    start_cover(chain, policy)
     chain.silence("api.meteo.example/v1/station/TR-SANLIURFA/cumulative")
     after_premium = wallets.require(buyer).balance
 
@@ -158,6 +162,7 @@ def test_value_is_conserved_between_the_pool_and_the_addresses() -> None:
             limit=60_000, term_days=365, holder=buyer,
         )
         chain.register(policy)
+        start_cover(chain, policy)
 
     chain.attest(KADIKOY, "max_magnitude", 7.2)
     for _ in range(4):

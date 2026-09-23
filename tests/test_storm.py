@@ -15,6 +15,8 @@ from __future__ import annotations
 import json
 
 import pytest
+
+from conftest import cover_has_started
 from fastapi.testclient import TestClient
 
 from clause.api.app import create_app
@@ -170,6 +172,7 @@ def test_a_storm_policy_settles_on_the_wind_reading_and_the_price_holds_in_the_b
         chain, pool = app.state.chain, app.state.pool
         found = pool.policies[policy["policy_id"]]
         attachment = STORM.curve_for(found.subject).attachment
+        cover_has_started(found)
         # A windy day short of the trigger pays nothing; one at it pays the first band.
         chain.attest(found.data_reference, "wind_24h_kmh", round(attachment - 1.0, 1))
         for _ in range(3):

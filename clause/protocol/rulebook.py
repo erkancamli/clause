@@ -43,6 +43,9 @@ RULES: dict[str, dict[str, Any]] = {
         ],
         "final_data": "The reviewed magnitude as published 7 days after the origin time; for shaking, the ShakeMap or national shaking map version current 72 hours after the origin time",
         "freeze_hours": 168,
+        "waiting": (
+            "Cover starts 7 days after it is bought and then runs its full term. An earthquake whose origin time falls in those 7 days pays nothing, and the policy is not cancelled by it: the cover starts on its day and the term is unchanged. The wait is there because an aftershock sequence is public knowledge from the moment the mainshock is felt, and cover bought on that knowledge is priced for someone who does not have it"
+        ),
         "criteria": [
             "The event's origin time falls inside the policy term",
             "The epicentre or the address falls inside the radius or the grid cell the policy names",
@@ -60,6 +63,9 @@ RULES: dict[str, dict[str, Any]] = {
         ],
         "final_data": "The station's quality-controlled daily value as published 14 days after the day; a reanalysis figure is final when the month is published",
         "freeze_hours": 336,
+        "waiting": (
+            "Cover starts 10 days after it is bought and then runs its full term. A day inside those 10 days pays nothing however hard the wind blows, and the policy is not cancelled by it. The wait is longer than any weather forecast can see, so the cover is bought against the weather and not against the news"
+        ),
         "criteria": [
             "The day falls inside the policy term",
             "The station is within 25 km of the address, or the grid cell contains it",
@@ -77,6 +83,9 @@ RULES: dict[str, dict[str, Any]] = {
         ],
         "final_data": "The station's quality-controlled daily total as published 14 days after the day",
         "freeze_hours": 336,
+        "waiting": (
+            "Cover starts 10 days after it is bought and then runs its full term. A day inside those 10 days pays nothing however much rain falls, and the policy is not cancelled by it. The wait is longer than any rainfall warning runs ahead of the rain"
+        ),
         "criteria": [
             "The day falls inside the policy term",
             "The station is within 25 km of the address, or the grid cell contains it",
@@ -94,8 +103,11 @@ RULES: dict[str, dict[str, Any]] = {
         ],
         "final_data": "The cumulative total as published 14 days after the season ends",
         "freeze_hours": 336,
+        "waiting": (
+            "Cover starts on the day the station's season opens, and the season it measures is that one, from its first day to its last. Sales for a season close 15 days before it opens: a season already under way cannot be insured, because part of its rain has already fallen and both sides can see how much, and cover bought after the deadline is cover for the following season. The deadline and the season's own dates are on the policy before it is bought"
+        ),
         "criteria": [
-            "The season's start and end are the policy's",
+            "The season's start and end are the policy's, and they are calendar dates fixed for the station, not counted from the day the cover was bought",
             "Gaps of up to 5 days are filled from the neighbouring station; longer gaps switch the source for the gap only",
             "A total that falls below the station's lowest recorded season is checked against the neighbour before it settles",
         ],
@@ -110,8 +122,11 @@ RULES: dict[str, dict[str, Any]] = {
         ],
         "final_data": "The arrival time as published 3 days after the scheduled date; a cancellation or a diversion counts as the longest delay the policy pays on",
         "freeze_hours": 72,
+        "waiting": (
+            "There is no waiting period, because the cover names one flight and a wait would leave that flight outside the cover rather than inside it. Instead the cover has to be bought at least 24 hours before the scheduled departure, counted from the time on the ticket in the clock of the airport the flight leaves from. Inside that last day the aircraft is assigned and the crew is rostered, and a schedule already slipping can be read off any flight tracker, so cover bought there is bought on what the price does not know"
+        ),
         "criteria": [
-            "The flight number and date are the policy's; a rebooking onto another flight is not this flight",
+            "The flight number, date and scheduled departure are the policy's; a rebooking onto another flight is not this flight",
             "Arrival means the aircraft's gate arrival, not touchdown, where both are published",
             "Two sources within 10 minutes of each other, or one source 3 days after the date",
         ],
@@ -149,6 +164,8 @@ def contract_lines(key: str, *, deadline_days: int | None = None, on_missing_dat
     lines.append(f"    Final figure: {r['final_data']}; the figure is frozen {r['freeze_hours'] // 24} days after the event and later revisions do not reopen a settlement.")
     for c in r["criteria"]:
         lines.append(f"    Test: {c}.")
+    if r.get("waiting"):
+        lines.append(f"    When the cover applies: {r['waiting']}.")
     if attestation:
         lines.append(f"    Attestation: {attestation}")
     if deadline_days:

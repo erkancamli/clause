@@ -206,6 +206,13 @@ class Earthquake(Peril):
     )
     basis_risk_level = "high"
 
+    # Seven days. An earthquake gives no warning, so nothing can be bought on a
+    # forecast; what can be bought is the aftershock sequence, which is public
+    # the moment the mainshock is felt and is where the next weeks of shaking
+    # actually sit. Seven days covers the part of that sequence a buyer can see
+    # coming. It also covers the hour someone reaches for a phone mid-shake.
+    waiting_days = 7.0
+
     # Two kinds of model. Türkiye is priced by the fault model in geo.py, which
     # knows its named faults. Everywhere else is priced by a gridded model built
     # from the catalogue (clause.hazard), and only where that model passed its

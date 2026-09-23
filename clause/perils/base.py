@@ -259,6 +259,37 @@ class Peril(ABC):
     #: promising cover the protocol cannot price.
     territory: frozenset[str] | None = None
 
+    #: Days between buying the cover and the cover starting. The price is the
+    #: probability of an event in an ordinary term, worked out for someone who
+    #: does not know whether one is coming. A forecast breaks that: a storm is
+    #: named on the news a week before it arrives, an earthquake is already
+    #: shaking while a page is loading, and cover bought in those hours is
+    #: bought by someone who does know. The premium they would pay is the
+    #: premium of a person who does not, so the pool loses the difference on
+    #: every such policy and the people who bought early pay for it. The wait
+    #: is set past the point where the event is public knowledge, per peril,
+    #: and is stated on the policy. It does not shorten the cover: the term
+    #: runs its full length from the day it starts.
+    waiting_days: float = 0.0
+
+    def starts_in_days(self, subject: dict[str, Any], *, now: float | None = None) -> float:
+        """How long after the sale this particular cover starts.
+
+        The waiting period for most perils, and for a seasonal index the time
+        until the season itself opens, which is not a fixed number of days.
+        """
+        return self.waiting_days
+
+    def refuse_to_write(self, subject: dict[str, Any], *, now: float | None = None) -> str:
+        """Why this cover must not be written right now, or "" if it may be.
+
+        For most perils the waiting period above is the whole answer. A few
+        cannot use it: flight cover names the flight it insures, so a wait
+        would leave the insured flight outside the cover rather than inside
+        it. Those perils refuse the sale instead, here.
+        """
+        return ""
+
     def risk_country(self, subject: dict[str, Any]) -> str | None:
         """Where the insured thing is, when that is what a licence must cover.
 
@@ -332,6 +363,7 @@ class Peril(ABC):
             "unit": self.unit,
             "basis_risk": self.basis_risk,
             "basis_risk_level": self.basis_risk_level,
+            "waiting_days": self.waiting_days,
         }
 
 

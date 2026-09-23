@@ -35,7 +35,8 @@ def render(
     *, peril: Any, subject: dict[str, Any], limit: float, term_days: float,
     premium: float, fee: float, carrier: dict[str, Any] | None, holder: str,
     country: str, cancellation: dict[str, Any], plan: dict[str, Any] | None = None,
-    starts_at: float | None = None, address: dict[str, Any] | None = None,
+    starts_at: float | None = None, bought_at: float | None = None,
+    address: dict[str, Any] | None = None,
     value_basis: str = "", attestation: str = "",
 ) -> str:
     """The contract, as plain text with headings. Deterministic in its inputs."""
@@ -52,6 +53,28 @@ def render(
         parts = [address.get(k, "") for k in ("street", "number", "flat", "postcode", "city")]
         where = ", ".join(str(p) for p in parts if p) + f" ({where})"
     start = _when(starts_at) if starts_at else "the day the application is approved"
+    # The wait between buying the cover and the cover starting, said in the
+    # contract rather than left to be discovered from two dates. A policy whose
+    # cover has not started is the single thing a buyer is most likely to be
+    # wrong about, so it is written where the term is, not only in section 10.
+    waited = max(0.0, (starts_at - (bought_at or starts_at)) / 86400.0) if starts_at else 0.0
+    start_lines: list[str] = []
+    if waited >= 1 and getattr(peril, "key", "") == "drought":
+        start_lines.append(
+            f"    Cover does not start on the day it is bought. It starts on {start}, the day "
+            f"this station's season opens, and it measures that season to its last day. Nothing "
+            f"before {start} is covered, and nothing before it ends this policy either: a season "
+            f"already under way is not the one this policy is written on. Section 10 says why, "
+            f"and when sales for a season close."
+        )
+    elif waited >= 1:
+        start_lines.append(
+            f"    Cover does not start on the day it is bought. It starts on {start}, "
+            f"{waited:.0f} days later, and runs its full {term_days:g} days from there. "
+            f"Nothing that happens before {start} is covered, and nothing that happens "
+            f"before {start} ends this policy either: the cover starts on that day "
+            f"whatever the weeks before it brought. Section 10 says why."
+        )
     cool = cancellation.get("cooling_off_days", 0)
     law = cancellation.get("law", "")
     if not plan or plan.get("count", 1) <= 1:
@@ -84,6 +107,7 @@ def render(
         f"    Where: {where}.",
         f"    The most this policy pays: {_money(limit)}." + (f" Basis of that ceiling: {value_basis}." if value_basis else ""),
         f"    Term: {term_days:g} days from {start}.",
+    ] + start_lines + [
         "",
         "3. When it pays, and how much",
         f"    The index is {peril.index_name}, measured in {unit}, published by {source.publisher}.",

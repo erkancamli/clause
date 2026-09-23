@@ -46,6 +46,71 @@ Two sources before one. Where two independent sources agree within a
 stated tolerance the reading settles at once; a single source settles only
 once its own revision window has passed.
 
+## When the cover starts, and why it is not the day it is bought
+
+A premium is the chance of an event in a term of so many days, worked out
+for a buyer who does not know whether one is coming. Almost every peril
+here breaks that assumption in the same way: the event is public before it
+happens. A named storm is on the news about a week before it lands and the
+models behind those forecasts run out to roughly ten days. An earthquake
+gives no warning, but its aftershock sequence is public from the moment the
+mainshock is felt, and that sequence is where the next weeks of shaking
+actually sit. A dry season is not forecast at all — it is watched — and by
+the time a farmer knows the rain has not come, weeks of the window are gone
+and the total is already low. An airline knows its aircraft is late hours
+before the passenger does.
+
+Cover bought inside those windows is bought by someone who knows more than
+the price does, and the pool loses the difference on every such policy. The
+people who bought early pay for it. So each peril answers it in the way its
+own index allows, and the answer goes into the rulebook (`waiting` in
+`RULES`) and therefore into section 10 of every contract:
+
+| Peril | Rule |
+|---|---|
+| Earthquake | Cover starts 7 days after it is bought |
+| Storm | Cover starts 10 days after it is bought |
+| Vehicle flood | Cover starts 10 days after it is bought |
+| Drought | Cover starts on the day the station's season opens, and sales for a season close 15 days before that |
+| Flight delay | No wait; the cover has to be bought at least 24 hours before the scheduled departure |
+
+Three things follow, and each is stated rather than left to be worked out.
+
+**The wait does not shorten the cover.** A year bought is a year of cover;
+it starts later and ends later. Nothing about the price changes either: a
+window of a given length costs the same wherever it is put, for a hazard
+that does not know what day it is, which is why `build_policy` moves
+`starts_at` and leaves `term_days` alone.
+
+**An event inside the wait pays nothing and ends nothing.** This is the
+part a policy elsewhere often gets wrong. The cover starts on the day the
+document names whatever the weeks before it brought; the policy is not
+cancelled and the premium is not returned. `Chain._too_early` is the one
+place that decides it, and it catches two cases: the block falling inside
+the wait, and — less obvious — a source whose index is a running maximum
+still carrying the figure a storm set during the wait on the morning the
+cover starts. The second needs `EdgeReading.peak_at`, when the maximum was
+last raised, because `attested_at` only says when the source last spoke and
+a quiet day speaks too.
+
+**Drought is a sales deadline, not a wait.** A season is 150 days long and
+cannot be waited out, so `Station.opens` makes the season a range of dates
+in the calendar, the same every year, and the season a policy measures is
+the next one to open. `Drought.refuse_to_write` closes sales 15 days before
+it does; cover bought after that is cover for the following season, and
+both dates are on the quote and in the contract before anything is paid.
+The chain's own rainfall source follows the same calendar: it opens on the
+station's day, fills, closes, and stands at zero until the next year's
+opening, so the months between two seasons measure nothing and no policy
+covers them.
+
+Flight is the exception that proves the shape of the rest: the cover names
+one flight, so a waiting period would put that flight outside the cover
+instead of inside it. It refuses the sale instead, and because a date alone
+is a different instant in every timezone, the subject carries the scheduled
+departure time and `FlightDelay.departs_at` reads it in the clock of the
+airport the flight leaves from.
+
 ## What is not here yet
 
 The objection is recorded and answered by the operator; there is no

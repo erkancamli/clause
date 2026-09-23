@@ -155,7 +155,10 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
         return {**out, "allowed": True, "refund": round(refundable, 2), "basis": "cooling_off",
                 "until": right["until"], "reason": reason}
     if policy.peril_key in UNFORESEEABLE:
-        left = max(0.0, (policy.ends_at - now) / term) if term > 0 else 0.0
+        # Never more than the whole term: cover cancelled before it has started
+        # has all of its days left, not more than all of them, and "the
+        # unexpired 103% of the term" is not a sentence to send anyone.
+        left = min(1.0, max(0.0, (policy.ends_at - now) / term)) if term > 0 else 0.0
         used = policy.premium * (1.0 - left)
         # What was paid, less the cover already used; never below zero, and a
         # plan that is behind its usage has nothing to get back.

@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.18.0, 23 September 2026
+
+- Cover no longer starts at the till. A premium is the chance of an event in a
+  term of so many days, worked out for a buyer who does not know whether one is
+  coming, and almost every peril here breaks that in the same way: a named
+  storm is on the news about a week before it lands, an aftershock sequence is
+  public from the moment the mainshock is felt, and an airline knows its
+  aircraft is late hours before the passenger does. Cover bought in those hours
+  is bought by someone who knows more than the price does, and the people who
+  bought early pay for it. So earthquake waits seven days, storm and vehicle
+  flood ten. The wait does not shorten the cover: a year bought is a year of
+  cover, starting later and ending later, and the price is unchanged, because a
+  window of a given length costs the same wherever it is put.
+- An event inside the wait pays nothing and ends nothing. The policy is not
+  cancelled and the premium is not returned; the cover starts on the day the
+  document names whatever the weeks before it brought. `Chain._too_early` is
+  the one place that decides it, and it catches the case that would otherwise
+  have been missed: a source whose index is a running maximum is still carrying
+  the figure a storm set during the wait on the morning the cover starts. That
+  needed a record of when the maximum was last raised, because when the source
+  last spoke is a different thing and a quiet day speaks too.
+- Drought could not use a waiting period, so it got the rule it actually
+  needs. A season is a hundred and fifty days long and cannot be waited out: by
+  the time a farmer knows the rain has not come, weeks of it are gone and the
+  total is already low. A station's season is now a range of dates in the
+  calendar, the same every year, rather than a hundred and fifty day timer that
+  started whenever a policy was bought — which is what it was, and which meant
+  there was nothing for a deadline to close against. The season a policy
+  measures is the next one to open, cover starts on its opening day, and sales
+  for a season close fifteen days before it. Cover bought after the deadline is
+  cover for the following season, and both dates are on the quote and in the
+  contract before anything is paid. The chain's own rainfall source follows the
+  same calendar: it opens on the station's day, fills, closes, and stands at
+  zero until the next year's opening.
+- Flight cover names one flight, so a wait would put that flight outside the
+  cover instead of inside it. It refuses the sale instead, and it can now do so
+  exactly: a departure date on its own is a different instant in every
+  timezone, so the subject carries the scheduled departure time and it is read
+  in the clock of the airport the flight leaves from. Cover has to be bought at
+  least twenty-four hours before that moment. The step asks for the time beside
+  the date, and says why.
+- Every rule above is a term of the policy, not a setting: it is written into
+  the rulebook, so it reaches section 10 of every contract and the Calculation
+  rules page, and section 2 now states the start date in words beside the term.
+- The price bar says what the cover pays at each reading, not only where it
+  starts paying. "Pays from magnitude 5.5" answered half of what a buyer was
+  asking; the other half — how much, at which reading — was only on the chart
+  further down the page. It is now the line beside the price, and a row of the
+  confirm step's summary, alongside the day the cover starts and one sentence
+  on why that is not today.
+
 ## 1.17.0, 23 September 2026
 
 - Cover held earns RIALO, paid by the platform out of its own fee. A
