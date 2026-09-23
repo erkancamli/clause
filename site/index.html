@@ -3974,6 +3974,15 @@ function show(route, moved){
   // A proof link carries the policy it is about: #/proof/CLS-XXXX
   var proof = route.match(/^\/proof(?:\/(.+))?$/);
   if (proof) { route = "/proof"; renderProof(proof[1] ? decodeURIComponent(proof[1]) : null); }
+  // And a purchase carries the question it is on: #/cover/3
+  var step = stepAsked(route);
+  if (step !== null) {
+    route = "/cover";
+    if (flow.step >= DONE_STEP) resetFlow();
+    flow.step = step;
+    renderStep();
+    if (location.hash !== stepHash(step)) settle(stepHash(step));
+  }
   if (route === "/rules") renderRules();
   if(!VIEWS[route])route="/";
   // Which screen, if any, the stylesheet showed before this script was read.
@@ -3995,6 +4004,43 @@ function show(route, moved){
   if(route==="/company")renderCompany();
   if(route==="/admin"){ whenLinked().then(bindOperator); }
   announce(route, moved);
+}
+
+/* Each question in a purchase is a place, with its own entry in the browser's
+   history: #/cover, then #/cover/2 through #/cover/5. Baymard's testing found
+   that people in a checkout reach for the browser's Back button rather than
+   for a Change link on the page, and that a flow living at a single address
+   throws them out of the purchase entirely when they do. Back is a step back
+   now, and every answer already given is still on the screen when they
+   arrive, which is what 3.3.7 asks for.
+
+   The done screen is not a question and takes no entry of its own: a purchase
+   that has gone through is not somewhere to return to. Going back from it
+   begins a fresh one at the first question rather than reopening a finished
+   one. */
+function stepHash(n){ return n > 1 && n < DONE_STEP ? "#/cover/" + n : "#/cover"; }
+function settle(hash){
+  try{ history.replaceState(null, "", location.pathname + location.search + hash); }
+  catch(e){ location.hash = hash; }
+}
+function goStep(n, quietly){
+  flow.step = n;
+  if(n > flow.reached)flow.reached = n;
+  var want = stepHash(n);
+  if(location.hash === want){ renderStep(); return; }
+  if(quietly){ settle(want); renderStep(); return; }
+  location.hash = want;                       // the hashchange draws it
+}
+function stepAsked(route){
+  var asked = route.match(/^\/cover(?:\/([2-9]))?$/);
+  if(!asked)return null;
+  var want = asked[1] ? +asked[1] : 1;
+  // Backwards is free. Forwards is not: a question the reader has not reached
+  // is a question whose answers do not exist, so a pasted or bookmarked link
+  // into the middle of a purchase that never started lands at the beginning.
+  if(flow.step >= DONE_STEP)return 1;
+  if(want > flow.reached)return flow.chosen ? flow.step : 1;
+  return want;
 }
 
 /* What this screen is called, in the language it is being read in.
@@ -4811,8 +4857,7 @@ function useAsset(a){
   if(a.kind==="home")flow.size={peril:flow.peril,kind:"home",building:z.building||"flat",area:String(z.area_m2||""),built:String(z.built||""),valid:false};
   if(a.kind==="field")flow.size={peril:"drought",kind:"field",crop:z.crop||"wheat",area:String(z.area_ha||""),unit:"hectare",valid:false};
   if(a.kind==="vehicle")flow.interest.modelYear=z.model_year||null;
-  if(flow.step<2)flow.step=2;
-  location.hash="#/cover"; renderStep();
+  goStep(Math.max(flow.step, 2));
 }
 function assetChipsHtml(){
   var kind=(flow.peril==="quake"||flow.peril==="storm")?"home":flow.peril==="car"?"vehicle":flow.peril==="drought"?"field":null;
@@ -5518,7 +5563,11 @@ var PERILS={
   flight:{where:N("Which flight?"),hint:N("Cover pays on how late the flight lands, and in full if it is cancelled."),
          term:2,limits:[200,5000],presets:[500,1000,1500,3000]}};
 var flow={
-  step:1, peril:"quake", subject:null, radius:50, limit:100000, instalments:1,
+  // The question being asked, and the furthest one ever asked. Going back to
+  // a question already answered is free in both directions; going forward to
+  // one never reached is not, and that is the difference the two record.
+  step:1, reached:1,
+  peril:"quake", subject:null, radius:50, limit:100000, instalments:1,
   // The declaration that separates cover from a wager.
   interest:{what:"", value:150000, inside:false, country:"TR", touched:false, declared:0, modelYear:null, address:null},
   place:null, busy:false, quoted:null, quotedFor:null, refusal:null, seq:0, stationKm:0,
@@ -6357,7 +6406,7 @@ function renderAnswers(){
         var target=$(to); if(target){ target.scrollIntoView({behavior:"smooth",block:"start"}); var f=target.querySelector("button,[tabindex]"); if(f)f.focus({preventScroll:true}); }
         return;
       }
-      flow.step=step; renderStep(); window.scrollTo({top:0,behavior:"smooth"});
+      goStep(step); window.scrollTo({top:0,behavior:"smooth"});
       var h=$(STEPS[step-1])&&$(STEPS[step-1]).querySelector("h2"); if(h){ h.setAttribute("tabindex","-1"); h.focus({preventScroll:true}); }
     });
   });
@@ -7001,13 +7050,12 @@ function choosePeril(key){
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
     if($("place"))$("place").value="";
+    flow.reached=1;
   }
   flow.peril=key; flow.chosen=true; flow.subject=null; flow.radius=50; flow.asset=null;
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
   flow.limit=PERILS[key].presets[1];
-  flow.step=2;
-  if(currentRoute()!=="/cover"){location.hash="#/cover";}
-  renderStep();
+  goStep(2);
 }
 
 Array.prototype.forEach.call($("home-picks").querySelectorAll(".pick"),function(b){
@@ -7017,7 +7065,7 @@ $("cover-range").addEventListener("input",function(e){
   flow.limit=limitFromSlider(+e.target.value);
   renderAmount(); updatePriceBar();
 });
-$("back").addEventListener("click",function(){if(flow.step>1){flow.step--;renderStep();}});
+$("back").addEventListener("click",function(){if(flow.step>1)goStep(flow.step-1);});
 
 /* "Get cover" means start: from the menu or the home page it opens on the first
    question with nothing chosen. It used to reopen whatever was chosen last in
@@ -7027,7 +7075,7 @@ $("back").addEventListener("click",function(){if(flow.step>1){flow.step--;render
    the answer to the first question. */
 function resetFlow(){
   if(flow.busy)return;
-  flow.step=1; flow.chosen=false; flow.subject=null; flow.place=null;
+  flow.step=1; flow.reached=1; flow.chosen=false; flow.subject=null; flow.place=null;
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
   flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
   flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
@@ -7047,7 +7095,7 @@ document.addEventListener("click",function(e){
   setTimeout(renderStep,0);
 });
 $("next").addEventListener("click",function(){
-  if(flow.step<CONFIRM_STEP){flow.step++;renderStep();return;}
+  if(flow.step<CONFIRM_STEP){goStep(flow.step+1);return;}
   var accepted=!link.live||(CONTRACT.hash&&CONTRACT.key===contractKey()&&$("accept").checked);
   if(!accepted){
     var box=$("contract-box"); box.hidden=false;
@@ -7855,7 +7903,7 @@ function sealAndSend(files,a,out){
 function showApplied(reply){
   var a=reply.application;
   LAST_DONE=function(){ showApplied(reply); };
-  flow.step=DONE_STEP; renderStep();
+  goStep(DONE_STEP, true);
   $("done-title").removeAttribute("data-i18n"); $("done-state").removeAttribute("data-i18n");
   $("done-title").textContent=t("Your application is with the insurer.");
   $("done-state").textContent=t("Waiting for the insurer's checks");
@@ -7914,7 +7962,7 @@ function showApplied(reply){
 function showDone(reply){
   var policy=reply.policy;
   LAST_DONE=function(){ showDone(reply); };
-  flow.step=DONE_STEP; renderStep();
+  goStep(DONE_STEP, true);
   $("done-title").removeAttribute("data-i18n"); $("done-state").removeAttribute("data-i18n");
   $("done-title").textContent=t("You are covered. There is nothing else to do.");
   $("done-state").textContent=t("Armed on chain");
@@ -7946,7 +7994,7 @@ function showDone(reply){
 function demoDone(){
   var q=quote();
   var id="CLS-"+Math.random().toString(16).slice(2,8).toUpperCase();
-  flow.step=DONE_STEP; renderStep();
+  goStep(DONE_STEP, true);
   $("done-id").textContent=id;
   $("done-copy").textContent=
     t("Nothing was bought. The protocol is not reachable from this page right now, "+

@@ -63,6 +63,36 @@ def test_the_router_names_the_page_and_moves_focus():
     assert 'heading.setAttribute("tabindex", "-1")' in PAGE
 
 
+def test_each_question_in_a_purchase_is_a_place():
+    """Baymard's finding, in the router: Back belongs to the buyer.
+
+    People in a checkout reach for the browser's Back button rather than for a
+    Change link on the page, and a flow living at one address throws them out
+    of the purchase when they do. So each question has its own entry, and the
+    address is corrected rather than obeyed when it asks for one the reader
+    has not reached.
+    """
+    assert 'function stepHash(n){ return n > 1 && n < DONE_STEP ? "#/cover/" + n : "#/cover"; }' in PAGE
+    assert "function goStep(n, quietly)" in PAGE
+    assert "function stepAsked(route)" in PAGE
+    # Nothing may move the question without moving the address with it.
+    assert "flow.step++" not in PAGE
+    assert "flow.step--" not in PAGE
+    assert "flow.step=DONE_STEP" not in PAGE
+    # Forwards is bounded by the furthest question ever asked, not by the one
+    # on the screen, or the browser's Forward button stops working.
+    assert "if(want > flow.reached)" in PAGE
+    assert "reached:1," in PAGE
+    # A purchase that has gone through is not somewhere to return to.
+    assert "goStep(DONE_STEP, true)" in PAGE
+    assert "if (flow.step >= DONE_STEP) resetFlow();" in PAGE
+
+
+def test_typing_fields_are_not_small_enough_to_zoom_ios():
+    """Under 16px, iOS Safari zooms the page and leaves the reader to pinch back."""
+    assert "textarea{font-size:16px}" in PAGE
+
+
 def test_the_language_switcher_says_what_choosing_does():
     assert SWITCHER in PAGE, "the switcher's label no longer warns that it acts at once"
     for lang in LANGS:
