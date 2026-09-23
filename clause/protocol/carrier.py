@@ -395,6 +395,11 @@ class Placement:
     reasons: tuple[str, ...]
     # The company the buyer chose, when they chose; else the cheapest.
     chosen: str | None = None
+    # Whether anyone held a licence for this at all, before appetite, room and
+    # concentration were looked at. "Nobody is licensed here" and "somebody is
+    # licensed and full" are different answers and the buyer is owed the right
+    # one; without this the caller cannot tell them apart.
+    licensed: bool = False
 
     @property
     def best(self) -> Offer | None:
@@ -566,6 +571,7 @@ class Registry:
             offers = []
         return Placement(
             placed=bool(offers) and bool(reinsurers),
+            licensed=licensed_here,
             offers=tuple(offers),
             reinsurers=reinsurers,
             reasons=tuple(reasons),
@@ -768,6 +774,35 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         fiat_payout_days=5.0,
     ))
 
+    # And a third, licensed for exactly what B is not. Two carriers only keep a
+    # country open for the perils they both write: B is licensed for earthquake
+    # and drought, so on the day A filled up, storm, vehicle flood and flight
+    # delay had nobody at all and three of the five covers on offer could not be
+    # bought in Türkiye. That is what happened. The rule the registry has to
+    # hold is not "two carriers per country" but "two per peril per country",
+    # and test_carrier_cover.py now fails if it stops holding.
+    registry.register(specimen(
+        carrier_id="specimen-tr-three",
+        name="Specimen Carrier D, Türkiye (not a real company)",
+        role=Role.CARRIER,
+        domicile="TR",
+        licences=(Licence(
+            country="TR", authority="SEDDK would supervise a real one",
+            reference="SPECIMEN, no licence exists",
+            perils=frozenset({"storm", "vehicle_flood", "flight_delay"}),
+            reach=Reach.RETAIL, settlement=FIAT_ONLY,
+            expires_at=now + 2 * YEAR,
+        ),),
+        appetite=Appetite(
+            max_limit=400_000, max_term_days=400,
+            perils=frozenset({"storm", "vehicle_flood", "flight_delay"}),
+        ),
+        capacity=7_000_000,
+        fronting_fee=0.068,
+        fiat_payout_days=3.0,
+        extra_cooling_off_days=7.0,
+    ))
+
     # One that passports across Europe and reaches a professional market
     # elsewhere, so the interface has a consumer refusal to show.
     registry.register(specimen(
@@ -798,6 +833,44 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=1_000_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=12_000_000,
         fronting_fee=0.045,
+    ))
+
+    # And a second across the same three, for the reason the third Turkish one
+    # exists: a country with one carrier is a country that closes when that
+    # carrier fills, and a buyer with one company to choose from is not
+    # choosing. The invariant is two per peril per country, and
+    # test_carrier.py holds it for every country in this registry rather than
+    # for the ones somebody remembered.
+    registry.register(specimen(
+        carrier_id="specimen-eu-two",
+        name="Specimen Carrier E, Europe (not a real company)",
+        role=Role.CARRIER,
+        domicile="DE",
+        licences=(
+            Licence(
+                country="DE", authority="BaFin would supervise a real one",
+                reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+                reach=Reach.RETAIL, settlement=FIAT_ONLY,
+                expires_at=now + 3 * YEAR,
+            ),
+            Licence(
+                country="IE", authority="the Central Bank of Ireland would supervise a real one, on a freedom of services basis",
+                reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+                reach=Reach.RETAIL, settlement=FIAT_ONLY,
+                expires_at=now + 3 * YEAR,
+            ),
+            Licence(
+                country="AE", authority="the DFSA would supervise a real one",
+                reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+                reach=Reach.PROFESSIONAL, settlement=BOTH_ASSETS,
+                expires_at=now + 2 * YEAR,
+            ),
+        ),
+        appetite=Appetite(max_limit=750_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000,
+        fronting_fee=0.052,
+        fiat_payout_days=2.0,
+        extra_cooling_off_days=14.0,
     ))
 
     for carrier_id in list(registry.carriers):
@@ -915,18 +988,36 @@ def refresh_specimens(registry: "Registry", *, now: float | None = None) -> int:
     A book saved by an earlier build carries the stand ins with the perils
     that build knew. A new peril would then be refused everywhere with "a
     company is registered here, but not for this risk", which is true of the
-    file and false of the demonstration. Only specimens are touched, and only
-    their licences and appetite: a real company's licence is what it
-    registered, and nothing here rewrites that. Status and reviews stay as
-    they are, so a stand in a reviewer suspended stays suspended.
+    file and false of the demonstration. A stand in the earlier build did not
+    have at all is the same problem and the worse half of it: the day Türkiye
+    gained a third carrier so that storm, vehicle flood and flight delay would
+    not close when the first one filled, a running deployment kept its saved
+    two and stayed closed. So one is registered here if it is missing.
+
+    Only specimens are touched, and only their licences, appetite and
+    existence: a real company's licence is what it registered, and nothing
+    here rewrites that. Status and reviews stay as they are, so a stand in a
+    reviewer suspended stays suspended.
     """
     now = time.time() if now is None else now
     current = {c.carrier_id: c for c in specimen_registry(now=now).carriers.values()}
     current.update({c.carrier_id: c for c in world_specimens(now=now)})
     refreshed = 0
+    world = {c.carrier_id for c in world_specimens(now=now)}
     for carrier_id, fresh in current.items():
         have = registry.carriers.get(carrier_id)
-        if have is None or not have.specimen:
+        if have is None:
+            # A stand in this build has and the saved registry does not. The
+            # per-country ones are the switch's business (add_world_specimens
+            # puts them in when it is on, retire takes them out when it is
+            # off), so only the named few are added back here.
+            if carrier_id in world:
+                continue
+            registry.register(fresh)
+            registry.activate(carrier_id, now=now)
+            refreshed += 1
+            continue
+        if not have.specimen:
             continue
         same = (tuple(l.perils for l in have.licences) == tuple(l.perils for l in fresh.licences)
                 and have.appetite.perils == fresh.appetite.perils)
@@ -946,7 +1037,8 @@ def retire_world_specimens(registry: "Registry", *, now: float | None = None) ->
     retired = 0
     for carrier in registry.carriers.values():
         if (carrier.specimen and carrier.carrier_id.startswith(f"specimen-{carrier.domicile.lower()}")
-                and carrier.carrier_id not in ("specimen-tr-one", "specimen-tr-two")
+                and carrier.carrier_id not in (
+                    "specimen-tr-one", "specimen-tr-two", "specimen-tr-three")
                 and carrier.status is Status.ACTIVE):
             registry.suspend(carrier.carrier_id, "stand in companies switched off", now=now)
             retired += 1

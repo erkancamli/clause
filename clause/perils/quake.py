@@ -206,12 +206,24 @@ class Earthquake(Peril):
     )
     basis_risk_level = "high"
 
-    # Seven days. An earthquake gives no warning, so nothing can be bought on a
+    # Seventy-two hours, and it is the one wait here that does not outlast what
+    # it is for. An earthquake gives no warning, so nothing can be bought on a
     # forecast; what can be bought is the aftershock sequence, which is public
-    # the moment the mainshock is felt and is where the next weeks of shaking
-    # actually sit. Seven days covers the part of that sequence a buyer can see
-    # coming. It also covers the hour someone reaches for a phone mid-shake.
-    waiting_days = 7.0
+    # from the moment the mainshock is felt. That sequence decays as roughly one
+    # over time, so it stays elevated for weeks, and a wait long enough to
+    # outlast it would be months of cover nobody would buy.
+    #
+    # What a wait can outlast is the rush. Buying is driven by attention and
+    # attention is measured in days, so three of them take in nearly all of the
+    # policies bought on a mainshock, and the hour somebody reaches for a phone
+    # mid-shake. It is also close to how earthquake cover is sold here, where
+    # DASK starts at midnight after the premium is paid; a week on a peril
+    # nobody can forecast would be conspicuous, and would read as a trick to
+    # anyone hit on the fifth day.
+    #
+    # So this does not price out the aftershock sequence. The pool carries the
+    # rest of it on purpose, and the rest of it is not small.
+    waiting_days = 3.0
 
     # Two kinds of model. Türkiye is priced by the fault model in geo.py, which
     # knows its named faults. Everywhere else is priced by a gridded model built

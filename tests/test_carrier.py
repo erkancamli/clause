@@ -461,3 +461,88 @@ def test_a_stand_in_saved_by_an_earlier_build_learns_the_new_peril_and_a_real_co
     assert any("storm" in l.perils for c in registry.carriers.values() if c.specimen and c.domicile == "TR"
                for l in c.licences)
     assert registry.carriers["real-tr"].licences[0].perils == frozenset({"earthquake"})
+
+
+# ---------------------------------------------------------------------------
+# Two carriers per peril, not two per country
+# ---------------------------------------------------------------------------
+
+
+def test_every_peril_offered_in_a_country_has_a_second_carrier() -> None:
+    """The failure this exists to stop, which happened.
+
+    Türkiye had two specimen carriers, which reads like enough. The second was
+    licensed for earthquake and drought only, so when the first crossed the
+    concentration limit against the pool — which the limit guarantees it
+    eventually will — storm, vehicle flood and flight delay had nobody left
+    that could write them, and three of the five covers on the site simply
+    could not be bought. Nothing failed loudly: the offers came back empty and
+    the buyer was told nobody was licensed.
+
+    So the rule is not two carriers in a country. It is two for each peril the
+    country is open for, because a carrier that cannot write a peril is not a
+    second carrier for it.
+    """
+    from collections import defaultdict
+
+    from clause.protocol.carrier import Reach, Role, Settlement, Status, specimen_registry
+
+    registry = specimen_registry()
+    writers: dict[tuple[str, str], set[str]] = defaultdict(set)
+    for carrier in registry.carriers.values():
+        if carrier.role is not Role.CARRIER or carrier.status is not Status.ACTIVE:
+            continue
+        for licence in carrier.licences:
+            for peril in licence.perils:
+                if carrier.appetite.perils and peril not in carrier.appetite.perils:
+                    continue
+                writers[(licence.country, peril)].add(carrier.carrier_id)
+
+    thin = {key: sorted(who) for key, who in writers.items() if len(who) < 2}
+    assert not thin, (
+        "one carrier is the whole market for these, so the country closes for "
+        f"them the day it fills up: {thin}"
+    )
+
+
+def test_a_refusal_says_whether_anyone_was_licensed_at_all() -> None:
+    """"Nobody is licensed here" and "somebody is, and is full" are different
+    answers, and the buyer is owed the true one. They were not told apart,
+    because placement is tried in stablecoin first and a country whose carriers
+    settle in the local currency only always failed that attempt with "nobody
+    is licensed", which was then the answer kept."""
+    from clause.protocol.carrier import Reach, Settlement, specimen_registry
+
+    registry = specimen_registry()
+    fiat = registry.place(country="TR", peril="storm", limit=20_000, term_days=365,
+                          asset=Settlement.FIAT, reach=Reach.RETAIL)
+    assert fiat.licensed and fiat.offers
+
+    coin = registry.place(country="TR", peril="storm", limit=20_000, term_days=365,
+                          asset=Settlement.STABLECOIN, reach=Reach.RETAIL)
+    assert not coin.licensed and not coin.offers
+
+
+def test_a_saved_registry_gains_a_stand_in_this_build_added() -> None:
+    """The half that would have kept a running deployment broken.
+
+    refresh_specimens brought a saved stand in's licences up to date but
+    skipped one that was not in the file at all, so the day Türkiye gained a
+    third carrier the fix reached the tests and not the deployment: it restores
+    its registry from disk, found two Turkish carriers, and storm, vehicle
+    flood and flight delay stayed unbuyable there.
+    """
+    from clause.protocol.carrier import Registry, refresh_specimens, specimen_registry
+
+    saved = Registry()
+    for carrier in specimen_registry().carriers.values():
+        if carrier.carrier_id == "specimen-tr-three":
+            continue
+        saved.register(carrier)
+        saved.activate(carrier.carrier_id)
+    assert "specimen-tr-three" not in saved.carriers
+
+    assert refresh_specimens(saved) >= 1
+    added = saved.carriers["specimen-tr-three"]
+    assert added.status is Status.ACTIVE
+    assert "storm" in {p for lic in added.licences for p in lic.perils}

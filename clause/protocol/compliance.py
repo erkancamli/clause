@@ -363,7 +363,13 @@ class ComplianceEngine:
             if attempt.placed:
                 placement, settled_as = attempt, candidate
                 break
-            if placement is None:
+            # Nothing placed. Keep whichever refusal says the most: an attempt
+            # that found somebody licensed knows the cover exists and the paper
+            # is full, and an attempt that found nobody only knows it tried the
+            # wrong asset. Keeping the first one meant a country with fiat-only
+            # carriers was always told "nobody is licensed here", because
+            # stablecoin is tried first and nobody there settles in it.
+            if placement is None or (attempt.licensed and not placement.licensed):
                 placement = attempt
 
         if placement is None or not placement.placed or settled_as is None:

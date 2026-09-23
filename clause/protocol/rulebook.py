@@ -44,7 +44,7 @@ RULES: dict[str, dict[str, Any]] = {
         "final_data": "The reviewed magnitude as published 7 days after the origin time; for shaking, the ShakeMap or national shaking map version current 72 hours after the origin time",
         "freeze_hours": 168,
         "waiting": (
-            "Cover starts 7 days after it is bought and then runs its full term. An earthquake whose origin time falls in those 7 days pays nothing, and the policy is not cancelled by it: the cover starts on its day and the term is unchanged. The wait is there because an aftershock sequence is public knowledge from the moment the mainshock is felt, and cover bought on that knowledge is priced for someone who does not have it"
+            "Cover starts 3 days after it is bought and then runs its full term. An earthquake whose origin time falls in those 3 days pays nothing, and the policy is not cancelled by it: the cover starts on its day and the term is unchanged. The wait is there because an aftershock sequence is public knowledge from the moment the mainshock is felt, and cover bought on that knowledge is priced for someone who does not have it. It is deliberately short: an aftershock sequence stays elevated for weeks and this does not wait it out, so the pool carries the rest of that sequence rather than the buyer"
         ),
         "criteria": [
             "The event's origin time falls inside the policy term",

@@ -39,7 +39,7 @@ SUBJECTS = {
     "flight_delay": {"route": "TK-IST-LHR", "flight_number": "TK1979",
                      "departure_date": FLIGHT_DATE, "departure_time": "09:30"},
 }
-WAITS = {"earthquake": 7.0, "storm": 10.0, "vehicle_flood": 10.0,
+WAITS = {"earthquake": 3.0, "storm": 10.0, "vehicle_flood": 10.0,
          "drought": 15.0, "flight_delay": 0.0}
 
 
