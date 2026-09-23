@@ -303,3 +303,36 @@ def test_the_sentences_that_reach_t_through_a_table_are_translated(lang) -> None
     missing = [f"{kind}: {s}" for kind, values in table_sentences().items()
                for s in values if s not in strings]
     assert not missing, missing[:6]
+
+
+#: A sentence may legitimately come through a translation unchanged, but only
+#: three kinds of them do: the rule a subscription is written in, an
+#: institution's name, and a string that is nothing but placeholders and
+#: units. Everything else that survives unchanged survived by being forgotten.
+_CODE = re.compile(r"[(){}]|>=|<=|→|\.\w+\(|_\w|::")
+_UNITS = re.compile(r"^[\s\d{}a-z/·×%.,:-]+$", re.I)
+
+
+def _a_name(text: str) -> bool:
+    """Bermuda Monetary Authority, Central Bank of Ireland, NASA POWER."""
+    words = re.findall(r"[A-Za-z][A-Za-z'’-]*", text)
+    return bool(words) and all(word[0].isupper() or len(word) <= 3 for word in words)
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_nothing_is_present_but_untranslated(lang: str) -> None:
+    """A dictionary entry that repeats its English is not a translation.
+
+    Every other test here asks whether a sentence has an entry. A sentence
+    added to the page and copied into all six files without being translated
+    has one, and passes them all, and reaches a reader of Japanese in English.
+    This is the one that notices.
+    """
+    said = dictionary(lang)["strings"]
+    forgotten = [
+        english for english, translated in said.items()
+        if english == translated and len(english) > 3
+        and not _CODE.search(english) and not _UNITS.match(english)
+        and not _a_name(english)
+    ]
+    assert not forgotten, f"{lang} repeats the English for: {forgotten[:8]}"

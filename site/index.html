@@ -182,7 +182,7 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
   .mainnav{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--panel);
     border-top:1px solid var(--edge);display:grid;grid-auto-flow:column;gap:0;margin:0;
     padding:6px var(--gutter) calc(6px + env(safe-area-inset-bottom,0px))}
-  .mainnav a{text-align:center;font-size:12px;padding:9px 11px;border-radius:7px;flex:none}
+  .mainnav a{text-align:center;font-size:12px;padding:9px 11px;border-radius:8px;flex:none}
   /* One line per label, scrolled sideways, so a German or Russian label is
      never broken in the middle of a word to fit a seventh of a phone. */
   .mainnav{display:flex!important;overflow-x:auto;gap:2px;scroll-snap-type:x proximity}
@@ -210,10 +210,10 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
   .langsel select{max-width:74px}
 }
 .icon-btn{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid var(--edge);
-  border-radius:9px;background:var(--panel);color:var(--ink-2);cursor:pointer}
+  border-radius:8px;background:var(--panel);color:var(--ink-2);cursor:pointer}
 .icon-btn:hover{border-color:var(--signal);color:var(--signal)}
 .langsel{position:relative;display:flex;align-items:center;gap:6px;height:34px;padding:0 8px 0 9px;
-  border:1px solid var(--edge);border-radius:9px;background:var(--panel);color:var(--ink-2);flex:none;cursor:pointer}
+  border:1px solid var(--edge);border-radius:8px;background:var(--panel);color:var(--ink-2);flex:none;cursor:pointer}
 .langsel:hover,.langsel:focus-within{border-color:var(--signal);color:var(--signal)}
 .langsel svg{width:15px;height:15px;flex:none}
 .langsel select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;
@@ -241,10 +241,10 @@ html[lang=ja] .home-hero h1 span{display:inline-block}
 html.i18n-wait body{visibility:hidden}
 .langnote{background:var(--hold-wash);color:var(--ink-2);padding-block:5px;font-size:12px}
 .note-x{margin-left:auto;border:0;background:none;color:var(--ink-3);font-size:18px;line-height:1;
-  padding:4px 8px;min-width:28px;min-height:26px;cursor:pointer;border-radius:6px}
+  padding:4px 8px;min-width:28px;min-height:26px;cursor:pointer;border-radius:8px}
 .note-x:hover{background:var(--sunk);color:var(--ink)}
 .linkish{border:0;background:none;padding:2px 0;min-height:24px;font:inherit;color:var(--signal);text-decoration:underline;cursor:pointer}
-.skip{position:absolute;left:-9999px;top:8px;z-index:100;padding:10px 14px;border-radius:9px;background:var(--panel);color:var(--ink);
+.skip{position:absolute;left:-9999px;top:8px;z-index:100;padding:10px 14px;border-radius:8px;background:var(--panel);color:var(--ink);
   border:1px solid var(--signal);font-weight:600;text-decoration:none}
 .skip:focus{left:16px}
 /* Grows to fill the window on a short page, and never shrinks below its
@@ -273,7 +273,7 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 
 /* ---------------- buttons ---------------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;
-  border-radius:10px;font-size:15px;font-weight:600;border:1px solid transparent;cursor:pointer;
+  border-radius:8px;font-size:15px;font-weight:600;border:1px solid transparent;cursor:pointer;
   text-decoration:none;transition:background .18s,border-color .18s,color .18s,transform .16s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
 .btn:active{transform:translateY(1px) scale(.99)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
@@ -343,7 +343,12 @@ html[data-first="/rules"] #view-rules,
 html[data-first="/company"] #view-company,
 html[data-first="/admin"] #view-admin{display:block}
 @media (prefers-reduced-motion:no-preference){
-  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*70ms)}
+  /* An entrance is 300ms and the queue behind it is three, not six. At 600
+     with a 70ms stagger the sixth card in a row finished a full second after
+     it came into view, which is not an arrival, it is a wait: Material's own
+     duration tokens put an element entering a screen at 400 to 500ms at the
+     outside, and this is smaller than the things those were written for. */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .3s cubic-bezier(.2,.7,.2,1),transform .3s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*50ms)}
   .reveal.in{opacity:1;transform:none}
   /* The step cards are cells of one joined block, and that block clips its
      own corners. A cell sliding up inside it arrives with its bottom cut
@@ -400,7 +405,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .empty{padding:14px 2px;font-size:14px;color:var(--ink-3)}
 
 /* my cover */
-.holding{border-radius:14px;overflow:hidden;box-shadow:var(--lift-1),var(--hairline);display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+.holding{border-radius:12px;overflow:hidden;box-shadow:var(--lift-1),var(--hairline);display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
   border-radius:var(--r);overflow:hidden}
 .holding > div{background:var(--panel);padding:16px}
 .hrow{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
@@ -421,7 +426,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .field .label{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .field .label .val{font-family:var(--mono);font-size:13px;color:var(--ink);
   letter-spacing:0;text-transform:none}
-.dlg-input,#country,.field select{width:100%;padding:13px 15px;border-radius:11px;
+.dlg-input,#country,.field select{width:100%;padding:13px 15px;border-radius:12px;
   box-shadow:var(--sunk-in);transition:border-color .18s,box-shadow .18s,background .18s;
   border:1px solid var(--edge-2);background-color:var(--panel);color:var(--ink);
   font:inherit;font-size:15px;appearance:none;-webkit-appearance:none}
@@ -560,14 +565,14 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
   align-content:start;font-size:14.5px;line-height:1.6}
 .rider .msg{max-width:92%}
 .rider .msg.me{justify-self:end;background:var(--sunk);border:1px solid var(--edge);
-  padding:9px 13px;border-radius:14px 14px 3px 14px}
+  padding:9px 13px;border-radius:12px 14px 3px 14px}
 .rider .msg.it{color:var(--ink-2)}
 .rider .msg.it b{color:var(--ink)}
 .rider .msg.note{font-size:12.5px;color:var(--ink-3);border-left:2px solid var(--edge-2);
   padding-left:11px}
 .rider .used{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:7px}
 .rider .ask{display:flex;gap:8px;padding:12px;border-top:1px solid var(--edge)}
-.rider .ask input{flex:1;padding:10px 13px;border-radius:10px;border:1px solid var(--edge-2);
+.rider .ask input{flex:1;padding:10px 13px;border-radius:8px;border:1px solid var(--edge-2);
   background:var(--ground);color:var(--ink);font:inherit;font-size:14px}
 .rider .ask input:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
 .rider .foot{padding:0 14px 12px;font-size:11.5px;color:var(--ink-3);line-height:1.5}
@@ -814,12 +819,12 @@ a.chip:hover{border-color:var(--signal);color:var(--ink)}
 /* The handset is written, not drawn. A label in an SVG is one line at a fixed
    size that cannot wrap, so the policy's own sentence ran out of the card and
    over the bezel the moment it was not English. */
-.phone{border:1px solid var(--edge);border-radius:18px;background:var(--panel);
+.phone{border:1px solid var(--edge);border-radius:16px;background:var(--panel);
   padding:10px 10px 8px;display:grid;gap:8px;align-content:start;min-width:0;
   box-shadow:var(--lift-1)}
 .phone-bar{width:34px;height:4px;border-radius:2px;background:var(--sunk);margin:0 auto}
 .phone-app{font-size:9px;letter-spacing:.16em}
-.ph-card{border-radius:10px;padding:9px 10px;display:grid;gap:5px;min-width:0}
+.ph-card{border-radius:8px;padding:9px 10px;display:grid;gap:5px;min-width:0}
 .ph-rule{background:var(--sunk);border:1px solid var(--edge)}
 .ph-rule .ph-id{font-size:10px;color:var(--ink-3)}
 .ph-rule p{font-size:10px;line-height:1.5;color:var(--ink-2);overflow-wrap:anywhere}
@@ -1007,7 +1012,7 @@ h1 span{color:var(--signal)}
 :root[data-theme="light"] .opt .tick svg{color:#fff}
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .opt .tick svg{color:#fff}}
 :root[data-theme="dark"] .opt .tick svg{color:#0B0D11}
-.opt .lead{width:40px;height:40px;border-radius:10px;background:var(--sunk);display:grid;place-items:center;
+.opt .lead{width:40px;height:40px;border-radius:8px;background:var(--sunk);display:grid;place-items:center;
   font-family:var(--mono);font-size:12px;color:var(--ink-2);flex:none}
 
 .amount{padding:22px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);display:grid;gap:16px}
@@ -1032,7 +1037,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
    as rows that can be named and taken back out again. The real input is
    still there, still reachable by keyboard; only its own control is hidden. */
 .drop{position:relative;display:grid;gap:6px;justify-items:center;text-align:center;
-  padding:22px 18px;border:1.5px dashed var(--edge-2);border-radius:14px;background:var(--sunk);
+  padding:22px 18px;border:1.5px dashed var(--edge-2);border-radius:12px;background:var(--sunk);
   cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}
 .drop:hover{border-color:var(--signal);background:var(--signal-wash)}
 .drop.over{border-color:var(--signal);background:var(--signal-wash);box-shadow:0 0 0 4px var(--signal-wash)}
@@ -1045,7 +1050,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
 .drop u{text-decoration:none;color:var(--signal);font-weight:600}
 .files{display:grid;gap:8px;margin-top:10px}
 .filerow{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;
-  padding:9px 12px;border:1px solid var(--edge);border-radius:11px;background:var(--panel)}
+  padding:9px 12px;border:1px solid var(--edge);border-radius:12px;background:var(--panel)}
 .filerow .doc{width:22px;height:22px;color:var(--ink-3);flex:none}
 .filerow .nm{font-size:13.5px;overflow-wrap:anywhere;min-width:0}
 .filerow .nm small{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
@@ -1152,7 +1157,7 @@ tr:last-child td{border-bottom:0}
 .flowline p{font-size:13.5px;color:var(--ink-2);margin-top:6px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:820px){.two{grid-template-columns:1fr}}
-.card{padding:22px;border-radius:14px;border:1px solid var(--edge);background:var(--panel);
+.card{padding:22px;border-radius:12px;border:1px solid var(--edge);background:var(--panel);
   box-shadow:var(--lift-1),var(--hairline);transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s,border-color .2s}
 .card:hover{transform:translateY(-3px);box-shadow:var(--lift-2),var(--hairline);border-color:var(--edge-2)}
 .flowline > div{transition:background .2s}
@@ -1179,7 +1184,7 @@ tr:last-child td{border-bottom:0}
 .readout .k{margin-top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .cap-row{display:grid;grid-template-columns:150px minmax(0,1fr) 84px;gap:14px;align-items:center;font-size:14px}
 @media (max-width:640px){.cap-row{grid-template-columns:96px minmax(0,1fr) 66px;gap:10px;font-size:12.5px}}
-.cap-row .track{height:24px;border-radius:6px;background:var(--sunk);border:1px solid var(--edge);overflow:hidden}
+.cap-row .track{height:24px;border-radius:8px;background:var(--sunk);border:1px solid var(--edge);overflow:hidden}
 .cap-row .fill{height:100%;width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
 .cap-row.hot .fill{background:var(--signal);background-image:linear-gradient(90deg,var(--signal),var(--crit))}
 .cap-row.cool .fill{background:var(--settled)}
@@ -1192,9 +1197,9 @@ tr:last-child td{border-bottom:0}
 .map .pt{fill:var(--hold);stroke:var(--ground);stroke-width:1.5;transition:fill .3s}
 .map .pt.paid{fill:var(--settled)}
 .map .lbl{font-family:var(--mono);font-size:9px;fill:var(--ink-3);letter-spacing:.04em}
-.panel{background:var(--panel);border:1px solid var(--edge);border-radius:14px;box-shadow:var(--lift-1),var(--hairline)}
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:12px;box-shadow:var(--lift-1),var(--hairline)}
 .skel{display:grid;gap:10px}
-.skel i{display:block;height:14px;border-radius:6px;background:linear-gradient(90deg,var(--sunk) 25%,var(--edge) 50%,var(--sunk) 75%);background-size:200% 100%}
+.skel i{display:block;height:14px;border-radius:8px;background:linear-gradient(90deg,var(--sunk) 25%,var(--edge) 50%,var(--sunk) 75%);background-size:200% 100%}
 .skel i:nth-child(2){width:72%}.skel i:nth-child(3){width:48%}
 @media (prefers-reduced-motion:no-preference){.skel i{animation:shimmer 1.4s linear infinite}@keyframes shimmer{to{background-position:-200% 0}}}
 .panel-head{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:1px solid var(--edge);
@@ -1380,7 +1385,7 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .dlg{padding:24px;display:grid;gap:14px}
 .dlg h3{font-size:20px}
 .dlg p{font-size:14px;color:var(--ink-2)}
-.dlg input{width:100%;padding:12px 14px;border-radius:9px;border:1px solid var(--edge-2);
+.dlg input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid var(--edge-2);
   background:var(--sunk);color:var(--ink);font-family:var(--sans);font-size:15px}
 .dlg .row{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
 .bio{display:grid;place-items:center;gap:9px;padding:16px 0}
@@ -1393,8 +1398,8 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;padding:4px;border-radius:12px;
   background:var(--sunk);box-shadow:var(--sunk-in)}
 .seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:14px;font-weight:500;
-  padding:9px 10px;border-radius:9px;cursor:pointer}
-.seg button{border-radius:9px;transition:background .18s,color .18s,box-shadow .18s,transform .18s}
+  padding:9px 10px;border-radius:8px;cursor:pointer}
+.seg button{border-radius:8px;transition:background .18s,color .18s,box-shadow .18s,transform .18s}
 .seg button:hover{color:var(--ink)}
 .seg button[aria-checked="true"]{background:var(--panel);color:var(--ink);
   box-shadow:var(--lift-1),var(--hairline);transform:translateY(-1px)}
@@ -1454,7 +1459,7 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .accept input{margin-top:3px}
 .nfts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:16px}
 .nft{border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
-.nft img{width:100%;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:transform .15s}
+.nft img{width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:transform .15s}
 .nft:hover img{transform:translateY(-3px)}
 .nft span{display:block;font-size:12px;color:var(--ink-3);margin-top:6px}
 .offers{display:grid;gap:10px}
@@ -1518,7 +1523,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 .ttable td.num,.ttable th.num{text-align:right}
 .tform{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .tform label{display:grid;gap:6px;font-size:13px;color:var(--ink-3)}
-.tform select,.tform input{height:40px;border-radius:10px;border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
+.tform select,.tform input{height:40px;border-radius:8px;border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
   font:inherit;font-size:15px;padding:0 10px;min-width:150px}
 /* What needs looking at, at the top of My cover. */
 .due-panel{margin-top:22px;padding:18px 20px;border-left:3px solid var(--accent)}
@@ -1547,10 +1552,10 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
   .due-when{font-size:14px}
 }
 .whomenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:230px;display:grid;gap:2px;padding:8px;
-  border:1px solid var(--edge);border-radius:14px;background:var(--float);box-shadow:var(--lift-2),var(--hairline)}
+  border:1px solid var(--edge);border-radius:12px;background:var(--float);box-shadow:var(--lift-2),var(--hairline)}
 .whomenu[hidden]{display:none}
 .whomenu p{padding:6px 10px 8px;margin:0;border-bottom:1px solid var(--edge);margin-bottom:4px;word-break:break-all}
-.whomenu a,.whomenu button{display:block;text-align:left;padding:9px 10px;border-radius:9px;border:0;background:none;
+.whomenu a,.whomenu button{display:block;text-align:left;padding:9px 10px;border-radius:8px;border:0;background:none;
   color:var(--ink);font:inherit;font-size:14px;text-decoration:none;cursor:pointer}
 .whomenu a:hover,.whomenu button:hover,.whomenu a:focus-visible,.whomenu button:focus-visible{background:var(--raised,rgba(0,0,0,.05))}
 .whomenu .quiet{color:var(--ink-3);font-size:13px}
@@ -2929,7 +2934,7 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
   <form class="dlg" method="dialog" style="max-width:520px">
     <h3 id="token-dlg-title" data-i18n>Your policy token</h3>
     <p data-i18n>Minted to your address when the policy was written. It cannot be transferred: cover belongs to the person with an interest in what it insures.</p>
-    <img id="token-img" alt="" style="width:100%;max-width:420px;border-radius:18px;justify-self:center">
+    <img id="token-img" alt="" style="width:100%;max-width:420px;border-radius:16px;justify-self:center">
     <p class="fine mono" id="token-meta" style="overflow-wrap:anywhere;word-break:break-all"></p>
     <p class="fine" id="token-chain"></p>
     <div id="token-claim" style="display:grid;gap:8px"></div>
@@ -4110,7 +4115,7 @@ addEventListener("hashchange",function(){show(currentRoute(), true);});
       // that is not the opening one has no box yet, and keeps its entrance.
       var box=el.getBoundingClientRect();
       if(box.height && box.top < fold)return;
-      el.classList.add("reveal"); el.style.setProperty("--i",String(i%6)); io.observe(el);
+      el.classList.add("reveal"); el.style.setProperty("--i",String(i%4)); io.observe(el);
     });
   });
 })();
@@ -9194,7 +9199,7 @@ function domainProofHtml(proof){
   return '<div class="verdict" style="margin-top:12px"><p><b>'+esc(t("Prove the domain is yours."))+'</b> '+
     esc(t("Publish this one line, exactly, at the address below. The protocol fetches it and marks the domain confirmed; the reviewer sees that whoever registered can publish under your name."))+'</p>'+
     '<p class="mono" style="font-size:13px;word-break:break-all">'+esc(proof.url)+'</p>'+
-    '<p class="mono" style="font-size:13px;word-break:break-all;background:var(--paper-2,#f4f2ee);padding:8px 10px;border-radius:6px">'+esc(proof.content)+'</p>'+
+    '<p class="mono" style="font-size:13px;word-break:break-all;background:var(--paper-2,#f4f2ee);padding:8px 10px;border-radius:8px">'+esc(proof.content)+'</p>'+
     '<p class="fine">'+esc(t("Then press \"Run the automatic checks again\" on your company page. Your LEI is looked up at GLEIF without you doing anything."))+'</p></div>';
 }
 function specimenDesksHtml(rows){
