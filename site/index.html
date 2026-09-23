@@ -1402,6 +1402,7 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .worth{padding:14px 16px;border-radius:var(--r);background:var(--sunk);display:grid;gap:3px}
 .worth b{font-size:20px;font-family:var(--display)}
 .worth span{font-size:12.5px;color:var(--ink-3)}
+.worth .wsrc{font-size:11.5px;color:var(--ink-3);opacity:.82;line-height:1.45}
 .unitrow{display:grid;grid-template-columns:1fr auto;gap:8px}
 .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;padding:4px;border-radius:12px;
   background:var(--sunk);box-shadow:var(--sunk-in)}
@@ -7626,11 +7627,20 @@ function renderInterest(){
    cannot be reached. Cover is then capped at the value, so a hundred square
    metres of garden cannot buy a farm's cover. */
 var VALUATION={
-  rebuild_per_m2:{TR:{flat:600,house:650,shop:550},JP:{flat:2200,house:2400,shop:2000},
-    CL:{flat:900,house:1000,shop:850},MX:{flat:650,house:700,shop:600},
-    NZ:{flat:2600,house:2900,shop:2400},TW:{flat:1100,house:1200,shop:1000}},
-  revenue_per_ha:{wheat:900,barley:700,maize:2000,sunflower:1100,cotton:2800,chickpea:1200,
-    lentil:1000,sugar_beet:3500,other:800},
+  rebuild_per_m2:{TR:{flat:517,house:517,shop:833},IT:{flat:2153,house:2153,shop:2153},
+    GR:{flat:1055,house:1055,shop:1055},JP:{flat:2482,house:1653,shop:2482},
+    TW:{flat:1097,house:763,shop:1097},NZ:{flat:2274,house:2127,shop:2274},
+    MX:{flat:977,house:977,shop:977},CL:{flat:1146,house:1146,shop:1146},
+    PH:{flat:480,house:480,shop:480},ID:{flat:308,house:252,shop:308}},
+  revenue_per_ha:{
+    TR:{wheat:1015,barley:662,maize:2662,sunflower:1481,cotton:3152,chickpea:1204,lentil:1316,sugar_beet:4127},
+    IT:{wheat:1224,maize:2481},
+    GR:{wheat:881,barley:580,maize:2744,sunflower:1091,cotton:1969,lentil:3195},
+    MX:{wheat:1972,barley:914,maize:1150,cotton:2981,chickpea:1934,lentil:727},
+    CL:{wheat:1450,maize:2577,barley:1814,sugar_beet:6365},
+    ID:{maize:2214}, PH:{maize:985},
+    JP:{wheat:1276,barley:2354,sugar_beet:7147},
+    NZ:{wheat:3091,barley:2075,maize:3639}},
   area_m2:[15,3000], area_ha:[0.01,5000], built:[1900,new Date().getFullYear()], model_year:[1990,new Date().getFullYear()]};
 var VALUATION_READ=false;
 function loadValuation(){
@@ -7641,7 +7651,16 @@ function loadValuation(){
 }
 var BUILDING_WORDS={flat:N("A flat"),house:N("A house"),shop:N("A shop or office")};
 var CROP_WORDS={wheat:N("Wheat"),barley:N("Barley"),maize:N("Maize"),sunflower:N("Sunflower"),
-  cotton:N("Cotton"),chickpea:N("Chickpea"),lentil:N("Lentil"),sugar_beet:N("Sugar beet"),other:N("Something else")};
+  cotton:N("Cotton"),chickpea:N("Chickpea"),lentil:N("Lentil"),sugar_beet:N("Sugar beet")};
+/* Which crops can be covered here. A crop is on the list when the country
+   publishes a producer price for it, because the cover is a season's income
+   and there is no season's income without a price. Türkiye grows a lot of
+   cotton and is missing from its own list for exactly that reason. */
+function cropsHere(){
+  var table=(VALUATION.revenue_per_ha||{})[riskCountry()]||{}, out=[];
+  for(var k in CROP_WORDS){ if(table[k]>0) out.push(k); }
+  return out;
+}
 var AREA_UNITS={decare:0.1,hectare:1,m2:0.0001};
 var UNIT_WORDS={decare:N("decares"),hectare:N("hectares"),m2:N("square metres")};
 
@@ -7685,10 +7704,34 @@ function sizeValue(){
   }
   var ha=area*AREA_UNITS[z.unit];
   if(ha<v.area_ha[0]||ha>v.area_ha[1]){ z.problem=t("The area must be between {min} and {max} hectares.",{min:f2.format(v.area_ha[0]),max:f0.format(v.area_ha[1])}); return 0; }
-  var per=v.revenue_per_ha[z.crop];
+  var here=(v.revenue_per_ha||{})[riskCountry()]||{}, per=here[z.crop];
+  if(!(per>0)){ z.problem=t("There is no published price for this crop here yet."); return 0; }
   z.valid=true; z.area_ha=Math.round(ha*10000)/10000;
   z.basis=t("{area} hectares × {rate} expected revenue per hectare",{area:f2.format(z.area_ha),rate:f0.format(per)});
   return z.area_ha*per;
+}
+/* Where the per square metre or per hectare figure came from. Asked once by
+   someone who wanted to know why a flat in Istanbul was capped where it was,
+   and a fair question: the answer is a ministry schedule with a date on it,
+   so the page says which one rather than leaving a number to be taken on
+   trust. The source names are the publishers' own and are not translated. */
+function whereTheRateIsFrom(z){
+  var country=riskCountry(), said=[], from;
+  if(z.kind==="home"){
+    from=((VALUATION.rebuild_basis||{})[country]||{})[z.building];
+    if(!from||!from.figure)return "";
+    said.push(f0.format(from.figure.amount)+" "+from.figure.currency+"/m², "+from.figure.source);
+    if(from.stands_in) said.push(from.stands_in);
+    if(from.carried_forward) said.push(from.carried_forward);
+    if(from.region&&from.region.name) said.push(from.region.name+" ×"+from.region.factor);
+    else if(from.region&&from.region.basis) said.push(from.region.basis);
+  } else {
+    from=((VALUATION.revenue_basis||{})[country]||{})[z.crop];
+    if(!from)return "";
+    said.push(f0.format(from.revenue)+" "+from.currency+"/ha in "+from.year+", "+from.source);
+    if(from.note) said.push(from.note);
+  }
+  return '<span class="wsrc">'+esc(t("Where this figure comes from"))+": "+esc(said.join(" — "))+'</span>';
 }
 function sizeOk(){
   if(flow.peril==="car")return flow.interest.value>0&&!!flow.interest.modelYear;
@@ -7717,8 +7760,10 @@ function renderSize(){
       '<div class="field"><label class="label" for="size-built">'+esc(t("Year built"))+'</label>'+
       '<input id="size-built" class="dlg-input" inputmode="numeric" maxlength="4" value="'+esc(z.built||"")+'" placeholder="'+esc(t("e.g. 1998"))+'"></div></div>';
   } else {
+    var grown=cropsHere();
+    if(grown.length&&grown.indexOf(z.crop)<0) z.crop=grown[0];
     html='<div class="sizegrid"><div class="field"><label class="label" for="size-crop">'+esc(t("What grows there"))+'</label>'+
-      '<select id="size-crop">'+Object.keys(CROP_WORDS).map(function(k){
+      '<select id="size-crop">'+grown.map(function(k){
         return '<option value="'+k+'"'+(k===z.crop?' selected':'')+'>'+esc(t(CROP_WORDS[k]))+'</option>'; }).join("")+'</select></div>'+
       '<div class="field"><label class="label" for="size-area">'+esc(t("Area"))+'</label><div class="unitrow">'+
       '<input id="size-area" class="dlg-input" inputmode="decimal" value="'+esc(z.area)+'" placeholder="'+esc(t("e.g. 40"))+'">'+
@@ -7739,7 +7784,7 @@ function renderSize(){
         esc(t("Too small to insure here: the smallest cover is {min} USDC.",{min:f0.format(min)}))+'</span>';
     } else {
       out.innerHTML='<span>'+esc(t(z.kind==="home"?"What it would cost to rebuild":"A normal season's income"))+'</span>'+
-        '<b>'+money(value)+' USDC</b><span>'+esc(z.basis)+'</span>'+
+        '<b>'+money(value)+' USDC</b><span>'+esc(z.basis)+'</span>'+whereTheRateIsFrom(z)+
         '<span>'+esc(t("This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule."))+'</span>';
     }
     setNextLabel(); updatePriceBar();

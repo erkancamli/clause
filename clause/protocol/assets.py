@@ -23,11 +23,10 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from .valuation import BUILDINGS, REVENUE_PER_HA
+from .valuation import BUILDINGS, CROPS
 
 KINDS = ("home", "vehicle", "field")
 MAX_PER_ACCOUNT = 20
-CROPS = tuple(REVENUE_PER_HA)
 
 
 class AssetError(ValueError):

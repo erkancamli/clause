@@ -2141,7 +2141,9 @@
     "Try a city there, or a coordinate as \"35.68, 139.69\".": "Pruebe con una ciudad de allí, o una coordenada como \"35.68, 139.69\".",
     "Drought cover is written only in Türkiye for now.": "La cobertura de sequía se suscribe por ahora solo en Türkiye.",
     "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "La cobertura de terremoto puede tarificarse en {countries}: solo para esos países existe por ahora un modelo probado.",
-    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Pruebe con una provincia, un distrito o una coordenada como \"40.99, 29.03\"."
+    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Pruebe con una provincia, un distrito o una coordenada como \"40.99, 29.03\".",
+    "There is no published price for this crop here yet.": "Todavía no hay un precio publicado para este cultivo aquí.",
+    "Where this figure comes from": "De dónde sale esta cifra"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

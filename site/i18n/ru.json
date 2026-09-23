@@ -2141,7 +2141,9 @@
     "Try a city there, or a coordinate as \"35.68, 139.69\".": "Попробуйте город оттуда или координату вида \"35.68, 139.69\".",
     "Drought cover is written only in Türkiye for now.": "Покрытие засухи пока оформляется только в Türkiye.",
     "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "Покрытие землетрясения можно оценить в {countries}: проверенная модель пока существует только для них.",
-    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Попробуйте провинцию, район или координату вида \"40.99, 29.03\"."
+    "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Попробуйте провинцию, район или координату вида \"40.99, 29.03\".",
+    "There is no published price for this crop here yet.": "Для этой культуры здесь пока нет опубликованной цены.",
+    "Where this figure comes from": "Откуда взялась эта цифра"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

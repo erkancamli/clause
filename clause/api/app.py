@@ -1048,6 +1048,20 @@ def create_app(
     global _SITE_ORIGIN
     _SITE_ORIGIN = settings.allowed_origins[0].rstrip("/") if settings.allowed_origins else ""
 
+    def where_about(subject: dict[str, Any], declared: Any) -> str:
+        """Everything said about where the thing is, in one string.
+
+        Three countries publish what it costs to build in each of their
+        regions, and the valuation looks for a region's name in here. The
+        buyer never types a region; they type a place and an address, and one
+        of those usually contains it. Nothing is stored: this is read once to
+        pick a multiplier and thrown away.
+        """
+        address = getattr(declared, "address", None) or {}
+        said = [subject.get("place"), address.get("province"), address.get("state"),
+                address.get("region"), address.get("city")]
+        return " ".join(str(part) for part in said if part)
+
     def place_of(peril: str, subject: dict[str, Any]) -> tuple[float | None, float | None]:
         """Where the insured thing is, for a rule that names a circle."""
         try:
@@ -1610,7 +1624,8 @@ def create_app(
                                "for a field its area and crop; that decides how much cover it can carry")
         if size is not None:
             try:
-                valuation = value_of(size, country=risk_country)
+                valuation = value_of(size, country=risk_country,
+                                     region=where_about(subject, declared))
             except ValuationError as error:
                 raise Refused(422, str(error)) from error
             if kind and valuation.size["kind"] != kind:
@@ -1740,6 +1755,11 @@ def create_app(
                     "value_at_risk": interest.value_at_risk,
                     "size": valuation.size if valuation else None,
                     "basis": valuation.basis if valuation else None,
+                    # Where the per unit figure came from: its publisher, its
+                    # date and what kind of figure it is. A buyer who asks why
+                    # the ceiling is what it is gets an answer from the policy
+                    # itself rather than from us.
+                    "how": valuation.how if valuation and valuation.how else None,
                     "professional": interest.holder_is_professional,
                 }
                 # Which property this is written on, as an identifier and not

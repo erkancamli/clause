@@ -328,3 +328,82 @@ performance filings. The code is structured so that is a data change and
 nothing else.
 
 Nothing here should be used to price real risk without that work.
+
+## 9. The sum insured, and the four numbers every country publishes
+
+Everything above is about how often a thing happens and what that costs. This
+section is about the other half of a parametric policy: the ceiling. Cover is
+capped at what the insured thing is worth, and that cap is what makes this
+insurance rather than a wager.
+
+The ceiling is worked out, not taken on trust. A home is its floor area times
+a rebuild cost per square metre, adjusted for the building's age. A field is
+its area times what a hectare earns in a normal season. A trip is what the
+trip cost. A car is its market value, bounded by what a car of that age can be
+worth.
+
+The hard part is the per unit figure, and the hard part of *that* is that
+every country publishes four different numbers for the same thing.
+
+| kind | what it is |
+|---|---|
+| `rebuild` | what it costs to build the thing again. What we want. |
+| `insurance` | a scheme's own sum insured per square metre. Official, current, usually below rebuild cost on purpose. |
+| `market` | a builder's or a valuer's quote. Real money, no authority. |
+| `permit` | the base for a building permit fee or a property tax. |
+
+A `permit` figure looks the most official of the four and is always the most
+wrong, because it was never meant to value anything — it was meant to set a
+fee. Italy's *costo di costruzione* is €505.90/m² against a real rebuild cost
+near €1,800, and descends from a 1994 Lombardy figure merely re-indexed each
+year. Chile's MINVU unit cost table is five to eight times below what a house
+costs to build. The Philippine PSA figure is what applicants *declare* to a
+building officer, divided by floor area, and puts a single house at
+US$113/m². All three are genuine government publications. None of them is a
+rebuild cost. The protocol records them by name and refuses to price from one,
+so that nobody adds them back later thinking they were overlooked.
+
+Two more properties of official data shape the model.
+
+**Statistics offices publish indices, not levels.** ISTAT, ELSTAT, TÜİK and
+INEGI all say how fast building costs are rising; none of them says what
+building costs. An index cannot set a sum insured. It can carry a level
+forward from the day it was published to today, which is what the escalation
+step does — Türkiye's Ministry schedule is a 1 January figure and Turkish
+building costs rise by more than a quarter a year, so by September it is a
+fifth short. A figure is never carried forward more than three years: past
+that the table needs revisiting, not compounding.
+
+**A national figure is not a local one, and almost nobody publishes the
+difference.** Only Indonesia (the BPS *Indeks Kemahalan Konstruksi*, 38
+provinces and 514 districts), Japan (building starts statistics by
+prefecture) and Taiwan (its own insurance table's city grid) publish what
+building costs in each region; New Zealand's consent statistics allow one to
+be computed. The spread is larger than intuition suggests: Indonesia's Papuan
+highlands are 2.17× Jakarta. Everywhere else the protocol says out loud that
+no regional figure exists rather than inventing a multiplier — Türkiye
+publishes one national schedule, TÜİK's index has no regional breakdown, and
+DASK's per square metre value is the same in Rize as in Adana.
+
+The same discipline applies to a field. A season's revenue is a yield times a
+producer price, and both belong to a year — so the exchange rate belongs to
+that year too. A Turkish hectare of maize earned 105,353 lira in the 2025
+season, which was US$2,662 at that year's rate; read at today's rate the same
+lira would say US$2,157, and the farmer would be a fifth under-covered for no
+reason but arithmetic done on the wrong day. Where a country grows a crop but
+nobody publishes a price for it — Italian barley, Italian sunflower — that
+crop cannot be covered there, and the refusal names the crops that can be.
+
+Where the choice was open, the anchor is the best evidenced rebuild cost, then
+an official scheme's own insurance value, then market evidence. For Türkiye
+that means the Ministry's *Yapı Yaklaşık Birim Maliyetleri* (class III-B,
+21,050 TL/m², 1 January 2026) rather than DASK's 11,737 TL/m². The two differ
+by a factor of about 2.2 and the difference is structural, not an error: DASK's
+figure is a deliberately capped statutory minimum, the Ministry's is a full
+construction cost including contractor overhead and profit. Whichever is used,
+the policy says which — every quote carries the figure, its publisher, its
+date and its kind, so a buyer who asks why the ceiling is what it is gets an
+answer from the record rather than from us.
+
+These figures are indicative and are in the protocol's unit of account. An
+issuing insurer replaces them with its own schedule.
