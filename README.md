@@ -4,8 +4,8 @@
 
 [![deploy](https://github.com/erkancamli/clause/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/erkancamli/clause/actions/workflows/deploy.yml)
 [![live](https://img.shields.io/badge/live-clause.insure-E9EFF5)](https://clause.insure)
-[![version](https://img.shields.io/badge/version-1.16.1-FF6A2B)](CHANGELOG.md)
-[![tests](https://img.shields.io/badge/tests-730%20passing-24D3A5)](tests/)
+[![version](https://img.shields.io/badge/version-1.17.0-FF6A2B)](CHANGELOG.md)
+[![tests](https://img.shields.io/badge/tests-738%20passing-24D3A5)](tests/)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](pyproject.toml)
 [![languages](https://img.shields.io/badge/languages-6-8D9BA9)](site/i18n/)
 [![anchored on](https://img.shields.io/badge/anchored%20on-Base%20Sepolia-0052FF)](docs/anchor.md)

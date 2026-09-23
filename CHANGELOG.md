@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.17.0, 23 September 2026
+
+- Cover held earns RIALO, paid by the platform out of its own fee. A
+  programme that pays people to buy insurance is an inducement, and in most
+  places a regulated one; this is deliberately not that, and the three rules
+  that keep it on the right side of the line are enforced in
+  `clause/protocol/rewards.py` rather than promised in a footnote. It is not a
+  discount: the price on the screen is the pool's price and stays so, because
+  that price is an actuarial statement about risk and a loyalty scheme has no
+  business moving it. It is not the insurer's money: the platform's fee comes
+  from the issuing company's fronting fee and never from the buyer, and the
+  award comes out of that and nothing else. And it cannot promise more than
+  the platform has earned: the budget is a share of net fee income, an award
+  beyond it is credited as far as the budget reaches, and the shortfall is
+  recorded. A rewards programme that can run out of money without saying so is
+  a lie told slowly.
+- What is rewarded is cover held, not cover bought: the limit, for the days it
+  was actually in force, at a rate raised by each unbroken renewal. A year of
+  cover earns a year's worth and a policy cancelled on its second day earns
+  two days, so there is no bonus for buying a longer term, only for holding
+  one. Nothing is credited until the term has run, because what a live policy
+  has earned so far can still fall; it is shown as earning rather than as a
+  balance. Continuity uses the same grace as the renewal instruction, so the
+  page cannot say a policy was renewed while the programme says it was not,
+  and an award keeps the rate it was earned under.
+- The unit is RIALO, and on this build the chain is simulated and so is the
+  balance. The panel says that in the same words the test network warning
+  uses: nothing is held in a wallet, nothing can be spent, and what is
+  credited is an account of what would be owed.
+- A version bump publishes its own release notes. The notes and the changelog
+  are the same words, and writing them twice is how they come apart; the
+  workflow reads the version out of the source, reads that version's section
+  out of CHANGELOG.md and creates the release with the tag it needs. A test
+  keeps the two from drifting.
+- The README opens with what this is and shows it: the build's state, the home
+  page, and policy tokens across four tiers.
+
 ## 1.16.1, 22 September 2026
 
 - The policy token is the bargain, drawn, rather than the policy retyped.
