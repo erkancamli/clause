@@ -2143,7 +2143,13 @@
     "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "La couverture séisme peut être tarifée dans {countries} : un modèle testé n'existe que pour ceux-là pour l'instant.",
     "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Essayez une province, un district, ou une coordonnée comme \"40.99, 29.03\".",
     "There is no published price for this crop here yet.": "Aucun prix publié n'existe encore ici pour cette culture.",
-    "Where this figure comes from": "D'où vient ce chiffre"
+    "Where this figure comes from": "D'où vient ce chiffre",
+    "writes this peril but not at this size: its most is {most}": "souscrit ce péril mais pas à ce montant : son maximum est {most}",
+    "writes this peril but not for this long: its most is {days} days": "souscrit ce péril mais pas sur cette durée : son maximum est {days} jours",
+    "full: {room} of room left and this needs {limit}": "saturé : il reste {room} et il en faut {limit}",
+    "already carries {share} of the book, which is as much as any one company may": "porte déjà {share} du portefeuille, le maximum pour une seule compagnie",
+    "does not want this risk": "ne veut pas de ce risque",
+    "Also licensed here, but not offering:": "Également agréées ici, mais sans offre :"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2218,6 +2224,10 @@
     "{flight} on {origin} to {destination}, {date}",
     "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours",
     "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}",
-    "{flight} on {origin} to {destination}, {date} at {time}"
+    "{flight} on {origin} to {destination}, {date} at {time}",
+    "writes this peril but not at this size: its most is {most}",
+    "writes this peril but not for this long: its most is {days} days",
+    "full: {room} of room left and this needs {limit}",
+    "already carries {share} of the book, which is as much as any one company may"
   ]
 }

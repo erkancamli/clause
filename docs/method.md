@@ -351,6 +351,7 @@ every country publishes four different numbers for the same thing.
 | `insurance` | a scheme's own sum insured per square metre. Official, current, usually below rebuild cost on purpose. |
 | `market` | a builder's or a valuer's quote. Real money, no authority. |
 | `permit` | the base for a building permit fee or a property tax. |
+| `budget` | a ceiling on what a public body may appropriate or pay. |
 
 A `permit` figure looks the most official of the four and is always the most
 wrong, because it was never meant to value anything — it was meant to set a
@@ -365,11 +366,35 @@ so that nobody adds them back later thinking they were overlooked.
 
 Two more properties of official data shape the model.
 
+A `budget` figure is the same failure in a different suit. Jakarta's *standar
+harga satuan* is a cap on what the city's budget may appropriate, and article
+2(4) of the decree that sets it says outright that it may not be used as the
+basis for a cost estimate — a document disqualifying itself in its own text.
+Greece's minimum-construction-cost starting prices and Mexico's IMSS labour
+table are the ones most likely to catch a careful reader: both are official,
+both are per square metre, both even vary the way a real cost table would, and
+both are fiscal bases — the Greek one for the taxable value of a building on
+transfer, the Mexican one for imputing social-security contributions, uprated
+by an inflation unit rather than by building prices and about a tenth of what
+building costs.
+
+The opposite failure exists too, and it is worth saying because it looks like
+diligence. A figure can be *official, correctly classified and still the wrong
+number to cap with*. Greece's reconstruction value of €900/m² is the State's
+own insurance figure, set for 2026 by ministerial decision — but it is a
+**floor**: a dwelling insured for at least 900 times its main floor area
+qualifies for a property-tax reduction, and nothing about it says a home is
+worth no more. Used as a ceiling it is deliberately conservative, at roughly
+half of what building in Greece costs, and the protocol says so beside the
+number rather than letting the official provenance imply more than it should.
+
 **Statistics offices publish indices, not levels.** ISTAT, ELSTAT, TÜİK and
 INEGI all say how fast building costs are rising; none of them says what
 building costs. An index cannot set a sum insured. It can carry a level
 forward from the day it was published to today, which is what the escalation
-step does — Türkiye's Ministry schedule is a 1 January figure and Turkish
+step does — for a cost. A figure an authority sets by decision is not carried
+forward at all: 900 euros stays 900 euros until the minister says otherwise,
+and escalating it would invent a number nobody published — Türkiye's Ministry schedule is a 1 January figure and Turkish
 building costs rise by more than a quarter a year, so by September it is a
 fifth short. A figure is never carried forward more than three years: past
 that the table needs revisiting, not compounding.

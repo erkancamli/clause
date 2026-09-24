@@ -288,11 +288,14 @@ def test_a_suspended_carrier_hands_its_country_to_the_next_one() -> None:
     registry = specimen_registry()
     engine = Engine(registry)
     first = engine.evaluate(interest=interest(), limit=100_000.0, peril=QUAKE)
-    assert first.allowed and first.carrier_id == "specimen-tr-one"
+    assert first.allowed and first.carrier_id
 
-    registry.suspend("specimen-tr-one")
+    # Whoever the cheapest paper turns out to be, the country does not depend
+    # on it. Suspend it and somebody else writes the same cover; the test is
+    # about that and not about which stand in happens to be cheapest today.
+    registry.suspend(first.carrier_id)
     second = engine.evaluate(interest=interest(), limit=100_000.0, peril=QUAKE)
-    assert second.allowed and second.carrier_id == "specimen-tr-two"
+    assert second.allowed and second.carrier_id != first.carrier_id
 
 
 def test_a_country_closes_when_its_last_carrier_goes() -> None:
@@ -308,8 +311,9 @@ def test_a_country_closes_when_its_last_carrier_goes() -> None:
         interest=interest(), limit=100_000.0, peril=QUAKE
     ).allowed
 
-    registry.suspend("specimen-tr-one")
-    registry.suspend("specimen-tr-two")
+    for carrier_id, carrier in list(registry.carriers.items()):
+        if any(lic.country == "TR" for lic in carrier.licences):
+            registry.suspend(carrier_id)
     after = engine.recheck_at_settlement(
         interest=interest(), limit=100_000.0, peril=QUAKE,
     )

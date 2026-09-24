@@ -400,6 +400,12 @@ class Placement:
     # licensed and full" are different answers and the buyer is owed the right
     # one; without this the caller cannot tell them apart.
     licensed: bool = False
+    # The companies that are licensed for this and still did not offer, each
+    # with the reason. A carrier that fills up used to disappear from the list
+    # leaving nothing behind, so a buyer seeing one company could not tell
+    # whether that was all there was or all that had room left, and neither
+    # could we. Now the list is short by name and by reason.
+    held_back: tuple[tuple[str, str], ...] = ()
 
     @property
     def best(self) -> Offer | None:
@@ -517,6 +523,7 @@ class Registry:
         country = country.upper()
         offers: list[Offer] = []
         reasons: list[str] = []
+        held_back: list[tuple[str, str]] = []
 
         licensed_here = False
         for carrier in self.carriers.values():
@@ -533,13 +540,26 @@ class Registry:
             if not carrier.appetite.wants(
                 country=country, peril=peril, limit=limit, term_days=term_days
             ):
+                held_back.append((carrier.name, (
+                    f"writes this peril but not at this size: its most is "
+                    f"{carrier.appetite.max_limit:,.0f}"
+                    if limit > carrier.appetite.max_limit else
+                    f"writes this peril but not for this long: its most is "
+                    f"{carrier.appetite.max_term_days:g} days"
+                    if term_days > carrier.appetite.max_term_days else
+                    "does not want this risk")))
                 continue
             room = carrier.headroom()
             if room < limit:
+                held_back.append((carrier.name, (
+                    f"full: {room:,.0f} of room left and this needs {limit:,.0f}")))
                 continue
             if book_capacity and carrier.in_force + limit > (
                 book_capacity * CARRIER_CONCENTRATION_LIMIT
             ):
+                held_back.append((carrier.name, (
+                    f"already carries {CARRIER_CONCENTRATION_LIMIT:.0%} of the book, "
+                    f"which is as much as any one company may")))
                 continue
             offers.append(Offer(carrier, licence, carrier.fronting_fee, room))
 
@@ -576,6 +596,7 @@ class Registry:
             reinsurers=reinsurers,
             reasons=tuple(reasons),
             chosen=chosen,
+            held_back=tuple(held_back),
         )
 
     # -- the map ----------------------------------------------------------
@@ -801,6 +822,65 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         fronting_fee=0.068,
         fiat_payout_days=3.0,
         extra_cooling_off_days=7.0,
+    ))
+
+    # Two more, licensed for everything, so that a buyer in Türkiye is choosing
+    # between five companies and not being handed one. They are deliberately at
+    # opposite ends of every axis a buyer can see: E is the cheapest paper in
+    # the country and makes you wait a week for the money and will not write a
+    # large cover; F costs the most and pays the next day and gives a month to
+    # change your mind. Between them the list stops being a formality.
+    registry.register(specimen(
+        carrier_id="specimen-tr-four",
+        name="Specimen Carrier E, Türkiye (not a real company)",
+        role=Role.CARRIER,
+        domicile="TR",
+        licences=(Licence(
+            country="TR", authority="SEDDK would supervise a real one",
+            reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=FIAT_ONLY,
+            expires_at=now + 2 * YEAR,
+        ),),
+        appetite=Appetite(max_limit=150_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=4_000_000,
+        fronting_fee=0.02,
+        fiat_payout_days=7.0,
+    ))
+
+    registry.register(specimen(
+        carrier_id="specimen-tr-five",
+        name="Specimen Carrier F, Türkiye (not a real company)",
+        role=Role.CARRIER,
+        domicile="TR",
+        licences=(Licence(
+            country="TR", authority="SEDDK would supervise a real one",
+            reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=FIAT_ONLY,
+            expires_at=now + 2 * YEAR,
+        ),),
+        appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000,
+        fronting_fee=0.09,
+        fiat_payout_days=1.0,
+        extra_cooling_off_days=30.0,
+    ))
+
+    registry.register(specimen(
+        carrier_id="specimen-tr-six",
+        name="Specimen Carrier G, Türkiye (not a real company)",
+        role=Role.CARRIER,
+        domicile="TR",
+        licences=(Licence(
+            country="TR", authority="SEDDK would supervise a real one",
+            reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=FIAT_ONLY,
+            expires_at=now + 2 * YEAR,
+        ),),
+        appetite=Appetite(max_limit=250_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=5_000_000,
+        fronting_fee=0.045,
+        fiat_payout_days=2.0,
+        extra_cooling_off_days=3.0,
     ))
 
     # One that passports across Europe and reaches a professional market

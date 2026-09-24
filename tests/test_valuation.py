@@ -247,3 +247,39 @@ def test_the_schedule_carries_what_is_behind_every_figure() -> None:
     assert published["fx"]["TRY"]["source"].startswith("TCMB")
     # And the figures that must never price a policy travel with it, named.
     assert published["refused"]["IT"]["kind"] == "permit"
+
+
+def test_a_budget_ceiling_is_refused_the_same_way_a_permit_base_is() -> None:
+    """Indonesia's is the rare instrument that disqualifies itself in its own
+    text: article 2(4) of the Jakarta decree says the standard may not be used
+    as the basis for a cost estimate. It is a ceiling on what a city budget may
+    appropriate, which is a different thing from a permit fee base and is
+    equally not a measure of what building costs."""
+    now = dt.datetime.now(dt.timezone.utc).timestamp()
+    figure = REFUSED["ID"]
+    assert figure.kind == "budget" and figure.amount is None
+    with pytest.raises(ValuationError, match="cannot set a sum insured"):
+        carried_forward(figure, "ID", now)
+
+
+def test_a_figure_a_scheme_sets_by_decision_is_not_carried_forward() -> None:
+    """An index carries a cost forward because a cost drifts. Greece's 900 a
+    square metre does not drift: a minister set it for the year and will set
+    the next one. Escalating it would invent a number nobody published."""
+    now = dt.datetime.now(dt.timezone.utc).timestamp()
+    figure = REBUILD["GR"]["flat"]
+    assert figure.kind == "insurance"
+    amount, said = carried_forward(figure, "GR", now)
+    assert amount == pytest.approx(figure.amount / FX["EUR"].per_unit)
+    assert "reset by its author" in said
+    # Türkiye's ministry schedule is a cost, so it is carried forward.
+    grown, moved = carried_forward(REBUILD["TR"]["flat"], "TR", now)
+    assert "carried forward" in moved and grown > REBUILD["TR"]["flat"].amount / FX["TRY"].per_unit
+
+
+def test_every_country_with_a_trap_has_it_written_down_by_name() -> None:
+    """The traps are the point of this module, so each is recorded where a
+    later reader will find it before re-adding it as a discovery."""
+    for country, figure in REFUSED.items():
+        assert figure.kind in ("permit", "budget", "insurance"), country
+        assert len(figure.note) > 60, f"{country} does not say why"

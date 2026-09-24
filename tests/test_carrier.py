@@ -546,3 +546,46 @@ def test_a_saved_registry_gains_a_stand_in_this_build_added() -> None:
     added = saved.carriers["specimen-tr-three"]
     assert added.status is Status.ACTIVE
     assert "storm" in {p for lic in added.licences for p in lic.perils}
+
+
+def test_a_buyer_in_turkiye_is_offered_a_choice_and_not_a_company() -> None:
+    """Three times now the live site has shown one insurer and no explanation.
+
+    The first time the country's only licensed carrier had breached the
+    concentration limit. The second time two carriers between them had divided
+    the perils, so three of the five covers had a single writer. Each time the
+    list shrank silently, which is why it took a person noticing to find it.
+    This asks the question directly, for every peril, at a size an ordinary
+    buyer would ask for.
+    """
+    from clause.protocol.carrier import EVERY_PERIL, specimen_registry, Reach, Settlement
+
+    registry = specimen_registry()
+    for peril in sorted(EVERY_PERIL):
+        placement = registry.place(country="TR", peril=peril, limit=20_000.0,
+                                   term_days=180.0, asset=Settlement.FIAT,
+                                   reach=Reach.RETAIL)
+        names = {o.carrier.carrier_id for o in placement.offers}
+        assert len(names) >= 5, f"{peril} in TR is offered by {len(names)}: {sorted(names)}"
+        # And a choice means the prices differ; five companies quoting the same
+        # fee is a list, not a choice.
+        fees = {o.fronting_fee for o in placement.offers}
+        assert len(fees) >= 4, f"{peril} in TR has {len(fees)} distinct fees"
+
+
+def test_a_company_that_cannot_offer_says_so_instead_of_vanishing() -> None:
+    """A list that has quietly gone from five names to one reads exactly like a
+    country with one insurer in it. The buyer cannot tell those apart, and
+    neither could we: every time this happened it had to be diagnosed from the
+    outside. Now the placement carries the ones it dropped, and why."""
+    from clause.protocol.carrier import specimen_registry, Reach, Settlement
+
+    registry = specimen_registry()
+    # Larger than the smaller stand ins will write, so some must drop out.
+    placement = registry.place(country="TR", peril="earthquake", limit=400_000.0,
+                               term_days=365.0, asset=Settlement.FIAT, reach=Reach.RETAIL)
+    assert placement.offers, "somebody should still write this"
+    assert placement.held_back, "the ones that could not should be named"
+    for name, why in placement.held_back:
+        assert name and why
+        assert "its most is" in why or "full" in why or "of the book" in why

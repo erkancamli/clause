@@ -1483,6 +1483,7 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .offer ul{grid-column:2/4;margin:0;padding:0;list-style:none;display:grid;gap:3px;font-size:13px}
 .offer li.p::before{content:"+";color:var(--settled);font-weight:700;margin-right:6px}
 .offer li.m::before{content:"−";color:var(--signal);font-weight:700;margin-right:6px}
+.offers .held{margin:2px 2px 0;color:var(--ink-3)}
 .offer .tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-left:8px}
 @media (max-width:600px){.offer{grid-template-columns:1fr auto}.offer ul{grid-column:1/3}}
 #faucet-go{font-family:var(--body,inherit);vertical-align:middle}
@@ -5343,6 +5344,17 @@ function centreMap(){
 function chosenOffer(){
   return (flow.offers||[]).filter(function(o){return o.carrier_id===flow.carrier;})[0]||null;
 }
+/* The companies that are licensed for this cover and still did not appear.
+   A list that has quietly shrunk from five names to one reads exactly like a
+   country with one insurer in it, and the difference matters to someone
+   deciding whether to buy here. Shown only when the list is open, so it does
+   not crowd the price. */
+function heldBackSaid(){
+  var held=flow.heldBack||[];
+  if(!held.length||!flow.offersOpen)return "";
+  return '<p class="fine held">'+esc(t("Also licensed here, but not offering:"))+' '+
+    held.map(function(h){ return esc(ts(h.name))+" — "+esc(ts(h.why)); }).join("; ")+'</p>';
+}
 function renderOffers(){
   var box=$("offers-box"), list=flow.offers||[];
   if(!link.live||!list.length){ box.hidden=true; return; }
@@ -5360,7 +5372,7 @@ function renderOffers(){
       '<ul>'+o.plus.map(function(x){return '<li class="p">'+esc(ts(x))+'</li>';}).join("")+o.minus.map(function(x){return '<li class="m">'+esc(ts(x))+'</li>';}).join("")+'</ul>'+
       '</button>';
   }).join("")+(list.length>1?'<button class="btn btn-ghost btn-sm" type="button" id="offers-toggle" aria-expanded="'+(!!flow.offersOpen)+'">'+
-    esc(flow.offersOpen?t("Keep this company and hide the others"):t("Compare {n} other companies",{n:list.length-1}))+'</button>':'');
+    esc(flow.offersOpen?t("Keep this company and hide the others"):t("Compare {n} other companies",{n:list.length-1}))+'</button>':'')+heldBackSaid();
   Array.prototype.forEach.call($("offers").querySelectorAll(".offer"),function(b){
     b.addEventListener("click",function(){ flow.carrier=b.dataset.carrier; renderPrice(); updatePriceBar(); });
   });
@@ -6066,6 +6078,7 @@ function refreshQuote(){
   }}).then(function(offers){
     if(seq!==flow.seq)return;
     flow.offers=offers.offers||[];
+    flow.heldBack=offers.held_back||[];
     if(!flow.carrier||!flow.offers.some(function(o){return o.carrier_id===flow.carrier;}))
       flow.carrier=flow.offers.length?flow.offers[0].carrier_id:null;
     return api("/api/quote",{method:"POST",timeout:25000,body:{
@@ -7628,10 +7641,10 @@ function renderInterest(){
    metres of garden cannot buy a farm's cover. */
 var VALUATION={
   rebuild_per_m2:{TR:{flat:517,house:517,shop:833},IT:{flat:2153,house:2153,shop:2153},
-    GR:{flat:1055,house:1055,shop:1055},JP:{flat:2482,house:1653,shop:2482},
+    GR:{flat:1027,house:1027,shop:1027},JP:{flat:2482,house:1653,shop:2482},
     TW:{flat:1097,house:763,shop:1097},NZ:{flat:2274,house:2127,shop:2274},
-    MX:{flat:977,house:977,shop:977},CL:{flat:1146,house:1146,shop:1146},
-    PH:{flat:480,house:480,shop:480},ID:{flat:308,house:252,shop:308}},
+    MX:{flat:425,house:425,shop:425},CL:{flat:1146,house:1146,shop:1146},
+    PH:{flat:480,house:480,shop:480},ID:{flat:348,house:348,shop:348}},
   revenue_per_ha:{
     TR:{wheat:1015,barley:662,maize:2662,sunflower:1481,cotton:3152,chickpea:1204,lentil:1316,sugar_beet:4127},
     IT:{wheat:1224,maize:2481},

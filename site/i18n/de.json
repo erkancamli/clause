@@ -2143,7 +2143,13 @@
     "Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.": "Erdbebendeckung kann in {countries} bepreist werden: nur dafür gibt es bisher ein geprüftes Modell.",
     "Try a province, a district, or a coordinate as \"40.99, 29.03\".": "Versuchen Sie eine Provinz, einen Bezirk oder eine Koordinate wie \"40.99, 29.03\".",
     "There is no published price for this crop here yet.": "Für diese Feldfrucht gibt es hier noch keinen veröffentlichten Preis.",
-    "Where this figure comes from": "Woher diese Zahl stammt"
+    "Where this figure comes from": "Woher diese Zahl stammt",
+    "writes this peril but not at this size: its most is {most}": "zeichnet diese Gefahr, aber nicht in dieser Höhe: höchstens {most}",
+    "writes this peril but not for this long: its most is {days} days": "zeichnet diese Gefahr, aber nicht so lange: höchstens {days} Tage",
+    "full: {room} of room left and this needs {limit}": "ausgelastet: noch {room} frei, benötigt werden {limit}",
+    "already carries {share} of the book, which is as much as any one company may": "trägt bereits {share} des Bestands, mehr darf ein einzelnes Unternehmen nicht",
+    "does not want this risk": "möchte dieses Risiko nicht",
+    "Also licensed here, but not offering:": "Hier ebenfalls zugelassen, bietet aber nicht an:"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
@@ -2218,6 +2224,10 @@
     "{flight} on {origin} to {destination}, {date}",
     "cover for a flight has to be bought {hours} hours before it leaves, and this one leaves in {left} hours",
     "sales for the {opens} season closed on {closed}, {days} days before it opens; cover for the season after it can be bought from {next}",
-    "{flight} on {origin} to {destination}, {date} at {time}"
+    "{flight} on {origin} to {destination}, {date} at {time}",
+    "writes this peril but not at this size: its most is {most}",
+    "writes this peril but not for this long: its most is {days} days",
+    "full: {room} of room left and this needs {limit}",
+    "already carries {share} of the book, which is as much as any one company may"
   ]
 }

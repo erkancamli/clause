@@ -22,6 +22,8 @@ different numbers are published in every country and three of them are traps.
                 current, usually below rebuild cost on purpose.
     market      a builder's or a valuer's quote. Real money, no authority.
     permit      the base for a building permit fee or a property tax.
+    budget      a ceiling on what a public body may appropriate or pay. Not a
+                measure of what building costs, and sometimes says so itself.
 
 A permit figure looks the most official of the four and is always the most
 wrong. Italy publishes one at 505.90 EUR/m² against a real rebuild cost near
@@ -68,8 +70,8 @@ from typing import Any
 
 #: The four kinds of published figure, and the one that must never set a sum
 #: insured. See the module docstring for why each of the three traps is a trap.
-FIGURE_KINDS = ("rebuild", "insurance", "market", "permit")
-NOT_A_RATE = ("permit",)
+FIGURE_KINDS = ("rebuild", "insurance", "market", "permit", "budget")
+NOT_A_RATE = ("permit", "budget")
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,7 +82,10 @@ class Figure:
     cannot be checked; without the kind it cannot be trusted at all.
     """
 
-    amount: float
+    # The amount is None for a figure that is published somewhere but could
+    # not be read. Those are recorded anyway: what has to be remembered about
+    # a trap is which instrument it is, not what number is in it.
+    amount: float | None
     currency: str
     as_at: str
     source: str
@@ -90,6 +95,8 @@ class Figure:
     def __post_init__(self) -> None:
         if self.kind not in FIGURE_KINDS:
             raise ValueError(f"{self.kind!r} is not one of {FIGURE_KINDS}")
+        if self.amount is None and self.kind not in NOT_A_RATE:
+            raise ValueError("only a figure that may never price a policy can go unread")
 
     def to_dict(self) -> dict[str, Any]:
         out = {"amount": self.amount, "currency": self.currency, "as_at": self.as_at,
@@ -99,7 +106,8 @@ class Figure:
         return out
 
     def said(self) -> str:
-        return f"{self.amount:,.0f} {self.currency} per m², {self.source}, {self.as_at}"
+        much = "value not obtained" if self.amount is None else f"{self.amount:,.0f} {self.currency}"
+        return f"{much} per m², {self.source}, {self.as_at}"
 
 
 @dataclass(frozen=True, slots=True)
@@ -197,16 +205,25 @@ REBUILD: dict[str, dict[str, Figure]] = {
                        "Italian insurance-trade guidance on the valore di ricostruzione "
                        "of a standard condominium, 1,600 to 2,000 EUR/m²",
                        "market",
-                       "no Italian body publishes a rebuild cost; ISTAT publishes an index "
-                       "only, and the official costo di costruzione is a permit fee base"),
+                       "a trade assumption, labelled as one, because Italy publishes no "
+                       "rebuild rate at all. Its regulator says so itself: IVASS reported "
+                       "in June 2026, as in June 2024, that setting the sum insured is "
+                       "still left to the insured and checked only when a claim arrives. "
+                       "Its own mandatory catastrophe return has no floor area field, so "
+                       "no rate per square metre could be computed from it either"),
     },
     "GR": {
         "flat": Figure(900.0, "EUR", "2026-01-14",
-                       "AADE, the reconstruction value a dwelling must be insured for to "
-                       "earn the ENFIA reduction, fiscal year 2026",
+                       "AADE, i axia anakataskevis: the reconstruction value a dwelling "
+                       "must be insured for to earn the ENFIA reduction, set for 2026 by "
+                       "ministerial decision A.1005/2026",
                        "insurance",
-                       "the Greek State's own insurance figure, flat nationwide and at "
-                       "roughly half of what building actually costs, so it caps low"),
+                       "read as the State means it: a floor, not a valuation. A policy "
+                       "qualifies at 900 x the main floor area and there is no upper "
+                       "limit, so used as a ceiling it is deliberately conservative -- "
+                       "about half of what building in Greece actually costs. It is flat "
+                       "nationwide, it is per main floor area rather than total, and it "
+                       "is reset each year by its own decision"),
     },
     "JP": {
         "flat": Figure(392_000.0, "JPY", "2025-12-31",
@@ -247,12 +264,16 @@ REBUILD: dict[str, dict[str, Figure]] = {
                         "this is a floor rather than a sum insured"),
     },
     "MX": {
-        "house": Figure(16_250.0, "MXN", "2026-01-01",
-                        "Mexican contractor pricing for a mid-standard house, "
-                        "12,500 to 20,000 MXN/m², 2026",
-                        "market",
-                        "INEGI publishes a price index for residential construction but "
-                        "no cost per square metre"),
+        "house": Figure(6_743.0, "MXN", "2024-12-31",
+                        "CMIC's own costed prototype, vivienda economica of 40 m², "
+                        "direct cost, December 2024",
+                        "rebuild",
+                        "direct cost only at the cheapest standard built in Mexico: no "
+                        "land, design, permits, overhead, financing or profit, which "
+                        "together commonly add a third to a half. A floor, then. The "
+                        "12,500 to 22,000 MXN/m² widely attributed to CMIC is not in "
+                        "anything CMIC publishes and reads as market sale price with the "
+                        "land in it; CMIC itself now publishes only an index"),
     },
     "CL": {
         "house": Figure(27.0, "CLF", "2026-01-01",
@@ -270,15 +291,16 @@ REBUILD: dict[str, dict[str, Figure]] = {
                         "permit value and cannot be used"),
     },
     "ID": {
-        "flat": Figure(5_500_000.0, "IDR", "2026-01-01",
-                       "Indonesian contractor pricing for a two storey house in Jakarta, "
-                       "2026",
-                       "market",
-                       "BPS publishes the IKK cost index but no rupiah per square metre"),
-        "house": Figure(4_500_000.0, "IDR", "2026-01-01",
-                        "Indonesian contractor pricing for a single storey house in "
-                        "Jakarta, 2026",
-                        "market"),
+        "house": Figure(6_230_000.0, "IDR", "2025-07-31",
+                        "Keputusan Gubernur DKI Jakarta 580/2025, harga satuan tertinggi "
+                        "for building state housing, rumah negara type C to E, city areas",
+                        "rebuild",
+                        "issued under the building law rather than tax law, which is what "
+                        "makes it a construction cost and not a fee base; it includes the "
+                        "contractor's overhead, construction safety management and tax, "
+                        "and excludes land. Read it as a ceiling rather than an average: "
+                        "tertinggi means the most the city may pay. Jakarta's own market "
+                        "priced model of the same class lands within one per cent of it"),
     },
 }
 
@@ -292,6 +314,7 @@ FALLS_BACK: dict[str, dict[str, tuple[str, str]]] = {
     "CL": {"flat": ("house", "no Chilean source splits a flat from a house")},
     "GR": {"house": ("flat", "the Greek State's reconstruction value is one figure for "
                      "any dwelling")},
+    "ID": {"flat": ("house", "no Indonesian source splits a flat from a house")},
 }
 # A shop is built to the same standard as the flats above it, and only Turkiye
 # publishes a separate commercial class.
@@ -306,16 +329,52 @@ REFUSED: dict[str, Figure] = {
                  "permit",
                  "the base for the building permit contribution, descended from a 1994 "
                  "figure by indexation; about a quarter of what rebuilding costs"),
-    "CL": Figure(200_000.0, "CLP", "2025-12-30",
-                 "MINVU tabla de costos unitarios de construccion",
+    "CL": Figure(259_511.0, "CLP", "2026-01-01",
+                 "MINVU resolucion exenta 2016 of 30 December 2025, tabla de costos "
+                 "unitarios, category 3 class C, which is the ordinary Chilean house",
                  "permit",
-                 "the base for municipal permit fees; five to eight times below the cost "
-                 "of building. Its class structure is worth copying, its levels are not"),
+                 "its own title says what it is for: fixing unit values to calculate "
+                 "municipal permit duties, under the articles of the urbanism law that "
+                 "set those duties. Escalated quarterly by consumer prices, not by "
+                 "building costs. Even its single dearest cell, 541,253 for a steel "
+                 "framed category 1, is half of what building costs; the cell an ordinary "
+                 "house falls in is a quarter of it. Its class structure is worth copying, "
+                 "its levels are not"),
+    "MX": Figure(1_249.0, "MXN", "2022-02-01",
+                 "IMSS costos de mano de obra por metro cuadrado para la obra privada, "
+                 "casa habitacion tipo medio",
+                 "permit",
+                 "the likeliest ancestor of any official looking Mexican rate per square "
+                 "metre, because it is the one official table that has both a number and "
+                 "a house versus apartment split. It is labour only, and it is not even a "
+                 "labour cost: it is the base on which social security contributions are "
+                 "imputed to private building work, uprated each year by the inflation "
+                 "unit rather than by building prices. About a tenth of what building "
+                 "costs"),
+    "ID": Figure(None, "IDR", "2025-06-30",
+                 "Pergub DKI Jakarta 17/2025, standar harga satuan for 2026",
+                 "budget",
+                 "the rare instrument that disqualifies itself in its own text: article "
+                 "2(4) says the standard cannot be used as the basis for preparing a cost "
+                 "estimate. It is a ceiling on what the city budget may appropriate. Its "
+                 "figures are not published in the decree at all, which is the second "
+                 "reason it cannot be used"),
     "PH": Figure(7_059.35, "PHP", "2026-02-28",
                  "PSA construction statistics from approved building permits, single house",
                  "permit",
                  "the value applicants declare to a building officer, divided by floor "
                  "area; it puts a house at 113 USD/m²"),
+    "GR": Figure(None, "EUR", "2007-02-27",
+                 "Ypourgeio Oikonomikon, times ekkinisis elachistou kostous oikodomis, "
+                 "POL. 1033/2007, used with forms K1 to K9 in the objective valuation "
+                 "system",
+                 "permit",
+                 "the most tempting thing Greece publishes, because it is official, it "
+                 "is per square metre and it is regional for dwellings. Its own framework "
+                 "decision says what it is for: determining the taxable value of a "
+                 "building on transfer. The same species as Italy's costo di costruzione, "
+                 "and the edition in force still dates from 2007. Its values were not "
+                 "obtained and are not wanted"),
     "TR": Figure(11_737.0, "TRY", "2026-09-01",
                  "DASK, sigorta bedeline esas metrekare bedeli, reinforced concrete",
                  "insurance",
@@ -345,8 +404,13 @@ REGIONS: dict[str, tuple[str, dict[str, dict[str, float]]]] = {
             "Yunlin": {"house": 0.884, "flat": 0.884}}),
     "ID": ("BPS publishes the Indeks Kemahalan Konstruksi for all 38 provinces and 514 "
            "districts, 2025, on Surabaya = 100. These are the province against Jakarta, "
-           "which is the rate above. The spread is wider than anyone expects.",
+           "which is the rate above; the islands off Jakarta come from the same decree "
+           "as the rate itself. The spread is wider than anyone expects. BPS's own site "
+           "refuses a machine and its interface needs a key, so Jakarta and the Papuan "
+           "highlands are the two confirmed against the published table and the rest "
+           "are as reported.",
            {"Jakarta": {},
+            "Kepulauan Seribu": {"house": 1.090, "flat": 1.090},
             "Jakarta Pusat": {"house": 1.039, "flat": 1.039},
             "Jawa Timur": {"house": 0.871, "flat": 0.871},
             "Surabaya": {"house": 0.871, "flat": 0.871},
@@ -371,8 +435,10 @@ NO_REGIONS = {
     "TR": "no provincial figure is published: the Ministry's schedule is one national "
           "table, TUIK's index has no regional breakdown, and DASK's per square metre "
           "value is the same everywhere",
-    "IT": "no regional rebuild cost is published; the regional price books price work "
-          "items, not a rate per square metre",
+    "IT": "no regional rebuild cost is published. Every region does set its own permit "
+          "fee base, so a search for building cost by Italian region returns twenty "
+          "official numbers that look like a rebuild table and are not one; the regional "
+          "price books price work items rather than a rate per square metre",
     "GR": "the State's reconstruction value is explicitly flat nationwide",
     "MX": "INEGI's series by city is a price change per city, not a cost level, so no "
           "ratio can be taken from it",
@@ -602,8 +668,16 @@ def carried_forward(figure: Figure, country: str, now: float) -> tuple[float, st
     if figure.kind in NOT_A_RATE:
         raise ValuationError(
             f"the only figure published for this is {figure.source}, which is "
-            f"{figure.note or 'a permit fee base'}; it cannot set a sum insured")
+            f"{figure.note or 'not a measure of what building costs'}; "
+            f"it cannot set a sum insured")
     base = in_units(figure)
+    if figure.kind == "insurance":
+        # An index carries a cost forward because a cost drifts. A scheme's
+        # own figure does not drift: it is set by decision and reset on its
+        # own timetable, so 900 euros stays 900 euros until the authority
+        # says otherwise. Carrying it forward would invent a number nobody
+        # published and no insurer would accept.
+        return base, "as published; a scheme's own figure is reset by its author, not by an index"
     index = ESCALATION.get(country)
     if index is None or not index.per_year:
         return base, ""

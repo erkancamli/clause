@@ -2073,8 +2073,15 @@ def create_app(
         rows.sort(key=lambda r: (r["total"], -r["headroom"]))
         for i, row in enumerate(rows):
             row["cheapest"] = i == 0
+        # Companies licensed for this that still could not offer, by name and
+        # reason. A list that has quietly gone from five names to one looks the
+        # same as a country with one insurer in it, and the buyer deserves to
+        # know which they are looking at.
+        held = [{"name": name, "why": why}
+                for name, why in (placement.held_back if placement else ())]
         return {"offers": rows, "premium": round(answer["premium"], 2), "lock": answer["lock"],
                 "reasons": list(ruling.reasons) if not rows else [],
+                "held_back": held,
                 "cooling_off_days": rule.days if answer["term_days"] > rule.short_cover_days else 0}
 
     @app.post("/api/policies")
