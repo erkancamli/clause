@@ -326,6 +326,18 @@ class Carrier:
     def countries(self, *, now: float | None = None) -> set[str]:
         return {l.country for l in self.licences if l.live(now=now)}
 
+    def folded(self) -> dict[str, Any]:
+        """The little a reader needs of a stand in they will not open.
+
+        There are three of these in every country now, and the register folds
+        all of them behind one line, so sending each one's licence, appetite
+        and ledger put two thirds of a megabyte on the wire to be thrown away.
+        This is what the folded line actually reads.
+        """
+        return {"carrier_id": self.carrier_id, "name": self.name, "role": self.role.value,
+                "domicile": self.domicile, "status": self.status.value,
+                "countries": sorted(self.countries()), "specimen": True, "folded": True}
+
     def to_dict(self, *, private: bool = False) -> dict[str, Any]:
         out = {
             "carrier_id": self.carrier_id,
@@ -966,7 +978,15 @@ _NO_SPECIMEN = frozenset({
 })
 # Where the central bank has banned paying with crypto assets, a stand in's
 # licence settles in the local currency only, as a real one's would.
-_FIAT_ONLY_COUNTRIES = frozenset({"TR", "CN", "DZ", "BD", "EG", "MA", "NP", "IQ", "QA", "TN"})
+#: Countries whose own law puts premiums and claims in the local currency.
+#: Türkiye's 2021 central bank regulation prohibits using crypto assets in
+#: payments, directly or indirectly, and the others are the same kind of rule.
+#: This shaped the stand ins' licences from the start; it is exported because
+#: shaping a licence is not the same as enforcing a rule, and a company that
+#: claims it may settle in stablecoin where the law says otherwise should be
+#: refused rather than believed.
+FIAT_ONLY_COUNTRIES = frozenset({"TR", "CN", "DZ", "BD", "EG", "MA", "NP", "IQ", "QA", "TN"})
+_FIAT_ONLY_COUNTRIES = FIAT_ONLY_COUNTRIES
 
 
 def world_specimens(*, now: float | None = None) -> list[Carrier]:
@@ -982,53 +1002,46 @@ def world_specimens(*, now: float | None = None) -> list[Carrier]:
     from ..countries import NAMES
 
     now = time.time() if now is None else now
+
+    # Three in every country, not one. A single stand in per country meant a
+    # buyer anywhere outside Türkiye, Japan and Germany was handed a company
+    # rather than offered a choice, and a list of one is not a market. They
+    # differ on the things a buyer can actually see and weigh: what the company
+    # charges on top of the premium, how long a bank payout takes, and how many
+    # days beyond the law it gives to change your mind. The cheapest is the
+    # slowest and the dearest pays next day, because that is the trade every
+    # real market makes.
+    #
+    # The suffix matters more than it looks: the unsuffixed id is the one an
+    # older saved book already holds, so it keeps its terms exactly, and the
+    # two new ones are added beside it rather than renumbering anything.
+    KINDS = (
+        ("", "", 0.05, 3.0, 0.0, 1_000_000.0),
+        ("-2", " B", 0.028, 5.0, 0.0, 3_000_000.0),
+        ("-3", " C", 0.075, 1.0, 14.0, 5_000_000.0),
+    )
     out = []
     for code, name in sorted(NAMES.items()):
         if code in _NO_SPECIMEN:
             continue
-        out.append(Carrier(
-            specimen=True, contact="specimen, not a company",
-            carrier_id=f"specimen-{code.lower()}",
-            name=f"Specimen Carrier, {name} (not a real company)",
-            role=Role.CARRIER, domicile=code,
-            licences=(Licence(
-                country=code,
-                authority="the national insurance supervisor would supervise a real one",
-                reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
-                reach=Reach.RETAIL,
-                settlement=FIAT_ONLY if code in _FIAT_ONLY_COUNTRIES else BOTH_ASSETS,
-                expires_at=now + 2 * YEAR,
-            ),),
-            appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
-            capacity=1_000_000,
-            fronting_fee=0.05,
-        ))
-    # A second and third stand in in the countries a buyer is most likely to
-    # try, so the choice between companies can be seen.
-    for code, fee, days, extra in (("JP", 0.03, 2.0, 0.0), ("JP", 0.08, 1.0, 22.0),
-                                   ("DE", 0.02, 3.0, 0.0), ("DE", 0.07, 1.0, 16.0),
-                                   ("TR", 0.03, 3.0, 0.0)):
-        n = sum(1 for c in out if c.domicile == code) + 1
-        letter = "ABCDEFG"[n] if code == "TR" else str(n)   # A and B are above, so the first here is C
-        if code in _NO_SPECIMEN:
-            continue
-        out.append(Carrier(
-            specimen=True, contact="specimen, not a company",
-            carrier_id=f"specimen-{code.lower()}-{n}",
-            name=f"Specimen Carrier {letter}, {NAMES[code]} (not a real company)",
-            role=Role.CARRIER, domicile=code,
-            licences=(Licence(
-                country=code,
-                authority="the national insurance supervisor would supervise a real one",
-                reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
-                reach=Reach.RETAIL,
-                settlement=FIAT_ONLY if code in _FIAT_ONLY_COUNTRIES else BOTH_ASSETS,
-                expires_at=now + 2 * YEAR,
-            ),),
-            appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
-            capacity=5_000_000, fronting_fee=fee, fiat_payout_days=days,
-            extra_cooling_off_days=extra,
-        ))
+        for suffix, letter, fee, days, extra, capacity in KINDS:
+            out.append(Carrier(
+                specimen=True, contact="specimen, not a company",
+                carrier_id=f"specimen-{code.lower()}{suffix}",
+                name=f"Specimen Carrier{letter}, {name} (not a real company)",
+                role=Role.CARRIER, domicile=code,
+                licences=(Licence(
+                    country=code,
+                    authority="the national insurance supervisor would supervise a real one",
+                    reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
+                    reach=Reach.RETAIL,
+                    settlement=FIAT_ONLY if code in FIAT_ONLY_COUNTRIES else BOTH_ASSETS,
+                    expires_at=now + 2 * YEAR,
+                ),),
+                appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+                capacity=capacity, fronting_fee=fee, fiat_payout_days=days,
+                extra_cooling_off_days=extra,
+            ))
     return out
 
 

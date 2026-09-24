@@ -875,6 +875,20 @@ def create_app(
                     burned += 1
             if burned:
                 logger.info("burned the tokens of %s policies cancelled before burning existed", burned)
+            if settings.faucet:
+                # A company registered on a demonstration before that
+                # registration marked itself. Two were sitting in the live book
+                # looking like real insurers, and one of them was the only
+                # company a Turkish buyer could see. On a demonstration nothing
+                # is cover and nobody is issuing any, so the label says so.
+                relabelled = 0
+                for carrier in registry.carriers.values():
+                    if not carrier.specimen:
+                        carrier.specimen = True
+                        relabelled += 1
+                if relabelled:
+                    logger.info("marked %s companies registered on this demonstration "
+                                "as stand ins", relabelled)
             if settings.specimens:
                 # A book saved before the stand ins existed gets them now; one
                 # saved after keeps its own, including any a reviewer suspended.
@@ -2630,8 +2644,26 @@ def create_app(
             registry.reconcile(pool.policies.values())
         """The companies behind the cover. Public, because a buyer is entitled
         to know whose paper their policy is on before they buy it."""
+        # A stand in that exists only to show the protocol working in its
+        # country is sent folded: the register shows all of them behind a
+        # single line, and sending each one in full was most of this response.
+        # The ones written by hand to be compared against each other, and every
+        # company a person registered, are sent whole.
+        # Matched against real country codes, not any two letters: the stand in
+        # that passports across Europe is "specimen-eu", which is the right
+        # shape and the wrong company, and it is one of the handful written to
+        # be read.
+        from ..countries import NAMES as _COUNTRY_NAMES
+        folds = re.compile(r"^specimen-([a-z]{2})(-\d+)?$")
+
+        def one(carrier: Any) -> dict[str, Any]:
+            hit = folds.match(carrier.carrier_id) if carrier.specimen else None
+            if hit and hit.group(1).upper() in _COUNTRY_NAMES:
+                return carrier.folded()
+            return carrier.to_dict()
+
         return {
-            "companies": [c.to_dict() for c in registry.carriers.values()],
+            "companies": [one(c) for c in registry.carriers.values()],
             "summary": registry.summary(),
         }
 
@@ -2742,6 +2774,15 @@ def create_app(
                 contact=request.contact,
                 mersis=mersis, tax_number=tax_number,
                 address=holder,
+                # On a demonstration the money is pretend, the book is
+                # synthetic and nothing written here is cover, so a company
+                # that registers here is not issuing any either, whatever it
+                # calls itself. It carries the stand in flag for the same
+                # reason the stand ins do: a fabricated insurer that looks
+                # real is the most misleading thing this codebase could
+                # publish, and that is as true of one somebody typed in as of
+                # one we shipped.
+                specimen=settings.faucet,
             ))
         except CarrierError as error:
             for item in evidence:

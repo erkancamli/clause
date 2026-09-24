@@ -589,3 +589,91 @@ def test_a_company_that_cannot_offer_says_so_instead_of_vanishing() -> None:
     for name, why in placement.held_back:
         assert name and why
         assert "its most is" in why or "full" in why or "of the book" in why
+
+
+def test_one_company_offering_usdc_does_not_hide_nine_offering_a_bank_transfer() -> None:
+    """The fourth time the live site showed a single insurer, and the cause was
+    neither licensing nor capacity.
+
+    Placement tries stablecoin first and stopped at the first asset that placed.
+    Every Turkish stand in settles in lira, so locally the first attempt found
+    nobody and the second found six. On the deployment one company had declared
+    it could settle in USDC, the first attempt succeeded, and the nine that pay
+    into a bank vanished behind it. How a company pays is one of the things the
+    buyer is choosing between, not a filter applied before they get to choose.
+    """
+    import time
+    from clause.protocol.carrier import (Appetite, BOTH_ASSETS, Carrier, EVERY_PERIL,
+                                         Licence, Reach, Role, specimen_registry)
+    from clause.protocol.compliance import ComplianceEngine, Interest
+
+    now = time.time()
+    registry = specimen_registry(now=now)
+    registry.register(Carrier(
+        carrier_id="both-ways", name="Settles either way", role=Role.CARRIER,
+        domicile="TR", contact="a company", licences=(Licence(
+            country="TR", authority="SEDDK", reference="X-1", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=BOTH_ASSETS, expires_at=now + 2 * 365 * 86400),),
+        appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000, fronting_fee=0.025))
+    registry.activate("both-ways", now=now)
+
+    ruling = ComplianceEngine(registry).evaluate(
+        interest=Interest(what="a flat", country="TR", inside_trigger_area=True,
+                          value_at_risk=50_000.0),
+        limit=50_000.0, peril="earthquake", term_days=365.0)
+    assert ruling.allowed
+    offered = {o.carrier.carrier_id for o in ruling.placement.offers}
+    assert "both-ways" in offered
+    assert len(offered) >= 6, f"the fiat companies were hidden again: {sorted(offered)}"
+
+
+def test_where_the_law_says_local_currency_the_protocol_obeys_its_own_note() -> None:
+    """Türkiye's note tells the buyer that premiums and claims settle in lira,
+    because the 2021 central bank regulation prohibits paying in crypto assets.
+    That was a sentence on a screen and nothing else: a company that declared a
+    stablecoin licence there was simply believed. A disclosure the protocol
+    does not itself obey is worse than no disclosure."""
+    import time
+    from clause.protocol.carrier import (Appetite, BOTH_ASSETS, Carrier, EVERY_PERIL,
+                                         Licence, Reach, Role, Settlement,
+                                         FIAT_ONLY_COUNTRIES, specimen_registry)
+    from clause.protocol.compliance import ComplianceEngine, Interest
+
+    assert "TR" in FIAT_ONLY_COUNTRIES
+    now = time.time()
+    registry = specimen_registry(now=now)
+    registry.register(Carrier(
+        carrier_id="usdc-please", name="Would rather pay in USDC", role=Role.CARRIER,
+        domicile="TR", contact="a company", licences=(Licence(
+            country="TR", authority="SEDDK", reference="X-2", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=BOTH_ASSETS, expires_at=now + 2 * 365 * 86400),),
+        appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000, fronting_fee=0.01))
+    registry.activate("usdc-please", now=now)
+
+    ruling = ComplianceEngine(registry).evaluate(
+        interest=Interest(what="a flat", country="TR", inside_trigger_area=True,
+                          value_at_risk=50_000.0),
+        limit=50_000.0, peril="earthquake", term_days=365.0)
+    # It is the cheapest paper in the country, so it is chosen; it is paid in
+    # lira all the same, because that is what the note says and what the law is.
+    assert ruling.allowed
+    assert ruling.settlement is Settlement.FIAT
+
+
+def test_every_country_offers_more_than_one_company() -> None:
+    """A list of one is not a market. Outside the three countries that had been
+    given a second stand in by hand, every buyer in the world was being handed
+    a company rather than offered a choice."""
+    import collections
+    from clause.protocol.carrier import world_specimens
+
+    by_country = collections.Counter(c.domicile for c in world_specimens())
+    assert by_country, "there should be stand ins"
+    thin = {code: n for code, n in by_country.items() if n < 3}
+    assert not thin, f"these countries have fewer than three stand ins: {sorted(thin)}"
+    # And they differ on what a buyer can see and weigh.
+    brazil = [c for c in world_specimens() if c.domicile == "BR"]
+    assert len({c.fronting_fee for c in brazil}) == len(brazil)
+    assert len({c.fiat_payout_days for c in brazil}) == len(brazil)

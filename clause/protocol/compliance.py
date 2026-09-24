@@ -66,11 +66,11 @@ rather than an opinion.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any
 
-from .carrier import Placement, Reach, Registry, Settlement
+from .carrier import FIAT_ONLY_COUNTRIES, Offer, Placement, Reach, Registry, Settlement
 
 __all__ = [
     "Channel", "Settlement", "Interest", "Ruling", "ComplianceEngine",
@@ -350,19 +350,37 @@ class ComplianceEngine:
         # the ruling reports which one it landed on rather than refusing someone
         # over a default they never chose.
         wanted = [Settlement.STABLECOIN, Settlement.FIAT]
+        if country in FIAT_ONLY_COUNTRIES:
+            # The note this ruling carries tells a Turkish buyer that premiums
+            # and claims settle in lira because the 2021 central bank
+            # regulation prohibits paying in crypto assets. Until now that was
+            # a sentence on a screen and nothing else: a company that declared
+            # a stablecoin licence there was simply believed. A disclosure the
+            # protocol does not itself obey is worse than no disclosure.
+            wanted = [Settlement.FIAT]
         if asset is not None:
-            wanted = [asset] + [a for a in wanted if a is not asset]
+            wanted = [asset] + [a for a in wanted if a is not asset] if asset in wanted else wanted
         placement = None
         settled_as = None
+        seen: dict[str, Offer] = {}
         for candidate in wanted:
             attempt = self.registry.place(
                 country=country, peril=peril, limit=limit, term_days=term_days,
                 asset=candidate, reach=interest.reach,
                 book_capacity=book_capacity, now=now, chosen=carrier_id,
             )
-            if attempt.placed:
+            # Every company that can write this, whichever asset it settles in.
+            # Stopping at the first asset that placed meant one company offering
+            # stablecoin hid every company offering a bank transfer: nine stand
+            # ins in Türkiye disappeared behind a single carrier because it was
+            # tried first and succeeded. How a company pays is one of the things
+            # the buyer is choosing between, not a filter applied before they
+            # get to choose.
+            for offer in attempt.offers:
+                seen.setdefault(offer.carrier.carrier_id, offer)
+            if attempt.placed and (placement is None or not placement.placed):
                 placement, settled_as = attempt, candidate
-                break
+                continue
             # Nothing placed. Keep whichever refusal says the most: an attempt
             # that found somebody licensed knows the cover exists and the paper
             # is full, and an attempt that found nobody only knows it tried the
@@ -371,6 +389,8 @@ class ComplianceEngine:
             # stablecoin is tried first and nobody there settles in it.
             if placement is None or (attempt.licensed and not placement.licensed):
                 placement = attempt
+        if placement is not None and placement.placed and len(seen) > len(placement.offers):
+            placement = replace(placement, offers=tuple(seen.values()))
 
         if placement is None or not placement.placed or settled_as is None:
             # Both assets were tried, so the refusal must not name one of them

@@ -8761,7 +8761,10 @@ function specimenList(list){
 }
 function companiesHtml(payload){
   var all=payload.companies||[];
-  var stand=all.filter(function(c){ return c.specimen&&c.carrier_id==="specimen-"+String(c.domicile||"").toLowerCase(); });
+  /* Every stand in this build ships, folded behind one line. The test used to
+     match only the unsuffixed id, so when each country gained a second and a
+     third the page grew four hundred cards nobody asked for. */
+  var stand=all.filter(function(c){ return c.specimen&&c.folded; });
   var folded=specimenList(stand);
   var companies=folded?all.filter(function(c){ return stand.indexOf(c)<0; }):all;
   return companies.map(function(c){
