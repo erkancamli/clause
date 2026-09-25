@@ -1,0 +1,116 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "count": 4
+ },
+ "features": [
+  {
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     37.96,
+     38.03,
+     -20.0
+    ]
+   },
+   "type": "Feature",
+   "id": "20230206_0000458",
+   "properties": {
+    "lastupdate": "2023-02-06T20:10:00.0Z",
+    "magtype": "mb",
+    "evtype": "ke",
+    "lon": 37.96,
+    "auth": "NEIC",
+    "lat": 38.03,
+    "depth": 20.0,
+    "mag": 6.0,
+    "time": "2023-02-06T10:26:48.5Z",
+    "source_id": "1219172",
+    "source_catalog": "EMSC-RTS",
+    "flynn_region": "CENTRAL TURKEY",
+    "unid": "20230206_0000458"
+   }
+  },
+  {
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     37.24,
+     38.11,
+     -10.0
+    ]
+   },
+   "type": "Feature",
+   "id": "20230206_0000222",
+   "properties": {
+    "lastupdate": "2023-02-06T11:01:00.0Z",
+    "magtype": "mw",
+    "evtype": "ke",
+    "lon": 37.24,
+    "auth": "EMSC",
+    "lat": 38.11,
+    "depth": 10.0,
+    "mag": 7.5,
+    "time": "2023-02-06T10:24:49.6Z",
+    "source_id": "1218771",
+    "source_catalog": "EMSC-RTS",
+    "flynn_region": "CENTRAL TURKEY",
+    "unid": "20230206_0000222"
+   }
+  },
+  {
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     36.81,
+     37.13,
+     -10.0
+    ]
+   },
+   "type": "Feature",
+   "id": "20230206_0000011",
+   "properties": {
+    "lastupdate": "2023-06-16T12:28:00.0Z",
+    "magtype": "mw",
+    "evtype": "ke",
+    "lon": 36.81,
+    "auth": "EMSC",
+    "lat": 37.13,
+    "depth": 10.0,
+    "mag": 6.7,
+    "time": "2023-02-06T01:28:17.1Z",
+    "source_id": "1218449",
+    "source_catalog": "EMSC-RTS",
+    "flynn_region": "CENTRAL TURKEY",
+    "unid": "20230206_0000011"
+   }
+  },
+  {
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     37.08,
+     37.17,
+     -20.0
+    ]
+   },
+   "type": "Feature",
+   "id": "20230206_0000008",
+   "properties": {
+    "lastupdate": "2023-02-06T08:20:00.0Z",
+    "magtype": "mw",
+    "evtype": "ke",
+    "lon": 37.08,
+    "auth": "EMSC",
+    "lat": 37.17,
+    "depth": 20.0,
+    "mag": 7.8,
+    "time": "2023-02-06T01:17:36.1Z",
+    "source_id": "1218444",
+    "source_catalog": "EMSC-RTS",
+    "flynn_region": "CENTRAL TURKEY",
+    "unid": "20230206_0000008"
+   }
+  }
+ ]
+}

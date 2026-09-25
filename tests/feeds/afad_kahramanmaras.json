@@ -1,0 +1,53 @@
+[
+ {
+  "rms": "1.92",
+  "eventID": "543428",
+  "location": "Pazarcık (Kahramanmaraş)",
+  "latitude": "37.27728",
+  "longitude": "37.03996",
+  "depth": "8.6",
+  "type": "MW",
+  "magnitude": "7.7",
+  "country": "Türkiye",
+  "province": "Kahramanmaraş",
+  "district": "Pazarcık",
+  "neighborhood": "Karahüyük",
+  "date": "2023-02-06T01:17:32",
+  "isEventUpdate": true,
+  "lastUpdateDate": "2023-02-06T09:46:31.642742"
+ },
+ {
+  "rms": "0.21",
+  "eventID": "543431",
+  "location": "Nurdağı (Gaziantep)",
+  "latitude": "37.29414",
+  "longitude": "36.91613",
+  "depth": "6.2",
+  "type": "MW",
+  "magnitude": "6.6",
+  "country": "Türkiye",
+  "province": "Gaziantep",
+  "district": "Nurdağı",
+  "neighborhood": "Emirler",
+  "date": "2023-02-06T01:28:16",
+  "isEventUpdate": false,
+  "lastUpdateDate": null
+ },
+ {
+  "rms": "0.58",
+  "eventID": "543593",
+  "location": "Elbistan (Kahramanmaraş)",
+  "latitude": "38.078",
+  "longitude": "37.23097",
+  "depth": "7",
+  "type": "MW",
+  "magnitude": "7.6",
+  "country": "Türkiye",
+  "province": "Kahramanmaraş",
+  "district": "Elbistan",
+  "neighborhood": "Gümüşdöven",
+  "date": "2023-02-06T10:24:47",
+  "isEventUpdate": true,
+  "lastUpdateDate": "2023-02-09T14:38:53.19449"
+ }
+]
