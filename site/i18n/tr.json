@@ -2163,7 +2163,14 @@
     "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Başka bir yönteme geçmek burada kayıtlı IBAN'ı ve ismi siler. Daha önce gönderilen havaleler kendi kaydını korur.",
     "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Protokole ulaşılamadı ya da sayfanın okuyamadığı bir yanıt geldi. Tekrar denemeden önce Poliçelerim'e bakın: poliçe oradaysa alınmıştır, değilse hiçbir şey tahsil edilmemiştir.",
     "check My cover": "Poliçelerim'e bakın",
-    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "bu mesafede istasyon ile tarla sık sık farklı sonuç verecektir. Bu fark primde değildir ve olamaz: ödeme istasyonu izler, dolayısıyla tarla nerede olursa olsun aynıdır. Bu, alıcının endeks satın alarak üstlendiği risktir"
+    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "bu mesafede istasyon ile tarla sık sık farklı sonuç verecektir. Bu fark primde değildir ve olamaz: ödeme istasyonu izler, dolayısıyla tarla nerede olursa olsun aynıdır. Bu, alıcının endeks satın alarak üstlendiği risktir",
+    "Does not cover": "Kapsamaz",
+    "If the reading stays below {level}, this pays nothing — even if what you insured is damaged.": "Ölçülen değer {level} altında kalırsa bu poliçe hiçbir şey ödemez — sigortaladığınız şey zarar görse bile.",
+    "If the reading reaches {level}, it pays — even if nothing of yours is damaged.": "Ölçülen değer {level} seviyesine ulaşırsa öder — hiçbir şeyiniz zarar görmemiş olsa bile.",
+    "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Mevsimin yağışı {level} üzerinde gelirse bu poliçe hiçbir şey ödemez — hasat tutmasa bile.",
+    "If it comes in below {level}, it pays — even if the harvest is fine.": "{level} altında gelirse öder — hasat iyi olsa bile.",
+    "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Uçuş {level} altında gecikirse bu poliçe hiçbir şey ödemez — gecikme size çok pahalıya mal olsa bile.",
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "{level} veya daha kötüyse öder — gecikme size hiçbir şeye mal olmasa bile."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

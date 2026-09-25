@@ -1139,6 +1139,13 @@ details.more summary::before{content:"";width:7px;height:7px;border-right:1.5px 
 details.more[open] summary::before{transform:rotate(45deg)}
 details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+/* What the cover does not do, set apart from the rows above it: those are
+   what the buyer chose, this is what they are taking on. */
+.ans.basis{border-top:1px solid var(--edge);margin-top:4px;padding-top:12px}
+.ans.basis .v b{display:block;color:var(--ink);font-weight:600;line-height:1.45}
+.ans.basis .v small{display:block;margin-top:5px;color:var(--ink-3);line-height:1.5}
+.ans.basis .k{color:var(--signal-ink)}
+
 /* Check your answers: what was chosen, each line with its way back. */
 .answers{border:1px solid var(--edge);border-radius:12px;padding:12px 14px 4px;background:var(--panel)}
 .ans{display:grid;grid-template-columns:118px 1fr auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--edge);align-items:baseline;font-size:14px}
@@ -6692,6 +6699,10 @@ function renderAnswers(){
     price+=' <small>'+esc(t("{n} payments of {amount}",{n:flow.instalments,amount:money(total*(1+pl.surcharge)/flow.instalments)}))+'</small>'; }
   rows.push(row(t("Price"),price,flow.instalments>1||($("plan-box")&&!$("plan-box").hidden)?CONFIRM_STEP:0,"plan-box"));
   box.innerHTML=rows.join("");
+  // And what it does not cover, in the numbers on this policy.
+  var says=basisRiskSaid();
+  box.innerHTML+='<div class="ans basis"><span class="k">'+esc(t("Does not cover"))+'</span>'+
+    '<span class="v"><b>'+esc(says[0])+'</b><br><small>'+esc(says[1])+'</small></span><span></span></div>';
   Array.prototype.forEach.call(box.querySelectorAll(".ans-change"),function(b){
     b.addEventListener("click",function(){
       var to=b.dataset.to, step=+b.dataset.step;
@@ -7391,6 +7402,36 @@ function ladderSaid(){
   });
   return rungs.length?rungs.join(" · "):triggerSaid();
 }
+/* What an index cover does not do, in the buyer's own numbers.
+   Every peril here carries a basis_risk paragraph, written carefully, and
+   the page never showed a word of it: it reached the policy document, which
+   is read after paying, and the API sends it with every peril, which nothing
+   on this page asks for. So the one thing a person most needs to have
+   understood before they pay -- that this reads an index and not their loss,
+   and that the gap runs in both directions -- was the one thing the flow
+   never said.
+   It is composed here rather than taken from the server's prose because it
+   has to be true of this policy, with this ladder, and it has to exist in
+   seven languages. The direction matters and is not uniform: drought pays
+   when the season comes in under a figure, everything else when a reading
+   comes in over one. Getting that backwards would print a false promise. */
+function basisRiskSaid(){
+  var c=structure(), pts=c.pts, first=null, i;
+  for(i=0;i<pts.length;i++){ if(pts[i][1]>0){ first=pts[i][0]; break; } }
+  if(first==null)first=pts[0][0];
+  var level=rungWords(first);
+  if(flow.peril==="drought")
+    return [t("If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.",{level:level}),
+            t("If it comes in below {level}, it pays — even if the harvest is fine.",{level:level})];
+  // A flight has nothing to damage, and the generic sentence would have said
+  // so anyway. What is lost there is time and what the time cost.
+  if(flow.peril==="flight")
+    return [t("If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.",{level:level}),
+            t("If it is {level} or worse, it pays — even if the delay cost you nothing.",{level:level})];
+  return [t("If the reading stays below {level}, this pays nothing — even if what you insured is damaged.",{level:level}),
+          t("If the reading reaches {level}, it pays — even if nothing of yours is damaged.",{level:level})];
+}
+
 function triggerSaid(){
   var pts;
   if(flow.peril==="quake")

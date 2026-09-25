@@ -2155,7 +2155,14 @@
     "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "別の方法に切り替えると、ここに保存されたIBANと名義は消去されます。すでに送金した振込はそれ自体の記録が残ります。",
     "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "プロトコルに接続できなかったか、ページが読み取れない応答が返りました。再試行の前に「マイ補償」をご確認ください。契約があれば成立しており、なければ請求は発生していません。",
     "check My cover": "「マイ補償」を確認",
-    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "この距離では観測所と畑の値が食い違うことが多くなります。その差は保険料に含まれておらず、含めることもできません。支払いは観測所に従うため、畑がどこにあっても同じだからです。これは指数型を選んだ買い手が引き受けるリスクです"
+    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "この距離では観測所と畑の値が食い違うことが多くなります。その差は保険料に含まれておらず、含めることもできません。支払いは観測所に従うため、畑がどこにあっても同じだからです。これは指数型を選んだ買い手が引き受けるリスクです",
+    "Does not cover": "補償しないもの",
+    "If the reading stays below {level}, this pays nothing — even if what you insured is damaged.": "観測値が{level}を下回ったままなら、この補償は一切支払われません。保険の対象が損害を受けていても同じです。",
+    "If the reading reaches {level}, it pays — even if nothing of yours is damaged.": "観測値が{level}に達すれば支払われます。あなたの側に何の損害がなくても同じです。",
+    "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "その季節の降水量が{level}を上回れば、この補償は一切支払われません。収穫が不作でも同じです。",
+    "If it comes in below {level}, it pays — even if the harvest is fine.": "{level}を下回れば支払われます。収穫が順調でも同じです。",
+    "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "遅延が{level}に満たなければ、この補償は一切支払われません。その遅れで大きな損失が出ていても同じです。",
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "{level}以上であれば支払われます。その遅れで何の損失もなくても同じです。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

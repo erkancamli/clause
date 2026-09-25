@@ -2155,7 +2155,14 @@
     "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Passer à une autre méthode efface l'IBAN et le nom enregistrés ici. Les virements déjà envoyés conservent leur propre trace.",
     "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Le protocole n'a pas pu être joint, ou a répondu quelque chose que la page n'a pas pu lire. Consultez Ma couverture avant de réessayer : si le contrat y figure, il a été souscrit ; s'il n'y figure pas, rien n'a été prélevé.",
     "check My cover": "consultez Ma couverture",
-    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "à cette distance, la station et le champ seront souvent en désaccord. Cet écart n'est pas dans la prime et ne peut pas l'être : le versement suit la station, il est donc le même où que soit le champ. C'est le risque que l'acheteur prend en choisissant un indice"
+    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "à cette distance, la station et le champ seront souvent en désaccord. Cet écart n'est pas dans la prime et ne peut pas l'être : le versement suit la station, il est donc le même où que soit le champ. C'est le risque que l'acheteur prend en choisissant un indice",
+    "Does not cover": "Ne couvre pas",
+    "If the reading stays below {level}, this pays nothing — even if what you insured is damaged.": "Si la mesure reste en dessous de {level}, cette couverture ne verse rien, même si ce que vous avez assuré est endommagé.",
+    "If the reading reaches {level}, it pays — even if nothing of yours is damaged.": "Si la mesure atteint {level}, elle verse, même si rien de ce qui vous appartient n'est endommagé.",
+    "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Si les pluies de la saison dépassent {level}, cette couverture ne verse rien, même si la récolte est perdue.",
+    "If it comes in below {level}, it pays — even if the harvest is fine.": "S'ils restent sous {level}, elle verse, même si la récolte est bonne.",
+    "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Si le vol atterrit avec moins de {level}, cette couverture ne verse rien, même si le retard vous a beaucoup coûté.",
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "S'il est de {level} ou plus, elle verse, même si le retard ne vous a rien coûté."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
