@@ -36,7 +36,7 @@ RULES: dict[str, dict[str, Any]] = {
     "earthquake": {
         "title": "Earthquake",
         "index": "Magnitude within the radius (Mw, the moment magnitude), or the shaking intensity at the address (MMI) where the policy says so",
-        "primary": "The national seismic network (in Türkiye AFAD, with Kandilli as a second reading), the reviewed event page",
+        "primary": "The national seismic network (in Türkiye AFAD, with Kandilli as a second reading), the reviewed event page. Where this protocol does not yet read a national network, the primary is USGS and the policy says so rather than naming a source nobody asks",
         "fallbacks": [
             "USGS ShakeMap and the USGS reviewed magnitude for the same event, when the national network has not published within 24 hours",
             "A modelled footprint from the catalogue magnitude and the ground-motion model this protocol prices with, only when neither network has published within 72 hours; marked as modelled on the Proof page",

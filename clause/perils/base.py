@@ -301,8 +301,22 @@ class Peril(ABC):
         return None
 
     @abstractmethod
-    def data_source(self, subject: dict[str, Any]) -> DataSource:
-        """Where the index for a particular insured subject is read."""
+    def data_source(self, subject: dict[str, Any], *,
+                    simulated: bool = False) -> DataSource:
+        """Where the index for a particular insured subject is read.
+
+        ``simulated`` asks for the reference the demonstration book writes
+        against: a domain reserved for examples, which can never resolve,
+        because a figure this protocol produced itself must not be addressed
+        as though an agency published it. The default is the measured one, so
+        that a path which forgets to choose ends up asking the agency rather
+        than quietly inventing the number.
+
+        A peril whose feed has not been built yet returns the same reference
+        either way, and says so where it builds it. That is not a measured
+        source pretending to be one; it is a peril that cannot yet be sold
+        against anything real.
+        """
 
     def curve_for(self, subject: dict[str, Any]) -> PayoutCurve:
         """The standard structure for this particular subject. Most perils have

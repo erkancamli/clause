@@ -259,7 +259,11 @@ class FlightDelay(Peril):
             (destination["latitude"], destination["longitude"]),
         )
 
-    def data_source(self, subject: dict[str, Any]) -> DataSource:
+    def data_source(self, subject: dict[str, Any], *,
+                    simulated: bool = False) -> DataSource:
+        # No feed reads this peril yet, so both references are the one that
+        # measures nothing. See oracle/feed.py for the ones that do.
+        del simulated
         flight = subject["flight_number"]
         date = subject["departure_date"]
         return DataSource(

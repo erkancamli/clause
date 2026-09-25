@@ -43,6 +43,7 @@ from typing import Any, Callable, Iterable
 from .rex import Aggregation, Aggregator, Agreement, RexReport, RexUpdate, topic_for
 from .. import predicate as pred
 from ..perils import DROUGHT, EARTHQUAKE, FLIGHT_DELAY
+from ..oracle.feed import is_measured
 from ..mathx import gamma_quantile
 from ..perils.flight import CANCELLATION_MINUTES, ROUTES, _LOG_SIGMA as LOG_SIGMA
 from ..perils.places import LEGACY_CODES, find_place
@@ -100,6 +101,10 @@ class EdgeReading:
     publisher: str
     index_field: str
     final: bool = False
+    # How far this reference has actually been read, for the ones somebody goes
+    # and asks about. The next visit starts here, so no window is skipped and a
+    # restart does not lose one. Zero means never read.
+    measured_through: float = 0.0
     # A reference that has gone quiet. Set when a source stops publishing, and
     # what the expiry path exists to handle.
     silent: bool = False
@@ -809,6 +814,14 @@ class Chain:
 
         for reference, reading in self.readings.items():
             if reading.silent or reading.final:
+                continue
+            if is_measured(reference):
+                # Somebody goes and asks about this one. The world does not get
+                # to invent a figure on a reference that names an agency's own
+                # service: if the agencies are quiet, the honest reading is
+                # that nothing happened, and if they cannot be reached the
+                # policy's missing data branch is what answers for it. See
+                # oracle/feed.py.
                 continue
 
             index_field = reading.index_field

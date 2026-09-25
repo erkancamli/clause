@@ -448,7 +448,11 @@ class Drought(Peril):
             f"after it can be bought from {closes + dt.timedelta(days=1):%d %B %Y}"
         )
 
-    def data_source(self, subject: dict[str, Any]) -> DataSource:
+    def data_source(self, subject: dict[str, Any], *,
+                    simulated: bool = False) -> DataSource:
+        # No feed reads this peril yet, so both references are the one that
+        # measures nothing. See oracle/feed.py for the ones that do.
+        del simulated
         station = self.station(subject)
         return DataSource(
             reference=f"api.meteo.example/v1/station/{station.code}/cumulative",

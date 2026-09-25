@@ -199,7 +199,10 @@ def test_a_flight_subject_carries_the_scheduled_time() -> None:
 # ---------------------------------------------------------------------------
 
 
-KADIKOY = "api.seismic.example/v1/max-magnitude?lat=40.99&lon=29.03&radius_km=50"
+# The reference a policy over Kadikoy is written against. A policy someone
+# buys names the agency's own service; only the demonstration book is
+# addressed to a domain that measures nothing.
+KADIKOY = "earthquake.usgs.gov/fdsnws/event/1/query?lat=40.99&lon=29.03&radius_km=50"
 
 
 def built() -> tuple[Pool, Chain]:

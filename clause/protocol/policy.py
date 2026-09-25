@@ -151,6 +151,11 @@ def build_policy(
     curve: PayoutCurve | None = None,
     now: float | None = None,
     starts_in_days: float | None = None,
+    # Whether this policy is written against the reference that measures
+    # nothing. The demonstration book asks for it; everything a person buys
+    # goes to the agency. Defaulting the other way would mean a forgotten
+    # argument sells cover on an invented number.
+    simulated: bool = False,
 ) -> Policy:
     """Assemble a policy from a priced quote.
 
@@ -169,7 +174,7 @@ def build_policy(
     peril = get_peril(peril_key)
     subject = peril.validate_subject(subject)
     curve = curve or peril.curve_for(subject)
-    source: DataSource = peril.data_source(subject)
+    source: DataSource = peril.data_source(subject, simulated=simulated)
 
     now = now if now is not None else time.time()
     refusal = peril.refuse_to_write(subject, now=now)

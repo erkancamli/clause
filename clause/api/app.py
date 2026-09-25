@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 from .. import __version__
 from ..chain import Chain, ChainConfig
+from ..oracle.feed import Feed
 from ..perils import EARTHQUAKE, REGISTRY, get_peril
 from ..perils.flight import ROUTES
 from ..perils.quake import ALLOWED_RADII_KM, LOCATIONS
@@ -942,10 +943,42 @@ def create_app(
                 except Exception:  # never let a retry loop die quietly
                     logger.exception("retry loop failed")
 
+        async def measure() -> None:
+            """Ask the agencies about the references that name them.
+
+            Its own loop rather than a line in the retry loop above, because
+            this one goes out to the network: a source that hangs must not
+            hold up a payout order being resent. Nothing here decides whether
+            a policy pays. It writes the reading, and the chain does with it
+            exactly what it already did with one the simulation produced.
+            """
+            feed = Feed()
+            while True:
+                try:
+                    wrote = await run_in_threadpool(feed.poll, chain)
+                except Exception:
+                    logger.exception("reading the sources failed")
+                    wrote = []
+                for note in wrote:
+                    if note.written:
+                        logger.info("measured %s = %s (%s)",
+                                    note.reference, note.value, note.why)
+                    elif note.reading is not None and not note.reading.settles:
+                        # The interesting failure: the agencies were reached and
+                        # disagree by more than this peril settles within, so
+                        # nothing is written and somebody should know why.
+                        logger.warning("held: %s (%s)", note.reference, note.why)
+                if feed.trouble:
+                    logger.warning("sources not answering: %s", dict(feed.trouble))
+                await asyncio.sleep(60)
+
         resender = asyncio.create_task(resend()) if run_chain else None
+        measurer = asyncio.create_task(measure()) if run_chain else None
         try:
             yield
         finally:
+            if measurer is not None:
+                measurer.cancel()
             if resender is not None:
                 resender.cancel()
             if arrivals is not None:
@@ -6207,6 +6240,10 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
             policy = pool.write(
                 peril_key=peril, subject=subject, limit=limit,
                 term_days=term, holder=_address(wallets, label, limit),
+                # The opening book is a demonstration, so it is written
+                # against the source that measures nothing and says so in its
+                # own address.
+                simulated=True,
             )
             if registry is not None:
                 carrier_id = _on_paper(
@@ -6278,6 +6315,7 @@ async def _arrivals(
                 limit=float(rng.randint(int(low), int(high))),
                 term_days=term,
                 holder=_address(wallets, f"buyer.{counter:04d}", float(high)),
+                simulated=True,
             )
             with pool.lock:
                 if registry is not None:

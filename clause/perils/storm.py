@@ -149,7 +149,11 @@ class Storm(Peril):
 
         return probability
 
-    def data_source(self, subject: dict[str, Any]) -> DataSource:
+    def data_source(self, subject: dict[str, Any], *,
+                    simulated: bool = False) -> DataSource:
+        # No feed reads this peril yet, so both references are the one that
+        # measures nothing. See oracle/feed.py for the ones that do.
+        del simulated
         return DataSource(
             reference=(f"api.wind.example/v1/daily-max?lat={subject['latitude']:g}"
                        f"&lon={subject['longitude']:g}"),

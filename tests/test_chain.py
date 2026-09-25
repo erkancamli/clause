@@ -22,7 +22,12 @@ from conftest import FLIGHT_DATE
 
 KONYA = "api.meteo.example/v1/station/TR-KONYA/cumulative"
 URFA = "api.meteo.example/v1/station/TR-SANLIURFA/cumulative"
-KADIKOY = "api.seismic.example/v1/max-magnitude?lat=40.99&lon=29.03&radius_km=50"
+# The reference a policy over Kadikoy is written against. Taken off the policy
+# rather than written out here: a policy someone buys is addressed to the
+# agency and the demonstration book is addressed to a domain that measures
+# nothing, and a constant would quietly test only whichever of the two it was
+# copied from.
+KADIKOY = "earthquake.usgs.gov/fdsnws/event/1/query?lat=40.99&lon=29.03&radius_km=50"
 
 # The world runs faster than wall time, so a term of so many days is a fixed
 # number of blocks. Deriving it here means the clock can be retuned without
@@ -102,7 +107,7 @@ def test_an_attested_reading_wakes_exactly_its_own_policies() -> None:
     quake = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 100_000, 365)
     other = write(pool, chain, "earthquake", {"location": "IZM-KONAK", "radius_km": 50}, 100_000, 365)
 
-    chain.attest(KADIKOY, "max_magnitude", 7.2)
+    chain.attest(quake.data_reference, "max_magnitude", 7.2)
     through_window(chain)
 
     assert pool.policies[quake.policy_id].status is PolicyStatus.PAID

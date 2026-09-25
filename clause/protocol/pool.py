@@ -596,6 +596,7 @@ class Pool:
         payer: str | None = None,
         locked: Quote | None = None,
         paid_now: float | None = None,
+        simulated: bool = False,
     ) -> Policy:
         """Price, check and bind a policy, taking the premium into the pool.
 
@@ -650,6 +651,7 @@ class Pool:
                 marginal_capital=quoted.marginal_capital,
                 curve=curve,
                 now=now,
+                simulated=simulated,
             )
 
             # The premium leaves the buyer's address before the policy exists. An

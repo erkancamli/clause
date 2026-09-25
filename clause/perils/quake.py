@@ -190,6 +190,13 @@ INDICES = ("magnitude", "shaking")
 _CHARACTERISTIC_HALF_WIDTH = 0.25
 
 
+#: The agency services the measured references are built against. They are
+#: written into the policy, so they are part of the contract: a reader can run
+#: the same query and reach the same number, which is the whole claim.
+EVENT_SERVICE = "earthquake.usgs.gov/fdsnws/event/1/query"
+SHAKEMAP_SERVICE = "earthquake.usgs.gov/fdsnws/event/1/query"
+
+
 class Earthquake(Peril):
     key = "earthquake"
     name = "Earthquake, on magnitude within a radius"
@@ -435,14 +442,35 @@ class Earthquake(Peril):
     def unit_for(self, subject: dict[str, Any]) -> str:
         return "intensity (MMI)" if self.shaking(subject) else self.unit
 
-    def data_source(self, subject: dict[str, Any]) -> DataSource:
+    def data_source(self, subject: dict[str, Any], *,
+                    simulated: bool = False) -> DataSource:
+        """Where the index is read.
+
+        Two references, and the difference between them is whether anyone
+        goes and asks. The measured one names the agency's own service and the
+        exact circle queried against it, so a reader can run the same query and
+        get the same answer. The simulated one names a domain reserved for
+        examples and can never resolve, which is the only honest address for a
+        figure the demonstration produced itself.
+
+        Measured is the default. A path that forgets to say which it wants
+        should end up asking the agency, not quietly inventing the number.
+        """
         if self.shaking(subject):
             return DataSource(
-                reference=(f"api.seismic.example/v1/shaking"
-                           f"?lat={subject['latitude']:g}&lon={subject['longitude']:g}"),
+                reference=(
+                    (f"api.seismic.example/v1/shaking?" if simulated
+                     # index=mmi is what tells this reference apart from the
+                     # magnitude one, which carries a radius instead: same
+                     # service, different quantity read out of the response.
+                     else f"{SHAKEMAP_SERVICE}?index=mmi&")
+                    + f"lat={subject['latitude']:g}&lon={subject['longitude']:g}"
+                ),
                 field="mmi",
                 unit="intensity (MMI)",
-                publisher="USGS ShakeMap and the national network's shaking map, attested by validators",
+                publisher=(
+                    "a demonstration, measuring nothing" if simulated else
+                    "USGS ShakeMap, which estimates the shaking at the address"),
                 resolution="first map within an hour of an event, revised as stations report",
                 settlement_deadline_days=7,
                 on_missing_data=(
@@ -453,14 +481,19 @@ class Earthquake(Peril):
             )
         radius = subject["radius_km"]
         grid = self.grid_model(subject) if "latitude" in subject else None
-        publisher = "national seismic network, attested by validators"
-        if grid is not None and grid.sources:
-            publisher = ", ".join(s["name"] for s in grid.sources) + ", attested by validators"
+        if simulated:
+            publisher = "a demonstration, measuring nothing"
+        else:
+            publisher = "USGS, with EMSC and, in Türkiye, AFAD read alongside it"
+            if grid is not None and grid.sources:
+                publisher = (publisher + "; priced on "
+                             + ", ".join(s["name"] for s in grid.sources))
         return DataSource(
             reference=(
-                f"api.seismic.example/v1/max-magnitude"
-                f"?lat={subject['latitude']:g}&lon={subject['longitude']:g}"
-                f"&radius_km={radius:g}"
+                (f"api.seismic.example/v1/max-magnitude?" if simulated
+                 else f"{EVENT_SERVICE}?")
+                + f"lat={subject['latitude']:g}&lon={subject['longitude']:g}"
+                + f"&radius_km={radius:g}"
             ),
             field="max_magnitude",
             unit=self.unit,
