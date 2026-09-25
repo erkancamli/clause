@@ -144,7 +144,11 @@ def test_a_refund_reaches_the_holder_when_the_source_goes_quiet() -> None:
     )
     chain.register(policy)
     start_cover(chain, policy)
-    chain.silence("api.meteo.example/v1/station/TR-SANLIURFA/cumulative")
+    # The policy's own source, taken off the policy: a station is addressed
+    # one way when a person buys cover on it and another way in the
+    # demonstration, and a constant would silence whichever of the two it was
+    # copied from rather than the one this policy reads.
+    chain.silence(policy.data_reference)
     after_premium = wallets.require(buyer).balance
 
     for _ in range(9_000):

@@ -334,6 +334,24 @@ class Watcher:
         self.last_evm_block: int | None = None
         self.errors: dict[str, str] = {}
 
+    def resync(self) -> int:
+        """Take up the transfers the book already knows about. Returns how many.
+
+        The set of transfers already credited is built in ``__init__`` from the
+        requests the book holds, and at start up the watcher is made before the
+        book is read back off disk, so that set was always empty. The first
+        scan then looked back through several hours of chain, found transfers
+        whose requests were closed and therefore not waiting for anything, and
+        credited every one of them again -- on every deploy, and on every
+        restart of a service set to come back up by itself.
+
+        So the book is read into the watcher once it exists. Called after
+        restore, and safe to call again: it only ever adds.
+        """
+        before = len(self.seen)
+        self.seen |= {r.tx for r in self.funding.requests.values() if r.tx}
+        return len(self.seen) - before
+
     @classmethod
     def from_env(cls, funding: Funding) -> "Watcher":
         get = lambda key: os.environ.get(key, "").strip()  # noqa: E731

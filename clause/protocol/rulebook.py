@@ -96,7 +96,7 @@ RULES: dict[str, dict[str, Any]] = {
     "drought": {
         "title": "Drought",
         "index": "Cumulative rainfall at the station over the season, mm",
-        "primary": "The national meteorological service's station named on the policy, its cumulative total",
+        "primary": "The ERA5 reanalysis for the cell the station named on the policy sits in, with ERA5-Land read against it, totalled across the season's window from the archive. This protocol does not yet read a national meteorological service, so the normal is the station's and the rain is a model's estimate for its cell, and the policy says so rather than naming a gauge nobody asks",
         "fallbacks": [
             "The service's nearest neighbouring station, distance-weighted, when the named station has a gap of more than 5 days",
             "ERA5 at the station's cell, quantile-mapped, when the gap is longer than 30 days",

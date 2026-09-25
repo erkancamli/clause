@@ -199,7 +199,10 @@ def build_policy(
         risk_load=risk_load,
         expense_load=expense_load,
         marginal_capital=marginal_capital,
-        predicate=peril.predicate(subject, curve, identifier),
+        # The same flag the reference was built with. Without it the
+        # predicate recomputed the source on its own and a demonstration
+        # policy watched one reference while being registered under another.
+        predicate=peril.predicate(subject, curve, identifier, simulated=simulated),
         data_reference=source.reference,
         settlement_deadline_days=source.settlement_deadline_days,
         holder=holder,

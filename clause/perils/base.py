@@ -372,7 +372,8 @@ class Peril(ABC):
 
     @abstractmethod
     def predicate(
-        self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str
+        self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str, *,
+        simulated: bool = False,
     ) -> str:
         """The onchain condition that settles this policy by itself."""
 

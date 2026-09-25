@@ -859,6 +859,11 @@ def create_app(
                              pipeline=pipeline, documents=documents, fees=fees, anchor=anchor, complaints=complaints,
                              papers=papers, counting=counting, properties=properties)
             restored = True
+            # The watcher was made before this book existed, so the transfers
+            # it must not credit a second time are only knowable now.
+            taken = watcher.resync()
+            if taken:
+                logger.info("watcher took up %s transfers already credited", taken)
             logger.info("book restored from %s: %s", store.path, counts)
             # Stand ins saved by an earlier build know only that build's
             # perils; a real company's licence is left exactly as registered.
@@ -3633,9 +3638,17 @@ def create_app(
         return policy.holder not in claimable
 
     def claimable_holders() -> set[str]:
-        """Every address somebody can still act as: a key registered on a
-        device, an account signed in through Privy, a wallet linked to one."""
-        held = set(auth.keys) | set(accounts._by_user.values())
+        """Every address that is somebody's: a key registered on a device, an
+        account signed in through Privy, a wallet linked to one -- and an
+        address whose key this build could not read back.
+
+        That last one is not a technicality. What this set is used for is
+        deciding which settled policies the demonstration may delete, and a
+        key that failed to load took its owner out of this set and their
+        policies with it, inside thirty seconds, for good. Being unable to
+        read somebody's key is a reason to stop, not a licence.
+        """
+        held = set(auth.keys) | set(auth.unreadable) | set(accounts._by_user.values())
         held.update(link.account for link in links.links.values())
         return held
 

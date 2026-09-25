@@ -106,6 +106,7 @@ FIELD_BY_QUERY = (
     ("index=mmi", "mmi"),
     ("index=wind", "wind_24h_kmh"),
     ("index=rain", "rain_24h_mm"),
+    ("index=season", "rainfall_mm"),
 )
 
 
@@ -119,8 +120,16 @@ def field_of(reference: str) -> str:
 
 def peril_of(index_field: str) -> str:
     """Which peril's tolerance governs a spread in this index."""
-    return {"wind_24h_kmh": "storm", "rain_24h_mm": "vehicle_flood"}.get(
-        index_field, "earthquake")
+    return {"wind_24h_kmh": "storm", "rain_24h_mm": "vehicle_flood",
+            "rainfall_mm": "drought"}.get(index_field, "earthquake")
+
+
+def station_of(reference: str) -> str:
+    """The station a season reference is measured against, if it names one."""
+    try:
+        return reference.split("station=")[1].split("&")[0]
+    except IndexError:
+        return ""
 
 
 def _km(latitude: float, longitude: float, other: Observation) -> float:
@@ -128,6 +137,24 @@ def _km(latitude: float, longitude: float, other: Observation) -> float:
     dx = (longitude - other.longitude) * 111.32 * math.cos(lat)
     dy = (latitude - other.latitude) * 110.57
     return math.hypot(dx, dy)
+
+
+def _season_opening(station: Any, when: float) -> float:
+    """Midnight UTC on the day this station's current season opened.
+
+    The season containing the moment if there is one, and otherwise the last
+    one to have opened: a policy is read inside its own window, and asking
+    about a window that has not started yet would total nothing.
+    """
+    import datetime as dt
+
+    day = dt.datetime.fromtimestamp(when, dt.timezone.utc).date()
+    month, first = station.opens
+    opened = dt.date(day.year, month, first)
+    if opened > day:
+        opened = dt.date(day.year - 1, month, first)
+    return dt.datetime(opened.year, opened.month, opened.day,
+                       tzinfo=dt.timezone.utc).timestamp()
 
 
 def _in_turkiye(latitude: float, longitude: float) -> bool:
@@ -283,6 +310,69 @@ class Feed:
             return Reading(0.0, unit, 0.0, False, self._silence(), (), 0.0, "ERA5")
         return read_from(day, peril=peril_of(index_field), primary="ERA5")
 
+    def season(self, code: str, *, until: float, reading: Any = None
+               ) -> tuple[Reading | None, bool]:
+        """The rain this season has had so far at one station, and whether it
+        is over.
+
+        A season is a range of dates in the calendar, the same every year, so
+        the window is the station's own and not a length of time counted from
+        whenever somebody bought cover. What is read is the total across it to
+        date: the index a drought policy settles on is the whole season, and a
+        running total that happens to be low in June says nothing about the
+        harvest.
+        """
+        from ..perils.weather import STATIONS
+
+        station = STATIONS.get(code.upper())
+        if station is None:
+            return None, False
+
+        opens_at = float(getattr(reading, "season_opens_at", 0.0) or 0.0)
+        if opens_at <= 0.0:
+            opens_at = _season_opening(station, until)
+        closes_at = opens_at + station.window_days * 86400
+        closed = until >= closes_at
+
+        seen: list[Observation] = []
+        for model in weather.MODELS:
+            name = "ERA5-Land" if model == "era5_land" else "ERA5"
+            seen += self._ask(
+                name,
+                weather.archive_query(latitude=station.latitude,
+                                      longitude=station.longitude,
+                                      since=opens_at, until=min(until, closes_at),
+                                      index_field="rainfall_mm", model=model),
+                lambda body, url, n=name: weather.read_openmeteo(
+                    body, url, index_field="rainfall_mm", source=n),
+            )
+        if not seen:
+            return Reading(0.0, "mm", 0.0, False, self._silence(), (), 0.0,
+                           "ERA5"), closed
+
+        # One total per model, standing in for the season rather than for a
+        # day, so the two can be compared on the thing the policy reads.
+        totals: list[Observation] = []
+        for name in ("ERA5", "ERA5-Land"):
+            days = [o for o in seen
+                    if o.source == name and opens_at <= o.measured_at < closes_at]
+            if not days:
+                continue
+            last = max(days, key=lambda o: o.measured_at)
+            totals.append(Observation(
+                source=name, value=round(sum(o.value for o in days), 2),
+                unit="mm", measured_at=last.measured_at,
+                published_at=last.published_at, retrieved_at=last.retrieved_at,
+                url=last.url, digest=last.digest,
+                record_id=f"{name}:season:{code}", scale="precipitation_sum",
+                latitude=station.latitude, longitude=station.longitude,
+                note=f"{len(days)} days totalled from {code}'s window"))
+        if not totals:
+            return Reading(0.0, "mm", 0.0, False,
+                           "the archive answered but has no day inside this "
+                           "season's window yet", (), 0.0, "ERA5"), closed
+        return read_from(totals, peril="drought", primary="ERA5"), closed
+
     @staticmethod
     def primary_for(latitude: float, longitude: float, index_field: str) -> str:
         """Which source settles, as the policy's own rulebook names it.
@@ -337,6 +427,34 @@ class Feed:
             since = float(getattr(reading, "measured_through", 0.0) or 0.0)
             if since <= 0.0:
                 since = now - FIRST_LOOK_DAYS * 86400
+
+            if index_field == "rainfall_mm":
+                got, closed = self.season(
+                    station_of(reference), until=now, reading=reading)
+                if got is None:
+                    out.append(Attestation(reference, index_field, False,
+                                           "this reference names no station "
+                                           "whose season could be read"))
+                    continue
+                if not self.trouble:
+                    reading.measured_through = now
+                if not got.observations:
+                    out.append(Attestation(reference, index_field, False, got.why))
+                    continue
+                if not got.settles:
+                    out.append(Attestation(reference, index_field, False,
+                                           got.why, reading=got))
+                    continue
+                # A season total only ever grows, and the window closing is
+                # what makes it final. Written even when it has not moved, so
+                # a farmer watching the total sees the season fill.
+                if closed:
+                    reading.fields["window_closed"] = 1
+                chain.attest(reference, index_field, round(got.value, 2),
+                             final=closed)
+                out.append(Attestation(reference, index_field, True, got.why,
+                                       value=got.value, reading=got))
+                continue
 
             if index_field in ("rain_24h_mm", "wind_24h_kmh"):
                 got = self.weather(

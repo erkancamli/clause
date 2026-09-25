@@ -20,8 +20,10 @@ from clause.pricing import PricingEngine
 from clause.protocol import Pool, PolicyStatus
 from conftest import FLIGHT_DATE
 
-KONYA = "api.meteo.example/v1/station/TR-KONYA/cumulative"
-URFA = "api.meteo.example/v1/station/TR-SANLIURFA/cumulative"
+KONYA = ("archive-api.open-meteo.com/v1/archive?index=season"
+         "&station=TR-KONYA&lat=37.87&lon=32.48")
+URFA = ("archive-api.open-meteo.com/v1/archive?index=season"
+        "&station=TR-SANLIURFA&lat=37.16&lon=38.79")
 # The reference a policy over Kadikoy is written against. Taken off the policy
 # rather than written out here: a policy someone buys is addressed to the
 # agency and the demonstration book is addressed to a domain that measures
@@ -49,10 +51,17 @@ def built(seed: int = 3, trials: int = 2_000, capital: float = 20_000_000.0):
 
 
 def write(pool: Pool, chain: Chain, peril: str, subject: dict, limit: float, term: float,
-           *, wait: bool = True):
+           *, wait: bool = True, simulated: bool = False):
+    """A policy on this chain.
+
+    ``simulated`` writes it against the reference that measures nothing, which
+    is the only kind the world itself moves. A test about what the world
+    produces has to ask for it; a test about what a policy does with a reading
+    attests the reading itself.
+    """
     policy = pool.write(
         peril_key=peril, subject=subject, limit=limit,
-        term_days=term, holder="holder",
+        term_days=term, holder="holder", simulated=simulated,
     )
     chain.register(policy)
     if wait:
@@ -114,11 +123,19 @@ def test_an_attested_reading_wakes_exactly_its_own_policies() -> None:
     assert pool.policies[other.policy_id].status is PolicyStatus.ACTIVE
 
 
-def through_window(chain, attested=True) -> None:
-    from clause.chain.world import CONFIRM_HOURS, BLOCK_TIME_SECONDS
-    per_block = BLOCK_TIME_SECONDS * chain.config.world_acceleration / 3600.0
+def through_window(chain, attested=True, peril: str = "earthquake") -> None:
+    """Far enough for the policy's own freeze window to run out.
+
+    The window is the one printed on the policy, read from the rulebook, so a
+    test that hard coded a handful of blocks would be testing a habit rather
+    than the contract.
+    """
     import math
-    for _ in range(math.ceil(CONFIRM_HOURS["earthquake"] / per_block) + 3):
+
+    from clause.chain.world import BLOCK_TIME_SECONDS, confirm_hours
+
+    per_block = BLOCK_TIME_SECONDS * chain.config.world_acceleration / 3600.0
+    for _ in range(math.ceil(confirm_hours(peril) / per_block) + 3):
         chain.produce_block()
 
 
@@ -217,11 +234,15 @@ def test_a_drought_does_not_settle_before_the_window_closes() -> None:
         chain.produce_block()
     assert pool.policies[policy.policy_id].status is PolicyStatus.ACTIVE
 
-    # Now the window closes on that total.
+    # Now the window closes on that total. The contract says the figure that
+    # settles is the one published 14 days after the season ends, so the
+    # policy is provisional until that window has run.
     chain.attest(KONYA, "window_closed", 1, final=False)
     chain.attest(KONYA, "rainfall_mm", 10.0)
     for _ in range(3):
         chain.produce_block()
+    assert pool.policies[policy.policy_id].status is PolicyStatus.ACTIVE
+    through_window(chain, peril="drought")
     assert pool.policies[policy.policy_id].status is PolicyStatus.PAID
 
 
@@ -345,7 +366,13 @@ def test_the_chain_settles_at_the_frequency_the_price_assumes(
         pool = Pool(engine=engine)
         pool.deposit("lp", 50_000_000)
         chain = Chain(pool, ChainConfig(seed=9_000 + run))
-        policy = write(pool, chain, peril, dict(subject), 10_000, term)
+        # What is under test is the world's own calibration against the price,
+        # so the policy is written against the source the world moves. Left
+        # measured, nothing would ever happen and this would pass by reading
+        # zero against a small modelled rate -- which is what it had started
+        # doing for earthquake before this line was added.
+        policy = write(pool, chain, peril, dict(subject), 10_000, term,
+                       simulated=True)
 
         for _ in range(blocks_for(term)):
             chain.produce_block()

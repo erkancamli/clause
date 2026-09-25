@@ -202,6 +202,13 @@ class Authenticator:
         # person who signs in the same way on each. The address is still the
         # one its first key derived; these only add who may sign for it.
         self.signers: dict[str, list[ec.EllipticCurvePublicKey]] = {}
+        # Addresses whose key this build could not read back. They cannot sign
+        # until it can, but they are somebody's: an address is what makes a
+        # policy theirs, and a key is only what lets them act on it. Kept
+        # because the two were being confused, and a reader that failed left
+        # the holder looking like nobody -- which is the test the background
+        # job used to decide what it could delete.
+        self.unreadable: set[str] = set()
         self._challenges: dict[str, Challenge] = {}
 
     # -- registration -----------------------------------------------------

@@ -133,18 +133,24 @@ if [[ ! -f "$ENV_DIR/clause.env" ]]; then
 else
   echo "    $ENV_DIR/clause.env exists, left alone"
 fi
-# The two demonstration switches. Each is added once, to a file written by
-# an older version of this script that never mentioned it; any line that
-# names the setting, on or off, commented or not, is the operator's decision
-# and is left exactly as it is.
+# The two demonstration switches. This script used to turn both of them ON in
+# a file it had just created, so every fresh server came up handing out money
+# and showing fabricated insurers, and the only thing standing between that
+# and a real deployment was somebody remembering to read the file. They are
+# written OFF, and an operator running a demonstration turns them on
+# deliberately, which is the only way round that fails safely.
+#
+# Each is added once, to a file written by an older version of this script
+# that never mentioned it; any line that names the setting, on or off,
+# commented or not, is the operator's decision and is left exactly as it is.
 mentioned() { grep -qE "^[[:space:]]*#?[[:space:]]*$1=" "$ENV_DIR/clause.env"; }
 if ! mentioned CLAUSE_SPECIMENS; then
-  printf '\n# Stand in companies in every country, each marked as not a real company.\n# Set to 0 before real companies register.\nCLAUSE_SPECIMENS=1\n' >> "$ENV_DIR/clause.env"
-  echo "    turned on stand in companies in every country (CLAUSE_SPECIMENS=1)"
+  printf '\n# Stand in companies in every country, each marked as not a real company.\n# Set to 1 only for a demonstration.\nCLAUSE_SPECIMENS=0\n' >> "$ENV_DIR/clause.env"
+  echo "    stand in companies left off (CLAUSE_SPECIMENS=0)"
 fi
 if ! mentioned CLAUSE_FAUCET; then
-  printf '\n# Demonstration money: new addresses are funded, and My cover has a top up\n# button. Set to 0 before anything real is sold.\nCLAUSE_FAUCET=1\n' >> "$ENV_DIR/clause.env"
-  echo "    turned on demonstration money (CLAUSE_FAUCET=1)"
+  printf '\n# Demonstration money: new addresses are funded, and My cover has a top up\n# button. This is free money. Set to 1 only for a demonstration.\nCLAUSE_FAUCET=0\n' >> "$ENV_DIR/clause.env"
+  echo "    demonstration money left off (CLAUSE_FAUCET=0)"
 fi
 chmod 600 "$ENV_DIR/clause.env"
 chown root:root "$ENV_DIR/clause.env"

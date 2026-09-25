@@ -309,3 +309,143 @@ def test_the_wind_index_reads_the_wind_column() -> None:
     assert reading.settles
     assert reading.value == pytest.approx(40.2, abs=0.1)
     assert reading.unit == "km/h"
+
+
+# -- drought ----------------------------------------------------------------
+
+URFA_REF = ("archive-api.open-meteo.com/v1/archive?index=season"
+            "&station=TR-SANLIURFA&lat=37.16&lon=38.79")
+
+
+def test_a_season_reference_names_its_station() -> None:
+    """The normal a season is measured against belongs to the station, so the
+    reading is meaningless without knowing which one."""
+    from clause.oracle.feed import station_of
+
+    assert is_measured(URFA_REF)
+    assert field_of(URFA_REF) == "rainfall_mm"
+    assert peril_of("rainfall_mm") == "drought"
+    assert station_of(URFA_REF) == "TR-SANLIURFA"
+    assert station_of("archive-api.open-meteo.com/v1/archive?index=rain") == ""
+
+
+def test_the_season_window_is_the_station_s_and_not_a_length_of_time() -> None:
+    """Sanliurfa's season opens on 1 March. A window counted from whenever
+    somebody bought cover would measure a different season for every buyer."""
+    import datetime as dt
+
+    from clause.oracle.feed import _season_opening
+    from clause.perils.weather import STATIONS
+
+    station = STATIONS["TR-SANLIURFA"]
+    # A day inside the 2026 season opens on 1 March 2026.
+    inside = dt.datetime(2026, 5, 1, tzinfo=dt.timezone.utc).timestamp()
+    assert _season_opening(station, inside) == dt.datetime(
+        2026, 3, 1, tzinfo=dt.timezone.utc).timestamp()
+    # A day before it opens belongs to the season that last opened, in 2025.
+    before = dt.datetime(2026, 1, 15, tzinfo=dt.timezone.utc).timestamp()
+    assert _season_opening(station, before) == dt.datetime(
+        2025, 3, 1, tzinfo=dt.timezone.utc).timestamp()
+
+
+def in_season(name: str, opens: str = "2025-03-01"):
+    """The recorded response with its days relabelled into a season's window.
+
+    The fixtures were fetched for September and October; every station in the
+    table opens its window in March or April. Relabelling the days is the
+    honest way to test the summing, because what is being tested is that days
+    inside the window are added up -- and the test below that one checks the
+    days outside it are dropped, using the fixture exactly as it was fetched.
+    """
+    import datetime as dt
+    import json
+
+    payload = json.loads((FEEDS / name).read_bytes())
+    first = dt.date.fromisoformat(opens)
+    payload["daily"]["time"] = [
+        (first + dt.timedelta(days=i)).isoformat()
+        for i in range(len(payload["daily"]["time"]))]
+    body = json.dumps(payload).encode()
+
+    def fetch(url: str) -> tuple[bytes, str]:
+        if "archive-api.open-meteo.com" not in url:
+            raise OSError(f"nothing recorded for {url}")
+        return body, url
+    return fetch
+
+
+def test_the_season_reads_a_total_and_not_a_day() -> None:
+    """A drought policy settles on the whole season. What is read is the sum
+    of its days and not the largest of them: a running total that happens to
+    be low in June says nothing about the harvest."""
+    import datetime as dt
+
+    feed = Feed(fetch=in_season("openmeteo_rize.json"))
+    mid_season = dt.datetime(2025, 5, 1, tzinfo=dt.timezone.utc).timestamp()
+    reading, closed = feed.season("TR-SANLIURFA", until=mid_season)
+    assert reading is not None and reading.settles, reading.why if reading else ""
+    assert reading.unit == "mm"
+    # Every day in the window, summed -- far above the 91.7 mm biggest day.
+    assert reading.value > 200.0
+    assert "days totalled" in reading.observations[0].note
+    assert not closed, "the window has not run its 140 days yet"
+
+
+def test_a_day_outside_the_season_is_not_added_to_it() -> None:
+    """The fixture exactly as it was fetched: forty days in September and
+    October, and Sanliurfa's window ran from March to July. Rain that fell
+    after the harvest is not rain the harvest had."""
+    feed = Feed(fetch=both_models("openmeteo_rize.json"))
+    reading, closed = feed.season("TR-SANLIURFA", until=WET_WINDOW[1])
+    assert reading is not None and not reading.settles
+    assert "no day inside this season's window" in reading.why
+    assert reading.value == 0.0
+
+
+def test_a_station_nobody_has_is_not_guessed_at() -> None:
+    feed = Feed(fetch=both_models("openmeteo_rize.json"))
+    reading, closed = feed.season("XX-NOWHERE", until=WET_WINDOW[1])
+    assert reading is None and not closed
+
+
+# -- the reference and the predicate are one thing ---------------------------
+
+SUBJECTS = {
+    "earthquake": {"latitude": 41.01, "longitude": 28.98, "radius_km": 50},
+    "storm": {"latitude": 40.15, "longitude": 26.41, "station": "TR-CANAKKALE",
+              "distance_km": 4.0},
+    "vehicle_flood": {"latitude": 41.01, "longitude": 28.98, "station": "TR-ISTANBUL",
+                      "distance_km": 5.0},
+    "drought": {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 50.0},
+    "flight_delay": {"origin": "IST", "destination": "LHR",
+                     "flight_number": "TK1979", "departure_date": "2026-12-01",
+                     "departure_time": "07:45"},
+}
+
+
+@pytest.mark.parametrize("peril", sorted(SUBJECTS))
+@pytest.mark.parametrize("simulated", [False, True])
+def test_the_condition_onchain_names_the_policy_s_own_source(peril, simulated) -> None:
+    """The predicate is what the chain indexes the policy under, and the
+    reference is what a reading is written against. They are computed in two
+    different places, and for one commit they could disagree: a demonstration
+    policy watched the archive while being registered against the source that
+    measures nothing, so nothing that happened to either of them could ever
+    reach it.
+    """
+    from clause.protocol.policy import build_policy
+
+    policy = build_policy(
+        peril_key=peril, subject=dict(SUBJECTS[peril]), limit=10_000,
+        term_days=30, holder="holder", premium=1.0, expected_loss=1.0,
+        risk_load=0.0, expense_load=0.0, marginal_capital=0.0,
+        simulated=simulated)
+    assert policy.data_reference in policy.predicate, (
+        f"{peril} is registered under {policy.data_reference} and watches "
+        f"{policy.predicate}")
+    if peril == "flight_delay":
+        # No feed reads a flight yet, so both of its references are the one
+        # that measures nothing. When that changes this line is what fails.
+        assert not is_measured(policy.data_reference)
+    else:
+        assert is_measured(policy.data_reference) is not simulated

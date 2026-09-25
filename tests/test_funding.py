@@ -143,3 +143,33 @@ def test_play_money_has_to_be_declared_rather_than_inferred(monkeypatch) -> None
     assert Destinations.from_env().testnet is False
     monkeypatch.setenv("CLAUSE_FUNDING_TESTNET", "1")
     assert Destinations.from_env().testnet is True
+
+
+def test_a_restart_does_not_credit_a_deposit_twice() -> None:
+    """The watcher is built before the book is read back off disk.
+
+    So the set of transfers it must not credit again was always empty at the
+    moment it was built, and its first scan looked back through hours of chain
+    and found transfers whose requests were long closed. Every deploy, and
+    every restart of a service set to come back up by itself, credited them
+    all a second time.
+    """
+    from clause.protocol.funding import Watcher
+
+    wallets = Wallets()
+    funding = Funding(wallets, Destinations(evm="0xabc", evm_chain="Base"))
+
+    # A watcher made against an empty book, exactly as the app makes it.
+    watcher = Watcher(funding, evm_rpc="https://example.invalid", evm_usdc="0xusdc")
+    assert watcher.seen == set(), "nothing is known before the book is read"
+
+    # The book arrives, carrying a transfer that was credited long ago and
+    # whose request is closed, so nothing is waiting for it any more.
+    request = funding.request("addr-1", {"method": "evm", "amount": 100.0})
+    funding.requests[request.request_id].tx = "0xdeadbeef"
+    funding.requests[request.request_id].status = "received"
+
+    assert watcher.resync() == 1
+    assert "0xdeadbeef" in watcher.seen
+    # And it only ever adds, so calling it again is not an event.
+    assert watcher.resync() == 0

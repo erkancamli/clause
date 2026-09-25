@@ -450,15 +450,28 @@ class Drought(Peril):
 
     def data_source(self, subject: dict[str, Any], *,
                     simulated: bool = False) -> DataSource:
-        # No feed reads this peril yet, so both references are the one that
-        # measures nothing. See oracle/feed.py for the ones that do.
-        del simulated
         station = self.station(subject)
         return DataSource(
-            reference=f"api.meteo.example/v1/station/{station.code}/cumulative",
+            reference=(
+                f"api.meteo.example/v1/station/{station.code}/cumulative"
+                if simulated else
+                # The station code travels in the query because the normal this
+                # season is measured against is the station's, and the reading
+                # is meaningless without it. The coordinates are the station's
+                # own, so the cell read is the one the station sits in.
+                f"archive-api.open-meteo.com/v1/archive?index=season"
+                f"&station={station.code}"
+                f"&lat={station.latitude:g}&lon={station.longitude:g}"
+            ),
             field="rainfall_mm",
             unit=self.unit,
-            publisher="national meteorological service, attested by validators",
+            publisher=(
+                "a demonstration, measuring nothing" if simulated else
+                f"the ERA5 reanalysis for the cell {station.name} sits in, with "
+                f"ERA5-Land read against it, totalled across the season's "
+                f"window. No national meteorological service is read here yet, "
+                f"so this is a model's estimate for a cell and not the "
+                f"station's own gauge"),
             resolution="daily, with the settlement reading taken at window close",
             settlement_deadline_days=14,
             on_missing_data=(
@@ -520,7 +533,8 @@ class Drought(Peril):
         return probability
 
     def predicate(
-        self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str
+        self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str, *,
+        simulated: bool = False,
     ) -> str:
         """Settle on the closing total, not on the running one.
 
@@ -529,7 +543,7 @@ class Drought(Peril):
         low in June says nothing about the harvest, and a policy that paid on it
         would be paying for a season that had not happened yet.
         """
-        source = self.data_source(subject)
+        source = self.data_source(subject, simulated=simulated)
         in_mm = self.curve_in_mm(subject, curve)
         return (
             f'edge("{source.reference}").window_closed >= 1 '

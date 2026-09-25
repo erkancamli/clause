@@ -137,3 +137,37 @@ def test_only_what_nobody_can_reach_is_forgotten(tmp_path, monkeypatch) -> None:
         assert newer.policy_id in pool.policies, "the most recent is the one kept"
         assert held.policy_id in pool.policies, "a device is registered for its holder"
         assert papered.policy_id in pool.policies, "it carries the contract its holder accepted"
+
+
+def test_a_key_that_cannot_be_read_does_not_make_its_owner_nobody() -> None:
+    """The background job deletes settled policies nobody can reach.
+
+    "Nobody can reach it" was read off the key store, so a key this build
+    could not load took its owner out of the set of people who exist, and
+    their settled policies were deleted inside thirty seconds, permanently.
+    Being unable to read somebody's key is a reason to stop, not a licence:
+    the address is what makes a policy theirs and the key is only what lets
+    them act on it.
+    """
+    from clause.chain.world import Chain
+    from clause.pricing.engine import PricingEngine
+    from clause.api.privy import Accounts
+    from clause.protocol.auth import Authenticator
+    from clause.protocol.carrier import Registry
+    from clause.protocol.pool import Pool
+    from clause.protocol.wallet import Wallets
+    from clause.store import Store, restore
+
+    auth = Authenticator()
+    pool = Pool(engine=PricingEngine(trials=50, seed=1))
+    store = Store(":memory:")
+    import json
+
+    store.write(meta={}, logs={},
+                docs={"key": {"addr-unreadable": json.dumps("not a key anybody can parse")}})
+
+    restore(store, pool=pool, wallets=Wallets(), chain=Chain(pool),
+            registry=Registry(), auth=auth, accounts=Accounts())
+
+    assert "addr-unreadable" not in auth.keys, "it genuinely could not be read"
+    assert "addr-unreadable" in auth.unreadable, "but it is still somebody's"

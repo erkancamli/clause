@@ -171,8 +171,9 @@ class Storm(Peril):
                              "of the term ending, the policy expires and the premium is returned in full."),
         )
 
-    def predicate(self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str) -> str:
-        source = self.data_source(subject)
+    def predicate(self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str, *,
+                  simulated: bool = False) -> str:
+        source = self.data_source(subject, simulated=simulated)
         return f'edge("{source.reference}").{source.field} >= {curve.attachment:g}'
 
     def describe_subject(self, subject: dict[str, Any]) -> str:

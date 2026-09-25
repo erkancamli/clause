@@ -57,12 +57,26 @@ logger = logging.getLogger("clause.chain")
 # Rialo targets fifty millisecond blocks.
 BLOCK_TIME_SECONDS = 0.05
 
-# How long a triggered policy waits, in the world's own hours, before it pays.
-# Seismic networks revise a magnitude or a shaking map in the hours after an
-# event, and flight data is corrected after landing; paying on the first figure
-# and then learning it was wrong cannot be undone on a chain. Rainfall is read
-# only once the season has closed, so it is already final.
-CONFIRM_HOURS = {"earthquake": 24.0, "flight_delay": 6.0, "drought": 0.0, "vehicle_flood": 48.0, "storm": 48.0}
+def confirm_hours(peril_key: str) -> float:
+    """How long a triggered policy waits, before it pays, for the figure to stop moving.
+
+    Read out of the rulebook rather than kept here, because the rulebook is
+    what is printed on the policy. There used to be a second table in this
+    file, and every one of its five numbers was different from the contract's:
+    earthquake waited 24 hours against a freeze the buyer was told was 168,
+    flight 6 against 72. A protocol whose code and whose contract disagree
+    about when it pays has not got a contract, it has a contract and a habit.
+
+    Seismic networks revise a magnitude for years -- USGS was still revising
+    the 7.8 of 6 February 2023 in April 2026 -- so the window is not "until it
+    is final", which never arrives. It is the window the policy names, and a
+    revision landing after it is recorded against the policy without clawing
+    the money back, which the policy also says.
+    """
+    from ..protocol.rulebook import RULES
+
+    rule = RULES.get(peril_key) or {}
+    return float(rule.get("freeze_hours", 0.0) or 0.0)
 
 # Fields that are states rather than measurements. Validators cannot meaningfully
 # disagree about whether a season has closed, so these are not perturbed.
@@ -509,6 +523,33 @@ class Chain:
             reading.pace = pace
             self.readings[reference] = reading
             return reading
+        if index_field == "rainfall_mm":
+            # A season somebody goes and asks about. The window belongs to the
+            # station, so it is looked up rather than counted from today: a
+            # window that began when the policy was bought would be measuring a
+            # different season for every buyer.
+            from ..oracle.feed import _season_opening, station_of
+            from ..perils.weather import STATIONS
+
+            station = STATIONS.get(station_of(reference).upper())
+            opens_at = (_season_opening(station, self.timestamp)
+                        if station is not None else self.timestamp)
+            reading = EdgeReading(
+                reference=reference,
+                fields={
+                    "rainfall_mm": 0.0,
+                    "window_closed": 0,
+                    "window_days": station.window_days if station else 0,
+                },
+                attested_at=self.timestamp,
+                publisher="the ERA5 reanalysis, with ERA5-Land read against it",
+                index_field=index_field,
+                progress_days=max(0.0, (self.timestamp - opens_at) / 86400.0),
+                season_opens_at=opens_at,
+            )
+            reading.pace = pace
+            self.readings[reference] = reading
+            return reading
         if index_field == "max_magnitude":
             # A coordinate nobody has insured before. The source exists from the
             # moment cover is written against it, exactly like any other.
@@ -701,6 +742,12 @@ class Chain:
                 self.ensure_source(policy.data_reference,
                                    "mmi" if EARTHQUAKE.shaking(policy.subject) else "max_magnitude",
                                    pace=pace)
+            elif policy.peril_key == DROUGHT.key:
+                # A station's season used to exist only in the list this world
+                # seeds itself from, which held the reference that measures
+                # nothing. A policy written against the archive names a
+                # different one, and it comes into being here.
+                self.ensure_source(policy.data_reference, "rainfall_mm", pace=pace)
 
             # The policy is minted to its holder as a token that cannot move:
             # it names the address it belongs to and the terms it carries, and
@@ -1245,16 +1292,22 @@ class Chain:
 
     def confirm_blocks(self, policy: Policy) -> int:
         """Blocks to wait for corrections before paying: the window in hours
-        at the pace the policy's source moves. For cover a person bought the
-        source moves at the clock, so the window is real time, capped at two
-        hours so that a settlement is still something one can watch."""
-        hours = CONFIRM_HOURS.get(policy.peril_key, 0.0)
+        at the pace the policy's source moves.
+
+        For cover a person bought the source moves at the clock, so the window
+        is real time and it is the whole window. It used to be capped at two
+        hours for exactly those policies, so that a settlement was still
+        something one could watch -- which meant the demonstration's
+        convenience overrode the contract on the only policies where the
+        contract mattered. The demonstration book runs at the world's own pace
+        and still settles in front of you; a policy a person bought waits what
+        its own paper says it waits.
+        """
+        hours = confirm_hours(policy.peril_key)
         if hours <= 0:
             return 0
         reading = self.readings.get(policy.data_reference)
         pace = reading.pace if reading is not None else 1.0
-        if pace < 1.0:
-            hours = min(hours, 2.0)
         per_block = BLOCK_TIME_SECONDS * self.config.world_acceleration * pace / 3600.0
         return max(1, min(math.ceil(hours / per_block), int(2 * 3600 / BLOCK_TIME_SECONDS)))
 

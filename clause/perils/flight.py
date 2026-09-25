@@ -326,9 +326,10 @@ class FlightDelay(Peril):
         return probability
 
     def predicate(
-        self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str
+        self, subject: dict[str, Any], curve: PayoutCurve, policy_id: str, *,
+        simulated: bool = False,
     ) -> str:
-        source = self.data_source(subject)
+        source = self.data_source(subject, simulated=simulated)
         return (
             f'edge("{source.reference}").{source.field} >= {curve.attachment:g}'
         )

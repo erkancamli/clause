@@ -471,6 +471,10 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
         try:
             auth.keys[address] = load_public_key(encoded)
         except Exception:  # a key this build cannot read is skipped, not fatal
+            # The address is still somebody's, and is recorded as such. It
+            # used to simply disappear, and everything downstream that asked
+            # "can anyone reach this policy" answered no.
+            auth.unreadable.add(address)
             logger.warning("could not restore the key for %s", address)
     for address, encoded_list in store.docs("signers").items():
         keys = []
