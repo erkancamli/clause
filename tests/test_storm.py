@@ -141,7 +141,8 @@ def test_the_basis_risk_names_what_is_not_covered(wind) -> None:
     for word in ("hail", "lightning", "snow", "flood", "gust"):
         assert word in STORM.basis_risk
     assert STORM.predicate(STORM.validate_subject(dict(CANAKKALE)), STORM.curve_for(STORM.validate_subject(dict(CANAKKALE))), "x").startswith(
-        'edge("api.wind.example/v1/daily-max?lat=40.15&lon=26.41").wind_24h_kmh >= ')
+        'edge("archive-api.open-meteo.com/v1/archive?index=wind'
+        '&lat=40.15&lon=26.41").wind_24h_kmh >= ')
 
 
 def test_a_storm_policy_settles_on_the_wind_reading_and_the_price_holds_in_the_book(wind) -> None:

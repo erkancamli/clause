@@ -56,7 +56,7 @@ RULES: dict[str, dict[str, Any]] = {
     "storm": {
         "title": "Storm",
         "index": "Daily maximum sustained wind at the address, km/h",
-        "primary": "The nearest station of the national meteorological service (in Türkiye MGM), the daily observation",
+        "primary": "The ERA5 reanalysis for the cell the address falls in, with ERA5-Land read against it, taken from the archive rather than the forecast. This protocol does not yet read a national meteorological service, so this is a model's estimate for a cell and not a station at the address, and the policy says so rather than naming a station nobody asks",
         "fallbacks": [
             "NASA POWER (MERRA-2) at the address's grid cell, when the station's daily value is missing",
             "ERA5 at the same cell, quantile-mapped to the station's own climatology, when both are missing for the day",
@@ -76,7 +76,7 @@ RULES: dict[str, dict[str, Any]] = {
     "vehicle_flood": {
         "title": "Vehicle flood",
         "index": "Daily rainfall at the address, mm in 24 hours",
-        "primary": "The nearest station of the national meteorological service (in Türkiye MGM), the daily total",
+        "primary": "The ERA5 reanalysis for the cell the address falls in, with ERA5-Land read against it, taken from the archive rather than the forecast. This protocol does not yet read a national meteorological service, so this is a model's estimate for a cell and not a station at the address, and the policy says so rather than naming a station nobody asks",
         "fallbacks": [
             "NASA POWER (MERRA-2) at the address's grid cell, when the station's daily total is missing",
             "ERA5 at the same cell, quantile-mapped to the station's own climatology, when both are missing for the day",

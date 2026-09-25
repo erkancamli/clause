@@ -14,7 +14,7 @@ import pathlib
 import pytest
 
 from clause.oracle.feed import (Feed, MEASURED_HOSTS, circle_of, field_of,
-                                host_of, is_measured)
+                                host_of, is_measured, peril_of)
 
 FEEDS = pathlib.Path(__file__).parent / "feeds"
 
@@ -210,3 +210,102 @@ def test_the_simulated_reference_is_left_alone() -> None:
     feed = Feed(fetch=canned())          # any fetch at all would raise
     assert feed.poll(chain, now=WINDOW[1]) == []
     assert not chain.written
+
+
+# -- weather ----------------------------------------------------------------
+
+RIZE = (41.01933, 40.442226)
+WET_WINDOW = (1756684800.0, 1760054400.0)      # 1 Sep - 10 Oct 2025
+RAIN_REF = "archive-api.open-meteo.com/v1/archive?index=rain&lat=41.0193&lon=40.4422"
+WIND_REF = "archive-api.open-meteo.com/v1/archive?index=wind&lat=41.0193&lon=40.4422"
+
+
+def both_models(name: str):
+    """One recorded archive response, served for either model asked for."""
+    def fetch(url: str) -> tuple[bytes, str]:
+        if "archive-api.open-meteo.com" not in url:
+            raise OSError(f"nothing recorded for {url}")
+        return (FEEDS / name).read_bytes(), url
+    return fetch
+
+
+def test_the_weather_reference_names_the_archive_and_its_index() -> None:
+    assert is_measured(RAIN_REF) and is_measured(WIND_REF)
+    assert field_of(RAIN_REF) == "rain_24h_mm"
+    assert field_of(WIND_REF) == "wind_24h_kmh"
+    assert peril_of("rain_24h_mm") == "vehicle_flood"
+    assert peril_of("wind_24h_kmh") == "storm"
+    assert not is_measured("api.rain.example/v1/daily-max?lat=41&lon=40")
+
+
+def test_the_strongest_day_in_the_window_is_the_one_read() -> None:
+    """A cover reads the worst day, not the average of forty. Rize's 91.7 mm
+    day is in this window and the days around it are ordinary."""
+    feed = Feed(fetch=both_models("openmeteo_rize.json"))
+    reading = feed.weather(latitude=RIZE[0], longitude=RIZE[1],
+                           since=WET_WINDOW[0], until=WET_WINDOW[1],
+                           index_field="rain_24h_mm")
+    assert reading.settles, reading.why
+    assert reading.value == pytest.approx(91.7, abs=0.1)
+    assert reading.unit == "mm"
+
+
+def test_a_day_with_no_value_is_not_a_day_with_no_rain() -> None:
+    """Open-Meteo returns null for a day it has nothing for. Reading that as
+    zero would settle a drought policy on a gap in the record."""
+    import json
+
+    from clause.oracle.weather import read_openmeteo
+
+    payload = json.loads((FEEDS / "openmeteo_rize.json").read_bytes())
+    payload["daily"]["precipitation_sum"] = [None] * len(payload["daily"]["time"])
+    seen = read_openmeteo(json.dumps(payload).encode(), "archive-api.open-meteo.com/x",
+                          index_field="rain_24h_mm")
+    assert seen == []
+
+
+def test_two_models_that_part_company_write_nothing() -> None:
+    """Weather has no second instrument at an address, so the second reading
+    is a second model. Where they disagree by more than the cover settles
+    within, the number could as easily have been the other one."""
+    import json
+
+    payload = json.loads((FEEDS / "openmeteo_rize.json").read_bytes())
+    drier = json.loads((FEEDS / "openmeteo_rize.json").read_bytes())
+    # Same days, one model reading far less on the worst of them.
+    drier["daily"]["precipitation_sum"] = [
+        (v / 3.0 if v is not None else None)
+        for v in drier["daily"]["precipitation_sum"]]
+
+    def split(url: str) -> tuple[bytes, str]:
+        body = drier if "era5_land" in url else payload
+        return json.dumps(body).encode(), url
+
+    feed = Feed(fetch=split)
+    reading = feed.weather(latitude=RIZE[0], longitude=RIZE[1],
+                           since=WET_WINDOW[0], until=WET_WINDOW[1],
+                           index_field="rain_24h_mm")
+    assert not reading.settles
+    assert "do not agree" in reading.why
+
+
+def test_a_quiet_place_reads_quiet() -> None:
+    """Adana's worst day in the same window is 7.9 mm. A cover attaching at
+    50 mm must not be moved by it, and the reading has to say so plainly
+    rather than by failing to arrive."""
+    feed = Feed(fetch=both_models("openmeteo_adana.json"))
+    reading = feed.weather(latitude=36.942, longitude=35.335968,
+                           since=WET_WINDOW[0], until=WET_WINDOW[1],
+                           index_field="rain_24h_mm")
+    assert reading.settles
+    assert reading.value == pytest.approx(7.9, abs=0.1)
+
+
+def test_the_wind_index_reads_the_wind_column() -> None:
+    feed = Feed(fetch=both_models("openmeteo_rize.json"))
+    reading = feed.weather(latitude=RIZE[0], longitude=RIZE[1],
+                           since=WET_WINDOW[0], until=WET_WINDOW[1],
+                           index_field="wind_24h_kmh")
+    assert reading.settles
+    assert reading.value == pytest.approx(40.2, abs=0.1)
+    assert reading.unit == "km/h"

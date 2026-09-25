@@ -151,15 +151,20 @@ class Storm(Peril):
 
     def data_source(self, subject: dict[str, Any], *,
                     simulated: bool = False) -> DataSource:
-        # No feed reads this peril yet, so both references are the one that
-        # measures nothing. See oracle/feed.py for the ones that do.
-        del simulated
         return DataSource(
-            reference=(f"api.wind.example/v1/daily-max?lat={subject['latitude']:g}"
-                       f"&lon={subject['longitude']:g}"),
+            reference=(
+                (f"api.wind.example/v1/daily-max?" if simulated
+                 else "archive-api.open-meteo.com/v1/archive?index=wind&")
+                + f"lat={subject['latitude']:g}&lon={subject['longitude']:g}"
+            ),
             field="wind_24h_kmh",
             unit=self.unit,
-            publisher="the national meteorological service's nearest station first; NASA POWER (MERRA-2) and ERA5, quantile-mapped to the station, standing in; attested by validators",
+            publisher=(
+                "a demonstration, measuring nothing" if simulated else
+                "the ERA5 reanalysis, with ERA5-Land read against it. No "
+                "national meteorological service is read here yet, so this is "
+                "a model's estimate for the cell the address falls in and not "
+                "a station at the address"),
             resolution="daily maxima, final within a few days",
             settlement_deadline_days=14,
             on_missing_data=("If no daily maximum for the place is published within fourteen days "

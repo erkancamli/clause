@@ -39,7 +39,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable, Sequence
 
-from . import quake
+from . import quake, weather
 from .agreement import read_from
 from .events import largest
 from .observation import Observation, Reading
@@ -47,7 +47,10 @@ from .observation import Observation, Reading
 #: The hosts a reference may name and still be worth asking. Anything else --
 #: above all the ``.example`` domains the demonstration writes against -- is a
 #: reference nobody should try to resolve, and trying would be the bug.
-MEASURED_HOSTS = frozenset({"earthquake.usgs.gov"})
+MEASURED_HOSTS = frozenset({
+    "earthquake.usgs.gov",
+    "archive-api.open-meteo.com",
+})
 
 #: How far back a first poll looks when a reference has never been read. A
 #: policy is registered when it is bought and polled within the minute, so this
@@ -97,9 +100,27 @@ def circle_of(reference: str) -> tuple[float, float, float] | None:
     return latitude, longitude, radius
 
 
+#: Which index each measured host answers for, read off the reference so a
+#: poll never has to guess what it is holding.
+FIELD_BY_QUERY = (
+    ("index=mmi", "mmi"),
+    ("index=wind", "wind_24h_kmh"),
+    ("index=rain", "rain_24h_mm"),
+)
+
+
 def field_of(reference: str) -> str:
     """Which quantity this reference reads out of the response."""
-    return "mmi" if "index=mmi" in reference else "max_magnitude"
+    for fragment, name in FIELD_BY_QUERY:
+        if fragment in reference:
+            return name
+    return "max_magnitude"
+
+
+def peril_of(index_field: str) -> str:
+    """Which peril's tolerance governs a spread in this index."""
+    return {"wind_24h_kmh": "storm", "rain_24h_mm": "vehicle_flood"}.get(
+        index_field, "earthquake")
 
 
 def _km(latitude: float, longitude: float, other: Observation) -> float:
@@ -227,6 +248,41 @@ class Feed:
                            0.0, False, self._silence(), (), 0.0, primary)
         return read_from(group, peril="earthquake", primary=primary)
 
+    def weather(self, *, latitude: float, longitude: float, since: float,
+                until: float, index_field: str) -> Reading:
+        """The strongest day in the window, as the reanalyses have it.
+
+        Two models rather than two instruments, because at a point that is
+        what exists: outside a national network's own station list nobody has
+        a second anemometer at the address. ERA5 and ERA5-Land run the same
+        atmosphere over a different surface, and where they part company the
+        number could as easily have been the other one, which is a fact the
+        buyer is entitled to have act on their policy rather than be told
+        about afterwards.
+
+        The archive is what settles. It lags about five days and that is the
+        point: the forecast endpoint's estimate of yesterday is revised, and a
+        cover that pays on a revised figure pays on whichever revision it
+        happened to read.
+        """
+        seen: list[Observation] = []
+        for model in weather.MODELS:
+            name = "ERA5-Land" if model == "era5_land" else "ERA5"
+            seen += self._ask(
+                name,
+                weather.archive_query(latitude=latitude, longitude=longitude,
+                                      since=since, until=until,
+                                      index_field=index_field, model=model),
+                lambda body, url, f=index_field, n=name: weather.read_openmeteo(
+                    body, url, index_field=f, source=n),
+            )
+
+        unit = "km/h" if index_field == "wind_24h_kmh" else "mm"
+        day = weather.largest_day(seen)
+        if not day:
+            return Reading(0.0, unit, 0.0, False, self._silence(), (), 0.0, "ERA5")
+        return read_from(day, peril=peril_of(index_field), primary="ERA5")
+
     @staticmethod
     def primary_for(latitude: float, longitude: float, index_field: str) -> str:
         """Which source settles, as the policy's own rulebook names it.
@@ -282,10 +338,16 @@ class Feed:
             if since <= 0.0:
                 since = now - FIRST_LOOK_DAYS * 86400
 
-            got = self.earthquake(
-                latitude=latitude, longitude=longitude, radius_km=radius,
-                since=since, until=now, index_field=index_field,
-            )
+            if index_field in ("rain_24h_mm", "wind_24h_kmh"):
+                got = self.weather(
+                    latitude=latitude, longitude=longitude,
+                    since=since, until=now, index_field=index_field,
+                )
+            else:
+                got = self.earthquake(
+                    latitude=latitude, longitude=longitude, radius_km=radius,
+                    since=since, until=now, index_field=index_field,
+                )
             # The window closes only when somebody actually answered. A visit
             # that reached nobody must be retried over the same window, or a
             # source being down for an hour would silently erase that hour.
