@@ -2153,7 +2153,9 @@
     "A newer version of this page is ready.": "Une version plus récente de cette page est prête.",
     "Load it": "Charger",
     "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Un virement bancaire ne peut pas être effectué sans le nom du titulaire du compte. Il sert uniquement au virement et à rien d'autre.",
-    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Passer à une autre méthode efface l'IBAN et le nom enregistrés ici. Les virements déjà envoyés conservent leur propre trace."
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Passer à une autre méthode efface l'IBAN et le nom enregistrés ici. Les virements déjà envoyés conservent leur propre trace.",
+    "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Le protocole n'a pas pu être joint, ou a répondu quelque chose que la page n'a pas pu lire. Consultez Ma couverture avant de réessayer : si le contrat y figure, il a été souscrit ; s'il n'y figure pas, rien n'a été prélevé.",
+    "check My cover": "consultez Ma couverture"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

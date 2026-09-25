@@ -8303,17 +8303,26 @@ function showBuyError(error){
   // The protocol's own sentences, translated where a translation exists and
   // with the English they came from underneath, because a refusal is the
   // protocol's decision and its English is the binding text.
-  if(payload&&payload.detail&&payload.detail.reasons)
-    html=payload.detail.reasons.map(tsHtml).join(" ");
-  else if(payload&&payload.reasons)html=payload.reasons.map(tsHtml).join(" ");
+  // Whether we can promise the money did not move. A refusal is the
+  // protocol's own decision, taken before anything was taken, so there it can
+  // be promised. A request that never came back cannot be: it may have been
+  // read, and the policy may exist. Saying "nothing was charged" to somebody
+  // who was charged is the one thing this banner must never do.
+  var refused=false;
+  if(payload&&payload.detail&&payload.detail.reasons){
+    html=payload.detail.reasons.map(tsHtml).join(" "); refused=true;
+  }
+  else if(payload&&payload.reasons){ html=payload.reasons.map(tsHtml).join(" "); refused=true; }
   else if(payload&&typeof payload.detail==="string")html=tsHtml(payload.detail);
-  else if(payload&&Array.isArray(payload.detail)&&payload.detail.length)html=esc(t("The protocol could not read what the page sent:")+" "+malformedText(payload.detail));
-  else if(!payload)html=esc(t("The protocol could not be reached, or answered with an error the page could not read. Nothing was charged."));
+  else if(payload&&Array.isArray(payload.detail)&&payload.detail.length){
+    html=esc(t("The protocol could not read what the page sent:")+" "+malformedText(payload.detail)); refused=true;
+  }
+  else if(!payload)html=esc(t("The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken."));
   else html=esc(t("The protocol did not accept this. Nothing was charged."));
   var box=$("compliance-box");
   box.hidden=false; box.className="verdict no";
   box.innerHTML='<div class="vrow"><span class="pill no">'+esc(t("Not written"))+'</span>'+
-    '<span>'+esc(t("nothing was charged"))+'</span></div><p>'+html+'</p>';
+    '<span>'+esc(t(refused?"nothing was charged":"check My cover"))+'</span></div><p>'+html+'</p>';
   box.scrollIntoView({behavior:"smooth",block:"center"});
 }
 

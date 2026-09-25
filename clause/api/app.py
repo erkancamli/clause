@@ -1068,9 +1068,20 @@ def create_app(
             headers["access-control-allow-origin"] = origin
             headers["vary"] = "Origin"
         from fastapi.responses import JSONResponse
+        # It used to say "nothing was charged", to everybody, for every
+        # unexpected error on any route. On the buying path the rollback
+        # covers the money and the policy together, but only up to the point
+        # where the policy exists: anything that goes wrong after that --
+        # writing the contract, issuing the papers, turning the answer into
+        # JSON -- leaves a bound, paid policy behind that sentence. Telling
+        # somebody they were not charged when they were is worse than telling
+        # them we are not certain, so it says what is true instead, and points
+        # at the one place that knows.
         return JSONResponse(
-            {"detail": f"the protocol hit an error it did not expect; nothing was charged "
-                       f"(reference {reference}, in the server log)"},
+            {"detail": f"the protocol hit an error it did not expect "
+                       f"(reference {reference}, in the server log). Check My "
+                       f"cover before trying again: if the policy is there it "
+                       f"was bought, and if it is not, nothing was taken."},
             status_code=500, headers=headers,
         )
 
@@ -1095,6 +1106,10 @@ def create_app(
             max_age=600,
         )
     app.state.pool = pool
+    # Exposed because the health check reads it, and because "is the book
+    # reaching disk" is the question an operator asks first and had no way to
+    # ask at all.
+    app.state.keeper = keeper
     app.state.instructions = instructions
     _CARRIER_NAMES.update({c.carrier_id: c.name for c in registry.carriers.values()})
     global _SITE_ORIGIN
@@ -5709,20 +5724,46 @@ def create_app(
         return {"complaints": [complaint_view(c) for c in rows], "summary": complaints.summary(rows)}
 
     @app.get("/api/health")
-    async def health() -> dict[str, Any]:
+    async def health(response: Response) -> dict[str, Any]:
+        """Whether this service is actually well, and a 503 when it is not.
+
+        It used to return a hardcoded "ok" whatever was true, which is worse
+        than having no health check: a monitor watching it reported green
+        through a book that had not reached disk in hours. What decides it now
+        is the one thing whose failure loses work -- the checkpoint -- because
+        a service that is answering requests and cannot save them is the
+        failure that looks healthiest from outside.
+
+        The pool's balance is not in it. It is how much money is here, it was
+        being served to anybody who asked, and nothing about a health check
+        needs it.
+        """
         last_root = anchor.latest_root()
+        stale = 0.0
+        if keeper is not None and keeper.saved_at:
+            stale = max(0.0, time.time() - keeper.saved_at)
+        # Ten checkpoints' worth of silence. One missed save is a slow disk;
+        # ten in a row is a disk that is not taking writes.
+        overdue = keeper is not None and stale > max(60.0, keeper.every * 10.0)
+        failing = bool(keeper is not None and keeper.last_error)
+        well = not (overdue or failing)
+        if not well:
+            response.status_code = 503
         return {
-            "status": "ok",
+            "status": "ok" if well else "degraded",
             "version": __version__,
+            "book": {
+                "saving": keeper is not None,
+                "seconds_since_saved": round(stale, 1) if keeper is not None else None,
+                "failed_saves": keeper.failures if keeper is not None else 0,
+                "last_error": (keeper.last_error if keeper is not None else ""),
+            },
             "anchor": {"mode": anchor.config.mode, "chain": anchor.config.chain["name"],
                        "pending": sum(1 for i in anchor.intents.values() if i.status == "pending"),
                        "last_root_epoch": last_root.payload.get("epoch") if last_root else None,
                        "last_error": anchor.last_error},
             "chain": chain.stats(),
-            "pool": {
-                "balance": round(pool.balance, 2),
-                "open_policies": len(pool.open_policies),
-            },
+            "pool": {"open_policies": len(pool.open_policies)},
         }
 
     # -- interface --------------------------------------------------------

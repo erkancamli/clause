@@ -2161,7 +2161,9 @@
     "A newer version of this page is ready.": "Bu sayfanın daha yeni bir sürümü hazır.",
     "Load it": "Yükle",
     "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Havale, hesaptaki isim olmadan yapılamaz. Bu isim yalnızca havale için kullanılır, başka hiçbir şey için.",
-    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Başka bir yönteme geçmek burada kayıtlı IBAN'ı ve ismi siler. Daha önce gönderilen havaleler kendi kaydını korur."
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Başka bir yönteme geçmek burada kayıtlı IBAN'ı ve ismi siler. Daha önce gönderilen havaleler kendi kaydını korur.",
+    "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Protokole ulaşılamadı ya da sayfanın okuyamadığı bir yanıt geldi. Tekrar denemeden önce Poliçelerim'e bakın: poliçe oradaysa alınmıştır, değilse hiçbir şey tahsil edilmemiştir.",
+    "check My cover": "Poliçelerim'e bakın"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

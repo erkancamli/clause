@@ -21,6 +21,13 @@ def _serve(args: argparse.Namespace) -> None:
     # process table. The service refuses to start on a dangerous combination,
     # and that refusal should happen here, before the port is bound.
     settings = Settings.from_env()
+    # Before anything else that might want to say something. --log-level is
+    # uvicorn's own and governs its access and error loggers; this protocol's
+    # lines are its own setting, because turning uvicorn down should not turn
+    # the record of what the protocol did off. See telemetry.py.
+    from .telemetry import configure as configure_logging
+
+    level = configure_logging()
     trials = int(os.environ.get("CLAUSE_TRIALS", args.trials))
     # Rider calls the protocol over HTTP like everyone else, so it needs to know
     # which port this process ended up on.
@@ -38,6 +45,7 @@ def _serve(args: argparse.Namespace) -> None:
     print(state("demo", settings.demo_endpoints, "(chain can be driven by hand)"))
     print(state("faucet", settings.faucet, "(new addresses are funded)"))
     print(state("docs", settings.public_docs, "(every route is listed)"))
+    print(f"  {'log':10s} {level.lower()} (CLAUSE_LOG_LEVEL)")
     print(state(
         "rider", bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("CLAUSE_RIDER_LATCH")),
         "(" + ("through a Latch" if os.environ.get("CLAUSE_RIDER_LATCH") else "direct API key")
@@ -90,6 +98,64 @@ def _quote(args: argparse.Namespace) -> None:
         print(f"    - {note}")
 
 
+def _backup(args: argparse.Namespace) -> None:
+    """Copy the book somewhere else, while the service is still running.
+
+    The only mention of a backup anywhere in this project was one line of
+    prose in a README. There was no command to run, so there was nothing for
+    a cron line to call and nothing to rehearse a restore from -- and the
+    book, the sealed documents and the simulated chain all live in the same
+    directory, which means losing it loses everything at once.
+
+    SQLite's own online backup is used rather than copying the file, because
+    copying a database that is being written to produces a file that opens
+    and is wrong. The sealed documents beside it are copied too: a book that
+    refers to documents that are not there is not a restorable book.
+    """
+    import shutil
+    import sqlite3
+    import time as _time
+    from pathlib import Path
+
+    from .store import default_path
+
+    source = Path(args.book) if args.book else default_path()
+    if source is None:
+        raise SystemExit(
+            "no book to back up: set CLAUSE_STATE_DIR, or pass --book")
+    if not source.exists():
+        raise SystemExit(f"no book at {source}")
+
+    stamp = _time.strftime("%Y%m%dT%H%M%SZ", _time.gmtime())
+    into = Path(args.to) / f"clause-{stamp}"
+    into.mkdir(parents=True, exist_ok=False)
+
+    live = sqlite3.connect(f"file:{source}?mode=ro", uri=True)
+    try:
+        copy = sqlite3.connect(into / source.name)
+        try:
+            live.backup(copy)
+        finally:
+            copy.close()
+    finally:
+        live.close()
+
+    kept = 0
+    for name in ("documents", "sealed"):
+        beside = source.parent / name
+        if beside.is_dir():
+            shutil.copytree(beside, into / name)
+            kept += sum(1 for _ in (into / name).rglob("*") if _.is_file())
+
+    size = (into / source.name).stat().st_size
+    print(f"  book      {source}")
+    print(f"  copied to {into / source.name} ({size / 1_048_576:.1f} MB)")
+    print(f"  documents {kept} file(s)")
+    print()
+    print("  Restore by stopping the service, putting these back where they")
+    print("  came from, and starting it. Rehearse that before you need it.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="clause", description="Parametric cover that settles itself, on Rialo"
@@ -105,6 +171,12 @@ def build_parser() -> argparse.ArgumentParser:
     serve.add_argument("--seed", type=int, default=20260917)
     serve.add_argument("--log-level", default="warning")
     serve.set_defaults(func=_serve)
+
+    backup = sub.add_parser(
+        "backup", help="copy the book and its documents somewhere safe")
+    backup.add_argument("--to", required=True, help="a directory to write into")
+    backup.add_argument("--book", default="", help="the sqlite file; default CLAUSE_STATE_DIR")
+    backup.set_defaults(func=_backup)
 
     quote = sub.add_parser("quote", help="price one policy from the command line")
     quote.add_argument("peril", choices=["earthquake", "drought", "flight_delay", "vehicle_flood", "storm"])

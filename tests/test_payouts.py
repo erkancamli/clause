@@ -134,7 +134,75 @@ def test_a_rail_that_is_down_leaves_the_order_waiting() -> None:
     (order,) = payouts.orders.values()
     assert order.status == "queued" and "could not be reached" in order.note
     payouts.rail.fetcher = lambda url, body, headers: b'{"reference": "R2"}'
-    assert payouts.retry() == 1 and order.status == "sent"
+    # Not straight away: each failure waits longer than the last, so the
+    # second attempt is due half a minute after the first.
+    assert payouts.retry() == 0, "a retry inside the back off is not due"
+    import time as _time
+
+    assert payouts.retry(now=_time.time() + 31.0) == 1 and order.status == "sent"
+
+
+def test_a_slow_partner_is_not_sent_the_same_payout_twice() -> None:
+    """The retry loop runs every thirty seconds and the partner is given
+    twenty to answer. Nothing recorded that an attempt was already in the air,
+    so a partner that took longer than thirty seconds was handed the same
+    payout again, and again, for as long as it stayed slow."""
+    import time as _time
+
+    wallets, pool, payouts = book()
+    payouts.set_preference("holder", {"method": "bank", "iban": TR_IBAN,
+                                      "holder_name": "Specimen Holder"})
+
+    calls: list[str] = []
+
+    def slow(url, body, headers):
+        calls.append(headers["idempotency-key"])
+        raise OSError("still thinking")
+
+    payouts.rail = HttpRail("https://rail.example/payouts", "s", fetcher=slow)
+    pool.pay(quake(pool), 7.3)
+    (order,) = payouts.orders.values()
+    assert order.attempts == 1 and len(calls) == 1
+
+    # An attempt that has not come back yet is left alone, however long the
+    # loop runs.
+    order.in_flight = True
+    for minute in range(1, 6):
+        payouts.retry(now=_time.time() + minute * 60.0)
+    assert len(calls) == 1, f"the rail was called again while in flight: {calls}"
+
+    # And the partner is given what it needs to collapse a retry that crosses
+    # with a slow success of its own.
+    assert calls[0] == order.order_id
+
+
+def test_a_payout_nobody_acknowledges_stops_and_waits_for_a_person() -> None:
+    """A loop that will retry the same payment for ever is not resilience."""
+    import time as _time
+
+    from clause.protocol.payouts import MAX_ATTEMPTS
+
+    wallets, pool, payouts = book()
+    payouts.set_preference("holder", {"method": "bank", "iban": TR_IBAN,
+                                      "holder_name": "Specimen Holder"})
+    calls: list[str] = []
+
+    def down(url, body, headers):
+        calls.append(headers["idempotency-key"])
+        raise OSError("connection refused")
+
+    payouts.rail = HttpRail("https://rail.example/payouts", "s", fetcher=down)
+    pool.pay(quake(pool), 7.3)
+    (order,) = payouts.orders.values()
+
+    at = _time.time()
+    for _ in range(40):
+        at += 1800.0                     # well past any back off
+        payouts.retry(now=at)
+    assert order.attempts == MAX_ATTEMPTS
+    assert len(calls) == MAX_ATTEMPTS
+    assert order.needs_a_person
+    assert order.status == "queued", "the money is still held, not lost"
 
 
 def test_a_refund_follows_the_same_route() -> None:

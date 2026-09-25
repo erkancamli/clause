@@ -2153,7 +2153,9 @@
     "A newer version of this page is ready.": "このページの新しいバージョンが利用できます。",
     "Load it": "読み込む",
     "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "銀行振込は口座名義がなければできません。この名義は振込のためだけに使われ、ほかの用途には使いません。",
-    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "別の方法に切り替えると、ここに保存されたIBANと名義は消去されます。すでに送金した振込はそれ自体の記録が残ります。"
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "別の方法に切り替えると、ここに保存されたIBANと名義は消去されます。すでに送金した振込はそれ自体の記録が残ります。",
+    "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "プロトコルに接続できなかったか、ページが読み取れない応答が返りました。再試行の前に「マイ補償」をご確認ください。契約があれば成立しており、なければ請求は発生していません。",
+    "check My cover": "「マイ補償」を確認"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

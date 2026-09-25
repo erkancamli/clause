@@ -1490,6 +1490,24 @@ class Chain:
             reading = self.readings.get(policy.data_reference)
             went_quiet = reading is None or reading.silent
 
+            # Why this one did not pay, written down while it is still known.
+            # The chain does not keep its readings, by design, so an answer to
+            # that question six months from now has to have been recorded at
+            # the time or it does not exist. It used to say only "the term
+            # ended without the index reaching the trigger", which is the
+            # question restated rather than answered.
+            observed = float(reading.value) if reading is not None else 0.0
+            trigger = float(getattr(policy.curve, "attachment", 0.0) or 0.0)
+            policy.metadata["closed_on"] = {
+                "at": self.timestamp,
+                "source": policy.data_reference,
+                "index": round(observed, 4),
+                "trigger": round(trigger, 4),
+                "publisher": reading.publisher if reading is not None else "",
+                "last_heard": reading.attested_at if reading is not None else 0.0,
+                "silent": bool(went_quiet),
+            }
+
             signature = _signature(f"close:{policy.policy_id}:{height}")
             try:
                 if went_quiet:
@@ -1503,7 +1521,10 @@ class Chain:
                     self.pool.lapse(policy, now=self.timestamp)
                     amount = 0.0
                     kind = "lapsed"
-                    summary = "the term ended without the index reaching the trigger"
+                    summary = (
+                        f"the term ended with the index at {observed:g} against "
+                        f"a trigger of {trigger:g}"
+                    )
             except Exception as error:
                 # The pool could not close it (a refund it cannot fund, a
                 # policy already closed). Recorded, disarmed, and the block

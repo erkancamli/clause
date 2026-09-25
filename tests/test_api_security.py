@@ -733,7 +733,14 @@ def test_an_unexpected_error_is_json_the_page_can_read_from_its_own_origin() -> 
         reply = client.get("/api/_boom", headers={"origin": "https://clause.insure"})
         assert reply.status_code == 500
         assert reply.headers.get("access-control-allow-origin") == "https://clause.insure"
-        assert "reference ERR-" in reply.json()["detail"] and "nothing was charged" in reply.json()["detail"]
+        detail = reply.json()["detail"]
+        assert "reference ERR-" in detail
+        # It must not promise the money did not move. The rollback on the
+        # buying path covers the policy and the premium together, but only up
+        # to the point where the policy exists; anything after that leaves a
+        # bound, paid policy behind a sentence saying nothing was charged.
+        assert "nothing was charged" not in detail
+        assert "Check My cover" in detail
         assert "foresee" not in reply.text
         stranger = client.get("/api/_boom", headers={"origin": "https://evil.example"})
         assert stranger.status_code == 500 and "access-control-allow-origin" not in stranger.headers

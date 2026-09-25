@@ -49,6 +49,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import re
 import secrets
 import time
@@ -152,6 +153,17 @@ def mask_phone(phone: str) -> str:
     return f"{phone[:4]} ••• {phone[-3:]}"
 
 
+logger = logging.getLogger("clause.payouts")
+
+#: How many times one payout is offered to the rail before it stops and waits
+#: for a person. A loop that retries for ever is a way to send somebody the
+#: same money a hundred times while nobody is watching.
+MAX_ATTEMPTS = 6
+#: The wait after the first failure, and the longest wait between attempts.
+RETRY_FLOOR = 30.0
+RETRY_CEILING = 900.0
+
+
 @dataclass(slots=True)
 class PayoutPreference:
     """Where one address wants its money to go."""
@@ -218,6 +230,13 @@ class PayoutOrder:
     reference: str          # the policy it came from
     kind: str               # payout | refund | withdrawal
     created_at: float
+    # One attempt at a time, and a record of them. The retry loop runs every
+    # thirty seconds and the partner is given twenty to answer, so without
+    # this a slow partner was handed the same payout over and over.
+    in_flight: bool = False
+    attempts: int = 0
+    last_attempt_at: float = 0.0
+    needs_a_person: bool = False
     status: str = "queued"  # queued | sent | paid | failed
     rail: str = "manual"
     rail_reference: str = ""
@@ -276,7 +295,13 @@ class HttpRail:
             "reference": order.reference,
         }, separators=(",", ":")).encode()
         reply = self.fetcher(self.url, body, {
-            "content-type": "application/json", "x-clause-signature": self.signature(body)})
+            "content-type": "application/json",
+            "x-clause-signature": self.signature(body),
+            # The order id was in the body and nowhere a partner's own
+            # middleware would look. This is the header every payment API
+            # documents, so a retry that crosses with a slow success is the
+            # partner's to collapse rather than ours to hope about.
+            "idempotency-key": order.order_id})
         data = json.loads(reply or b"{}")
         reference = str(data.get("reference") or "")[:80]
         if not reference:
@@ -423,26 +448,80 @@ class Payouts:
         return order
 
     def _send(self, order: PayoutOrder, pref: PayoutPreference, now: float) -> None:
+        """One attempt at the rail. Never two at once, for the same order.
+
+        The order stays ``queued`` until the rail answers, and the retry loop
+        runs every thirty seconds while the partner is given twenty to reply.
+        There was nothing recording that an attempt was already in the air, so
+        a partner that took longer than thirty seconds was sent the same
+        payout again, and again, for as long as it stayed slow. The partner's
+        own idempotency is the last line, not the first, and it was being
+        asked to carry the whole thing on an ``order_id`` in a body.
+        """
+        with self.lock:
+            if order.in_flight or order.status != "queued":
+                return
+            order.in_flight = True
+            order.attempts += 1
+            order.last_attempt_at = now
+            attempt = order.attempts
         try:
             reference = self.rail.send(order, pref.destination())
         except Exception as error:  # the order waits and is retried
-            order.note = f"the payment partner could not be reached: {str(error)[:120]}"
+            with self.lock:
+                order.in_flight = False
+                order.note = (f"attempt {attempt}: the payment partner could not "
+                              f"be reached: {str(error)[:120]}")
             return
-        if reference:
-            order.status, order.rail_reference = "sent", reference
-            order.history.append({"at": now, "status": "sent", "reference": reference})
+        with self.lock:
+            order.in_flight = False
+            if reference:
+                order.status, order.rail_reference = "sent", reference
+                order.history.append({"at": now, "status": "sent",
+                                      "reference": reference, "attempt": attempt})
 
     def retry(self, *, now: float | None = None) -> int:
-        """Send every order still queued. Returns how many went."""
+        """Try again the orders that are due for it. Returns how many went.
+
+        Due, not merely queued: an attempt already in the air is left alone,
+        each failure waits longer than the last, and after ``MAX_ATTEMPTS`` the
+        order stops being retried and waits for a person. A loop that will
+        retry the same payment for ever is not resilience, it is a way to send
+        somebody the same money a hundred times while nobody is watching.
+        """
         now = time.time() if now is None else now
         sent = 0
         for order in list(self.orders.values()):
-            if order.status == "queued" and order.rail != "manual":
-                pref = self.preferences.get(order.account)
-                if pref is not None:
-                    self._send(order, pref, now)
-                    sent += order.status == "sent"
+            if order.status != "queued" or order.rail == "manual":
+                continue
+            if order.in_flight:
+                continue
+            if order.attempts >= MAX_ATTEMPTS:
+                if not order.needs_a_person:
+                    order.needs_a_person = True
+                    order.history.append({
+                        "at": now, "status": "stalled",
+                        "note": f"{order.attempts} attempts, none acknowledged"})
+                    logger.error("payout %s stopped after %s attempts: %s",
+                                 order.order_id, order.attempts, order.note)
+                continue
+            if now - order.last_attempt_at < self._backoff(order.attempts):
+                continue
+            pref = self.preferences.get(order.account)
+            if pref is not None:
+                self._send(order, pref, now)
+                sent += order.status == "sent"
         return sent
+
+    @staticmethod
+    def _backoff(attempts: int) -> float:
+        """How long to wait before trying again, after so many attempts.
+
+        Doubling from half a minute, capped. The docstring on the old loop
+        described a back off; the code had none and ran every thirty seconds
+        for ever.
+        """
+        return min(RETRY_CEILING, RETRY_FLOOR * (2 ** max(0, attempts - 1)))
 
     def settle(self, order_id: str, status: str, *, reference: str = "", note: str = "",
                by: str = "operator", now: float | None = None) -> PayoutOrder:

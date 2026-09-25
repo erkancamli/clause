@@ -587,6 +587,12 @@ class Keeper:
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self.failures = 0
+        #: The last save that actually got to disk, and what went wrong on the
+        #: most recent one that did not. A count on its own says a save failed
+        #: once, at some point; what an operator needs to know is whether the
+        #: book on disk is minutes old or hours old.
+        self.saved_at = 0.0
+        self.last_error = ""
 
     def save(self) -> None:
         with self._lock:
@@ -594,7 +600,11 @@ class Keeper:
                 self._save()
             except Exception as error:  # a failed save is logged and retried
                 self.failures += 1
+                self.last_error = str(error)[:200]
                 logger.error("could not save the book: %s", error)
+            else:
+                self.saved_at = time.time()
+                self.last_error = ""
 
     def start(self) -> None:
         def run() -> None:
