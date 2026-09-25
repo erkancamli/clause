@@ -1115,6 +1115,7 @@ def create_app(
                 what=str(interest_.get("what", "")), country=str(interest_.get("country", "")).upper(),
                 inside_trigger_area=True, value_at_risk=float(interest_.get("value_at_risk") or policy_.limit),
                 holder_is_professional=bool(interest_.get("professional", False)),
+                holder_resident_in=str(interest_.get("resident") or "").upper(),
             )
             ruling_ = rules.recheck_at_settlement(
                 interest=declared_, limit=policy_.limit, peril=policy_.peril_key,
@@ -1656,6 +1657,12 @@ def create_app(
                 inside_trigger_area=declared.inside_trigger_area,
                 value_at_risk=value_at_risk,
                 holder_is_professional=declared.professional,
+                # Where the buyer says they live, which decides how they may
+                # be paid. It was already carried on the policy and already
+                # decided the cooling off period; it was the one thing the
+                # settlement rule never saw, so that rule was reading the
+                # address of the building instead.
+                holder_resident_in=resident,
             )
         except ValueError as error:
             raise Refused(422, str(error)) from error
@@ -2043,7 +2050,8 @@ def create_app(
             registry.reconcile(pool.policies.values())
             try:
                 interest = Interest(what="offers", country=risk_country, inside_trigger_area=True,
-                                    value_at_risk=answer["limit"], holder_is_professional=professional)
+                                    value_at_risk=answer["limit"], holder_is_professional=professional,
+                                    holder_resident_in=resident)
             except ValueError as error:
                 raise Refused(422, str(error)) from error
             ruling = rules.evaluate(interest=interest, limit=answer["limit"], peril=request.peril,

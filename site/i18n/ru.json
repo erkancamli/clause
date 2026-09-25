@@ -2151,7 +2151,9 @@
     "does not want this risk": "не берёт этот риск",
     "Also licensed here, but not offering:": "Здесь тоже имеют лицензию, но не предлагают:",
     "A newer version of this page is ready.": "Готова более новая версия этой страницы.",
-    "Load it": "Загрузить"
+    "Load it": "Загрузить",
+    "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Банковский перевод невозможен без имени владельца счёта. Оно используется только для перевода и ни для чего больше.",
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Переход на другой способ удаляет сохранённые здесь IBAN и имя. По уже отправленным переводам сохраняется собственная запись."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

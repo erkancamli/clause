@@ -2151,7 +2151,9 @@
     "does not want this risk": "no quiere este riesgo",
     "Also licensed here, but not offering:": "También autorizadas aquí, pero sin oferta:",
     "A newer version of this page is ready.": "Hay una versión más reciente de esta página.",
-    "Load it": "Cargar"
+    "Load it": "Cargar",
+    "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Una transferencia bancaria no puede hacerse sin el nombre del titular de la cuenta. Se usa solo para la transferencia y para nada más.",
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Cambiar a otro método borra el IBAN y el nombre guardados aquí. Las transferencias ya enviadas conservan su propio registro."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

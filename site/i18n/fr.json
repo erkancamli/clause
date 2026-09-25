@@ -2151,7 +2151,9 @@
     "does not want this risk": "ne veut pas de ce risque",
     "Also licensed here, but not offering:": "Également agréées ici, mais sans offre :",
     "A newer version of this page is ready.": "Une version plus récente de cette page est prête.",
-    "Load it": "Charger"
+    "Load it": "Charger",
+    "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Un virement bancaire ne peut pas être effectué sans le nom du titulaire du compte. Il sert uniquement au virement et à rien d'autre.",
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Passer à une autre méthode efface l'IBAN et le nom enregistrés ici. Les virements déjà envoyés conservent leur propre trace."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -36,17 +36,22 @@ What is enforced, in order
                            question and the registry answers it.
 
   4. Settlement.           The asset is taken from the licence that matched,
-                           not from a table. A Turkish retail policy settles in
-                           lira because the carrier's licence permits lira and
-                           not because this file says so, though it says so too,
-                           in the notes, where a note belongs.
+                           not from a table — but which assets may be tried at
+                           all is decided first, by where the buyer lives. A
+                           prohibition on being paid in crypto assets protects
+                           the people under it, so it follows their residence,
+                           not the address of the building they insured. The
+                           matching prohibition on the paying company follows
+                           its domicile and is enforced at registration, in
+                           carrier.py, where a licence that claims otherwise is
+                           refused instead of believed.
 
 Disclosure is separate from refusal
 -----------------------------------
 The regulatory notes that used to be the gate are still here and are still
 worth reading, but they are now shown rather than enforced. A buyer in Türkiye
-sees why their policy comes through a licensed carrier and settles in lira,
-with the statutes named. A buyer in a country nobody has researched sees no note
+sees why their policy comes through a licensed carrier and, if they live
+there, why it settles in lira, with the statutes named. A buyer in a country nobody has researched sees no note
 and is still covered, because the licence is the thing that makes it lawful and
 a missing paragraph in our notes never made anyone safer.
 
@@ -70,7 +75,7 @@ from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any
 
-from .carrier import FIAT_ONLY_COUNTRIES, Offer, Placement, Reach, Registry, Settlement
+from .carrier import PAYMENT_BAN_COUNTRIES, Offer, Placement, Reach, Registry, Settlement
 
 __all__ = [
     "Channel", "Settlement", "Interest", "Ruling", "ComplianceEngine",
@@ -117,8 +122,10 @@ NOTES: dict[str, Note] = {
             "loss. Writing cover without a licence is a criminal offence under "
             "Article 35 of Law 5684, and Article 1401(2) of the Commercial Code "
             "makes such a contract void and subject to the gambling provisions. "
-            "Premium and claims settle in lira: the 2021 central bank regulation "
-            "prohibits using crypto assets in payments, directly or indirectly."
+            "A resident is paid in lira: the 2021 central bank regulation "
+            "prohibits using crypto assets in payments, directly or indirectly, "
+            "and a company supervised here may not pay in them at all. Both "
+            "bind by who they bind, not by where the risk sits."
         ),
     ),
     "DE": Note(
@@ -197,6 +204,13 @@ class Interest:
     inside_trigger_area: bool
     value_at_risk: float    # what it is worth, in the settlement asset
     holder_is_professional: bool = False
+    # Where the buyer lives, which is not always where the thing at risk sits.
+    # It decides how they may be paid: a rule that forbids paying in crypto
+    # assets protects the people under it, so it follows the person and not
+    # the building. Left empty it falls back to the country of the risk, which
+    # is the conservative reading — someone insuring a house in Türkiye is
+    # taken to live there until they say otherwise.
+    holder_resident_in: str = ""
 
     def __post_init__(self) -> None:
         if not self.what.strip():
@@ -205,10 +219,19 @@ class Interest:
             raise ValueError("the value at risk must be positive")
         if len(self.country) != 2 or not self.country.isalpha():
             raise ValueError("country is a two letter code")
+        if self.holder_resident_in and (
+                len(self.holder_resident_in) != 2
+                or not self.holder_resident_in.isalpha()):
+            raise ValueError("residence is a two letter code")
 
     @property
     def reach(self) -> Reach:
         return Reach.PROFESSIONAL if self.holder_is_professional else Reach.RETAIL
+
+    @property
+    def resident(self) -> str:
+        """The country whose law decides how this buyer may be paid."""
+        return (self.holder_resident_in or self.country).upper()
 
 
 @dataclass(frozen=True, slots=True)
@@ -349,15 +372,34 @@ class ComplianceEngine:
         # policy, so the preferred one is tried first and the other after, and
         # the ruling reports which one it landed on rather than refusing someone
         # over a default they never chose.
+        # Which rails this buyer may be paid on. Two conditions, and both have
+        # to hold before a stablecoin one is offered.
+        #
+        # The first is the buyer: a rule that prohibits paying in crypto assets
+        # is there to protect the people living under it, so it follows their
+        # residence and not the address of the building. A Turkish resident is
+        # paid in lira on a house in Berlin; a German resident may be paid in
+        # stablecoin on a flat in Istanbul, because the Turkish prohibition was
+        # never about them. Reading this off the country of the risk, as this
+        # did until now, got both of those backwards.
+        #
+        # The second is the company, and it is enforced a layer down, at
+        # registration: a carrier supervised where the prohibition binds cannot
+        # hold a stablecoin licence at all, so no such offer can reach here.
+        #
+        # What the protocol will not do is make the crypto rail the easy one
+        # for someone the prohibition covers. It is absent for them, not
+        # disabled — an option shown and refused is still an option offered.
+        resident = interest.resident
         wanted = [Settlement.STABLECOIN, Settlement.FIAT]
-        if country in FIAT_ONLY_COUNTRIES:
-            # The note this ruling carries tells a Turkish buyer that premiums
-            # and claims settle in lira because the 2021 central bank
-            # regulation prohibits paying in crypto assets. Until now that was
-            # a sentence on a screen and nothing else: a company that declared
-            # a stablecoin licence there was simply believed. A disclosure the
-            # protocol does not itself obey is worse than no disclosure.
+        if resident in PAYMENT_BAN_COUNTRIES:
             wanted = [Settlement.FIAT]
+            disclosure.append(
+                f"You are paid in local currency because you told us you live "
+                f"in {resident}, where the law prohibits paying in crypto "
+                f"assets. This follows where you live, not where the thing "
+                f"you are insuring is."
+            )
         if asset is not None:
             wanted = [asset] + [a for a in wanted if a is not asset] if asset in wanted else wanted
         placement = None
@@ -407,6 +449,20 @@ class ComplianceEngine:
 
         best = placement.best
         assert best is not None
+
+        # Why this policy may be paid the way it is, recorded on the policy
+        # rather than reasoned out again later. Six months from now the
+        # question "why did this one settle in USDC" has to have an answer
+        # that names the two conditions and the countries they were read
+        # against, and a rule that leaves no trace cannot produce one.
+        if settled_as is Settlement.STABLECOIN:
+            disclosure.append(
+                f"Paid in stablecoin because you live in {resident}, which does "
+                f"not prohibit it, and because {best.carrier.name} is supervised "
+                f"in {best.carrier.domicile.upper()}, which does not prohibit it "
+                f"either. Both had to be true."
+            )
+
         operator_owned = best.carrier.carrier_id.startswith("clause-")
         channel = (
             Channel.DIRECT if operator_owned

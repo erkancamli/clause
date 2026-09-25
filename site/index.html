@@ -5076,7 +5076,9 @@ function payoutPanel(p){
     }).join("")+'</div>'+
     '<div class="tform" id="pay-bank" hidden>'+
       '<label><span>'+esc(t("IBAN"))+'</span><input id="pay-iban" autocomplete="off" spellcheck="false" placeholder="TR00 0000 0000 0000 0000 0000 00" style="min-width:290px"></label>'+
-      '<label><span>'+esc(t("Name on the account"))+'</span><input id="pay-name" autocomplete="name"></label></div>'+
+      '<label><span>'+esc(t("Name on the account"))+'</span><input id="pay-name" autocomplete="name"></label>'+
+      '<p class="fine">'+esc(t("A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else."))+' '+
+      esc(t("Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record."))+'</p></div>'+
     '<div class="tform" id="pay-mobile" hidden>'+
       '<label><span>'+esc(t("Provider"))+'</span><select id="pay-provider">'+Object.keys(providers).map(function(k){
         return '<option value="'+esc(k)+'">'+esc(providers[k].name)+'</option>';}).join("")+'</select></label>'+

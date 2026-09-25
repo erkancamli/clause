@@ -609,9 +609,12 @@ def test_one_company_offering_usdc_does_not_hide_nine_offering_a_bank_transfer()
 
     now = time.time()
     registry = specimen_registry(now=now)
+    # Supervised in Germany, permitted to sell into Türkiye. A company
+    # supervised in Türkiye could not offer this and is refused if it claims
+    # to; see the test below.
     registry.register(Carrier(
         carrier_id="both-ways", name="Settles either way", role=Role.CARRIER,
-        domicile="TR", contact="a company", licences=(Licence(
+        domicile="DE", contact="a company", licences=(Licence(
             country="TR", authority="SEDDK", reference="X-1", perils=EVERY_PERIL,
             reach=Reach.RETAIL, settlement=BOTH_ASSETS, expires_at=now + 2 * 365 * 86400),),
         appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
@@ -620,7 +623,7 @@ def test_one_company_offering_usdc_does_not_hide_nine_offering_a_bank_transfer()
 
     ruling = ComplianceEngine(registry).evaluate(
         interest=Interest(what="a flat", country="TR", inside_trigger_area=True,
-                          value_at_risk=50_000.0),
+                          value_at_risk=50_000.0, holder_resident_in="DE"),
         limit=50_000.0, peril="earthquake", term_days=365.0)
     assert ruling.allowed
     offered = {o.carrier.carrier_id for o in ruling.placement.offers}
@@ -631,33 +634,98 @@ def test_one_company_offering_usdc_does_not_hide_nine_offering_a_bank_transfer()
 def test_where_the_law_says_local_currency_the_protocol_obeys_its_own_note() -> None:
     """Türkiye's note tells the buyer that premiums and claims settle in lira,
     because the 2021 central bank regulation prohibits paying in crypto assets.
-    That was a sentence on a screen and nothing else: a company that declared a
-    stablecoin licence there was simply believed. A disclosure the protocol
-    does not itself obey is worse than no disclosure."""
+
+    That was a sentence on a screen and nothing else, and when it was first
+    enforced it was enforced against the wrong thing: the country the risk sat
+    in. The prohibition binds institutions and protects residents, so it is
+    read twice, against two different countries, and both have to allow it.
+    """
+    import time
+
+    import pytest
+
+    from clause.protocol.carrier import (Appetite, BOTH_ASSETS, Carrier, CarrierError,
+                                         EVERY_PERIL, Licence, PAYMENT_BAN_COUNTRIES,
+                                         Reach, Role, Settlement, specimen_registry)
+    from clause.protocol.compliance import ComplianceEngine, Interest
+
+    assert "TR" in PAYMENT_BAN_COUNTRIES
+    now = time.time()
+
+    # Condition one, the company. Supervised where paying in crypto assets is
+    # prohibited, so the claim cannot be registered at all, wherever it writes.
+    with pytest.raises(CarrierError, match="supervised in TR"):
+        Carrier(
+            carrier_id="usdc-please", name="Would rather pay in USDC",
+            role=Role.CARRIER, domicile="TR", contact="a company", licences=(Licence(
+                country="DE", authority="BaFin", reference="X-2", perils=EVERY_PERIL,
+                reach=Reach.RETAIL, settlement=BOTH_ASSETS,
+                expires_at=now + 2 * 365 * 86400),),
+            appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+            capacity=9_000_000, fronting_fee=0.01)
+
+    # Condition two, the buyer. A company that may pay either way, and a
+    # resident of a country that prohibits being paid that way.
+    registry = specimen_registry(now=now)
+    registry.register(Carrier(
+        carrier_id="foreign-paper", name="Supervised elsewhere", role=Role.CARRIER,
+        domicile="DE", contact="a company", licences=(Licence(
+            country="TR", authority="SEDDK", reference="X-3", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=BOTH_ASSETS,
+            expires_at=now + 2 * 365 * 86400),),
+        appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000, fronting_fee=0.01))
+    registry.activate("foreign-paper", now=now)
+    engine = ComplianceEngine(registry)
+
+    resident = engine.evaluate(
+        interest=Interest(what="a flat", country="TR", inside_trigger_area=True,
+                          value_at_risk=50_000.0, holder_resident_in="TR"),
+        limit=50_000.0, peril="earthquake", term_days=365.0)
+    assert resident.allowed
+    assert resident.settlement is Settlement.FIAT
+    assert any("where you live" in line for line in resident.disclosure)
+
+    # The same flat, the same company, someone the prohibition was never about.
+    visitor = engine.evaluate(
+        interest=Interest(what="a flat", country="TR", inside_trigger_area=True,
+                          value_at_risk=50_000.0, holder_resident_in="DE"),
+        limit=50_000.0, peril="earthquake", term_days=365.0)
+    assert visitor.allowed
+    assert visitor.settlement is Settlement.STABLECOIN
+    # And the policy says why, naming both countries it was read against.
+    why = [line for line in visitor.disclosure if "Paid in stablecoin" in line]
+    assert why and "DE" in why[0]
+
+
+def test_a_turkish_resident_is_paid_in_lira_on_a_building_abroad() -> None:
+    """The rule follows the person. Reading it off the country of the risk got
+    this exactly backwards: it paid a resident of Türkiye in stablecoin as soon
+    as the thing they insured was somewhere else, and refused stablecoin to a
+    foreigner whose flat happened to be in Istanbul."""
     import time
     from clause.protocol.carrier import (Appetite, BOTH_ASSETS, Carrier, EVERY_PERIL,
                                          Licence, Reach, Role, Settlement,
-                                         FIAT_ONLY_COUNTRIES, specimen_registry)
+                                         specimen_registry)
     from clause.protocol.compliance import ComplianceEngine, Interest
 
-    assert "TR" in FIAT_ONLY_COUNTRIES
     now = time.time()
     registry = specimen_registry(now=now)
     registry.register(Carrier(
-        carrier_id="usdc-please", name="Would rather pay in USDC", role=Role.CARRIER,
-        domicile="TR", contact="a company", licences=(Licence(
-            country="TR", authority="SEDDK", reference="X-2", perils=EVERY_PERIL,
-            reach=Reach.RETAIL, settlement=BOTH_ASSETS, expires_at=now + 2 * 365 * 86400),),
+        carrier_id="tokyo-paper", name="Tokyo paper", role=Role.CARRIER,
+        domicile="JP", contact="a company", licences=(Licence(
+            country="JP", authority="the FSA", reference="X-4", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=BOTH_ASSETS,
+            expires_at=now + 2 * 365 * 86400),),
         appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=9_000_000, fronting_fee=0.01))
-    registry.activate("usdc-please", now=now)
+    registry.activate("tokyo-paper", now=now)
 
     ruling = ComplianceEngine(registry).evaluate(
-        interest=Interest(what="a flat", country="TR", inside_trigger_area=True,
-                          value_at_risk=50_000.0),
+        interest=Interest(what="a flat in Tokyo", country="JP",
+                          inside_trigger_area=True, value_at_risk=50_000.0,
+                          holder_resident_in="TR"),
         limit=50_000.0, peril="earthquake", term_days=365.0)
-    # It is the cheapest paper in the country, so it is chosen; it is paid in
-    # lira all the same, because that is what the note says and what the law is.
     assert ruling.allowed
     assert ruling.settlement is Settlement.FIAT
 

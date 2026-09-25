@@ -2159,7 +2159,9 @@
     "does not want this risk": "bu riski almak istemiyor",
     "Also licensed here, but not offering:": "Burada lisanslı ama teklif vermeyenler:",
     "A newer version of this page is ready.": "Bu sayfanın daha yeni bir sürümü hazır.",
-    "Load it": "Yükle"
+    "Load it": "Yükle",
+    "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Havale, hesaptaki isim olmadan yapılamaz. Bu isim yalnızca havale için kullanılır, başka hiçbir şey için.",
+    "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Başka bir yönteme geçmek burada kayıtlı IBAN'ı ve ismi siler. Daha önce gönderilen havaleler kendi kaydını korur."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -306,6 +306,20 @@ class Carrier:
             raise CarrierError("a fronting fee between zero and half the premium")
         if self.role is Role.CARRIER and not self.licences:
             raise CarrierError("a carrier holds at least one licence")
+        # A company supervised where paying in crypto assets is prohibited may
+        # not declare a licence that settles in stablecoin — in any country, to
+        # any buyer. The prohibition binds the institution, not the policy, so
+        # it cannot be escaped by writing the risk somewhere else. Refused at
+        # registration, because a declaration this protocol would not honour is
+        # worse kept than refused: it would reach a buyer as a choice.
+        if self.domicile.upper() in PAYMENT_BAN_COUNTRIES:
+            for licence in self.licences:
+                if Settlement.STABLECOIN in licence.settlement:
+                    raise CarrierError(
+                        f"a company supervised in {self.domicile.upper()} may not "
+                        f"settle in stablecoin: the law binding it prohibits "
+                        f"paying in crypto assets, and that holds wherever it "
+                        f"writes")
 
     # -- what it can do ---------------------------------------------------
 
@@ -978,15 +992,29 @@ _NO_SPECIMEN = frozenset({
 })
 # Where the central bank has banned paying with crypto assets, a stand in's
 # licence settles in the local currency only, as a real one's would.
-#: Countries whose own law puts premiums and claims in the local currency.
-#: Türkiye's 2021 central bank regulation prohibits using crypto assets in
-#: payments, directly or indirectly, and the others are the same kind of rule.
-#: This shaped the stand ins' licences from the start; it is exported because
-#: shaping a licence is not the same as enforcing a rule, and a company that
-#: claims it may settle in stablecoin where the law says otherwise should be
-#: refused rather than believed.
-FIAT_ONLY_COUNTRIES = frozenset({"TR", "CN", "DZ", "BD", "EG", "MA", "NP", "IQ", "QA", "TN"})
-_FIAT_ONLY_COUNTRIES = FIAT_ONLY_COUNTRIES
+#: Countries whose own law forbids paying in crypto assets. Türkiye's 2021
+#: central bank regulation prohibits using them in payments, directly or
+#: indirectly, and prohibits payment and e-money institutions from
+#: intermediating transfers to crypto platforms; the others are the same kind
+#: of rule.
+#:
+#: What this set binds is **where a company is supervised**, not where a risk
+#: happens to sit. The regulation binds institutions, so a company supervised
+#: in Türkiye may not pay in stablecoin to anyone, anywhere, and a company
+#: supervised elsewhere is answerable to its own regulator instead. The other
+#: half of the rule, who may be *paid* that way, is the buyer's country of
+#: residence and lives in compliance.py, because it is a question about a
+#: person rather than about a licence.
+#:
+#: It is exported because shaping a licence is not the same as enforcing a
+#: rule: a company that claims it may settle in stablecoin where the law
+#: binding it says otherwise is refused at registration rather than believed.
+PAYMENT_BAN_COUNTRIES = frozenset({"TR", "CN", "DZ", "BD", "EG", "MA", "NP", "IQ", "QA", "TN"})
+#: The old name, kept so nothing that imports it breaks. It read as though the
+#: country of the risk decided the rail, which is what it used to do and was
+#: the wrong question.
+FIAT_ONLY_COUNTRIES = PAYMENT_BAN_COUNTRIES
+_FIAT_ONLY_COUNTRIES = PAYMENT_BAN_COUNTRIES
 
 
 def world_specimens(*, now: float | None = None) -> list[Carrier]:
@@ -1035,7 +1063,9 @@ def world_specimens(*, now: float | None = None) -> list[Carrier]:
                     authority="the national insurance supervisor would supervise a real one",
                     reference="SPECIMEN, no licence exists", perils=EVERY_PERIL,
                     reach=Reach.RETAIL,
-                    settlement=FIAT_ONLY if code in FIAT_ONLY_COUNTRIES else BOTH_ASSETS,
+                    # Keyed on the domicile, which for a stand in is the same
+                    # code, but says which of the two it is being read as.
+                    settlement=FIAT_ONLY if code in PAYMENT_BAN_COUNTRIES else BOTH_ASSETS,
                     expires_at=now + 2 * YEAR,
                 ),),
                 appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
