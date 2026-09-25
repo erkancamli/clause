@@ -2162,7 +2162,11 @@
     "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Если сезонные осадки окажутся выше {level}, это покрытие не выплатит ничего — даже если урожай погиб.",
     "If it comes in below {level}, it pays — even if the harvest is fine.": "Если они окажутся ниже {level}, выплата будет — даже если урожай хороший.",
     "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Если рейс задержится меньше чем на {level}, это покрытие не выплатит ничего — даже если задержка дорого вам обошлась.",
-    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "Если это {level} или больше, выплата будет — даже если задержка вам ничего не стоила."
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "Если это {level} или больше, выплата будет — даже если задержка вам ничего не стоила.",
+    "Continue on this device": "Продолжить на этом устройстве",
+    "No email, no password, no account. Only this browser can open what you buy.": "Без почты, без пароля, без аккаунта. Открыть купленное сможет только этот браузер.",
+    "I already have an account or a wallet": "У меня уже есть аккаунт или кошелёк",
+    "Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.": "Почта, Google или кошелёк — и это работает на других ваших устройствах. Вашу почту хранит Privy, а не этот протокол."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

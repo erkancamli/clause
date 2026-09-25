@@ -1451,7 +1451,7 @@
     "{n} transfer waiting": "{n} virement en attente",
     "As the operator": "En tant qu’opérateur",
     "Your name, recorded with every decision": "Votre nom, consigné avec chaque décision",
-    "Sign in as the operator": "Se connecter en tant qu’opérateur",
+    "Sign in as the operator": "Se connecter en tant qu'opérateur",
     "e.g. 1998": "p. ex. 1998",
     "e.g. 2016": "p. ex. 2016",
     "Deposits from a Solana or Ethereum wallet are seen on chain and credited within a minute of arriving; write the reference in the memo, or give the sending wallet below.": "Les dépôts depuis un portefeuille Solana ou Ethereum sont détectés sur la chaîne et crédités dans la minute qui suit leur arrivée ; inscrivez la référence dans le mémo ou indiquez ci-dessous le portefeuille émetteur.",
@@ -2162,7 +2162,11 @@
     "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Si les pluies de la saison dépassent {level}, cette couverture ne verse rien, même si la récolte est perdue.",
     "If it comes in below {level}, it pays — even if the harvest is fine.": "S'ils restent sous {level}, elle verse, même si la récolte est bonne.",
     "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Si le vol atterrit avec moins de {level}, cette couverture ne verse rien, même si le retard vous a beaucoup coûté.",
-    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "S'il est de {level} ou plus, elle verse, même si le retard ne vous a rien coûté."
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "S'il est de {level} ou plus, elle verse, même si le retard ne vous a rien coûté.",
+    "Continue on this device": "Continuer sur cet appareil",
+    "No email, no password, no account. Only this browser can open what you buy.": "Pas d'e-mail, pas de mot de passe, pas de compte. Seul ce navigateur peut ouvrir ce que vous achetez.",
+    "I already have an account or a wallet": "J'ai déjà un compte ou un portefeuille",
+    "Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.": "E-mail, Google ou un portefeuille, et cela fonctionne sur vos autres appareils. Privy conserve votre e-mail ; ce protocole non."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

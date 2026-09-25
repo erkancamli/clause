@@ -1451,7 +1451,7 @@
     "{n} transfer waiting": "{n} transfer bekliyor",
     "As the operator": "Operatör olarak",
     "Your name, recorded with every decision": "Adınız, her kararla birlikte kaydedilir",
-    "Sign in as the operator": "Operatör olarak giriş yapın",
+    "Sign in as the operator": "Operatör olarak giriş yap",
     "e.g. 1998": "ör. 1998",
     "e.g. 2016": "ör. 2016",
     "Deposits from a Solana or Ethereum wallet are seen on chain and credited within a minute of arriving; write the reference in the memo, or give the sending wallet below.": "Solana veya Ethereum cüzdanından gönderilen tutarlar zincirde görülür ve geldikten sonra bir dakika içinde hesaba geçer; referansı memo alanına yazın ya da gönderen cüzdanı aşağıda belirtin.",
@@ -2170,7 +2170,11 @@
     "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Mevsimin yağışı {level} üzerinde gelirse bu poliçe hiçbir şey ödemez — hasat tutmasa bile.",
     "If it comes in below {level}, it pays — even if the harvest is fine.": "{level} altında gelirse öder — hasat iyi olsa bile.",
     "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Uçuş {level} altında gecikirse bu poliçe hiçbir şey ödemez — gecikme size çok pahalıya mal olsa bile.",
-    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "{level} veya daha kötüyse öder — gecikme size hiçbir şeye mal olmasa bile."
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "{level} veya daha kötüyse öder — gecikme size hiçbir şeye mal olmasa bile.",
+    "Continue on this device": "Bu cihazla devam et",
+    "No email, no password, no account. Only this browser can open what you buy.": "E-posta yok, parola yok, hesap yok. Aldığınız teminatı yalnızca bu tarayıcı açabilir.",
+    "I already have an account or a wallet": "Zaten hesabım ya da cüzdanım var",
+    "Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.": "E-posta, Google ya da cüzdan; diğer cihazlarınızda da çalışır. E-postanızı Privy tutar, bu protokol tutmaz."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

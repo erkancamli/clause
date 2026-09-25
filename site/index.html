@@ -3002,19 +3002,31 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
 <dialog id="signin" aria-labelledby="signin-title">
   <form class="dlg" method="dialog">
     <h3 id="signin-title" data-i18n>Sign in to continue</h3>
+    <!-- Two, because a buyer is one of two things. The operator is staff and
+         was the third pill here, which wrapped the control onto a second line
+         and, worse, offered a person buying cover for their flat a choice
+         between themselves, their company and running the protocol. It is a
+         quiet line at the foot of the dialog now. -->
     <div class="seg" id="dlg-role" role="radiogroup" hidden>
       <button type="button" role="radio" data-role="person" aria-checked="true" data-i18n>For myself</button>
       <button type="button" role="radio" data-role="company" aria-checked="false" data-i18n>For my company</button>
-      <button type="button" role="radio" data-role="admin" aria-checked="false" data-i18n>As the operator</button>
     </div>
     <p id="dlg-role-note" data-i18n>Cover is personal: it is held by your address, and only you can open it. Choose how you sign in.</p>
-    <button class="choice" type="button" id="dlg-privy" hidden>
-      <b data-i18n>Continue with email, Google or a wallet</b>
-      <span data-i18n>Works on all your devices. Privy keeps your email; this protocol does not.</span>
-    </button>
+    <!-- The route with no account in it comes first. It used to come second,
+         under the one that hands an email to a third party, which is both the
+         wrong way round for a protocol whose whole claim is that it asks for
+         nothing about you, and the opposite of how this is done now: the
+         account is provisioned quietly and "I already have one" is the
+         secondary path, not the front door. The copy leads with what a person
+         gets rather than with what they are giving up; "use a key on this
+         device only" is a restriction read aloud. -->
     <button class="choice" type="button" id="dlg-go">
-      <b data-i18n>Use a key on this device only</b>
-      <span data-i18n>No email and no account. Only this browser can open what you buy with it.</span>
+      <b data-i18n>Continue on this device</b>
+      <span data-i18n>No email, no password, no account. Only this browser can open what you buy.</span>
+    </button>
+    <button class="choice" type="button" id="dlg-privy" hidden>
+      <b data-i18n>I already have an account or a wallet</b>
+      <span data-i18n>Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.</span>
     </button>
     <div id="dlg-admin-form" hidden style="display:grid;gap:10px">
       <label class="label" for="dlg-op-token" data-i18n>Operator token</label>
@@ -3029,7 +3041,8 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
       <span id="bio-text"></span>
     </div>
     <div class="row">
-      <span style="margin-right:auto"></span>
+      <button class="linkish" type="button" id="dlg-operator" data-role="admin" hidden
+              style="margin-right:auto" data-i18n>Sign in as the operator</button>
       <button class="btn btn-line btn-sm" type="button" id="dlg-cancel" data-i18n>Not now</button>
     </div>
   </form>
@@ -8025,6 +8038,7 @@ function chooseSignIn(purpose){
   // The header asks who is signing in; a purchase or a registration already
   // knows the answer.
   $("dlg-role").hidden=purpose!=="sign-in";
+  $("dlg-operator").hidden=purpose!=="sign-in";
   setRole(purpose==="company"?"company":purpose==="sign-in"?getRole():"person");
   $("dlg-error").hidden=true;
   $("dlg-go").disabled=false; $("dlg-privy").disabled=false;
@@ -8103,7 +8117,11 @@ function setRole(role){
   ROLE=role;
   try{ localStorage.setItem("clause-role",role); }catch(e){}
   var admin=role==="admin";
-  if($("dlg-admin-form")){ $("dlg-admin-form").hidden=!admin; $("dlg-privy").hidden=admin||$("dlg-privy").dataset.off==="1"; $("dlg-go").hidden=admin; $("bio").hidden=admin; }
+  if($("dlg-admin-form")){ $("dlg-admin-form").hidden=!admin; $("dlg-privy").hidden=admin||$("dlg-privy").dataset.off==="1"; $("dlg-go").hidden=admin; $("bio").hidden=admin;
+    // Signing in as the operator is a state, not a way back: once chosen, the
+    // link that chose it stops being on offer and the two pills carry the
+    // way back to being a buyer.
+    if($("dlg-operator"))$("dlg-operator").hidden=admin; }
   var line=$("dlg-role-note");
   if(line)line.textContent=admin
     ? t("The operator sees everything: every buyer and their policies, every company, every application, and decides what the stand in companies cannot.")
@@ -8116,9 +8134,10 @@ function setRole(role){
     b.setAttribute("aria-checked",String(b.dataset.role===role));
   });
 }
-Array.prototype.forEach.call($("dlg-role").querySelectorAll("button"),function(b){
-  b.addEventListener("click",function(){ setRole(b.dataset.role); });
-});
+Array.prototype.forEach.call(
+  document.querySelectorAll("#dlg-role button, #dlg-operator"),function(b){
+    b.addEventListener("click",function(){ setRole(b.dataset.role); });
+  });
 function home(){ return getRole()==="company" ? "#/company" : getRole()==="admin" ? "#/admin" : "#/mine"; }
 dlg.addEventListener("close",function(){
   if(HANDING_OFF){ HANDING_OFF=false; return; }

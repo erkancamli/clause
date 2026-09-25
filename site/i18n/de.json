@@ -2162,7 +2162,11 @@
     "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Liegt der Saisonniederschlag über {level}, zahlt diese Deckung nichts — auch wenn die Ernte ausfällt.",
     "If it comes in below {level}, it pays — even if the harvest is fine.": "Liegt er unter {level}, zahlt sie — auch wenn die Ernte gut ausfällt.",
     "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Landet der Flug mit weniger als {level}, zahlt diese Deckung nichts — auch wenn die Verspätung Sie viel gekostet hat.",
-    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "Sind es {level} oder mehr, zahlt sie — auch wenn die Verspätung Sie nichts gekostet hat."
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "Sind es {level} oder mehr, zahlt sie — auch wenn die Verspätung Sie nichts gekostet hat.",
+    "Continue on this device": "Auf diesem Gerät fortfahren",
+    "No email, no password, no account. Only this browser can open what you buy.": "Keine E-Mail, kein Passwort, kein Konto. Nur dieser Browser kann öffnen, was Sie kaufen.",
+    "I already have an account or a wallet": "Ich habe bereits ein Konto oder eine Wallet",
+    "Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.": "E-Mail, Google oder eine Wallet, und es funktioniert auf Ihren anderen Geräten. Privy speichert Ihre E-Mail, dieses Protokoll nicht."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

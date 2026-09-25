@@ -1451,7 +1451,7 @@
     "{n} transfer waiting": "{n}件の送金待ち",
     "As the operator": "運営者として",
     "Your name, recorded with every decision": "お名前。すべての判断に記録されます",
-    "Sign in as the operator": "運営者としてサインイン",
+    "Sign in as the operator": "オペレーターとしてサインイン",
     "e.g. 1998": "例：1998",
     "e.g. 2016": "例：2016",
     "Deposits from a Solana or Ethereum wallet are seen on chain and credited within a minute of arriving; write the reference in the memo, or give the sending wallet below.": "SolanaまたはEthereumのウォレットからの入金はチェーン上で検出され、到着後1分以内に残高へ反映されます。参照コードをメモに書くか、送金元のウォレットを下に入力してください。",
@@ -2162,7 +2162,11 @@
     "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "その季節の降水量が{level}を上回れば、この補償は一切支払われません。収穫が不作でも同じです。",
     "If it comes in below {level}, it pays — even if the harvest is fine.": "{level}を下回れば支払われます。収穫が順調でも同じです。",
     "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "遅延が{level}に満たなければ、この補償は一切支払われません。その遅れで大きな損失が出ていても同じです。",
-    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "{level}以上であれば支払われます。その遅れで何の損失もなくても同じです。"
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "{level}以上であれば支払われます。その遅れで何の損失もなくても同じです。",
+    "Continue on this device": "この端末で続ける",
+    "No email, no password, no account. Only this browser can open what you buy.": "メールもパスワードもアカウントも不要です。購入した補償を開けるのはこのブラウザだけです。",
+    "I already have an account or a wallet": "すでにアカウントかウォレットがある",
+    "Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.": "メール、Google、またはウォレット。他の端末でも使えます。メールアドレスを保持するのはPrivyで、このプロトコルではありません。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

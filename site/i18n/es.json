@@ -1451,7 +1451,7 @@
     "{n} transfer waiting": "{n} transferencia en espera",
     "As the operator": "Como operador",
     "Your name, recorded with every decision": "Su nombre, que se registra con cada decisión",
-    "Sign in as the operator": "Iniciar sesión como operador",
+    "Sign in as the operator": "Entrar como operador",
     "e.g. 1998": "p. ej., 1998",
     "e.g. 2016": "p. ej., 2016",
     "Deposits from a Solana or Ethereum wallet are seen on chain and credited within a minute of arriving; write the reference in the memo, or give the sending wallet below.": "Los depósitos desde una billetera de Solana o Ethereum se detectan en la cadena y se acreditan en menos de un minuto tras llegar; escriba la referencia en el memo o indique abajo la billetera emisora.",
@@ -2162,7 +2162,11 @@
     "If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.": "Si la lluvia de la temporada supera {level}, esta cobertura no paga nada, aunque se pierda la cosecha.",
     "If it comes in below {level}, it pays — even if the harvest is fine.": "Si queda por debajo de {level}, paga, aunque la cosecha sea buena.",
     "If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.": "Si el vuelo llega con menos de {level}, esta cobertura no paga nada, aunque el retraso le haya costado mucho.",
-    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "Si es de {level} o peor, paga, aunque el retraso no le haya costado nada."
+    "If it is {level} or worse, it pays — even if the delay cost you nothing.": "Si es de {level} o peor, paga, aunque el retraso no le haya costado nada.",
+    "Continue on this device": "Continuar en este dispositivo",
+    "No email, no password, no account. Only this browser can open what you buy.": "Sin correo, sin contraseña, sin cuenta. Solo este navegador puede abrir lo que contrate.",
+    "I already have an account or a wallet": "Ya tengo una cuenta o una cartera",
+    "Email, Google or a wallet, and it works on your other devices. Privy keeps your email; this protocol does not.": "Correo, Google o una cartera, y funciona en sus otros dispositivos. Privy guarda su correo; este protocolo no."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
