@@ -153,7 +153,16 @@ p{margin:0}
 a{color:inherit}
 button{font:inherit;color:inherit}
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
-@media (min-width:1700px){:root{--max:1360px}}
+/* The page grows with the screen, in steps rather than continuously, because
+   a layout that stretches forever turns a paragraph into a line nobody can
+   track back to. On a 2560 monitor the old 1360 left six hundred empty pixels
+   down each side and the page read as a narrow card floating in a room.
+   Widening the page is safe because prose is capped separately, in ch: what
+   gets the extra width is the work -- grids, registers, tables, the
+   instrument -- and not the sentences. */
+@media (min-width:1500px){:root{--max:1400px}}
+@media (min-width:1800px){:root{--max:1560px;--gutter:56px}}
+@media (min-width:2200px){:root{--max:1720px;--gutter:72px}}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums}
 .label{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
@@ -811,6 +820,15 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 @media (min-width:861px){
   .hero-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
     grid-template-areas:"text art" "beats art"}
+  /* Past a point the words stop getting wider -- a heading is capped at 13ch
+     and a paragraph at 52ch -- and stretching the instrument to fill the rest
+     only made it emptier inside, because its drawing has a fixed frame. So
+     the hero stops growing and centres itself, and the width the page gained
+     goes to what below it can actually use: the cards, the registers, the
+     tables. A section is not better for being wider; a grid of five is. */
+  @media (min-width:1500px){
+    .hero-grid{max-width:1340px;margin-inline:auto}
+  }
   .hero-flow{display:contents}
   .hero-text{grid-area:text}
   .beats{grid-area:beats}
