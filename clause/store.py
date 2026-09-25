@@ -464,6 +464,16 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
 
     wallets.accounts = store.docs("wallet")
     registry.carriers = store.docs("carrier")
+    # A book written before a settlement rule existed can hold a company the
+    # rule would now refuse. Refusing to load it is how this service died on
+    # startup and kept dying: the rule belongs at the door, and what is already
+    # inside is repaired. See carrier.lawful_settlement.
+    from .protocol.carrier import lawful_settlement
+
+    mended = lawful_settlement(registry)
+    if mended:
+        logger.warning("took stablecoin off %s companies that may not offer it "
+                       "where they are supervised", mended)
     if properties is not None:
         properties.holdings = store.docs("property")
 

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -33,10 +34,30 @@ NOTICE = ("/* Clause, clause.insure. Copyright (c) 2026 Erkan Çamlı. All right
 
 
 def minify(code: str, loader: str) -> str:
-    """One esbuild pass over a script or a stylesheet; the source on failure."""
+    """One esbuild pass over a script or a stylesheet.
+
+    A missing esbuild used to print a line to stderr and publish the page
+    unminified: 727 KB of source where 540 KB was expected, on a product whose
+    buyers are on mid range Android phones in Türkiye, Indonesia and the
+    Philippines. Nothing downstream checks the weight, so the day an install
+    step fails on the build host the site goes out at a third again its size
+    and nobody finds out.
+
+    So it stops. Somebody building the page on their own machine without the
+    tooling installed can say so and get the unminified page, deliberately,
+    with the reason in front of them.
+    """
     if not ESBUILD.exists():
-        print(f"esbuild not found at {ESBUILD}; publishing the page unminified", file=sys.stderr)
-        return code
+        if os.environ.get("CLAUSE_BUILD_ALLOW_UNMINIFIED") == "1":
+            print(f"esbuild not found at {ESBUILD}; publishing the page "
+                  f"unminified because CLAUSE_BUILD_ALLOW_UNMINIFIED=1",
+                  file=sys.stderr)
+            return code
+        raise SystemExit(
+            f"esbuild not found at {ESBUILD}. The page would be published "
+            f"unminified, which is a third again its size. Install it with "
+            f"`npm install` in privy-bundle, or set "
+            f"CLAUSE_BUILD_ALLOW_UNMINIFIED=1 if you meant to.")
     done = subprocess.run(
         [str(ESBUILD), f"--loader={loader}", "--minify", "--target=es2017", "--charset=utf8", "--legal-comments=none"],
         input=code.encode("utf-8"), capture_output=True,
@@ -49,12 +70,32 @@ def minify(code: str, loader: str) -> str:
 
 def obfuscate(code: str) -> str:
     """After minifying: names flattened, strings pulled into an encoded table,
-    control flow left alone (it would slow the page for nothing). Someone
-    determined can still read it; nobody can lift a function out of it and
-    use it as it is."""
-    if not OBFUSCATOR.exists():
-        print("javascript-obfuscator not found; publishing minified only", file=sys.stderr)
+    control flow left alone (it would slow the page for nothing).
+
+    Off unless asked for, and measured when it is. This step has never run in
+    production: the tool was not declared in package.json, was not in the lock
+    file, and was not installed on whatever built the live page -- so for as
+    long as this function has existed the build has printed one line to stderr
+    and skipped it. Measured on this page it costs 341 KB, taking 540 KB to
+    881 KB, a little over half again.
+
+    That is a trade somebody should make on purpose rather than inherit from
+    whether a binary happened to be on the build host. Set CLAUSE_OBFUSCATE=1
+    and it runs; ask for it without the tool and the build stops rather than
+    quietly publishing a page that is not obfuscated while the notice at the
+    top of it says the code is protected.
+
+    What it buys is worth saying plainly too: someone determined can still
+    read the page, as they can read any page. It raises the cost of lifting a
+    function out and using it as it is. The copyright notice is what makes
+    that unlawful; this only makes it tedious.
+    """
+    if os.environ.get("CLAUSE_OBFUSCATE") != "1":
         return code
+    if not OBFUSCATOR.exists():
+        raise SystemExit(
+            "CLAUSE_OBFUSCATE=1 but javascript-obfuscator is not installed at "
+            f"{OBFUSCATOR}. Install it in privy-bundle, or unset the variable.")
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:
         src = Path(tmp) / "in.js"

@@ -71,7 +71,7 @@ the lookup is in the path rather than in a document.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, Iterable
 
@@ -306,20 +306,7 @@ class Carrier:
             raise CarrierError("a fronting fee between zero and half the premium")
         if self.role is Role.CARRIER and not self.licences:
             raise CarrierError("a carrier holds at least one licence")
-        # A company supervised where paying in crypto assets is prohibited may
-        # not declare a licence that settles in stablecoin — in any country, to
-        # any buyer. The prohibition binds the institution, not the policy, so
-        # it cannot be escaped by writing the risk somewhere else. Refused at
-        # registration, because a declaration this protocol would not honour is
-        # worse kept than refused: it would reach a buyer as a choice.
-        if self.domicile.upper() in PAYMENT_BAN_COUNTRIES:
-            for licence in self.licences:
-                if Settlement.STABLECOIN in licence.settlement:
-                    raise CarrierError(
-                        f"a company supervised in {self.domicile.upper()} may not "
-                        f"settle in stablecoin: the law binding it prohibits "
-                        f"paying in crypto assets, and that holds wherever it "
-                        f"writes")
+
 
     # -- what it can do ---------------------------------------------------
 
@@ -475,6 +462,9 @@ class Registry:
     def register(self, carrier: Carrier) -> Carrier:
         if carrier.carrier_id in self.carriers:
             raise CarrierError(f"{carrier.carrier_id} is already registered")
+        refusal = unlawful_settlement(carrier)
+        if refusal:
+            raise CarrierError(refusal)
         self.carriers[carrier.carrier_id] = carrier
         return carrier
 
@@ -1015,6 +1005,59 @@ PAYMENT_BAN_COUNTRIES = frozenset({"TR", "CN", "DZ", "BD", "EG", "MA", "NP", "IQ
 #: the wrong question.
 FIAT_ONLY_COUNTRIES = PAYMENT_BAN_COUNTRIES
 _FIAT_ONLY_COUNTRIES = PAYMENT_BAN_COUNTRIES
+
+
+def unlawful_settlement(carrier: Carrier) -> str:
+    """Why this company may not be registered as it stands, or "".
+
+    A company supervised where paying in crypto assets is prohibited may not
+    declare a licence that settles in stablecoin -- in any country, to any
+    buyer. The prohibition binds the institution, not the policy, so it cannot
+    be escaped by writing the risk somewhere else.
+
+    Asked at the door and not in ``Carrier.__post_init__``, which was where it
+    went first. A dataclass's validation runs wherever the class is built, and
+    one of those places is reading the saved book back off disk. The live book
+    already held a Turkish company that had declared it could settle in USDC,
+    so the new rule refused to load the record, the book would not open, and
+    the service died on startup and kept dying. A rule about what may be
+    accepted must not be asked of what was already accepted: the door refuses,
+    and :func:`lawful_settlement` repairs what is already inside.
+    """
+    if carrier.domicile.upper() not in PAYMENT_BAN_COUNTRIES:
+        return ""
+    for licence in carrier.licences:
+        if Settlement.STABLECOIN in licence.settlement:
+            return (f"a company supervised in {carrier.domicile.upper()} may not "
+                    f"settle in stablecoin: the law binding it prohibits paying "
+                    f"in crypto assets, and that holds wherever it writes")
+    return ""
+
+
+def lawful_settlement(registry: "Registry") -> int:
+    """Take stablecoin off the licences of companies that may not offer it.
+
+    For books written before the rule existed. The company keeps its licence
+    and its country; what it loses is a settlement asset it was never entitled
+    to declare, which is the narrowest repair that makes the book lawful. The
+    alternative -- refusing to load it -- is what took the service down.
+    """
+    mended = 0
+    for carrier_id, carrier in list(registry.carriers.items()):
+        if not unlawful_settlement(carrier):
+            continue
+        licences = tuple(
+            replace(licence, settlement=frozenset(
+                a for a in licence.settlement if a is not Settlement.STABLECOIN))
+            if Settlement.STABLECOIN in licence.settlement else licence
+            for licence in carrier.licences
+        )
+        # A licence that settled in nothing else is not a licence to write at
+        # all; it is dropped rather than left as an empty permission.
+        licences = tuple(l for l in licences if l.settlement)
+        registry.carriers[carrier_id] = replace(carrier, licences=licences)
+        mended += 1
+    return mended
 
 
 def world_specimens(*, now: float | None = None) -> list[Carrier]:

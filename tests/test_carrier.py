@@ -653,16 +653,17 @@ def test_where_the_law_says_local_currency_the_protocol_obeys_its_own_note() -> 
     now = time.time()
 
     # Condition one, the company. Supervised where paying in crypto assets is
-    # prohibited, so the claim cannot be registered at all, wherever it writes.
+    # prohibited, so the claim is refused at the door, wherever it writes.
+    would_rather = Carrier(
+        carrier_id="usdc-please", name="Would rather pay in USDC",
+        role=Role.CARRIER, domicile="TR", contact="a company", licences=(Licence(
+            country="DE", authority="BaFin", reference="X-2", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=BOTH_ASSETS,
+            expires_at=now + 2 * 365 * 86400),),
+        appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000, fronting_fee=0.01)
     with pytest.raises(CarrierError, match="supervised in TR"):
-        Carrier(
-            carrier_id="usdc-please", name="Would rather pay in USDC",
-            role=Role.CARRIER, domicile="TR", contact="a company", licences=(Licence(
-                country="DE", authority="BaFin", reference="X-2", perils=EVERY_PERIL,
-                reach=Reach.RETAIL, settlement=BOTH_ASSETS,
-                expires_at=now + 2 * 365 * 86400),),
-            appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
-            capacity=9_000_000, fronting_fee=0.01)
+        specimen_registry(now=now).register(would_rather)
 
     # Condition two, the buyer. A company that may pay either way, and a
     # resident of a country that prohibits being paid that way.
@@ -745,3 +746,46 @@ def test_every_country_offers_more_than_one_company() -> None:
     brazil = [c for c in world_specimens() if c.domicile == "BR"]
     assert len({c.fronting_fee for c in brazil}) == len(brazil)
     assert len({c.fiat_payout_days for c in brazil}) == len(brazil)
+
+
+def test_a_rule_about_what_may_be_accepted_is_not_asked_of_the_saved_book() -> None:
+    """The failure that took the live service down and kept it down.
+
+    The settlement rule went into ``Carrier.__post_init__``. A dataclass's
+    validation runs wherever the class is built, and one of those places is
+    reading the saved book back off disk. The live book already held a Turkish
+    company that had declared it could settle in USDC -- the very record an
+    earlier commit had described -- so the new rule refused to decode it,
+    ``restore`` raised, startup failed, and systemd restarted the service
+    forty-five times against the same book.
+
+    A rule about what may be accepted must not be asked of what was already
+    accepted. The door refuses; what is already inside is repaired.
+    """
+    import time
+
+    from clause.protocol.carrier import (Appetite, BOTH_ASSETS, Carrier, EVERY_PERIL,
+                                         Licence, Reach, Registry, Role, Settlement,
+                                         lawful_settlement)
+
+    now = time.time()
+    # Decoding it must not raise: this is history, not an application.
+    in_the_book = Carrier(
+        carrier_id="tr-usdc", name="Already in the live book", role=Role.CARRIER,
+        domicile="TR", contact="a company", licences=(Licence(
+            country="TR", authority="SEDDK", reference="X", perils=EVERY_PERIL,
+            reach=Reach.RETAIL, settlement=BOTH_ASSETS,
+            expires_at=now + 2 * 365 * 86400),),
+        appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
+        capacity=9_000_000)
+
+    registry = Registry()
+    registry.carriers[in_the_book.carrier_id] = in_the_book
+    assert lawful_settlement(registry) == 1
+
+    mended = registry.carriers["tr-usdc"]
+    assert Settlement.STABLECOIN not in mended.licences[0].settlement
+    assert Settlement.FIAT in mended.licences[0].settlement, (
+        "the narrowest repair: it keeps the licence and loses the asset")
+    # Running it again is not an event.
+    assert lawful_settlement(registry) == 0
