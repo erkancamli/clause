@@ -150,16 +150,19 @@ def test_the_diagrams_are_drawn_in_a_line_that_can_be_seen(palette, theme):
             f"{theme} --art-line on --{surface} is {got:.2f}:1, below {NON_TEXT}")
 
 
-@pytest.mark.parametrize("theme,label", [("dark", "#0B0D11"), ("light", "#FFFFFF")])
+@pytest.mark.parametrize("theme,label", [("dark", "#0B0D11"), ("light", "#0B0D11")])
 def test_the_primary_button_holds_its_label_across_the_whole_face(palette, theme, label):
-    """The face is a gradient, so the worst point on it is the one that counts."""
+    """The face is a gradient, so the worst point on it is the one that counts.
+
+    Both themes carry the same label now, because both carry the same
+    orange. The light theme used to put white on it, which is 3.33:1 at
+    the top of the face and 2.41:1 at the bottom."""
     tokens = palette[theme]
     signal, signal_2 = tokens["signal"], tokens["signal-2"]
     stops = [rgb(signal), rgb(signal_2)]
-    if theme == "dark":
-        # The dark face lifts its top toward white; the label is ink, so
-        # that only ever helps. It is checked anyway.
-        stops.append(mix(signal, "#FFFFFF", 0.86))
+    # The face lifts its top toward white; the label is ink, so that only
+    # ever helps. It is checked anyway.
+    stops.append(mix(signal, "#FFFFFF", 0.86))
     for stop in stops:
         got = ratio(label, stop)
         assert got >= BODY_TEXT, (
@@ -168,9 +171,16 @@ def test_the_primary_button_holds_its_label_across_the_whole_face(palette, theme
 
 
 @pytest.mark.parametrize("theme", ["dark", "light"])
-@pytest.mark.parametrize("tone", ["signal", "settled", "hold", "crit"])
+@pytest.mark.parametrize("tone", ["signal-ink", "settled", "hold", "crit"])
 def test_a_status_colour_is_readable_as_the_word_it_colours(palette, theme, tone):
-    """These tint status text, not just pips, so they answer to 1.4.3."""
+    """These tint status text, not just pips, so they answer to 1.4.3.
+
+    The accent appears here as --signal-ink and not as --signal, because
+    the two are different jobs. --signal is the fill of a button and the
+    stroke of a chart, which 1.4.11 asks 3:1 of; --signal-ink is the
+    accent used as a word, which 1.4.3 asks 4.5:1 of. One value cannot
+    do both in a light theme, and the attempt is what produced the
+    3.11:1 that this test used to fail on."""
     tokens = palette[theme]
     for surface in SURFACES:
         got = ratio(tokens[tone], tokens[surface])

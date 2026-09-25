@@ -320,21 +320,12 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 .btn-primary:hover:not(:disabled):not([aria-disabled="true"]){background:linear-gradient(180deg,color-mix(in srgb,var(--signal) 78%,#fff) 0%,var(--signal) 50%,var(--signal-2) 100%);
   transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 4px rgba(12,17,22,.12),0 16px 30px -10px var(--signal)}
 .btn-primary:active:not(:disabled):not([aria-disabled="true"]){transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 10px -8px var(--signal)}
-/* The sheen that lifts the top of the button is right in the dark theme,
-   where the label is ink: it only ever makes the orange brighter under
-   dark letters. In the light theme the label is white, and lifting the
-   top takes white-on-orange to 4.25:1. So light runs the gradient the
-   other way and leaves the highlight to the inset hairline, which does
-   not sit under the text. Worst point on the face is then 5.25:1. */
-@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .btn-primary{color:#fff;
-  background:linear-gradient(180deg,var(--signal) 0%,var(--signal-2) 100%)}
-  :root:not([data-theme="dark"]) .btn-primary:hover:not(:disabled):not([aria-disabled="true"]){
-  background:linear-gradient(180deg,var(--signal) 10%,var(--signal-2) 100%)}}
-:root[data-theme="light"] .btn-primary{color:#fff;
-  background:linear-gradient(180deg,var(--signal) 0%,var(--signal-2) 100%)}
-:root[data-theme="light"] .btn-primary:hover:not(:disabled):not([aria-disabled="true"]){
-  background:linear-gradient(180deg,var(--signal) 10%,var(--signal-2) 100%)}
-:root[data-theme="dark"] .btn-primary{color:#0B0D11}
+/* One button in both themes, because there is now one orange in both
+   themes. The label is ink, never white: white on this orange is 3.33:1
+   at the top of the face and 2.41:1 at the bottom, which is unreadable
+   by the standard and was shipping in the light theme. Ink reads 5.84:1
+   at the worst point and 8.07:1 at the best, so the sheen that lifts the
+   top of the face only ever helps it. */
 .btn-line{background:var(--panel);border-color:var(--edge-2);color:var(--ink);box-shadow:var(--lift-1),var(--hairline)}
 .btn-line:hover:not(:disabled):not([aria-disabled="true"]){border-color:var(--signal-ink);color:var(--signal-ink);transform:translateY(-1px);box-shadow:0 8px 20px -12px rgba(12,17,22,.35)}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--ink-2);padding-inline:12px}
