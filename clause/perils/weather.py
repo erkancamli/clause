@@ -376,6 +376,14 @@ class Drought(Peril):
                 f"{', '.join(sorted(STATIONS))}"
             )
         distance = float(subject.get("distance_km", 0.0))
+        # Sixty kilometres is where this has always been drawn, and nobody has
+        # justified it. At sixty the correlation this peril publishes is about
+        # 0.13, which is a payout almost unrelated to whether the buyer lost
+        # anything -- the point at which a regulator stops calling a contract
+        # insurance. It is left where it is rather than moved to a number
+        # invented here: the honest input is a study of Turkish seasonal
+        # rainfall fields, not a rounder figure. What has changed is that the
+        # quote no longer tells the buyer this distance was priced for.
         if distance < 0 or distance > 60:
             raise ValueError(
                 "the insured field must be within sixty kilometres of the "
@@ -562,7 +570,21 @@ class Drought(Peril):
 
         Rainfall correlation falls with separation. The decay used here is the
         common exponential form with a range of about thirty kilometres for
-        convective summer rainfall, which is deliberately conservative.
+        convective summer rainfall, which is deliberately conservative for a
+        seasonal total: a season's accumulation is far smoother in space than
+        any one day of it.
+
+        What this number is not is a price. The payout follows the station's
+        reading, so what this pool pays out does not depend on where the field
+        is, and loading the premium for distance would be charging a buyer for
+        a risk the pool does not carry. It is the buyer's own risk, and it is
+        the whole of what they give up by buying an index rather than an
+        adjuster: the seasons when the station is dry and their field was not,
+        and the seasons when it is the other way round.
+
+        The quote used to say, past twenty kilometres, that the cover was
+        priced for it. It was not, at any distance, and it should not be. It
+        now says whose risk it is.
         """
         distance = float(subject["distance_km"])
         correlation = pow(2.718281828459045, -distance / 30.0)
@@ -572,7 +594,9 @@ class Drought(Peril):
             verdict = "the station is a reasonable proxy, with real seasons where it will disagree"
         else:
             verdict = (
-                "at this separation the station and the field will disagree often; "
-                "this cover is priced for it, but the buyer should understand it"
+                "at this separation the station and the field will disagree often. "
+                "That gap is not in the premium and cannot be: the payout follows "
+                "the station, so it is the same wherever the field is. It is the "
+                "risk the buyer takes on by buying an index"
             )
         return verdict, correlation

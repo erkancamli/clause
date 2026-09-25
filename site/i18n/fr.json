@@ -667,7 +667,6 @@
     "arrival delay against schedule": "retard à l’arrivée par rapport à l’horaire prévu",
     "at or above": "égal ou supérieur à",
     "at or below": "égal ou inférieur à",
-    "at this separation the station and the field will disagree often; this cover is priced for it, but the buyer should understand it": "à cette distance, la station et le champ seront souvent en désaccord ; cette couverture est tarifée en conséquence, mais l’acheteur doit le comprendre",
     "b value outside the range seen in nature: {b_value}": "valeur b hors de la plage observée dans la nature : {b_value}",
     "background rate must be positive": "le taux de fond doit être positif",
     "before this can be issued you need:": "avant que ceci puisse être émis, il vous faut :",
@@ -2155,7 +2154,8 @@
     "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Un virement bancaire ne peut pas être effectué sans le nom du titulaire du compte. Il sert uniquement au virement et à rien d'autre.",
     "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Passer à une autre méthode efface l'IBAN et le nom enregistrés ici. Les virements déjà envoyés conservent leur propre trace.",
     "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Le protocole n'a pas pu être joint, ou a répondu quelque chose que la page n'a pas pu lire. Consultez Ma couverture avant de réessayer : si le contrat y figure, il a été souscrit ; s'il n'y figure pas, rien n'a été prélevé.",
-    "check My cover": "consultez Ma couverture"
+    "check My cover": "consultez Ma couverture",
+    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "à cette distance, la station et le champ seront souvent en désaccord. Cet écart n'est pas dans la prime et ne peut pas l'être : le versement suit la station, il est donc le même où que soit le champ. C'est le risque que l'acheteur prend en choisissant un indice"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

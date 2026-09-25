@@ -468,3 +468,70 @@ def test_a_price_rounded_down_for_display_is_still_the_price_agreed() -> None:
     policy = pool.write(peril_key="earthquake", subject=subject, limit=50_000, term_days=365,
                         holder="0xbuyer", max_premium=shown)
     assert abs(policy.premium - premium) < 0.01
+
+
+def test_one_rupture_cannot_take_the_whole_pool() -> None:
+    """The rule that was missing, and the one the old name hid.
+
+    The pool capped the worst modelled *year* at 35% of capital -- one order
+    statistic out of twenty thousand trials -- through a method called
+    ``largest_single_event_loss``, which is not what it measured. Nothing
+    asked what a single rupture takes. At the top of an earthquake's curve
+    every magnitude policy on the fault pays its whole limit at once, so the
+    aggregate on one fault is the loss from one event there, with no modelling
+    left to do and no diversification to hope for.
+
+    Each policy below passes every other test. Together they are one
+    earthquake.
+    """
+    from clause.pricing import PricingEngine
+    from clause.protocol.pool import Pool
+
+    pool = Pool(engine=PricingEngine(trials=800, seed=3))
+    pool.deposit("lp", 2_000_000)
+    istanbul = {"location": "IST-KADIKOY", "radius_km": 50}
+
+    written = 0
+    refusal = ""
+    while written < 40:
+        allowed, reasons = pool.can_write(
+            peril_key="earthquake", subject=dict(istanbul), limit=80_000,
+            term_days=365)
+        if not allowed:
+            refusal = " ".join(reasons)
+            break
+        pool.write(peril_key="earthquake", subject=dict(istanbul), limit=80_000,
+                   term_days=365, holder="holder", simulated=True)
+        written += 1
+
+    assert refusal, "the pool took forty policies on one fault without a word"
+    assert "pays together" in refusal
+    assert "for one event" in refusal
+
+    zone, held = pool.zone_exposure()
+    assert "Fault" in zone or "earthquake" in zone
+    assert held <= pool.balance * pool.zone_limit, (
+        f"{held:,.0f} in force on {zone} against a cap of "
+        f"{pool.balance * pool.zone_limit:,.0f}")
+    # And it bound before the worst-modelled-year rule did, which is the whole
+    # point: that rule was satisfied all the way through.
+    assert "concentration limit" not in refusal
+
+
+def test_cover_somewhere_else_does_not_fill_the_same_zone() -> None:
+    """The limit is on what pays together, not on how much is written."""
+    from clause.pricing import PricingEngine
+    from clause.protocol.pool import Pool
+
+    pool = Pool(engine=PricingEngine(trials=800, seed=3))
+    pool.deposit("lp", 2_000_000)
+    for where in ("IST-KADIKOY", "ANK-CANKAYA", "IZM-KONAK"):
+        for _ in range(3):
+            pool.write(peril_key="earthquake",
+                       subject={"location": where, "radius_km": 50},
+                       limit=80_000, term_days=365, holder="holder",
+                       simulated=True)
+
+    zones = pool.accumulation()
+    assert len(zones) >= 2, f"three cities landed in one zone: {zones}"
+    assert max(zones.values()) < sum(zones.values()), "no zone holds the whole book"

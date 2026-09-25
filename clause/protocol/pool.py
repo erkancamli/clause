@@ -59,6 +59,21 @@ from .policy import Policy, PolicyStatus
 # No single modelled catastrophe may take more than this share of pool capital.
 CONCENTRATION_LIMIT = 0.35
 
+#: The most cover this pool will have in force in one accumulation zone, as a
+#: share of its balance. A zone is what pays together: one fault system, one
+#: rainfall station, one province's weather. At the top of an earthquake's
+#: curve every magnitude policy in the zone pays its whole limit at once, so
+#: the zone's aggregate limit *is* the loss from one event there -- there is no
+#: modelling left to do and no diversification to hope for.
+#:
+#: The pool's other rule caps the worst modelled *year* at 35% of capital, one
+#: order statistic out of twenty thousand trials. That is a different question
+#: from "what does one rupture take", and it was the only one being asked. A
+#: quarter is a number an actuary should set against a real capital plan; it
+#: is here so that the question is asked at all, and so that a pool cannot be
+#: filled to the brim with one fault.
+ZONE_LIMIT = 0.25
+
 # The pool keeps this much more capital than the solvency figure demands, so a
 # book does not sit exactly on its limit and refuse the next policy.
 CAPITAL_BUFFER = 1.15
@@ -181,11 +196,13 @@ class Pool:
         *,
         engine: PricingEngine | None = None,
         concentration_limit: float = CONCENTRATION_LIMIT,
+        zone_limit: float = ZONE_LIMIT,
         capital_buffer: float = CAPITAL_BUFFER,
         wallets: Any = None,
     ) -> None:
         self.engine = engine or PricingEngine()
         self.concentration_limit = concentration_limit
+        self.zone_limit = zone_limit
         self.capital_buffer = capital_buffer
         # The counterparty side of every movement, keyed by address. Optional,
         # because the pool's own accounting has to balance whether or not
@@ -425,11 +442,46 @@ class Pool:
         """What could leave the pool without breaking the solvency rule."""
         return max(0.0, self.balance - self.required_capital())
 
-    def largest_single_event_loss(self, extra: Exposure | None = None, *,
-                                  book: list[Exposure] | None = None) -> float:
-        """The worst single modelled year, which the concentration rule caps."""
+    def worst_modelled_year(self, extra: Exposure | None = None, *,
+                            book: list[Exposure] | None = None) -> float:
+        """The worst modelled year: one order statistic out of every trial run.
+
+        Not the worst event. A year can hold several, and one event can be
+        worse than the worst year is deep, because what a single rupture takes
+        from a concentrated book does not depend on how the rest of the year
+        goes. What one event takes is :meth:`zone_exposure`.
+        """
         losses = self.engine.losses_with(self.exposures() if book is None else book, extra)
         return max(losses) if losses else 0.0
+
+    #: The old name, which said "single event" and measured a year. Kept so
+    #: nothing that calls it breaks, and deprecated because the name was the
+    #: reason nobody noticed the pool had no per event rule at all.
+    largest_single_event_loss = worst_modelled_year
+
+    def accumulation(self, extra: Any = None) -> dict[str, float]:
+        """Cover in force in each accumulation zone, largest first.
+
+        What pays together, added up. With ``extra`` the candidate is counted
+        in, which is the question the capacity gate asks: not "how exposed are
+        we" but "how exposed would writing this make us".
+        """
+        totals: dict[str, float] = {}
+        for policy in self.open_policies:
+            key = _accumulation_key(policy)
+            totals[key] = totals.get(key, 0.0) + policy.limit
+        if extra is not None:
+            key = _accumulation_key(extra)
+            totals[key] = totals.get(key, 0.0) + float(extra.limit)
+        return dict(sorted(totals.items(), key=lambda item: -item[1]))
+
+    def zone_exposure(self, extra: Any = None) -> tuple[str, float]:
+        """The fullest accumulation zone and what it holds. ('', 0.0) if empty."""
+        totals = self.accumulation(extra)
+        if not totals:
+            return "", 0.0
+        zone = next(iter(totals))
+        return zone, totals[zone]
 
     # -- capital ----------------------------------------------------------
 
@@ -571,7 +623,7 @@ class Pool:
                 f"{balance:,.0f}"
             )
 
-        worst = self.largest_single_event_loss(candidate, book=book)
+        worst = self.worst_modelled_year(candidate, book=book)
         cap = balance * self.concentration_limit
         if worst > cap and balance > 0:
             reasons.append(
@@ -579,6 +631,21 @@ class Pool:
                 f"{self.concentration_limit * 100:.0f}% concentration limit of "
                 f"{cap:,.0f}"
             )
+
+        # And what one event takes, which is a different question and was not
+        # being asked. At the top of an earthquake's curve every magnitude
+        # policy on the fault pays its whole limit at once, so the zone's
+        # aggregate is the loss from one rupture there. A pool can pass every
+        # test above and still be one earthquake away from nothing.
+        if balance > 0:
+            zone, held = self.zone_exposure(candidate)
+            zone_cap = balance * self.zone_limit
+            if held > zone_cap:
+                reasons.append(
+                    f"this would put {held:,.0f} of cover on {zone}, which pays "
+                    f"together: above the {self.zone_limit * 100:.0f}% limit of "
+                    f"{zone_cap:,.0f} for one event"
+                )
 
         return (not reasons), reasons
 
@@ -999,10 +1066,7 @@ class Pool:
                 "worst_modelled": round(max(losses), 2) if losses else 0.0,
             }
 
-        accumulation: dict[str, float] = {}
-        for policy in self.open_policies:
-            key = _accumulation_key(policy)
-            accumulation[key] = accumulation.get(key, 0.0) + policy.limit
+        accumulation = self.accumulation()
 
         return {
             "by_peril": by_peril,
@@ -1012,6 +1076,7 @@ class Pool:
             "exceedance_curve": result.exceedance_curve(),
             "worst_modelled_year": round(max(result.losses), 2) if result.losses else 0.0,
             "concentration_cap": round(self.balance * self.concentration_limit, 2),
+            "zone_cap": round(self.balance * self.zone_limit, 2),
             "tranches": self.tranche_view(result.losses),
             "subordination_years": SUBORDINATION_YEARS,
         }

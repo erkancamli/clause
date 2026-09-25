@@ -667,7 +667,6 @@
     "arrival delay against schedule": "Ankunftsverspätung gegenüber dem Flugplan",
     "at or above": "bei oder über",
     "at or below": "bei oder unter",
-    "at this separation the station and the field will disagree often; this cover is priced for it, but the buyer should understand it": "bei diesem Abstand werden Station und Feld oft voneinander abweichen; dieser Versicherungsschutz ist dafür bepreist, aber der Käufer sollte es verstehen",
     "b value outside the range seen in nature: {b_value}": "b-Wert außerhalb des in der Natur beobachteten Bereichs: {b_value}",
     "background rate must be positive": "die Hintergrundrate muss positiv sein",
     "before this can be issued you need:": "bevor dies ausgestellt werden kann, brauchen Sie:",
@@ -2155,7 +2154,8 @@
     "A bank transfer cannot be made without the name on the account. It is used for the transfer and for nothing else.": "Eine Überweisung ist ohne den Namen des Kontoinhabers nicht möglich. Er wird ausschließlich für die Überweisung verwendet und für nichts anderes.",
     "Switching to another method erases the IBAN and name saved here. Transfers already sent keep their own record.": "Der Wechsel zu einer anderen Methode löscht die hier gespeicherte IBAN und den Namen. Bereits ausgeführte Überweisungen behalten ihren eigenen Nachweis.",
     "The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Das Protokoll war nicht erreichbar oder hat etwas geantwortet, das die Seite nicht lesen konnte. Sehen Sie vor einem erneuten Versuch unter „Mein Schutz“ nach: Ist die Police dort, wurde sie abgeschlossen; ist sie es nicht, wurde nichts abgebucht.",
-    "check My cover": "unter „Mein Schutz“ nachsehen"
+    "check My cover": "unter „Mein Schutz“ nachsehen",
+    "at this separation the station and the field will disagree often. That gap is not in the premium and cannot be: the payout follows the station, so it is the same wherever the field is. It is the risk the buyer takes on by buying an index": "bei diesem Abstand werden Station und Feld oft voneinander abweichen. Diese Abweichung steckt nicht in der Prämie und kann es auch nicht: die Auszahlung folgt der Station und ist damit dieselbe, wo immer das Feld liegt. Es ist das Risiko, das der Käufer mit einem Index übernimmt"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

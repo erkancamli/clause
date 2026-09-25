@@ -56,7 +56,16 @@ def test_a_renewal_follows_the_policy_and_applies_a_day_before_it_ends(client) -
     policy = approved_home(client, device, address)
     auth = {"authorization": f"Bearer {session_for(client, device, address)}"}
     reply = give(client, device, address, {"kind": "renew", "policy_id": policy["policy_id"],
-                                           "max_premium": policy["premium"] * 1.5, "days": 400})
+                                           # Generous, because this test is about
+                                           # renewal mechanics and not about the
+                                           # price. A renewal of 400 days into a
+                                           # book that already holds the policy it
+                                           # replaces costs more than the original
+                                           # did: longer term, and no
+                                           # diversification against itself. A cap
+                                           # that the correct price cannot clear
+                                           # would test the cap.
+                                           "max_premium": policy["premium"] * 2.5, "days": 400})
     assert reply.status_code == 200, reply.text
     item = reply.json()["instruction"]
     assert item["status"] == "live" and item["peril"] == "earthquake" and item["policy_id"] == policy["policy_id"]
@@ -71,7 +80,8 @@ def test_a_renewal_follows_the_policy_and_applies_a_day_before_it_ends(client) -
     before = balance(client, device, address)
     assert run(client) == 1
     mine = client.get("/api/instructions", headers=auth).json()["instructions"]
-    assert mine[0]["status"] == "waiting" and mine[0]["application_id"]
+    assert mine[0]["status"] == "waiting" and mine[0]["application_id"], (
+        f"the renewal did not reach the company: {mine[0]['attempts'][-1]}")
     assert mine[0]["attempts"][-1]["outcome"] == "applied"
     assert balance(client, device, address) < before, "the premium is held while the company decides"
     app_id = mine[0]["application_id"]

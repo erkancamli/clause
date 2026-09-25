@@ -174,6 +174,11 @@ class PricingEngine:
         cost_of_capital: float = COST_OF_CAPITAL,
         expense_ratio: float = EXPENSE_RATIO,
         reinsurance_multiple: float = REINSURANCE_MULTIPLE,
+        # Whether a treaty actually exists. Off, because none does: grep this
+        # repository for a cession, a retention, a reinstatement or a treaty
+        # and nothing comes back. See the risk load below for what turning it
+        # on without buying one was doing to the price.
+        reinsurance: bool = False,
         trials: int = DEFAULT_TRIALS,
         horizon_years: float = 1.0,
         seed: int = 20260917,
@@ -181,10 +186,11 @@ class PricingEngine:
         self.cost_of_capital = cost_of_capital
         self.expense_ratio = expense_ratio
         self.reinsurance_multiple = reinsurance_multiple
+        self.reinsurance = reinsurance
         self.trials = trials
         self.seed = seed
         self.draws = WorldDraws.draw(trials=trials, years=horizon_years, seed=seed)
-        self._book_cache: tuple[frozenset[str], list[float]] | None = None
+        self._book_cache: tuple[frozenset[tuple[Any, ...]], list[float]] | None = None
         # The last few candidates settled, by what they are. A quote settles
         # its candidate once and the capacity checks that follow reuse it,
         # instead of simulating the same policy three times over.
@@ -197,8 +203,21 @@ class PricingEngine:
     # -- book -------------------------------------------------------------
 
     def book_losses(self, book: Sequence[Exposure]) -> list[float]:
-        """Aggregate loss per trial for a book, cached on its membership."""
-        key = frozenset(exposure.policy_id for exposure in book)
+        """Aggregate loss per trial for a book, cached on what is in it.
+
+        On what is in it, not on the names of what is in it. The key used to
+        be the set of policy ids, so two different books whose policies
+        happened to share ids were one book to this cache and the second was
+        priced off the first one's losses. Ids are unique in a live book, so
+        this was a trap rather than a live fault -- but a cache that can
+        silently return another book's tail is the worst place to keep one,
+        and it did exactly that to a measurement taken with this code.
+
+        The per-exposure key is the one ``losses_of`` already uses. Building
+        it costs a JSON dump per policy on a cache hit, against a full
+        simulation per policy on a miss, which is thousands of trials each.
+        """
+        key = frozenset(self._key_of(exposure) for exposure in book)
         with self._cache_lock:
             cached = self._book_cache
         if cached is not None and cached[0] == key:
@@ -213,10 +232,17 @@ class PricingEngine:
             self._book_cache = (key, total)
         return total
 
+    @staticmethod
+    def _key_of(exposure: Exposure) -> tuple[Any, ...]:
+        """Everything about one exposure that changes what it loses."""
+        return (exposure.policy_id, exposure.peril_key, exposure.limit,
+                exposure.term_days,
+                json.dumps(exposure.subject, sort_keys=True, default=str),
+                exposure.curve)
+
     def losses_of(self, exposure: Exposure) -> list[float]:
         """One exposure's loss per trial, remembered for the next call about it."""
-        key = (exposure.policy_id, exposure.peril_key, exposure.limit, exposure.term_days,
-               json.dumps(exposure.subject, sort_keys=True, default=str), exposure.curve)
+        key = self._key_of(exposure)
         with self._cache_lock:
             found = self._candidates.get(key)
             if found is not None:
@@ -311,7 +337,19 @@ class PricingEngine:
         term_years = term_days / 365.25
         capital_cost = marginal * self.cost_of_capital * term_years
         transfer_cost = (self.reinsurance_multiple - 1.0) * expected_loss
-        if expected_loss > 0 and transfer_cost < capital_cost:
+        # The cheaper of holding the capital and passing the risk on -- but
+        # only where the risk is actually passed on. No treaty exists. Nothing
+        # in this codebase cedes anything, and the quote was telling the buyer
+        # that the price used a diversified reinsurer's rate.
+        #
+        # For a catastrophe peril the transfer branch always won, because the
+        # capital a correlated risk needs is many times its expected loss and
+        # the transfer price is a small multiple of it. So the marginal
+        # capital engine -- the thing that makes the two hundred and first
+        # Istanbul policy dearer than the first -- was computed, compared, and
+        # then never used. That is why every earthquake policy came out at
+        # exactly 3.08 times expected loss whatever else was in the book.
+        if self.reinsurance and expected_loss > 0 and transfer_cost < capital_cost:
             risk_load, basis = transfer_cost, "reinsurance"
         else:
             risk_load, basis = capital_cost, "capital"

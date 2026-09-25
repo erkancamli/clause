@@ -211,7 +211,10 @@ def test_a_refund_follows_the_same_route() -> None:
     policy = quake(pool)
     pool.expire(policy)
     (order,) = payouts.orders.values()
-    assert order.kind == "refund" and order.amount == pytest.approx(policy.premium)
+    # To the cent: an order carries money somebody will actually send, so it is
+    # rounded, and the premium it refunds is not.
+    assert order.kind == "refund"
+    assert order.amount == pytest.approx(policy.premium, abs=0.01)
 
 
 RIALO = "HddrYhoVi2UAGXvJuCCZMECGGcdjK6FfwHB9cb9vpCJV"     # a playground style public key

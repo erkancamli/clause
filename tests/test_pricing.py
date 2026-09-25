@@ -365,3 +365,37 @@ def test_capital_rises_as_the_book_concentrates(engine: PricingEngine) -> None:
 
 def test_the_solvency_standard_is_a_half_percent_tail() -> None:
     assert SOLVENCY_LEVEL == 0.995
+
+
+def test_the_quote_does_not_claim_a_distance_it_never_priced(engine: PricingEngine) -> None:
+    """Past twenty kilometres the quote used to tell a farmer that the gap
+    between their field and the station was priced for.
+
+    It was not, at any distance. The payout follows the station's reading, so
+    what the pool pays does not depend on where the field is -- which is why
+    the two quotes below come out identical, and why loading the distant one
+    would be charging for a risk the pool does not carry. The gap is the
+    buyer's, and it is the whole of what they give up by buying an index
+    rather than an adjuster. The quote says that now.
+    """
+    def priced(distance_km: float):
+        return engine.quote(
+            peril_key="drought",
+            subject={"station": "TR-KONYA", "distance_km": distance_km, "hectares": 50},
+            limit=80_000, term_days=150, book=[],
+        )
+
+    near, far = priced(1.0), priced(59.0)
+    assert far.premium == pytest.approx(near.premium), (
+        "if distance moved the premium, the old sentence would have been true")
+
+    said = " ".join(far.notes)
+    assert "priced for it" not in said
+    assert "not in the premium and cannot be" in said
+    # And the number it rests on is still shown, because it is the one thing
+    # the buyer can use to judge the trade.
+    verdict, correlation = DROUGHT.basis_risk_for(
+        DROUGHT.validate_subject({"station": "TR-KONYA", "distance_km": 59.0,
+                                  "hectares": 50}))
+    assert f"{correlation:.2f}" in said
+    assert correlation < 0.2, "at this separation the index barely follows the field"
