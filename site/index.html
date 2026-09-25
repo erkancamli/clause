@@ -12,8 +12,12 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 14h3.2l1.7-6 2.6 11 2.3-8 1.6 3h6.6' fill='none' stroke='%23FF6A2B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100..900&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@100..700&display=swap" rel="stylesheet">
 <style>
+/* The Japanese cut goes in front of both stacks, but only on a Japanese page,
+   so a reader in any other language never pays for a family they cannot read. */
+html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
+  --body:"IBM Plex Sans JP","IBM Plex Sans",system-ui,sans-serif}
 :root{
   color-scheme:dark;
   --ground:#07090D; --panel:#0E1319; --raised:#161E27; --sunk:#0A0F14;
@@ -47,7 +51,13 @@
   --lift-2:0 2px 6px rgba(0,0,0,.45),0 16px 34px -14px rgba(0,0,0,.75);
   --hairline:inset 0 1px 0 rgba(255,255,255,.055);
   --sunk-in:inset 0 1px 2px rgba(0,0,0,.35);
-  --display:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* Archivo ships latin and latin-ext only. In Russian its headings were
+     falling through to whatever font the reader's system offered, which is
+     not a design decision, it is the absence of one. IBM Plex Sans has a
+     Cyrillic cut drawn by the same people as the body face, so Russian
+     headings are set in that instead, at a heavier weight. Japanese is
+     handled the same way, by a family loaded only when it is needed. */
+  --display:"Archivo","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --r:12px; --r-sm:8px;
@@ -1341,7 +1351,7 @@ figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
   text-transform:uppercase;color:var(--ink-3)}
 .cf-b{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
   padding:11px 12px;display:grid;gap:4px;align-content:start;min-width:0;position:relative}
-.cf-b b{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink-2);
+.cf-b b{font-family:var(--mono);font-size:13px;font-weight:400;color:var(--ink-2);
   font-variant-numeric:tabular-nums}
 .cf-b span{font-size:12px;color:var(--ink-3);line-height:1.5}
 .cf-b em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--signal)}
@@ -3226,8 +3236,26 @@ function loadDict(code){
 var LANG_LISTENERS=[labelTheme];   // the theme button's label, in the language chosen
 function onLang(fn){ LANG_LISTENERS.push(fn); }
 
+/* A script the Latin families do not carry, fetched only by the readers who
+   need it. IBM Plex Sans JP is the Japanese cut of the body face, drawn to sit
+   with it, and Google serves it as a hundred-odd slices keyed by unicode-range
+   so a page pulls only the characters it actually sets. Until this, Japanese
+   was not typeset at all: it fell through to whatever the reader's system
+   happened to offer, which is not a decision, it is the absence of one. */
+var SCRIPT_FONTS={ja:"IBM+Plex+Sans+JP:wght@400;600"};
+var SCRIPT_LOADED={};
+function loadScriptFont(code){
+  var want=SCRIPT_FONTS[code];
+  if(!want||SCRIPT_LOADED[code])return;
+  SCRIPT_LOADED[code]=true;
+  var link=document.createElement("link");
+  link.rel="stylesheet";
+  link.href="https://fonts.googleapis.com/css2?family="+want+"&display=swap";
+  document.head.appendChild(link);
+}
 function setLang(code, first){
   if(!supported(code))code="en";
+  loadScriptFont(code);
   try{ localStorage.setItem("clause-lang",code); }catch(e){}
   return loadDict(code).then(function(loaded){
     LANG=code; DICT=loaded.dict; PATTERNS=compilePatterns(loaded.patterns);
