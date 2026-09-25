@@ -6666,8 +6666,15 @@ function renderAnswers(){
   }
   var card=$("home-picks").querySelector('.pick[data-peril="'+flow.peril+'"] h3');
   rows.push(row(t("What"),esc(card?card.textContent:flow.peril),1));
-  rows.push(row(t("Where"),esc(subjectLabel()),2));
   var it=flow.interest, ad=it.address, addr=ad?[ad.street,ad.number,ad.flat,ad.postcode,ad.city].filter(Boolean).join(" "):"";
+  // Where, unless what is at risk already says where it is. A saved asset is
+  // labelled with its own place -- "a flat in 222. Cadde, Atakent Mahallesi,
+  // Kucukcekmece, Istanbul" -- so the summary was printing that address once
+  // under Where and again, word for word, under At risk. Two rows, one fact.
+  // The At risk row is the one that keeps it, because it also carries the
+  // street address, and the row above it would have been the poorer of the two.
+  var where=subjectLabel(), saidTwice=!!(it.what&&where&&it.what.indexOf(where)>=0);
+  if(!saidTwice)rows.push(row(t("Where"),esc(where),2));
   if(it.what||addr)rows.push(row(t("At risk"),esc(it.what||"")+(addr?(it.what?"<br>":"")+'<small>'+esc(addr)+'</small>':""),RISK_STEP));
   if(it.value)rows.push(row(t("Declared at risk"),money(it.value)+" USDC",RISK_STEP));
   rows.push(row(t("How much"),esc(t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days})),AMOUNT_STEP));
