@@ -1077,6 +1077,8 @@ class Pool:
         required = position.solvency_capital * self.capital_buffer
         open_policies = self.open_policies
         exposure = sum(policy.exposure_remaining() for policy in open_policies)
+        unearned = self.unearned_premium()
+        own = max(0.0, self.balance - unearned)
 
         return {
             "balance": round(self.balance, 2),
@@ -1097,6 +1099,13 @@ class Pool:
             "solvency_ratio": round(
                 self.balance / required, 4
             ) if required > 0 else None,
+            # The two the writing rule itself measures against. The balance
+            # holds premium taken for cover that has not run yet, which is owed
+            # to that cover; a page that shows only the balance shows a pool
+            # larger than the one the next sale is tested against.
+            "unearned_premium": round(unearned, 2),
+            "own_funds": round(own, 2),
+            "own_funds_ratio": round(own / required, 4) if required > 0 else None,
             "capital_position": position.to_dict(),
             "concentration_limit": self.concentration_limit,
             "tranches": [

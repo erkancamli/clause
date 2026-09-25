@@ -16,6 +16,7 @@ import time
 import urllib.parse
 import urllib.request
 
+from . import access
 from .observation import Observation, digest_of
 
 USER_AGENT = "Clause/0.1 (+https://clause.insure)"
@@ -27,20 +28,46 @@ EMSC = "https://www.seismicportal.eu/fdsnws/event/1/query"
 AFAD = "https://deprem.afad.gov.tr/apiv2/event/filter"
 
 
+def address(url: str) -> str:
+    """One reference as an address a fetcher can open.
+
+    References are written without a scheme, because that is the form a policy
+    carries and the form the host checks are made against. A fetcher needs
+    one, and this is the only place it is added -- the weather references were
+    schemeless, nothing added a scheme, and every read of them failed with
+    "unknown url type" into a log nobody watched, so rain, storm and drought
+    policies read nothing and settled as though the sky had been dry.
+
+    Only https is opened. A reference naming file:// or plain http is not a
+    source that can be checked by somebody else, which is the whole of what a
+    reference is for.
+    """
+    text = str(url or "").strip()
+    if "://" not in text:
+        return f"https://{text}"
+    if not text.lower().startswith("https://"):
+        raise ValueError(f"{text} is not an https address")
+    return text
+
+
 def fetch(url: str, *, timeout: float = TIMEOUT) -> tuple[bytes, str]:
     """The bytes a source sent, and the exact address they were asked for.
 
     Both are returned because the address is half the evidence: a reading
     somebody else cannot reproduce the query for is a reading they have to
-    take on trust.
+    take on trust. Where this deployment's subscription sent the query
+    somewhere else, or where a scheme had to be added to open it, what comes
+    back is the public query the caller gave rather than the one that was
+    made: a reader has to be able to repeat it without this machine's key.
     """
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    asked = access.reaching(address(url))
+    request = urllib.request.Request(asked, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(request, timeout=timeout) as reply:  # noqa: S310
         body = reply.read(MAX_BYTES + 1)
         final = reply.geturl()
     if len(body) > MAX_BYTES:
         raise ValueError(f"{url} answered with more than {MAX_BYTES} bytes")
-    return body, final
+    return body, (final if asked == url else url)
 
 
 def _epoch(text: str, *, assume_utc: bool = True) -> float:

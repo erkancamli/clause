@@ -449,3 +449,78 @@ def test_the_condition_onchain_names_the_policy_s_own_source(peril, simulated) -
         assert not is_measured(policy.data_reference)
     else:
         assert is_measured(policy.data_reference) is not simulated
+
+
+# --------------------------------------------------------------- reaching them
+
+def test_a_schemeless_reference_is_opened_over_https() -> None:
+    """The weather references are written without a scheme, nothing added one,
+    and every read of them failed with "unknown url type" into a dictionary
+    nobody watched. Rain, storm and drought policies therefore read nothing and
+    settled as though the sky had been dry, and no test said a word.
+    """
+    from clause.oracle.quake import address
+
+    assert address("archive-api.open-meteo.com/v1/archive?x=1") == (
+        "https://archive-api.open-meteo.com/v1/archive?x=1")
+    assert address("https://earthquake.usgs.gov/q") == "https://earthquake.usgs.gov/q"
+
+
+@pytest.mark.parametrize("bad", ["http://example.test/x", "file:///etc/passwd",
+                                 "ftp://example.test/x"])
+def test_a_reference_that_is_not_https_is_refused(bad) -> None:
+    """A reading anybody else can repeat is the whole of what a reference is
+    for, and one read off this machine's own disk is not that."""
+    from clause.oracle.quake import address
+
+    with pytest.raises(ValueError):
+        address(bad)
+
+
+def test_the_subscription_key_never_reaches_a_record(monkeypatch) -> None:
+    """A key is a fact about who pays for the quota, not about the evidence.
+    On a reference it would be the operator's credential printed on every
+    policy and on the proof page, for anybody to read and to spend.
+    """
+    import contextlib
+
+    from clause.oracle import access, quake
+
+    public = "archive-api.open-meteo.com/v1/archive?latitude=41.0&daily=rain"
+    monkeypatch.setenv(access.OPENMETEO_KEY, "s3cret")
+    asked: list[str] = []
+
+    @contextlib.contextmanager
+    def opener(request, timeout=0):
+        asked.append(request.full_url)
+
+        class Reply:
+            def read(self, _n: int) -> bytes:
+                return b"{}"
+
+            def geturl(self) -> str:
+                return request.full_url
+
+        yield Reply()
+
+    monkeypatch.setattr(quake.urllib.request, "urlopen", opener)
+    _body, reference = quake.fetch(public)
+
+    # The request went to the host the subscription answers, carrying the key.
+    assert len(asked) == 1
+    assert access.OPENMETEO_PAID in asked[0]
+    assert "apikey=s3cret" in asked[0]
+    # What goes into the record is the query anybody can repeat without it.
+    assert reference == public
+    assert "apikey" not in reference
+    assert access.OPENMETEO_PAID not in reference
+
+
+def test_without_a_subscription_the_query_is_left_alone(monkeypatch) -> None:
+    """The free archive is the default and is keyless; nothing is rewritten."""
+    from clause.oracle import access
+
+    monkeypatch.delenv(access.OPENMETEO_KEY, raising=False)
+    public = "https://archive-api.open-meteo.com/v1/archive?x=1"
+    assert access.reaching(public) == public
+    assert access.subscribed() is False

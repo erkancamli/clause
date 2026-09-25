@@ -501,9 +501,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
   background:var(--edge);border:1px solid var(--edge);border-radius:var(--r);
   overflow:hidden}
-.figures > div{background:var(--panel);padding:16px 18px;display:grid;gap:3px}
-.figures b{font-family:var(--display);font-size:clamp(21px,3vw,28px);font-weight:700;
-  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.figures > div{background:var(--panel);padding:16px 18px;display:grid;gap:3px;min-width:0}
+/* Two columns on a phone and a figure that can run to ten digits: the type
+   has to come down with the column or the number leaves the cell. */
+.figures b{font-family:var(--display);font-size:clamp(17px,4.4vw,28px);font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;overflow-wrap:anywhere}
 .figures span{font-size:13px;color:var(--ink-3)}
 .lookup{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r);
   padding:16px 18px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;
@@ -516,6 +518,31 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
   border-radius:var(--r-sm);background:var(--panel);color:var(--ink);
   border:1px solid var(--edge-ctl);width:160px;min-width:0}
 .proof-open{display:grid;gap:18px}
+/* The three questions. Somebody deciding whether to trust this asks them in a
+   fixed order -- is there money, who decides, has it paid anyone -- and the
+   page answers in that order, one band each, rather than opening with the
+   answer the protocol finds most interesting. The number is a counter, not
+   decoration: it tells you there are three and which one you are in. */
+.qband{display:grid;gap:14px;padding-top:26px;border-top:1px solid var(--edge)}
+.qband:first-child{padding-top:0;border-top:0}
+.qhead{display:flex;gap:14px;align-items:center}
+.qnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-3);
+  width:28px;height:28px;border:1px solid var(--edge);border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  background:var(--panel)}
+.qhead h2{font-size:clamp(19px,2.6vw,23px);line-height:1.25;letter-spacing:-.01em;margin:0}
+.qlead{font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:62ch;margin:-4px 0 0}
+.qbody{display:grid;gap:14px}
+/* The counter hangs in the margin on a desk, where there is a margin to hang
+   it in. On a phone that indent costs the sentence beside it a tenth of the
+   screen, so there the text starts at the gutter like everything else. */
+@media (min-width:720px){.qbody,.qlead{margin-left:42px}}
+/* A figure whose meaning is the comparison, not the number: capital against
+   what the standard asks of it. */
+.ratio{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.ratio b{font-family:var(--display);font-size:clamp(28px,5vw,40px);font-weight:700;
+  letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.ratio span{font-size:14px;color:var(--ink-2)}
 .vrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
   padding:11px 14px;background:var(--panel);font-family:var(--mono);font-size:12px}
 .vrow .key{color:var(--ink-3);font-size:10.5px}
@@ -885,13 +912,30 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
   text-align:right;overflow-wrap:anywhere}
 
 /* Layers arrive in order and stay. Nothing is removed except the rule card,
-   which the payout notice replaces on the same phone. */
+   which the payout notice replaces on the same phone.
+   Two of them are not events, though. The validators are there before
+   anything happens, and the line the rule was written on exists from the
+   moment the policy is bought; both rest at a fraction of their weight rather
+   than at nothing, so the first beat is an instrument with a scale on it
+   instead of an empty box. What they have not done yet stays hidden: no
+   validator has attested anything at beat one, so no tick is drawn. The
+   ground layer keeps starting at nothing, because a trace of a quake that
+   has not happened would be a lie however faint it was drawn. */
 .stage svg .layer{display:revert;opacity:0;transition:opacity .5s ease}
+.stage svg .l-validators,.stage svg .l-trigger{opacity:.17}
 .stage.on-2 svg .l-ground,.stage.on-3 svg .l-validators,
 .stage.on-4 svg .l-trigger{opacity:1}
+.stage svg .hx-attest{opacity:0;transition:opacity .4s ease .12s}
+.stage.on-3 svg .hx-attest{opacity:1}
 .stage.on-1 .l-clause,.stage.on-5 .l-payout,.stage.on-4 .cap.l-trigger{display:revert}
 .stage.on-5 .l-clause{display:none}
 .stage .cap.l-trigger{color:var(--signal-ink)}
+/* The resting trace belongs to the first beat only. It is not a .layer,
+   because a layer starts hidden and this one has to be there before anything
+   else is. The beat classes accumulate -- on-1 is still set at beat five --
+   so it stands down on on-2, not on the absence of on-1. */
+.stage .l-rest{opacity:1;transition:opacity .45s ease}
+.stage.on-2 .l-rest{opacity:0}
 .stage .hx-trace{stroke-dasharray:var(--len,1100);stroke-dashoffset:var(--len,1100);
   transition:stroke-dashoffset 1.9s cubic-bezier(.3,.6,.35,1)}
 .stage.on-2 .hx-trace{stroke-dashoffset:0}
@@ -904,7 +948,9 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 .stage.on-5 .hx-check{stroke-dashoffset:0}
 @media (prefers-reduced-motion:reduce){
   .stage .layer,.stage .hx-trace,.stage .hx-trigger,.stage .ph-paid,.stage .hx-check,
-  .ticks i,.beat{transition:none}
+  .stage .l-rest,.ticks i,.beat{transition:none}
+  /* Still, but not blank: the resting trace stands as a drawing. */
+  .stage .hx-rest,.stage .hx-rest-dot{animation:none}
   .stage .hx-trace{stroke-dashoffset:0}
   .stage .ph-paid{transform:none}
   .stage .hx-check{stroke-dashoffset:0}
@@ -1304,6 +1350,18 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .stage.on-2 .hx-ring{animation:hxRing 3.6s ease-out infinite}
 .stage.on-2 .hx-r2{animation-delay:1.2s}.stage.on-2 .hx-r3{animation-delay:2.4s}
 @keyframes hxRing{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.15);opacity:0}}
+/* A pen travelling the paper, and the reading brightening under it. The
+   period is 3.4s rather than a second: an instrument at rest, not a pulse
+   racing, and slow enough that it does not pull the eye off the words. */
+.stage .hx-rest{stroke-dasharray:46 340;stroke-dashoffset:46;
+  animation:hxRest 3.4s linear infinite}
+.stage .hx-rest-dot{animation:hxRestRide 3.4s linear infinite}
+@keyframes hxRest{to{stroke-dashoffset:-340}}
+@keyframes hxRestRide{
+  0%{transform:translateX(0);opacity:0}
+  6%{opacity:1}
+  94%{opacity:1}
+  100%{transform:translateX(262px);opacity:0}}
 .stage.on-2 .hx-epi,.bq-epi{animation:hxEpi 1.8s ease-in-out infinite}
 @keyframes hxEpi{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
 .bq-ring{animation:bqRing 4.4s ease-out infinite}.bq-2{animation-delay:1.1s}.bq-3{animation-delay:2.2s}.bq-4{animation-delay:3.3s}
@@ -1787,6 +1845,17 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <line class="a-edge-soft" x1="286" y1="230" x2="286" y2="246" stroke-width="1"/>
           <text x="24" y="218" font-size="8.5" letter-spacing="1" data-i18n>LISTENING</text>
 
+          <!-- The station is reading before the policy has anything to say. A
+               resting trace sweeps this same baseline from the first frame, so
+               the panel is a working instrument rather than an empty box
+               waiting for the second beat, and it stands down when the ground
+               actually moves and the real trace takes the line. -->
+          <g class="l-rest">
+            <path class="a-edge hx-rest" fill="none" stroke-width="1.3"
+                  d="M24 238 52 238 58 236 64 240 70 238 104 238 110 227 116 249 122 238 156 238 162 235 168 241 174 238 208 238 214 229 220 247 226 238 260 238 266 236 272 240 278 238 286 238"/>
+            <circle class="hx-rest-dot a-signal-f" cx="24" cy="238" r="2.4"/>
+          </g>
+
           <!-- 2. the ground moves, and is recorded -->
           <g class="layer l-ground">
             <circle class="a-edge-soft hx-ring hx-r1" cx="66" cy="238" r="30"/>
@@ -1802,9 +1871,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
             <circle class="a-edge" cx="64" cy="58" r="11" stroke-width="1.2"/>
             <circle class="a-edge" cx="152" cy="44" r="11" stroke-width="1.2"/>
             <circle class="a-edge" cx="240" cy="60" r="11" stroke-width="1.2"/>
-            <path class="a-settled" d="M59 58.5 62.5 62 69 55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path class="a-settled" d="M147 44.5 150.5 48 157 41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path class="a-settled" d="M235 60.5 238.5 64 245 57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M59 58.5 62.5 62 69 55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M147 44.5 150.5 48 157 41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M235 60.5 238.5 64 245 57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             <line class="a-edge-soft a-dash" x1="64" y1="70" x2="64" y2="126" stroke-width="1"/>
             <line class="a-edge-soft a-dash" x1="152" y1="56" x2="152" y2="126" stroke-width="1"/>
             <line class="a-edge-soft a-dash" x1="240" y1="72" x2="240" y2="126" stroke-width="1"/>
@@ -2913,11 +2982,25 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
   <div class="wrap pad">
     <div class="label" data-i18n>Proof</div>
     <h1 style="font-size:clamp(26px,4vw,38px);max-width:24ch;text-align:left;margin-top:12px" data-i18n>
-      Why it paid, or why it did not.
+      What the record says.
     </h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
-      In ordinary insurance the answer to this question sits in the insurer's own
-      file and you are asked to accept it. Here it is assembled from what the
+    <!-- Two openings under the one heading, because the page does two jobs and
+         they are not the same question. Without an id it is the book being
+         asked about, and the three questions below are the ones somebody
+         deciding whether to trust an insurer actually asks. With an id it is
+         one policy. Both are written into the markup so both are translated;
+         the renderer shows one and hides the other, and the heading above
+         holds for either. -->
+    <p id="proof-intro-book" style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
+      Whether an insurer is worth trusting comes down to three things: whether
+      there is money to pay you, who decides that it pays, and whether it has
+      paid anybody else. Each is answered below out of what the protocol
+      stores, and where it could not be asked the page says so instead of
+      filling the space. Any one policy's own record is an id away.
+    </p>
+    <p id="proof-intro-one" hidden style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
+      In ordinary insurance why a policy paid, or did not, sits in the insurer's
+      own file and you are asked to accept it. Here it is assembled from what the
       chain stored: the subscription, every round of validator reports on the
       topic it listens to, what the aggregator concluded about each, and the
       transaction that paid.
@@ -6084,6 +6167,7 @@ function loadCoverage(force){
     COVERAGE.__priceable=reply.priceable||{};
     COVERAGE.__registry=reply.registry||{};
     COVERAGE.__unlisted=reply.unlisted||"";
+    COVERAGE.__aggregation=reply.aggregation_rule||"";
     COVERAGE_AT=Date.now(); COVERAGE_PENDING=null;
     return COVERAGE;
   },function(){ COVERAGE_PENDING=null; return COVERAGE; });
@@ -10362,30 +10446,134 @@ function bindLookup(){
   });
 }
 
+/* ---------------- the three questions ----------------
+   Somebody deciding whether to trust an insurer asks three things, in this
+   order: is there money to pay me, who decides that it pays, and has it paid
+   anyone else. This page used to open with the third and leave the first two
+   on other pages, which is the order the protocol finds interesting rather
+   than the order a buyer does. Each band answers from the protocol or says it
+   could not ask; not one of them is filled with a figure this page made up,
+   because a proof page that invents its evidence is the thing it argues
+   against. */
+function qband(n,question,lead,body){
+  return '<section class="qband">'+
+    '<div class="qhead"><span class="qnum" aria-hidden="true">'+esc(String(n))+'</span>'+
+      '<h2>'+esc(question)+'</h2></div>'+
+    '<p class="qlead">'+esc(lead)+'</p>'+
+    '<div class="qbody">'+body+'</div></section>';
+}
+
+/* How many put capital behind the book. The pool's own summary carries a
+   count under this name, but the endpoint replaces it with the full list of
+   providers, so the field arrives as an array here and as a number elsewhere.
+   Counting the ones still holding shares is the honest answer either way: a
+   provider who has taken everything back out is not standing behind anything. */
+function backers(pool){
+  var p=pool&&pool.providers;
+  if(Array.isArray(p))
+    return p.filter(function(one){ return (one&&one.shares||0)>0; }).length;
+  return p||0;
+}
+
+function qmoney(pool){
+  var question=t("Is there money to pay you?"),
+      lead=t("A promise to pay is worth what stands behind it, which is why this is the first question here and not the last one.");
+  if(!pool)
+    return qband(1,question,lead,
+      '<p class="fine">'+esc(t("This page could not reach the pool, so it will not tell you what is in it."))+'</p>');
+  var required=pool.required_capital||0,
+      own=pool.own_funds!=null?pool.own_funds:pool.balance||0,
+      ratio=pool.own_funds_ratio!=null?pool.own_funds_ratio:pool.solvency_ratio,
+      holds=ratio===null||ratio===undefined||ratio>=1;
+  return qband(1,question,lead,
+    '<div class="ratio"><b>'+(ratio==null?"–":esc(f2.format(ratio))+"×")+'</b>'+
+      '<span>'+esc(t("the capital a 99.5% standard asks of the book already written"))+'</span></div>'+
+    '<div class="verdict '+(holds?"ok":"no")+'"><p>'+esc(holds
+      ? t("The money is in the pool before the event, not raised after it. While this stays above one the pool may keep writing.")
+      : t("Under one the pool stops writing: the next policy asked for is refused until capital is added, and this page says so rather than selling you one."))+'</p></div>'+
+    '<div class="figures">'+
+      '<div><b>'+esc(money(own))+'</b><span>'+esc(t("own funds in the pool, USDC"))+'</span></div>'+
+      '<div><b>'+esc(money(required))+'</b><span>'+esc(t("capital the standard requires"))+'</span></div>'+
+      '<div><b>'+esc(money(pool.limit_at_risk||0))+'</b><span>'+esc(t("promised and still open"))+'</span></div>'+
+      '<div><b>'+esc(f0.format(backers(pool)))+'</b><span>'+esc(t("who put that capital there"))+'</span></div>'+
+    '</div>'+
+    '<p class="fine">'+esc(t("Own funds and not the balance: premium taken for cover that has not run yet is owed to that cover, and cannot also be the capital that makes the next sale safe. The pool's own page has the layers, the ledger and every deposit."))+
+      ' <a href="#/pool">'+esc(t("Open the pool"))+'</a></p>');
+}
+
+function qdecides(cov){
+  var question=t("Who decides that it pays?"),
+      lead=t("Not us. The figure comes from instruments this protocol does not own, and the paper is a supervised company's.");
+  var registry=(cov&&cov.__registry)||{}, rule=cov&&cov.__aggregation, body="";
+  if(rule)
+    body+='<div class="panel" style="padding:18px 20px">'+
+      '<div class="label">'+esc(t("The reading, by the rule written into the policy"))+'</div>'+
+      '<p style="margin-top:8px;font-size:14.5px;line-height:1.6">'+esc(rule)+'</p>'+
+      '<p class="fine" style="margin-top:9px">'+esc(t("Refused, not guessed. When the sources disagree by more than the tolerance, that round writes nothing and the next one is taken."))+'</p></div>';
+  else
+    body+='<p class="fine">'+esc(t("This page could not reach the protocol, so it cannot show you the rule it aggregates by."))+'</p>';
+  if(registry.active)
+    body+='<div class="figures">'+
+      '<div><b>'+esc(f0.format(registry.carriers||0))+'</b><span>'+esc(t("licensed companies carrying the risk"))+'</span></div>'+
+      '<div><b>'+esc(f0.format(registry.reinsurers||0))+'</b><span>'+esc(t("reinsurers standing behind them"))+'</span></div>'+
+      '<div><b>'+esc(f0.format(registry.countries||0))+'</b><span>'+esc(t("countries their licences cover"))+'</span></div>'+
+      '<div><b>'+esc(money(registry.capacity||0))+'</b><span>'+esc(t("capacity left on those licences"))+'</span></div>'+
+    '</div>';
+  else if(registry.companies!==undefined)
+    /* An empty register is a fact about the protocol, not a gap in the page.
+       Saying nothing here would let the paragraph below imply a company that
+       is not there. */
+    body+='<p class="fine">'+esc(t("No company is active in the register yet, so this page has none to name."))+'</p>';
+  body+='<p class="fine">'+esc(t("A company cannot register itself into this. It arrives able to write nothing, and somebody checks its licence number against the regulator's own register before it may carry a single policy — the one step here that is deliberately a person's, because no block can read a regulator's register. Your policy names the company on it."))+'</p>'+
+    '<p class="fine"><a href="#/rules">'+esc(t("Where cover may be written"))+'</a> · <a href="#/how">'+esc(t("How it works"))+'</a></p>';
+  return qband(2,question,lead,body);
+}
+
+function qpaid(rows,book){
+  var question=t("Has it paid anyone else?"),
+      lead=t("Both halves are here. A policy that ran its term without the index ever reaching the line is the harder promise to keep, and hiding it would make this page an advertisement.");
+  return qband(3,question,lead,
+    '<div class="figures">'+
+      '<div><b>'+esc(f0.format(book.policies||0))+'</b><span>'+esc(t("policies in the book"))+'</span></div>'+
+      '<div><b>'+esc(f0.format(book.evaluated||0))+'</b><span>'+esc(t("conditions evaluated"))+'</span></div>'+
+      '<div><b>'+esc(f0.format(book.paid||0))+'</b><span>'+esc(t("paid without a claim"))+'</span></div>'+
+      '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
+    '</div>'+
+    (rows.length
+      ? '<div class="register">'+rows.map(decidedRow).join("")+'</div>'
+      : '<div class="panel" style="padding:22px"><p>'+esc(t("Nothing has been decided yet. The first policy to reach its line will appear here."))+'</p></div>')+
+    lookupHtml());
+}
+
 function renderProof(id){
   var box=$("proof-out");
+  if($("proof-intro-book"))$("proof-intro-book").hidden=!!id;
+  if($("proof-intro-one"))$("proof-intro-one").hidden=!id;
   if(!id){
-    /* Open with the work. The lookup still exists, below, for somebody who
-       arrived holding an id; it is no longer the only way in. */
+    /* Open with the work. The lookup still exists, inside the third band, for
+       somebody who arrived holding an id; it is no longer the only way in. */
     box.className="proof-open";
     box.innerHTML='<p class="fine">'+esc(t("Reading the chain…"))+'</p>';
-    api("/api/decided?limit=12",{timeout:9000}).then(function(reply){
-      var rows=reply.items||[], book=reply.book||{};
-      box.innerHTML=
-        '<div class="figures">'+
-          '<div><b>'+esc(f0.format(book.policies||0))+'</b><span>'+esc(t("policies in the book"))+'</span></div>'+
-          '<div><b>'+esc(f0.format(book.evaluated||0))+'</b><span>'+esc(t("conditions evaluated"))+'</span></div>'+
-          '<div><b>'+esc(f0.format(book.paid||0))+'</b><span>'+esc(t("paid without a claim"))+'</span></div>'+
-          '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
-        '</div>'+
-        '<h2 style="font-size:19px">'+esc(t("What the chain decided last"))+'</h2>'+
-        '<p style="font-size:14.5px;color:var(--ink-2);max-width:66ch">'+esc(t("Both halves are here. A policy that ran its term without the index ever reaching the line is the harder promise to keep, and hiding it would make this page an advertisement."))+'</p>'+
-        (rows.length
-          ? '<div class="register">'+rows.map(decidedRow).join("")+'</div>'
-          : '<div class="panel" style="padding:22px"><p>'+esc(t("Nothing has been decided yet. The first policy to reach its line will appear here."))+'</p></div>')+
-        lookupHtml();
+    /* Three requests, one paint. A band whose request failed says so in its
+       own place rather than taking the other two down with it, which is why
+       the two that are not the register swallow their own error. */
+    Promise.all([
+      api("/api/decided?limit=12",{timeout:9000}),
+      api("/api/pool",{timeout:9000}).then(null,function(){return null;}),
+      loadCoverage().then(null,function(){return null;})
+    ]).then(function(got){
+      var reply=got[0]||{}, rows=reply.items||[], book=reply.book||{};
+      box.innerHTML=qmoney(got[1])+qdecides(got[2])+qpaid(rows,book);
       bindLookup();
-      whenLinked().then(function(){ if(link.live)renderAnchorStatus(box); });
+      /* The witness on the public chain belongs to the third question, not
+         below all three: it is the part of "has it paid anyone" that somebody
+         else can check. Into that band's body, or the box if the band is not
+         there to hold it. */
+      whenLinked().then(function(){
+        if(!link.live)return;
+        var bands=box.querySelectorAll(".qband .qbody");
+        renderAnchorStatus(bands.length?bands[bands.length-1]:box);
+      });
     },function(){
       /* No protocol to reach: the page still lets somebody with an id ask. It
          will not invent a register to fill the space. */

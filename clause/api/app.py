@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 from .. import __version__
 from ..chain import Chain, ChainConfig
+from ..oracle import access
 from ..oracle.feed import Feed
 from ..perils import EARTHQUAKE, REGISTRY, get_peril
 from ..perils.flight import ROUTES
@@ -958,6 +959,11 @@ def create_app(
             exactly what it already did with one the simulation produced.
             """
             feed = Feed()
+            # Kept where the health check can see it. The sources failing is
+            # the quiet failure: this service answers every request, saves
+            # every byte, and settles nothing, because the thing it reads has
+            # been refusing it for a week into a log nobody opened.
+            app.state.feed = feed
             while True:
                 try:
                     wrote = await run_in_threadpool(feed.poll, chain)
@@ -5764,6 +5770,15 @@ def create_app(
                        "last_error": anchor.last_error},
             "chain": chain.stats(),
             "pool": {"open_policies": len(pool.open_policies)},
+            # Not part of "well": an agency being down is not this service
+            # being unwell, and flapping the health check on somebody else's
+            # outage would take the site off its own load balancer. Reported,
+            # though, because unreported is how it stays broken.
+            "sources": {
+                "failing": dict(getattr(app.state, "feed", None).trouble)
+                           if getattr(app.state, "feed", None) is not None else {},
+                "openmeteo_subscription": access.subscribed(),
+            },
         }
 
     # -- interface --------------------------------------------------------
