@@ -2149,7 +2149,9 @@
     "full: {room} of room left and this needs {limit}": "lleno: le quedan {room} y esto necesita {limit}",
     "already carries {share} of the book, which is as much as any one company may": "ya lleva el {share} de la cartera, el máximo que puede llevar una sola compañía",
     "does not want this risk": "no quiere este riesgo",
-    "Also licensed here, but not offering:": "También autorizadas aquí, pero sin oferta:"
+    "Also licensed here, but not offering:": "También autorizadas aquí, pero sin oferta:",
+    "A newer version of this page is ready.": "Hay una versión más reciente de esta página.",
+    "Load it": "Cargar"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

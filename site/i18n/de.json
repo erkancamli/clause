@@ -2149,7 +2149,9 @@
     "full: {room} of room left and this needs {limit}": "ausgelastet: noch {room} frei, benötigt werden {limit}",
     "already carries {share} of the book, which is as much as any one company may": "trägt bereits {share} des Bestands, mehr darf ein einzelnes Unternehmen nicht",
     "does not want this risk": "möchte dieses Risiko nicht",
-    "Also licensed here, but not offering:": "Hier ebenfalls zugelassen, bietet aber nicht an:"
+    "Also licensed here, but not offering:": "Hier ebenfalls zugelassen, bietet aber nicht an:",
+    "A newer version of this page is ready.": "Eine neuere Version dieser Seite ist bereit.",
+    "Load it": "Laden"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

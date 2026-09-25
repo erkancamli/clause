@@ -31,3 +31,11 @@
   for = "/privy/privy.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# The build's name, asked for by tabs that have been open a while. It must
+# never be cached: a stale answer to "has this changed?" is the one answer
+# that is always wrong.
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "no-store"

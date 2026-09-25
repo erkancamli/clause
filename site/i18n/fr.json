@@ -2149,7 +2149,9 @@
     "full: {room} of room left and this needs {limit}": "saturé : il reste {room} et il en faut {limit}",
     "already carries {share} of the book, which is as much as any one company may": "porte déjà {share} du portefeuille, le maximum pour une seule compagnie",
     "does not want this risk": "ne veut pas de ce risque",
-    "Also licensed here, but not offering:": "Également agréées ici, mais sans offre :"
+    "Also licensed here, but not offering:": "Également agréées ici, mais sans offre :",
+    "A newer version of this page is ready.": "Une version plus récente de cette page est prête.",
+    "Load it": "Charger"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

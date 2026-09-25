@@ -2149,7 +2149,9 @@
     "full: {room} of room left and this needs {limit}": "заполнено: осталось {room}, а нужно {limit}",
     "already carries {share} of the book, which is as much as any one company may": "уже держит {share} портфеля — предел для одной компании",
     "does not want this risk": "не берёт этот риск",
-    "Also licensed here, but not offering:": "Здесь тоже имеют лицензию, но не предлагают:"
+    "Also licensed here, but not offering:": "Здесь тоже имеют лицензию, но не предлагают:",
+    "A newer version of this page is ready.": "Готова более новая версия этой страницы.",
+    "Load it": "Загрузить"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -16,6 +16,8 @@ server package, never to Netlify.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 import shutil
 import subprocess
@@ -95,20 +97,44 @@ def build_page(source: str) -> str:
     return head + "\n" + body
 
 
+def stamp(page: str) -> tuple[str, str]:
+    """Give the page a name for this build, and publish that name beside it.
+
+    A single page application is only downloaded once. After that a person
+    moves around it by changing the part of the address after the hash, which
+    never fetches the document again, so a tab left open on Monday is still
+    running Monday's page on Friday however correct the cache headers are. The
+    page therefore has to be able to notice that it has been replaced, and to
+    do that it has to know which version it is.
+
+    The name is the digest of the built page, so it changes when and only when
+    something a browser would load has changed. Rebuilding with no edits
+    produces the same name and no reader is disturbed.
+    """
+    name = hashlib.sha256(page.encode("utf-8")).hexdigest()[:12]
+    return page.replace("__CLAUSE_BUILD__", name), name
+
+
 def main() -> None:
     if DIST.exists():
         shutil.rmtree(DIST)
     DIST.mkdir()
-    (DIST / "index.html").write_text(build_page((HERE / "index.html").read_text(encoding="utf-8")), encoding="utf-8")
-    for name in ("netlify.toml", "i18n", "privy", "vendor"):
-        src = HERE / name
+    page, name = stamp(build_page((HERE / "index.html").read_text(encoding="utf-8")))
+    (DIST / "index.html").write_text(page, encoding="utf-8")
+    # Forty bytes, fetched by an open tab now and then. It is deliberately not
+    # the page itself: asking for the page to find out whether the page changed
+    # costs seven hundred kilobytes to answer a question worth one line.
+    (DIST / "version.json").write_text(
+        json.dumps({"build": name}, separators=(",", ":")) + "\n", encoding="utf-8")
+    for name_ in ("netlify.toml", "i18n", "privy", "vendor"):
+        src = HERE / name_
         if src.is_dir():
-            shutil.copytree(src, DIST / name)
+            shutil.copytree(src, DIST / name_)
         elif src.is_file():
-            shutil.copy2(src, DIST / name)
+            shutil.copy2(src, DIST / name_)
     before = (HERE / "index.html").stat().st_size
     after = (DIST / "index.html").stat().st_size
-    print(f"site/dist/index.html: {after:,} bytes (source {before:,})")
+    print(f"site/dist/index.html: {after:,} bytes (source {before:,}), build {name}")
 
 
 if __name__ == "__main__":

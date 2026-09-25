@@ -2149,7 +2149,9 @@
     "full: {room} of room left and this needs {limit}": "満杯です。残りは{room}で、この保険には{limit}が必要です",
     "already carries {share} of the book, which is as much as any one company may": "すでに全体の{share}を引き受けており、一社が持てる上限です",
     "does not want this risk": "この危険を引き受けません",
-    "Also licensed here, but not offering:": "ここで免許はありますが、提示していない会社:"
+    "Also licensed here, but not offering:": "ここで免許はありますが、提示していない会社:",
+    "A newer version of this page is ready.": "このページの新しいバージョンが利用できます。",
+    "Load it": "読み込む"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

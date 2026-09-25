@@ -2157,7 +2157,9 @@
     "full: {room} of room left and this needs {limit}": "dolu: {room} yeri kaldı, bu teminat {limit} istiyor",
     "already carries {share} of the book, which is as much as any one company may": "kitabın {share} kadarını zaten taşıyor, bu da tek bir şirketin taşıyabileceği en üst sınır",
     "does not want this risk": "bu riski almak istemiyor",
-    "Also licensed here, but not offering:": "Burada lisanslı ama teklif vermeyenler:"
+    "Also licensed here, but not offering:": "Burada lisanslı ama teklif vermeyenler:",
+    "A newer version of this page is ready.": "Bu sayfanın daha yeni bir sürümü hazır.",
+    "Load it": "Yükle"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
