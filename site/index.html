@@ -9,7 +9,7 @@
 <meta property="og:title" content="Clause">
 <meta property="og:description" content="Cover that pays itself, on Rialo.">
 <meta name="theme-color" content="#07090D">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 14h3.2l1.7-6 2.6 11 2.3-8 1.6 3h6.6' fill='none' stroke='%23E66700' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.5 19.5h6.5V14h4.5V8.5h8' fill='none' stroke='%23E66700' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100..900&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@100..700&display=swap" rel="stylesheet">
@@ -947,7 +947,18 @@ h1 span{color:var(--signal-ink)}
 .pick h3{font-size:18px}
 .pick p{font-size:13.5px;color:var(--ink-2);line-height:1.4}
 .pick .banner{margin:0 0 2px;max-height:88px;overflow:hidden}
-@media (max-width:640px){.pick .banner{max-height:none}}
+/* The picture is capped harder on a phone, not released. It used to be the
+   other way round -- max-height:none below 640px -- so the small screen got
+   the big illustration: the art ran to about 240px, a home card filled 28% of
+   an iPhone viewport, and the first screen of a five way choice showed one of
+   the five. What a person is doing here is choosing, and the thing they are
+   choosing between is the words. */
+@media (max-width:640px){.pick .banner{max-height:72px}
+  /* Fitted, not clipped. A cap on the container alone cuts the drawing off
+     wherever 72px happens to land -- through the roof of the house, as it
+     did -- so the drawing is given the height and scales itself into it,
+     which is what a viewBox is for. */
+  .pick .banner svg{height:72px;width:100%}}
 .pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
 /* ---------------- flow ---------------- */
@@ -1104,7 +1115,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
   background:color-mix(in srgb,var(--panel) 96%,transparent);backdrop-filter:blur(14px);
   border:1px solid var(--edge);border-radius:var(--r);box-shadow:var(--shadow);
   padding:14px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-@media (max-width:760px){.pricebar{bottom:70px}}
+@media (max-width:760px){.pricebar{bottom:70px}
+  /* Nothing to say, so nothing on the screen. See updatePriceBar. */
+  .pricebar.empty{display:none}}
 .pricebar .amt{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.6vw,28px);
   line-height:1;font-variant-numeric:tabular-nums}
 .pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:600}
@@ -1676,7 +1689,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <header class="top">
   <div class="wrap top-in">
     <a class="brand" href="#/">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14h3.2l1.7-6 2.6 11 2.3-8 1.6 3h6.6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19.5h6.5V14h4.5V8.5h8" fill="none" stroke="var(--signal)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span data-i18n>Clause</span>
     </a>
     <nav class="mainnav" id="mainnav" aria-label="Site" data-i18n-aria>
@@ -7385,16 +7398,27 @@ function triggerSaid(){
   return t("pays from two hours late");
 }
 function updatePriceBar(){
+  // Whether the bar has a price in it yet. On a phone a bar with nothing to
+  // say is not neutral: it is stuck to the bottom of the screen covering the
+  // card below it, and everything in it -- an em dash, "choose a place to see
+  // the price", and a disabled button repeating the heading word for word --
+  // is already on the screen above. So it stands down until it has a figure.
+  var bar=$("pricebar");
+  function saying(price){ if(bar) bar.classList.toggle("empty",!price); }
   if(flow.peril==="quake"&&flow.subject&&!quakeReady()){
     $("pb-amt").textContent="—";
     $("pb-cap").textContent=flow.gridError?t("cannot be priced here"):t("asking the protocol");
+    // Waiting on a price is something to say: the bar stays.
+    saying(true);
     return;
   }
   if(!flow.peril||!flow.subject||!flow.limit){
     $("pb-amt").textContent="—";
     $("pb-cap").textContent=t("choose a place to see the price");
+    saying(false);
     return;
   }
+  saying(true);
   // priced(), not quote(), so the bar and the sentence above it can never show
   // two different prices: once the protocol has answered, both read from it.
   var q=priced(), current=flow.quoted&&flow.quotedFor===quoteKey();
