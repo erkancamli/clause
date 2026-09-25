@@ -439,7 +439,12 @@ class Pool:
         return position.solvency_capital * self.capital_buffer
 
     def free_capital(self) -> float:
-        """What could leave the pool without breaking the solvency rule."""
+        """What could leave the pool without breaking the solvency rule.
+
+        Not :meth:`own_funds`, which is the balance less the premium owed to
+        cover already sold. This one is about withdrawal; that one is about
+        capacity.
+        """
         return max(0.0, self.balance - self.required_capital())
 
     def worst_modelled_year(self, extra: Exposure | None = None, *,
@@ -458,6 +463,50 @@ class Pool:
     #: nothing that calls it breaks, and deprecated because the name was the
     #: reason nobody noticed the pool had no per event rule at all.
     largest_single_event_loss = worst_modelled_year
+
+    def unearned_premium(self, now: float | None = None) -> float:
+        """Premium taken for cover that has not been given yet.
+
+        Every premium was booked as the pool's own money the moment it was
+        taken, and it is not: the part of it that belongs to days the policy
+        has not run yet is owed back if the cover is cancelled and is owed to
+        the risk if it is not. It is a liability against the balance, not
+        capital standing behind other people's policies.
+
+        Earned on a day basis, pro rata temporis, which is what the Turkish
+        technical provisions regulation under Law 5684 requires and what
+        Solvency II's premium provision starts from. It is the wrong shape for
+        drought -- a season's risk is not spread evenly across its days -- and
+        it is what the statute prescribes; a pattern that followed the hazard
+        would need the regulator's blessing and a stated basis.
+        """
+        now = time.time() if now is None else now
+        total = 0.0
+        for policy in self.open_policies:
+            span = policy.ends_at - policy.starts_at
+            if span <= 0:
+                continue
+            # Before it starts nothing is earned; after it ends nothing is left.
+            left = min(max(policy.ends_at - now, 0.0), span)
+            total += policy.premium * (left / span)
+        return round(total, 2)
+
+    def own_funds(self, now: float | None = None) -> float:
+        """The balance less what is owed to cover already sold.
+
+        Solvency II's own term for it, because it is Solvency II's quantity:
+        assets less technical provisions. It is not :meth:`free_capital`,
+        which asks what could leave the pool without breaking the solvency
+        rule -- a different question, and the two were briefly the same name
+        here, which would have let capital walk out that the solvency rule was
+        holding.
+
+        The capacity rules used to measure themselves against the whole
+        balance, unearned premium included, so a pool could sell cover and
+        count the money it had just taken as the capital that made the next
+        sale safe. Each policy paid for the capacity to write the next one.
+        """
+        return max(0.0, self.balance - self.unearned_premium(now))
 
     def accumulation(self, extra: Any = None) -> dict[str, float]:
         """Cover in force in each accumulation zone, largest first.
@@ -595,7 +644,10 @@ class Pool:
         """Whether the pool may write this policy, and why not if it may not.
         On a snapshot when ``book`` and ``balance`` are given."""
         if balance is None:
-            balance = self.balance
+            # Own funds, not the whole balance: premium taken for cover that
+            # has not run yet is owed to that cover and cannot also be the
+            # capital that makes the next sale safe.
+            balance = self.own_funds()
         from ..perils import get_peril
 
         peril = get_peril(peril_key)
@@ -1075,8 +1127,10 @@ class Pool:
             ),
             "exceedance_curve": result.exceedance_curve(),
             "worst_modelled_year": round(max(result.losses), 2) if result.losses else 0.0,
-            "concentration_cap": round(self.balance * self.concentration_limit, 2),
-            "zone_cap": round(self.balance * self.zone_limit, 2),
+            "unearned_premium": self.unearned_premium(),
+            "own_funds": round(self.own_funds(), 2),
+            "concentration_cap": round(self.own_funds() * self.concentration_limit, 2),
+            "zone_cap": round(self.own_funds() * self.zone_limit, 2),
             "tranches": self.tranche_view(result.losses),
             "subordination_years": SUBORDINATION_YEARS,
         }

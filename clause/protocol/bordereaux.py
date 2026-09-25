@@ -28,11 +28,43 @@ from . import desk
 from .fees import month_of
 
 RISK_COLUMNS = ("reference", "insured", "peril", "subject", "province", "country", "inception", "expiry",
-                "limit", "gross_premium", "tax", "fronting_fee", "fee_paid", "platform_fee", "platform_fee_paid",
+                "limit", "gross_premium", "tax", "tax_basis", "fronting_fee", "fee_paid", "platform_fee", "platform_fee_paid",
                 "net_fee_to_carrier", "instalments", "status", "bound_at")
 CLAIMS_COLUMNS = ("reference", "kind", "date_of_loss", "index_value", "unit", "paid", "premium_returned",
                   "status", "note")
 RECON_COLUMNS = ("item", "amount")
+
+
+#: Premium taxes a carrier owes on cover this protocol writes, by country and
+#: branch. The bordereau booked a hardcoded zero in this column for every
+#: policy in every country, which reads as a figure somebody computed.
+#:
+#: Türkiye: the fire insurance tax under the Municipal Revenues Law 2464,
+#: articles 40 to 44, is ten per cent of the premium on fire cover for
+#: buildings and their contents inside a municipality. This protocol's own
+#: branch table puts earthquake and storm in Yangın ve Doğal Afetler, the fire
+#: branch, so on its own reading of where these policies sit the tax applies.
+#:
+#: Whether it reaches an index policy specifically is a question for the
+#: carrier's tax advice and not for this file, and the bordereau says so in
+#: the note beside the figure. Reporting it and being told it does not apply
+#: costs a correction; reporting zero and being wrong costs the tax plus
+#: interest, and the carrier is the one who owes it.
+PREMIUM_TAX: dict[str, dict[str, tuple[float, str]]] = {
+    "TR": {
+        "earthquake": (0.10, "Yangın Sigortası Vergisi, Law 2464 arts. 40-44, "
+                             "on the fire branch this policy is written in"),
+        "storm": (0.10, "Yangın Sigortası Vergisi, Law 2464 arts. 40-44, "
+                        "on the fire branch this policy is written in"),
+    },
+}
+
+
+def premium_tax(country: str, peril_key: str, premium: float) -> tuple[float, str]:
+    """What is owed on this premium, and under what. Zero where nothing is."""
+    rate, basis = PREMIUM_TAX.get((country or "").upper(), {}).get(
+        peril_key, (0.0, ""))
+    return round(premium * rate, 2), basis
 
 
 def _iso(at: float | None) -> str:
@@ -53,12 +85,14 @@ def risk_bordereau(policies: Iterable[Any], *, carrier_id: str | None, month: st
         base = desk.row_of(p, names=names, private=private)
         fee_paid = round(float(meta.get("fee_paid", meta.get("fronting_fee", 0.0)) or 0.0), 2)
         platform_paid = round(float(meta.get("platform_fee_paid", 0.0) or 0.0), 2)
+        _tax, _basis = premium_tax(base["country"], p.peril_key, p.premium)
         rows.append({
             "reference": p.policy_id,
             "insured": base["address"] if private and base.get("address") else base["holder"],
             "peril": p.peril_key, "subject": base["subject"], "province": base["province"], "country": base["country"],
             "inception": _iso(p.starts_at), "expiry": _iso(p.ends_at),
-            "limit": round(p.limit, 2), "gross_premium": round(p.premium, 2), "tax": 0.0,
+            "limit": round(p.limit, 2), "gross_premium": round(p.premium, 2),
+            "tax": _tax, "tax_basis": _basis,
             "fronting_fee": round(float(meta.get("fronting_fee", 0.0) or 0.0), 2), "fee_paid": fee_paid,
             "platform_fee": round(float(meta.get("platform_fee", 0.0) or 0.0), 2), "platform_fee_paid": platform_paid,
             "net_fee_to_carrier": round(fee_paid - platform_paid, 2),
@@ -68,7 +102,7 @@ def risk_bordereau(policies: Iterable[Any], *, carrier_id: str | None, month: st
         })
     rows.sort(key=lambda r: r["bound_at"])
     totals = {k: round(sum(r[k] for r in rows), 2) for k in
-              ("limit", "gross_premium", "fronting_fee", "fee_paid", "platform_fee", "platform_fee_paid", "net_fee_to_carrier")}
+              ("limit", "gross_premium", "tax", "fronting_fee", "fee_paid", "platform_fee", "platform_fee_paid", "net_fee_to_carrier")}
     return {"kind": "risk", "month": month, "carrier_id": carrier_id, "rows": rows, "count": len(rows), "totals": totals}
 
 

@@ -535,3 +535,53 @@ def test_cover_somewhere_else_does_not_fill_the_same_zone() -> None:
     zones = pool.accumulation()
     assert len(zones) >= 2, f"three cities landed in one zone: {zones}"
     assert max(zones.values()) < sum(zones.values()), "no zone holds the whole book"
+
+
+def test_premium_taken_for_cover_not_yet_given_is_not_capital() -> None:
+    """Every premium was booked as the pool's own money the moment it was
+    taken. The part of it that belongs to days the policy has not run is owed
+    back if the cover is cancelled and owed to the risk if it is not, so it is
+    a liability and not capital standing behind anybody else's policy.
+
+    The capacity rules measured themselves against the whole balance, which
+    meant each policy paid for the capacity to write the next one.
+    """
+    from clause.pricing import PricingEngine
+    from clause.protocol.pool import Pool
+
+    pool = Pool(engine=PricingEngine(trials=400, seed=3))
+    pool.deposit("lp", 1_000_000)
+    assert pool.unearned_premium() == 0.0
+    assert pool.own_funds() == pytest.approx(1_000_000)
+
+    policy = pool.write(peril_key="earthquake",
+                        subject={"location": "ANK-CANKAYA", "radius_km": 25},
+                        limit=50_000, term_days=365, holder="holder",
+                        simulated=True)
+    # Taken today, earned over the year: none of it is earned yet.
+    assert pool.balance == pytest.approx(1_000_000 + policy.premium)
+    assert pool.unearned_premium() == pytest.approx(policy.premium, abs=0.02)
+    assert pool.own_funds() == pytest.approx(1_000_000, abs=0.02), (
+        "the pool counted its own sale as the capital behind the next one")
+
+    # Halfway through the term, half of it has been earned.
+    half = policy.starts_at + (policy.ends_at - policy.starts_at) / 2
+    assert pool.unearned_premium(half) == pytest.approx(policy.premium / 2, rel=0.02)
+    # And once it is over, none of it is owed to that cover any more.
+    assert pool.unearned_premium(policy.ends_at + 1) == 0.0
+
+
+def test_the_bordereau_does_not_book_a_tax_of_zero_it_never_computed() -> None:
+    """The column held a hardcoded 0.0 for every policy in every country,
+    which reads as a figure somebody worked out. This protocol's own branch
+    table puts earthquake in Yangın ve Doğal Afetler, the fire branch, and
+    the fire insurance tax under Law 2464 is ten per cent of the premium."""
+    from clause.protocol.bordereaux import premium_tax
+
+    owed, basis = premium_tax("TR", "earthquake", 1_000.0)
+    assert owed == pytest.approx(100.0)
+    assert "2464" in basis
+
+    # Where nothing is owed it is a zero with nothing behind it, and says so.
+    assert premium_tax("TR", "flight_delay", 1_000.0) == (0.0, "")
+    assert premium_tax("DE", "earthquake", 1_000.0) == (0.0, "")
