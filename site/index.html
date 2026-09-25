@@ -1023,6 +1023,13 @@ h1 span{color:var(--signal-ink)}
      did -- so the drawing is given the height and scales itself into it,
      which is what a viewBox is for. */
   .pick .banner svg{height:72px;width:100%}}
+/* And released again on a wide screen, where the argument for the cap does
+   not hold: the five cards sit side by side, so a taller picture costs
+   nobody a scroll to see the fifth choice, and at 88px in a 215px column the
+   drawing was a letterbox. Fitted rather than clipped, the same way the
+   phone does it, so the cap never lands through the roof of the house. */
+@media (min-width:1181px){.pick .banner{max-height:132px}
+  .pick .banner svg{height:132px;width:100%}}
 .pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
 /* ---------------- flow ---------------- */
