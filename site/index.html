@@ -36,7 +36,7 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      as an empty panel. --art-line-soft is for the rings and haloes that
      only set a mood. */
   --art-line:#5C6A78; --art-line-soft:#364351;
-  --ink:#E9EFF5; --ink-2:#8D9BA9; --ink-3:#7A8895;
+  --ink:#E9EFF5; --ink-2:#D2E0EE; --ink-3:#C4D2DF;
   /* One orange, the same in both themes. It used to be #FF6A2B here and
      #C83700 in the light theme, which measured 2.86:1 on white -- under the
      3:1 that WCAG 1.4.11 asks of a control's own boundary -- so the light
@@ -54,7 +54,8 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      and the focus ring. --signal-ink is the accent as a word (1.4.3, 4.5:1),
      and it is the one thing here that cannot hold a single value: no colour
      of any hue reaches 4.5:1 against both grounds. */
-  --signal:#E66700; --signal-2:#F98A32; --signal-line:#CA5A01; --signal-ink:#FF9B59;
+  --signal:#E66700; --signal-2:#F98A32; --signal-line:#F98A32; --signal-ink:#FFCAA4;
+  --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#24D3A5; --hold:#F0B429; --crit:#FF4D5E;
   --signal-wash:rgba(230,103,0,.13); --settled-wash:rgba(36,211,165,.13);
   --hold-wash:rgba(240,180,41,.13); --crit-wash:rgba(255,77,94,.13);
@@ -87,7 +88,8 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
   --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
-  --signal:#E66700; --signal-2:#F98A32; --signal-line:#CA5A01; --signal-ink:#BB4400;
+  --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
+  --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007B5F; --hold:#946200; --crit:#B62734;
   --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
   --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
@@ -106,7 +108,8 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
   --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
-  --signal:#E66700; --signal-2:#F98A32; --signal-line:#CA5A01; --signal-ink:#BB4400;
+  --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
+  --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007B5F; --hold:#946200; --crit:#B62734;
   --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
   --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
@@ -323,18 +326,32 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
    a contrast failure here, and the divider tier of border with it. */
 .btn[aria-disabled="true"]{background:var(--sunk);border-color:var(--edge-ctl);
   color:var(--ink-2);box-shadow:none;transform:none;cursor:default}
-.btn-primary{background:linear-gradient(180deg,color-mix(in srgb,var(--signal) 86%,#fff) 0%,var(--signal) 55%,var(--signal-2) 100%);
-  border-color:var(--signal-2);color:#0B0D11;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 1px 2px rgba(12,17,22,.12),0 10px 24px -10px var(--signal)}
-.btn-primary:hover:not(:disabled):not([aria-disabled="true"]){background:linear-gradient(180deg,color-mix(in srgb,var(--signal) 78%,#fff) 0%,var(--signal) 50%,var(--signal-2) 100%);
-  transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 4px rgba(12,17,22,.12),0 16px 30px -10px var(--signal)}
-.btn-primary:active:not(:disabled):not([aria-disabled="true"]){transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 10px -8px var(--signal)}
-/* One button in both themes, because there is now one orange in both
-   themes. The label is ink, never white: white on this orange is 3.33:1
-   at the top of the face and 2.41:1 at the bottom, which is unreadable
-   by the standard and was shipping in the light theme. Ink reads 5.84:1
-   at the worst point and 8.07:1 at the best, so the sheen that lifts the
-   top of the face only ever helps it. */
+.btn-primary{background:var(--signal-fill);
+  border-color:var(--signal-fill);color:var(--signal-on-fill);
+  box-shadow:0 1px 2px rgba(12,17,22,.12),0 10px 24px -12px var(--signal)}
+.btn-primary:hover:not(:disabled):not([aria-disabled="true"]){background:color-mix(in srgb,var(--signal-fill) 88%,#000);
+  border-color:color-mix(in srgb,var(--signal-fill) 88%,#000);
+  transform:translateY(-1px);box-shadow:0 2px 4px rgba(12,17,22,.12),0 16px 30px -12px var(--signal)}
+.btn-primary:active:not(:disabled):not([aria-disabled="true"]){transform:translateY(1px);box-shadow:0 4px 10px -8px var(--signal)}
+/* Flat, deep, and white-labelled -- the reverse of what was here, and the
+   reverse of what WCAG 2 recommends.
+   The face used to be a gradient light at the top, brand orange at 55% and
+   light again at the bottom, with a near-black label chosen because it
+   measured 5.84:1 against white's 3.33:1. Both numbers are right and the
+   conclusion was wrong. The label's cap-height band lands at 38-62% of the
+   box, which is the darkest part of that gradient, and measured there in
+   APCA the ink reads Lc +43.8 where readable body text starts at Lc 75.
+   White on the same orange reads Lc -65.3: twenty-one points better, while
+   WCAG 2 calls it half as good. That gap is WCAG 2's relative-luminance
+   formula mishandling a saturated warm hue, and a reader reported the label
+   as unreadable while every automated check passed.
+   Dark-on-orange cannot reach Lc 75 at this chroma at all; it tops out
+   around Lc 72 on a pale peach that is no longer the brand. So the polarity
+   is inverted and the fill deepened to #C34700, where white reads Lc -78.8
+   and 4.97:1 -- clearing the APCA floor and WCAG AA together. The gradient
+   goes with it: no mainstream design system ships a gradient primary fill,
+   and Polaris shipped one and removed it. --signal itself is untouched and
+   still fills every chart, pip and stroke it always did. */
 .btn-line{background:var(--panel);border-color:var(--edge-2);color:var(--ink);box-shadow:var(--lift-1),var(--hairline)}
 .btn-line:hover:not(:disabled):not([aria-disabled="true"]){border-color:var(--signal-ink);color:var(--signal-ink);transform:translateY(-1px);box-shadow:0 8px 20px -12px rgba(12,17,22,.35)}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--ink-2);padding-inline:12px}
@@ -574,7 +591,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
    in light, which clears AA and is the floor of it. The tiers themselves are
    unchanged; this stops using the third one for sentences that carry
    obligations. 4.86 → 6.32 in light, 5.49 → 6.57 in dark. */
-.fine,.verdict .fine{font-size:12.5px;color:var(--ink-2);line-height:1.55}
+/* The explaining voice of the whole site -- 188 places -- so its size is the
+   single measurement that moves the most text. 12.5px was under every
+   reading tier APCA defines; 13.5 with a longer line is not the standard's
+   ideal either (secondary prose at this size wants a near-black ink) but it
+   is a measured step toward it rather than away. */
+.fine,.verdict .fine{font-size:13.5px;color:var(--ink-2);line-height:1.6}
 #country-why{margin-top:8px}
 .lamp.off{background:var(--ink-3);animation:none}
 

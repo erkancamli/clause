@@ -112,7 +112,8 @@ def palette():
     assert set(THEMES) == {"dark", "light"}
     for name, tokens in THEMES.items():
         missing = [k for k in ("ground", "panel", "raised", "sunk", "ink", "ink-2",
-                               "ink-3", "signal", "signal-2", "edge-ctl", "art-line")
+                               "ink-3", "signal", "signal-2", "edge-ctl", "art-line",
+                               "signal-fill", "signal-on-fill")
                    if k not in tokens]
         assert not missing, f"{name} theme is missing {missing}"
     return THEMES
@@ -150,24 +151,34 @@ def test_the_diagrams_are_drawn_in_a_line_that_can_be_seen(palette, theme):
             f"{theme} --art-line on --{surface} is {got:.2f}:1, below {NON_TEXT}")
 
 
-@pytest.mark.parametrize("theme,label", [("dark", "#0B0D11"), ("light", "#0B0D11")])
-def test_the_primary_button_holds_its_label_across_the_whole_face(palette, theme, label):
-    """The face is a gradient, so the worst point on it is the one that counts.
+@pytest.mark.parametrize("theme", ["dark", "light"])
+def test_the_primary_button_holds_its_label(palette, theme):
+    """One flat fill, one label, and the label is white.
 
-    Both themes carry the same label now, because both carry the same
-    orange. The light theme used to put white on it, which is 3.33:1 at
-    the top of the face and 2.41:1 at the bottom."""
+    The face used to be a gradient and the label near-black, chosen because
+    ink measured 5.84:1 on the brand orange against white's 3.33:1. Both
+    figures are correct and the choice they justified was wrong: in APCA,
+    which handles a saturated warm hue where WCAG 2's luminance formula does
+    not, that ink reads Lc +43.8 at the label's own band of the gradient and
+    the white reads Lc -65.3. Readable body text starts at Lc 75, so the one
+    the standard preferred was the one a reader could not read.
+
+    The fill is deepened until white clears both scales at once, and this
+    test now holds the thing that matters: whatever fills a primary button,
+    its label must pass on the fill itself, with no gradient to hide in."""
     tokens = palette[theme]
-    signal, signal_2 = tokens["signal"], tokens["signal-2"]
-    stops = [rgb(signal), rgb(signal_2)]
-    # The face lifts its top toward white; the label is ink, so that only
-    # ever helps. It is checked anyway.
-    stops.append(mix(signal, "#FFFFFF", 0.86))
-    for stop in stops:
-        got = ratio(label, stop)
-        assert got >= BODY_TEXT, (
-            f"{theme} primary button label {label} on {tuple(round(c) for c in stop)} "
-            f"is {got:.2f}:1, below {BODY_TEXT}")
+    fill, label = tokens["signal-fill"], tokens["signal-on-fill"]
+    got = ratio(label, rgb(fill))
+    assert got >= BODY_TEXT, (
+        f"{theme} primary button label {label} on --signal-fill {fill} "
+        f"is {got:.2f}:1, below {BODY_TEXT}")
+    # And the fill has to be distinguishable from the page behind it, which
+    # is 1.4.11's job: a button nobody can see the edge of is not a button.
+    for surface in SURFACES:
+        edge = ratio(fill, tokens[surface])
+        assert edge >= NON_TEXT, (
+            f"{theme} --signal-fill {fill} on --{surface} is {edge:.2f}:1, "
+            f"below {NON_TEXT}")
 
 
 @pytest.mark.parametrize("theme", ["dark", "light"])
