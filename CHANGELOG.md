@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.22.0, 26 September 2026
+
+- The page serves its own typefaces. All three Latin families came from
+  fonts.googleapis.com, which costs every visitor two handshakes to somebody
+  else before a single word can be drawn in the right face: the browser has to
+  resolve and connect to googleapis, fetch a stylesheet, parse it to learn the
+  font URLs, and only then resolve and connect to gstatic to ask for them. None
+  of that is on the critical path now, and nobody's address is handed to a third
+  party in order to read a page about their own insurance. Measured in a
+  browser: three families loaded, drawn from this origin, and zero requests to
+  Google — in English and in Russian.
+
+  The weights are still asked for as variable ranges rather than as a list, and
+  that is not a detail. Archivo and IBM Plex Sans carry their whole ranges in
+  34 KB and 45 KB of Latin; the four weights this page actually sets, fetched
+  as four static faces, cost 115 KB for Plex Sans alone. Only the alphabets the
+  site is written in are carried — Latin, its extension, and Cyrillic for
+  Russian — and a browser still fetches only the slices the text on screen
+  needs, which a run in Russian confirmed by pulling the Cyrillic ones and
+  nothing else.
+
+  Japanese stays where it was, on purpose. Its cut is a CJK family that Google
+  serves as a hundred-odd slices keyed by unicode-range, so a Japanese page
+  pulls only the characters it sets; carrying it here would mean shipping
+  megabytes to everybody for the readers of one language. It is fetched on
+  demand, after first paint, by them alone. The test that holds the rest of it
+  in place allows exactly that one exception — and it first failed on its own
+  explanation, because prose about why the fonts moved is not a request, so it
+  now looks at what the page fetches rather than at what it says.
+
 ## 1.21.0, 26 September 2026
 
 - A price promised for ten minutes is still that price after the service is

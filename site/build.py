@@ -167,7 +167,11 @@ def main() -> None:
     # costs seven hundred kilobytes to answer a question worth one line.
     (DIST / "version.json").write_text(
         json.dumps({"build": name}, separators=(",", ":")) + "\n", encoding="utf-8")
-    for name_ in ("netlify.toml", "i18n", "privy", "vendor"):
+    # fonts/ joins the list because the page now serves its own faces. Left out,
+    # the published site would reference woff2 files that are not there and
+    # every visitor would read it in whatever the system offered -- which looks
+    # like a design decision from the outside and is the absence of one.
+    for name_ in ("netlify.toml", "i18n", "privy", "vendor", "fonts"):
         src = HERE / name_
         if src.is_dir():
             shutil.copytree(src, DIST / name_)
