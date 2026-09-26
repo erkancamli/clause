@@ -1,5 +1,76 @@
 # Changelog
 
+## 1.19.0, 26 September 2026
+
+- The weather sources were never asked. A reference is written without a
+  scheme, because that is the form a policy carries and the form the host
+  checks are made against, and nothing added one before the request was made.
+  Every read of the archive failed with `unknown url type` into a dictionary
+  nobody was watching, so rain, storm and drought policies read nothing and
+  settled as though the sky had been dry. The quake side was unaffected: its
+  agencies' addresses carry https already, which is why this survived a suite
+  that passes. Nine hundred tests went through it because every feed test
+  reads bytes recorded in `tests/feeds` rather than making a request.
+- With the scheme added, the archive answers 429. Open-Meteo's free tier is
+  rate limited by address, and a server sharing one spends the day's quota and
+  then reads nothing — which does not look like an error, it looks like a dry
+  week. `CLAUSE_OPENMETEO_KEY` sends the same query to the customer host. The
+  key is applied when the request is made and never written into a reference,
+  because a reference is the public query anybody can repeat and an operator's
+  credential does not belong on the proof page. Only https is opened at all
+  now: a reference naming a file on this machine is not a source somebody else
+  can check, which is the whole of what a reference is for.
+- The feed's failures are on `/api/health` under `sources`, with whether a
+  subscription is held. Unreported is how the above stayed broken. It does not
+  change whether the service is well: an agency being down is not this service
+  being unwell, and flapping a health check on somebody else's outage would
+  take the site off its own load balancer.
+- The proof page answers the three questions somebody deciding whether to
+  trust an insurer actually asks, in that order: is there money to pay you,
+  who decides that it pays, has it paid anyone else. It used to open with the
+  third and leave the first two on other pages. Each band answers from the
+  protocol or says it could not ask. The first measures own funds against
+  required capital rather than the balance, since premium taken for cover that
+  has not run yet is owed to that cover and cannot also be the capital that
+  makes the next sale safe; the pool's summary carries both figures now.
+- The orange measured well and could not be read. The primary button carried a
+  near-black label chosen on 5.84:1 against white's 3.33:1. Both figures are
+  right and the choice they justified was wrong: in APCA, which handles a
+  saturated warm hue where WCAG 2's luminance formula does not, that ink reads
+  Lc +43.8 at the band the label sits in and the white reads Lc -65.3, against
+  a body-text floor of Lc 75. Dark on orange cannot reach that floor at this
+  chroma at all. The fill is flat `#C34700` with a white label, clearing APCA
+  and WCAG AA together, and the accent as a word splits from the accent as a
+  fill: `#A82B00` light, `#FFCAA4` dark. `--signal` is untouched and still
+  fills every chart, pip and stroke.
+- The dark theme's grey was worse than its orange and nothing had noticed,
+  because WCAG 2's flare term inflates every dark pair. Secondary text read
+  6.57:1, which is comfortable AA, and Lc -46.7, which is two thirds of the
+  way to the floor. Lifted until it clears, and the quieter tier with it.
+- The purchase flow is two columns on a desk, with a running summary beside
+  the question from the first step, in its empty state. It is a view and never
+  an input: every line is changed by going back to the step that set it. The
+  mechanism is under the choice — something happens, an instrument records it,
+  the figure meets your line or it does not, it pays in that block — and under
+  that, the sentence an advertisement would leave out.
+- The page stopped being a narrow card in an empty room. On a 2560 monitor the
+  content column was 1360 wide with six hundred empty pixels down each side;
+  it steps to 1400, 1560 and 1720 now, with prose still capped in ch, so what
+  gets the width is the work and not the sentences. The instrument in the hero
+  is centred in the window rather than pinned under the header, where a 395px
+  panel left 429px of a 900px window empty beneath it.
+- The header publishes its own height. Everything that stops below it was
+  written against 61px and added its own margin by hand; the header is 89px as
+  soon as the navigation wraps, which happens at 1024 in English and sooner in
+  a language whose words are longer, and six hand-set offsets were wrong at
+  every one of those widths.
+- Both translation tests require a space, so no one-word label could ever fail
+  them. "Against" reached a Turkish reader in English in a label the rail
+  uppercases, arriving as AGAINST with the dotted capital Turkish gives an i.
+  There is a test for single words now, and it immediately found a second: the
+  New pill on an unopened document, untranslated in all six languages since it
+  was written.
+
 ## 1.18.0, 23 September 2026
 
 - Cover no longer starts at the till. A premium is the chance of an event in a
