@@ -2203,7 +2203,19 @@
     "Your cover so far": "Ваше покрытие на данный момент",
     "for {days} days": "на {days} дней",
     "not chosen yet": "ещё не выбрано",
-    "not described yet": "ещё не описано"
+    "not described yet": "ещё не описано",
+    "A national network, a weather archive, the airline's own times. None of them is ours, and none of them is asked whether you hold a policy.": "Национальная сеть, метеоархив, собственное расписание авиакомпании. Ни одно из них не наше, и ни у одного не спрашивают, есть ли у вас полис.",
+    "An instrument records it": "Прибор это фиксирует",
+    "It pays in that block": "Платит в том же блоке",
+    "Something happens": "Что-то происходит",
+    "The chain compares the two. There is no assessor and no file, because there is nothing left to decide.": "Цепочка сравнивает два числа. Нет ни оценщика, ни дела, потому что решать уже нечего.",
+    "The figure meets your line, or it does not": "Цифра доходит до вашей черты или не доходит",
+    "The ground shakes, the season ends dry, the flight lands late.": "Земля трясётся, сезон заканчивается сухим, рейс садится с опозданием.",
+    "What happens after you buy": "Что происходит после покупки",
+    "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "Это значит и обратное: в день, когда вы пострадали, показание может остановиться чуть ниже вашей черты, и вам не заплатят ничего. Это написано в предложении до оплаты, теми же словами.",
+    "You file nothing. It can arrive before you have heard about the event.": "Вы ничего не подаёте. Это может прийти раньше, чем вы услышите о событии.",
+    "Against": "От чего",
+    "New": "Новое"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

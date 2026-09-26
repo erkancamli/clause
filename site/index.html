@@ -1082,6 +1082,21 @@ h1 span{color:var(--signal-ink)}
    the right, and both of them under one stepper. Every .q shares the same
    cell because only one is ever shown -- a hidden step is display:none and
    takes no room -- so the rail keeps its place as the reader moves through. */
+/* The mechanism, under the choice. Four cells of the same component the
+   how-it-works page uses, at the size this column can afford, and one line
+   under them that says the thing an advertisement would leave out. */
+.mech{margin-top:26px;display:grid;gap:12px}
+/* Two up, not four: .flowline is four across and is declared later in this
+   sheet, so at equal specificity it wins and the cells came out 130px wide
+   with a two word heading broken over two lines. Named with both classes so
+   the override is the specific one. */
+.flowline.mechline{grid-template-columns:repeat(2,1fr)}
+@media (min-width:1640px){.flowline.mechline{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:560px){.flowline.mechline{grid-template-columns:1fr}}
+.flowline.mechline > div{padding:15px 16px}
+.flowline.mechline h3{font-size:15px;margin-top:7px;line-height:1.3}
+.flowline.mechline p{font-size:13px;color:var(--ink-2);margin-top:6px;line-height:1.5}
+.flowline.mechline .n{font-family:var(--mono);font-size:11px;color:var(--signal-ink);letter-spacing:0}
 .runrail{display:none}
 @media (min-width:1180px){
   #view-cover > .wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;
@@ -2264,6 +2279,30 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <h2 data-i18n>What would you like to protect?</h2>
       <p class="hint" data-i18n>Pick one. You can change it at any point.</p>
       <div class="q-body picks" id="s1-picks"></div>
+
+      <!-- The buyer's real question at the moment of choosing is not which of
+           five cards, it is how a thing like this pays at all. It is the
+           strongest content this product owns and it was on another page. The
+           four cells are the mechanism, in order, and the third is the one
+           that matters: nothing here is anybody's decision. -->
+      <section class="mech" aria-labelledby="mech-title">
+        <div class="label" id="mech-title" data-i18n>What happens after you buy</div>
+        <div class="flowline mechline">
+          <div><div class="n">01</div>
+            <h3 data-i18n>Something happens</h3>
+            <p data-i18n>The ground shakes, the season ends dry, the flight lands late.</p></div>
+          <div><div class="n">02</div>
+            <h3 data-i18n>An instrument records it</h3>
+            <p data-i18n>A national network, a weather archive, the airline's own times. None of them is ours, and none of them is asked whether you hold a policy.</p></div>
+          <div><div class="n">03</div>
+            <h3 data-i18n>The figure meets your line, or it does not</h3>
+            <p data-i18n>The chain compares the two. There is no assessor and no file, because there is nothing left to decide.</p></div>
+          <div><div class="n">04</div>
+            <h3 data-i18n>It pays in that block</h3>
+            <p data-i18n>You file nothing. It can arrive before you have heard about the event.</p></div>
+        </div>
+        <p class="fine" data-i18n>Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.</p>
+      </section>
     </div>
 
     <div class="q" id="s2" hidden>

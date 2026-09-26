@@ -2211,7 +2211,19 @@
     "Your cover so far": "Şimdiye kadarki teminatınız",
     "for {days} days": "{days} gün için",
     "not chosen yet": "henüz seçilmedi",
-    "not described yet": "henüz tanımlanmadı"
+    "not described yet": "henüz tanımlanmadı",
+    "A national network, a weather archive, the airline's own times. None of them is ours, and none of them is asked whether you hold a policy.": "Ulusal bir ağ, bir hava arşivi, havayolunun kendi saatleri. Hiçbiri bize ait değil ve hiçbirine poliçeniz olup olmadığı sorulmuyor.",
+    "An instrument records it": "Bir cihaz kaydeder",
+    "It pays in that block": "Aynı blokta öder",
+    "Something happens": "Bir şey olur",
+    "The chain compares the two. There is no assessor and no file, because there is nothing left to decide.": "Zincir ikisini karşılaştırır. Eksper de yok dosya da, çünkü karara bırakılmış hiçbir şey yok.",
+    "The figure meets your line, or it does not": "Rakam çizginize değer ya da değmez",
+    "The ground shakes, the season ends dry, the flight lands late.": "Yer sarsılır, mevsim kurak biter, uçak geç iner.",
+    "What happens after you buy": "Satın aldıktan sonra ne olur",
+    "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "Bu aynı zamanda şu demek: zarar gördüğünüz bir günde ölçüm çizginizin az berisinde kalabilir ve size hiç ödenmez. Bu, ödemeden önce teklifin üzerinde aynı sözcüklerle yazıyor.",
+    "You file nothing. It can arrive before you have heard about the event.": "Hiçbir şey beyan etmezsiniz. Olayı duymanızdan önce bile gelebilir.",
+    "Against": "Neye karşı",
+    "New": "Yeni"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

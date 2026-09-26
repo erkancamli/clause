@@ -2203,7 +2203,19 @@
     "Your cover so far": "Su cobertura hasta ahora",
     "for {days} days": "por {days} días",
     "not chosen yet": "sin elegir todavía",
-    "not described yet": "sin describir todavía"
+    "not described yet": "sin describir todavía",
+    "A national network, a weather archive, the airline's own times. None of them is ours, and none of them is asked whether you hold a policy.": "Una red nacional, un archivo meteorológico, los propios horarios de la aerolínea. Ninguno es nuestro, y a ninguno se le pregunta si usted tiene una póliza.",
+    "An instrument records it": "Un instrumento lo registra",
+    "It pays in that block": "Paga en ese bloque",
+    "Something happens": "Algo ocurre",
+    "The chain compares the two. There is no assessor and no file, because there is nothing left to decide.": "La cadena compara ambos. No hay perito ni expediente, porque no queda nada que decidir.",
+    "The figure meets your line, or it does not": "La cifra alcanza su línea, o no",
+    "The ground shakes, the season ends dry, the flight lands late.": "La tierra tiembla, la temporada acaba seca, el vuelo aterriza tarde.",
+    "What happens after you buy": "Qué pasa después de comprar",
+    "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "Eso también significa que puede quedarse justo por debajo de su línea y no pagarle nada, un día en que usted sí sufrió daño. Está escrito en la oferta antes de pagar, con estas mismas palabras.",
+    "You file nothing. It can arrive before you have heard about the event.": "Usted no presenta nada. Puede llegar antes de que se entere del suceso.",
+    "Against": "Contra",
+    "New": "Nuevo"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

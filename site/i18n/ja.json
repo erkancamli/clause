@@ -2203,7 +2203,19 @@
     "Your cover so far": "ここまでの補償",
     "for {days} days": "{days}日間",
     "not chosen yet": "未選択",
-    "not described yet": "未記入"
+    "not described yet": "未記入",
+    "A national network, a weather archive, the airline's own times. None of them is ours, and none of them is asked whether you hold a policy.": "国の観測網、気象アーカイブ、航空会社自身の時刻。どれも私たちのものではなく、どれもあなたが契約を持っているかを問われません。",
+    "An instrument records it": "計器が記録する",
+    "It pays in that block": "そのブロックで支払われる",
+    "Something happens": "何かが起きる",
+    "The chain compares the two. There is no assessor and no file, because there is nothing left to decide.": "チェーンが両者を照合します。鑑定人も書類もありません。決める余地が残っていないからです。",
+    "The figure meets your line, or it does not": "数値があなたの線に届くか、届かないか",
+    "The ground shakes, the season ends dry, the flight lands late.": "地面が揺れ、季節が乾いたまま終わり、便が遅れて着く。",
+    "What happens after you buy": "購入したあとに起きること",
+    "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "それは同時に、あなたが実際に被害を受けた日でも、測定値が線のわずか手前で止まれば一円も支払われないということです。支払う前に、同じ言葉で申込書に書かれています。",
+    "You file nothing. It can arrive before you have heard about the event.": "あなたは何も提出しません。出来事を知る前に届くこともあります。",
+    "Against": "対象の危険",
+    "New": "新着"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

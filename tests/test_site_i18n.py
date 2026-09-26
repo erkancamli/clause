@@ -152,6 +152,21 @@ def test_every_sentence_the_page_writes_is_translated(lang) -> None:
 
 
 @pytest.mark.parametrize("lang", LANGS)
+def test_a_single_word_is_translated_too(lang) -> None:
+    """The tests above both require a space, so a one word label could never
+    fail them. "Against" reached a Turkish reader in English and stayed there,
+    and because the rail uppercases its labels it arrived as "AGAINST" with
+    the dotted capital Turkish gives an i -- visibly foreign, and nothing said
+    a word. A word is a sentence for this purpose.
+    """
+    strings = dictionary(lang)["strings"]
+    words = {s for s in page_sentences() | markup_sentences()
+             if " " not in s and re.fullmatch(r"[A-Za-z][a-z]{2,}", s)}
+    missing = [s for s in words if s not in strings]
+    assert not missing, missing[:8]
+
+
+@pytest.mark.parametrize("lang", LANGS)
 def test_the_binding_text_is_english(lang) -> None:
     assert dictionary(lang)["binding"] == "en"
 

@@ -2203,7 +2203,19 @@
     "Your cover so far": "Votre couverture à ce stade",
     "for {days} days": "pour {days} jours",
     "not chosen yet": "pas encore choisi",
-    "not described yet": "pas encore décrit"
+    "not described yet": "pas encore décrit",
+    "A national network, a weather archive, the airline's own times. None of them is ours, and none of them is asked whether you hold a policy.": "Un réseau national, une archive météo, les horaires de la compagnie aérienne. Aucun ne nous appartient, et on ne demande à aucun si vous détenez une police.",
+    "An instrument records it": "Un instrument l'enregistre",
+    "It pays in that block": "Elle paie dans ce bloc",
+    "Something happens": "Quelque chose se produit",
+    "The chain compares the two. There is no assessor and no file, because there is nothing left to decide.": "La chaîne compare les deux. Il n'y a ni expert ni dossier, parce qu'il ne reste rien à décider.",
+    "The figure meets your line, or it does not": "Le chiffre atteint votre seuil, ou non",
+    "The ground shakes, the season ends dry, the flight lands late.": "Le sol tremble, la saison finit sèche, le vol atterrit en retard.",
+    "What happens after you buy": "Ce qui se passe après l'achat",
+    "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "Cela veut dire aussi qu'elle peut rester juste en deçà de votre seuil et ne rien vous verser, un jour où vous avez bel et bien subi un dommage. C'est écrit sur l'offre avant le paiement, dans les mêmes termes.",
+    "You file nothing. It can arrive before you have heard about the event.": "Vous ne déposez rien. Cela peut arriver avant que vous ayez eu vent de l'événement.",
+    "Against": "Contre",
+    "New": "Nouveau"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
