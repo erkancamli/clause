@@ -2195,7 +2195,15 @@
     "who put that capital there": "wer dieses Kapital eingelegt hat",
     "What the record says.": "Was der Datensatz sagt.",
     "In ordinary insurance why a policy paid, or did not, sits in the insurer's own file and you are asked to accept it. Here it is assembled from what the chain stored: the subscription, every round of validator reports on the topic it listens to, what the aggregator concluded about each, and the transaction that paid.": "In der gewöhnlichen Versicherung liegt der Grund, warum eine Police gezahlt hat oder nicht, in der Akte des Versicherers, und Sie sollen ihn hinnehmen. Hier wird er aus dem zusammengesetzt, was die Kette gespeichert hat: das Abonnement, jede Runde von Validator-Meldungen zu dem Thema, das sie verfolgt, was der Aggregator zu jeder befunden hat, und die Transaktion, die gezahlt hat.",
-    "No company is active in the register yet, so this page has none to name.": "Im Register ist noch kein Unternehmen aktiv, deshalb kann diese Seite keines nennen."
+    "No company is active in the register yet, so this page has none to name.": "Im Register ist noch kein Unternehmen aktiv, deshalb kann diese Seite keines nennen.",
+    "A price is a quote until the protocol answers for it.": "Bis das Protokoll dafür einsteht, ist dies ein Angebot.",
+    "Answer the questions and the price appears here.": "Beantworten Sie die Fragen, und der Preis erscheint hier.",
+    "Pays up to": "Zahlt bis zu",
+    "What is at risk": "Was auf dem Spiel steht",
+    "Your cover so far": "Ihr Schutz bisher",
+    "for {days} days": "für {days} Tage",
+    "not chosen yet": "noch nicht gewählt",
+    "not described yet": "noch nicht beschrieben"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

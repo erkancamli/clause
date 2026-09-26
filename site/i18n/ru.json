@@ -2195,7 +2195,15 @@
     "who put that capital there": "кто внёс этот капитал",
     "What the record says.": "Что говорит запись.",
     "In ordinary insurance why a policy paid, or did not, sits in the insurer's own file and you are asked to accept it. Here it is assembled from what the chain stored: the subscription, every round of validator reports on the topic it listens to, what the aggregator concluded about each, and the transaction that paid.": "В обычном страховании причина, по которой полис заплатил или не заплатил, лежит в деле самого страховщика, и вам предлагают её принять. Здесь она собрана из того, что сохранила цепочка: подписка, каждый раунд отчётов валидаторов по теме, которую она слушает, вывод агрегатора по каждому из них и транзакция, которая заплатила.",
-    "No company is active in the register yet, so this page has none to name.": "В реестре пока нет ни одной действующей компании, поэтому этой странице некого назвать."
+    "No company is active in the register yet, so this page has none to name.": "В реестре пока нет ни одной действующей компании, поэтому этой странице некого назвать.",
+    "A price is a quote until the protocol answers for it.": "Пока протокол не подтвердит, это предложение.",
+    "Answer the questions and the price appears here.": "Ответьте на вопросы, и цена появится здесь.",
+    "Pays up to": "Выплата до",
+    "What is at risk": "Что под риском",
+    "Your cover so far": "Ваше покрытие на данный момент",
+    "for {days} days": "на {days} дней",
+    "not chosen yet": "ещё не выбрано",
+    "not described yet": "ещё не описано"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

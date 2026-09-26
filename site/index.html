@@ -1078,6 +1078,72 @@ h1 span{color:var(--signal-ink)}
 @media (max-width:700px){.step-dot span{display:none}}
 
 .q{max-width:720px}
+/* Two columns from 1180 up: the question on the left, the running summary on
+   the right, and both of them under one stepper. Every .q shares the same
+   cell because only one is ever shown -- a hidden step is display:none and
+   takes no room -- so the rail keeps its place as the reader moves through. */
+.runrail{display:none}
+@media (min-width:1180px){
+  #view-cover > .wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;
+    column-gap:36px;align-items:start}
+  #view-cover > .wrap > h1.sr,
+  #view-cover > .wrap > .steps{grid-column:1 / -1}
+  #view-cover > .wrap > .q,
+  #view-cover > .wrap > .done{grid-column:1;grid-row:3;max-width:none}
+  /* The words keep their measure even though the column grew. */
+  #view-cover > .wrap > .q > h2,
+  #view-cover > .wrap > .q > .hint{max-width:56ch}
+  #view-cover > .wrap > .runrail{display:grid;grid-column:2;grid-row:3;
+    position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px)}
+  /* The bar at the bottom of the screen carries two things: the price, and
+     the only way forward. The rail makes the price a duplicate; the buttons
+     are not a duplicate of anything, and hiding the bar wholesale took the
+     Continue button off the page and stranded the reader on step one. So the
+     readout stands down and the bar stays, as a slim row of actions. */
+  /* Row four, named rather than left to auto-placement. The page's own
+     heading is screen-reader-only and therefore absolutely positioned, so it
+     is not in the grid at all; that leaves row two empty, and the bar -- the
+     only child without an explicit row -- was placed into it and rendered
+     above the question it belongs under. */
+  #view-cover > .wrap > .pricebar{grid-column:1 / -1;grid-row:4}
+  #view-cover > .wrap > .pricebar > #pb-live{display:none}
+  #view-cover > .wrap > .pricebar.empty{display:flex}
+  #view-cover > .wrap > .pricebar .grow{margin-left:auto}
+  /* The rail takes 340 of the row, so the question's own column is no longer
+     the viewport and the choice grid cannot be sized off the viewport either.
+     Five cards in what is left at 1180 is 132px each, which wraps "My
+     harvest" onto two lines and turns a 132px picture into a square. Three
+     across until the column can afford five. */
+  #view-cover .picks{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #view-cover .pick .banner,#view-cover .pick .banner svg{max-height:112px;height:auto}
+}
+@media (min-width:1640px){
+  #view-cover .picks{grid-template-columns:repeat(5,minmax(0,1fr))}
+  #view-cover .pick .banner{max-height:126px}
+  #view-cover .pick .banner svg{height:126px}
+}
+.runrail{gap:10px;padding:16px 18px;border:1px solid var(--edge);
+  border-radius:var(--r);background:var(--panel);box-shadow:var(--lift-1),var(--hairline)}
+.runrail dl{display:grid;gap:0;margin:0}
+.runrail .row{display:grid;gap:2px;padding:9px 0;border-top:1px solid var(--edge)}
+.runrail .row:first-child{border-top:0;padding-top:2px}
+.runrail dt{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3)}
+.runrail dd{margin:0;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+/* Not yet answered. Italic and quiet, so the rail reads as a form being
+   filled rather than as a summary with holes in it. */
+.runrail dd.waiting{font-style:italic;color:var(--ink-3)}
+.runrail-foot{border-top:1px solid var(--edge);padding-top:11px;display:grid;gap:4px}
+.runrail-foot .amt{font-family:var(--display);font-size:25px;font-weight:700;
+  letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.runrail-foot .amt small{font-family:var(--mono);font-size:11.5px;font-weight:400;
+  color:var(--ink-3);margin-left:6px;letter-spacing:0}
+.runrail-foot .prompt{font-size:13px;line-height:1.5;color:var(--ink-3);font-style:italic}
+/* The qualification travels with the number it qualifies rather than sitting
+   in a row of its own at the bottom of the page. */
+.runrail-chip{justify-self:start;background:var(--sunk);color:var(--ink-2);
+  font-size:12px;line-height:1.4;border-radius:999px;padding:5px 11px;
+  border:1px solid var(--edge)}
 /* 720px is a reading measure, right for a question and its hint and wrong
    for a row of five cards, which were being squeezed into 133px each while
    half the page stayed empty. The step that holds the chooser gets the
@@ -2399,6 +2465,23 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <div id="done-reach"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap" id="done-links"></div>
     </div>
+
+    <!-- The running summary, beside the question rather than after it.
+         A five step wizard on a desk is a narrow column with the rest of the
+         screen empty, and the emptiest step is the first one, which used a
+         little over half the viewport and left the rest blank. This rail is
+         there from that first step in its empty state: the reader watches it
+         fill as they answer, which is the pattern every product measured for
+         this converged on. It is a view of what has been chosen, never an
+         input: everything in it is changed by going back to the step that set
+         it. Below 1180 it is not rendered at all and the price bar at the
+         bottom of the screen does this job, which is the split those products
+         also make. -->
+    <aside class="runrail" id="runrail" aria-labelledby="runrail-title" hidden>
+      <div class="label" id="runrail-title" data-i18n>Your cover so far</div>
+      <dl id="runrail-rows"></dl>
+      <div class="runrail-foot" id="runrail-foot"></div>
+    </aside>
 
     <div class="pricebar" id="pricebar" hidden>
       <div aria-live="polite" aria-atomic="true" id="pb-live">
@@ -7589,7 +7672,64 @@ function triggerSaid(){
     return t("pays below {mm} mm of rain for the season",{mm:(.8*station.normal).toFixed(0)}); }
   return t("pays from two hours late");
 }
+/* ---------------- the running summary ----------------
+   Beside the question from the first step, in its empty state, filling as the
+   reader answers. It is a view and never an input: every line is changed by
+   going back to the step that set it, which is why nothing here is clickable.
+   Rendered by the same call that paints the price bar, so the two can never
+   disagree about what has been chosen. */
+function perilTitle(){
+  if(!flow.peril)return "";
+  var card=document.querySelector('#home-picks .pick[data-peril="'+flow.peril+'"] h3');
+  return card?card.textContent.trim():flow.peril;
+}
+
+function railRow(key,value,waiting){
+  return '<div class="row"><dt>'+esc(key)+'</dt>'+
+    '<dd'+(waiting?' class="waiting"':'')+'>'+esc(value)+'</dd></div>';
+}
+
+function updateRunRail(){
+  var rail=$("runrail"), rows=$("runrail-rows"), foot=$("runrail-foot");
+  if(!rail||!rows||!foot)return;
+  /* Nothing to run once it is bought, and nothing to summarise on the step
+     that is itself the summary: on the confirm step the whole deal is on the
+     left in full, and a shorter copy of it beside that is noise. */
+  rail.hidden=flow.step>=CONFIRM_STEP;
+  if(rail.hidden)return;
+
+  var it=flow.interest||{}, where=subjectLabel();
+  var html=railRow(t("Against"),flow.chosen?perilTitle():t("not chosen yet"),!flow.chosen);
+  html+=railRow(t("Where"),where||t("not chosen yet"),!where);
+  if(it.what||flow.step>=3)
+    html+=railRow(t("What is at risk"),it.what||t("not described yet"),!it.what);
+  if(flow.limit)
+    html+=railRow(t("Pays up to"),money(flow.limit)+" USDC",false);
+  rows.innerHTML=html;
+
+  /* The premium, or the note that says where it will appear. A figure the
+     protocol has not answered for yet is not shown as though it had. */
+  var ready=flow.peril&&flow.subject&&flow.limit&&
+            !(flow.peril==="quake"&&!quakeReady());
+  if(!ready){
+    foot.innerHTML='<p class="prompt">'+
+      esc(t("Answer the questions and the price appears here."))+'</p>';
+    return;
+  }
+  var q=priced(), current=flow.quoted&&flow.quotedFor===quoteKey();
+  var offer=(current&&(flow.offers||[]).length)
+    ? flow.offers.slice().sort(function(a,b){return a.fee-b.fee;})[0] : null;
+  var total=offer?q.premium+offer.fee:q.premium;
+  var days=PERILS[flow.peril].term;
+  foot.innerHTML='<div class="amt">'+esc(money(total))+'<small>'+esc(t("USDC"))+'</small></div>'+
+    '<div class="prompt" style="font-style:normal">'+
+      esc(t("for {days} days",{days:days}))+
+      (offer?"":" · "+esc(t("before the company's fee")))+'</div>'+
+    '<span class="runrail-chip">'+esc(t("A price is a quote until the protocol answers for it."))+'</span>';
+}
+
 function updatePriceBar(){
+  updateRunRail();
   // Whether the bar has a price in it yet. On a phone a bar with nothing to
   // say is not neutral: it is stuck to the bottom of the screen covering the
   // card below it, and everything in it -- an em dash, "choose a place to see

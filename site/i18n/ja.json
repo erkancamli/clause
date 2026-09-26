@@ -2195,7 +2195,15 @@
     "who put that capital there": "その資本を出した人",
     "What the record says.": "記録が語ること。",
     "In ordinary insurance why a policy paid, or did not, sits in the insurer's own file and you are asked to accept it. Here it is assembled from what the chain stored: the subscription, every round of validator reports on the topic it listens to, what the aggregator concluded about each, and the transaction that paid.": "通常の保険では、証券が支払われた理由も支払われなかった理由も保険会社の書類の中にあり、あなたはそれを受け入れるよう求められます。ここでは、チェーンが保存したものから組み立てられます。購読、監視している対象についての各回のバリデータ報告、集約器がそれぞれについて下した結論、そして支払った取引です。",
-    "No company is active in the register yet, so this page has none to name.": "登録簿にまだ有効な会社がないため、このページが挙げられる会社はありません。"
+    "No company is active in the register yet, so this page has none to name.": "登録簿にまだ有効な会社がないため、このページが挙げられる会社はありません。",
+    "A price is a quote until the protocol answers for it.": "プロトコルが引き受けるまで、これは見積りです。",
+    "Answer the questions and the price appears here.": "質問に答えると、価格がここに表示されます。",
+    "Pays up to": "支払上限",
+    "What is at risk": "対象となるもの",
+    "Your cover so far": "ここまでの補償",
+    "for {days} days": "{days}日間",
+    "not chosen yet": "未選択",
+    "not described yet": "未記入"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
