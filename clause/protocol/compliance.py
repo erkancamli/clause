@@ -342,10 +342,27 @@ class ComplianceEngine:
                           note=note)
 
         # 2. Indemnity, enforced as a cap rather than a loss adjustment.
+        #
+        # The tolerance is a unit of account, not a float epsilon, because what
+        # is being compared are two arithmetics rather than two decisions. A
+        # buyer is offered cover up to what their home would cost to rebuild;
+        # the page works that figure out to show it, and the protocol works it
+        # out again and caps the declaration at its own answer. The two agree
+        # to within pennies and disagreed by four tenths of one unit, so the
+        # largest cover the page could offer was always a hair above the most
+        # the protocol would accept: every purchase at the maximum was refused
+        # with "cover of 36,817 exceeds the 36,817 you declared at risk" --
+        # the same number twice, because both round to it, and no amount of
+        # reading it could tell anybody what to do differently.
+        #
+        # Under a unit this is arithmetic. Over it, it is a wager, and the
+        # rule stands: a thousand over is still refused, and the refusal now
+        # prints enough of the figures to be acted on.
+        ROUNDING = 1.0
         max_limit = float(interest.value_at_risk)
-        if limit > max_limit + 1e-9:
+        if limit > max_limit + ROUNDING:
             reasons.append(
-                f"cover of {limit:,.0f} exceeds the {max_limit:,.0f} you declared "
+                f"cover of {limit:,.2f} exceeds the {max_limit:,.2f} you declared "
                 f"at risk; cover above the value at risk is a wager rather than "
                 f"an indemnity"
             )

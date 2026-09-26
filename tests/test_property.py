@@ -274,6 +274,30 @@ def test_the_policy_carries_the_property_and_not_the_address(buying) -> None:
     assert written.status_code == 200
     policy = app.state.pool.policies[written.json()["policy"]["policy_id"]]
     assert policy.metadata["property"]["id"].startswith("PRP-")
+
+    # Structurally, not by substring. This used to flatten the record to a
+    # string and look for "A2" in it, and the record carries hashes and a
+    # PRP- id: two characters of uppercase hex turn up in one sooner or later,
+    # so the test failed on the luck of the run rather than on a leaked
+    # address. What it is actually asserting is that no field of an address
+    # rode along, which is worth saying exactly.
+    ADDRESS_FIELDS = {"street", "number", "flat", "postcode", "post_code",
+                      "city", "district", "province", "address", "line1", "line2"}
+
+    def walk(node, path=""):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                assert key not in ADDRESS_FIELDS or not value, (
+                    f"the address must not be on the policy record: "
+                    f"{path}.{key} = {value!r}")
+                walk(value, f"{path}.{key}")
+        elif isinstance(node, (list, tuple)):
+            for i, value in enumerate(node):
+                walk(value, f"{path}[{i}]")
+
+    walk(policy.metadata)
+    # And the distinctive parts, which are long enough not to collide with an
+    # id, are not anywhere in it either.
     flat = str(policy.metadata)
-    for part in ("Atakent", "34307", "A2"):
+    for part in ("Atakent", "34307"):
         assert part not in flat, "the address must not be on the policy record"

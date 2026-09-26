@@ -442,3 +442,31 @@ def test_turkey_is_still_open_on_the_real_models() -> None:
     engine = ComplianceEngine(specimen_registry())
     assert rule(engine).allowed
     assert "TR" in {row["country"] for row in engine.coverage()}
+
+
+def test_a_rounding_difference_is_not_a_wager(engine) -> None:
+    """The largest cover the page could offer was always refused.
+
+    A buyer is offered cover up to what their home would cost to rebuild. The
+    page works that figure out to show it, and the protocol works it out again
+    and caps the declaration at its own answer. The two agree to within
+    pennies -- and disagreed by four tenths of one unit, which was enough,
+    because the rule compared them with a float epsilon. So the maximum the
+    page could offer was always a hair above the most the protocol would take,
+    and the refusal read "cover of 36,817 exceeds the 36,817 you declared at
+    risk": the same number twice, with nothing in it to act on.
+
+    Under a unit of account this is arithmetic. Over it, it is a wager.
+    """
+    # Four tenths over: the page's arithmetic against the protocol's.
+    ok = rule(engine, limit=36_817.0, value_at_risk=36_816.60)
+    assert ok.allowed, f"a rounding difference is being called a wager: {ok.reasons}"
+
+    # A thousand over is still a wager, and now says so with two figures that
+    # are visibly different.
+    no = rule(engine, limit=37_817.0, value_at_risk=36_816.60)
+    assert not no.allowed
+    said = " ".join(no.reasons)
+    assert "wager rather than an indemnity" in said
+    assert "37,817.00" in said and "36,816.60" in said, (
+        f"the refusal still prints one number twice: {said}")

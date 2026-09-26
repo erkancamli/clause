@@ -214,7 +214,9 @@ def test_the_protocol_refuses_cover_above_what_the_size_supports(client, buyer) 
     body["interest"]["size"] = size
     reply = client.post("/api/policies", json=body)
     assert reply.status_code == 451
-    assert f"{ceiling:,.0f}" in reply.text
+    # To the penny, because the refusal compares two arithmetics and used to
+    # print both of them rounded to the same whole number.
+    assert f"{ceiling:,.2f}" in reply.text
 
 
 def test_earthquake_cover_needs_a_description(client, buyer) -> None:
