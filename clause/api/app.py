@@ -39,7 +39,7 @@ from ..perils import EARTHQUAKE, REGISTRY, get_peril
 from ..perils.flight import ROUTES
 from ..perils.quake import ALLOWED_RADII_KM, LOCATIONS
 from ..perils.weather import STATIONS
-from ..pricing import PricingEngine
+from ..pricing import PricingEngine, Quote
 from ..protocol import (
     Pool,
     PoolError,
@@ -50,6 +50,7 @@ from ..protocol import (
 )
 from ..agent.rider import TOOLS as RIDER_TOOLS, Rider, RiderError
 from .privy import Accounts, PrivyError, PrivyVerifier
+from . import holding
 from .repeat import Answers, DECIDING
 from ..protocol.valuation import KIND_FOR, ValuationError, schedule, value_of
 from ..live import QUIET_DAY, aeroapi_feed, airlabs_feed, flight_feed, quake_feed, quake_week_feed, select_quakes
@@ -181,7 +182,9 @@ class BuyRequest(QuoteRequest):
     max_premium: float | None = None
     # A price the protocol promised for ten minutes. Within them it is the
     # price, however the book has moved.
-    quote_id: str | None = Field(default=None, max_length=40)
+    # A signed promise rather than a bare identifier, so it is longer than an
+    # id would be: see clause/api/holding.py.
+    quote_id: str | None = Field(default=None, max_length=512)
     # The company the buyer chose from the offers, if they chose.
     carrier_id: str | None = Field(default=None, max_length=64)
     # The hash of the contract text the buyer read and accepted.
@@ -499,7 +502,7 @@ class ContractRequest(QuoteRequest):
     interest: InterestDeclaration
     carrier_id: str | None = Field(default=None, max_length=64)
     instalments: int = 1
-    quote_id: str | None = Field(default=None, max_length=64)
+    quote_id: str | None = Field(default=None, max_length=512)
     settlement: str = Field(default="stablecoin", max_length=16)
 
 
@@ -618,37 +621,60 @@ def create_app(
         privy_verifier = PrivyVerifier(settings.privy_app_id,
                                        verification_key=settings.privy_verification_key)
     accounts = Accounts()
-    # Prices promised for a while: id -> (terms, quote, expires). In memory,
-    # because a promise that outlives a restart by minutes is not worth a file.
+    # Prices promised for ten minutes. The identifier is the promise: it carries
+    # the price and the cover it is a price for, signed, so it outlives the
+    # process that made it. See clause/api/holding.py -- the promise is in
+    # writing on the screen, and replacing the service used to break it.
+    #
+    # The dictionary beside it is a courtesy, not the record: while the process
+    # that quoted is still running, it hands back the whole quote including the
+    # prose a token does not carry.
     price_locks: dict[str, tuple[str, Any, float]] = {}
-    PRICE_LOCK_SECONDS = 600.0
+    PRICE_LOCK_SECONDS = holding.SECONDS
+    #: What the signing key is derived for. The key itself is asked for at the
+    #: moment it is used and never held here: the store puts the authenticator's
+    #: own secret back later in this build, and a key taken before that would be
+    #: the random one this process started with rather than the one a promise
+    #: made before the restart was signed with.
+    LOCK_PURPOSE = "price-lock/v1"
 
     def lock_terms(peril: str, subject: dict[str, Any], limit: float, term_days: float) -> str:
         return json.dumps([peril, subject, round(limit, 2), round(term_days, 4)], sort_keys=True)
 
+    def from_token(*, peril_key: str, limit: float, term_days: float,
+                   diversification: str, risk_basis: str, **numbers: float) -> Quote:
+        """A quote rebuilt from what a token carried. Its notes are empty by
+        design: they are prose for the screen that asked, never read again when
+        the policy is written, so they are neither carried nor signed."""
+        return Quote(peril_key=peril_key, limit=limit, term_days=term_days, notes=[],
+                     diversification=diversification, risk_basis=risk_basis, **numbers)
+
     def promise(peril: str, subject: dict[str, Any], limit: float, term_days: float,
                 quoted: Any) -> dict[str, Any]:
-        import secrets as _secrets
         now = time.time()
         for key in [k for k, v in price_locks.items() if v[2] < now]:
             price_locks.pop(key, None)
         if len(price_locks) > 20_000:
             price_locks.pop(next(iter(price_locks)))
-        lock_id = "PQ-" + _secrets.token_hex(8)
-        price_locks[lock_id] = (lock_terms(peril, subject, limit, term_days), quoted, now + PRICE_LOCK_SECONDS)
-        return {"id": lock_id, "premium": round(quoted.premium, 2),
-                "expires_at": now + PRICE_LOCK_SECONDS, "seconds": PRICE_LOCK_SECONDS}
+        given = holding.issue(auth.derived(LOCK_PURPOSE), peril=peril, subject=subject, limit=limit,
+                              term_days=term_days, quoted=quoted, now=now,
+                              seconds=PRICE_LOCK_SECONDS)
+        price_locks[given["id"]] = (lock_terms(peril, subject, limit, term_days),
+                                    quoted, now + PRICE_LOCK_SECONDS)
+        return given
 
     def promised(lock_id: str | None, peril: str, subject: dict[str, Any], limit: float,
                  term_days: float) -> Any:
         if not lock_id:
             return None
         found = price_locks.get(lock_id)
-        if not found or found[2] < time.time():
-            return None
-        if found[0] != lock_terms(peril, subject, limit, term_days):
-            return None
-        return found[1]
+        if found and found[2] >= time.time() \
+                and found[0] == lock_terms(peril, subject, limit, term_days):
+            return found[1]
+        # Not this process's memory, or not any more. The token says for itself
+        # whether the promise stands.
+        return holding.honoured(auth.derived(LOCK_PURPOSE), lock_id, peril=peril, subject=subject,
+                                limit=limit, term_days=term_days, build=from_token)
     from ..geocode import ATTRIBUTION as OSM_ATTRIBUTION, GeocodeError, Geocoder
     geocoder = geocoder or Geocoder()
     # Where the book is kept between restarts. CLAUSE_STATE_DIR in a

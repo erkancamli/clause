@@ -333,6 +333,20 @@ class Authenticator:
 
     # -- read sessions ----------------------------------------------------
 
+    def derived(self, purpose: str) -> bytes:
+        """A key for signing something else short-lived, from the same root.
+
+        The service also promises a price for ten minutes, and a promise is only
+        as durable as the key it is signed with. This secret is the one thing
+        here that already outlives a restart -- the store keeps it and puts it
+        back -- so the promise is signed with a key derived from it rather than
+        with a second secret nobody arranged to keep.
+
+        Derived, not reused: a key for one purpose must not verify a statement
+        made for another, so that a weakness in either cannot be carried across.
+        """
+        return hmac.new(self._secret, purpose.encode(), hashlib.sha256).digest()
+
     def issue_session(self, address: str, *, now: float | None = None) -> dict[str, Any]:
         """A bearer token for reading your own position. It cannot spend."""
         now = time.time() if now is None else now

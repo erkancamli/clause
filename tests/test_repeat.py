@@ -102,8 +102,15 @@ def buying():
         yield client, app
 
 
-def body_for(client, address, device, *, limit=50_000.0, risk=60_000.0, at=ADDRESS):
-    """The application a page sends, signed, ready to be sent more than once."""
+def body_for(client, address, device, *, limit=50_000.0, risk=60_000.0, at=ADDRESS,
+             quote_id=None):
+    """The application a page sends, signed, ready to be sent more than once.
+
+    `quote_id` is a price promised for ten minutes. It goes to the contract as
+    well as into the body, because the contract text carries the premium: asking
+    for the contract at one price and then buying at another is a contract the
+    buyer did not read.
+    """
     from test_api_security import statements
 
     terms = {"peril": "earthquake", "limit": limit, "term_days": 365.0,
@@ -112,8 +119,10 @@ def body_for(client, address, device, *, limit=50_000.0, risk=60_000.0, at=ADDRE
                 "value_at_risk": risk, "size": HOME, "address": at}
     # The contract the buyer read, as the page fetches it: its hash is signed
     # over, so nobody is bound to text they were not shown.
-    shown = client.post("/api/contract", json={**terms, "interest": interest,
-                                               "settlement": "fiat"})
+    asked = {**terms, "interest": interest, "settlement": "fiat"}
+    if quote_id:
+        asked["quote_id"] = quote_id
+    shown = client.post("/api/contract", json=asked)
     digest = shown.json().get("hash", "") if shown.status_code == 200 else ""
     if digest:
         terms["contract_hash"] = digest
@@ -124,6 +133,7 @@ def body_for(client, address, device, *, limit=50_000.0, risk=60_000.0, at=ADDRE
         "holder": address, "nonce": challenge["nonce"],
         "signature": device.sign(challenge["message"]), "settlement": "fiat",
         "contract_hash": digest or None,
+        "quote_id": quote_id,
         "attestations": statements(client, address, "sanctions_clear", "identity_basic"),
         "interest": interest,
     }

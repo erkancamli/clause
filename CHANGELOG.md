@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.21.0, 26 September 2026
+
+- A price promised for ten minutes is still that price after the service is
+  replaced. The promise is on the screen in words, and it was kept in a
+  dictionary in the process, which made it exactly as durable as the process —
+  and replacing the service is something an operator does on purpose, in the
+  afternoon, while somebody is part way through buying. That buyer pressed the
+  button and was told the price had moved.
+
+  So the promise is no longer stored. `clause/api/holding.py` signs it and hands
+  it to the buyer, and it comes back with the purchase: the identifier *is* the
+  promise. It carries the price and the cover it is a price for, so presenting
+  it for different cover does not work, presenting it after ten minutes does not
+  work, and making one up does not work. Anything holding the key can honour it,
+  which covers a restart, a replacement, and more than one process behind one
+  address. The dictionary stays beside it as a courtesy: while the process that
+  quoted is still running it hands back the whole quote, including the prose a
+  token does not carry.
+
+  The key is derived from the authenticator's own secret rather than being a new
+  one, because that secret is the only thing here already arranged to outlive a
+  restart — the store keeps it and puts it back. Derived and not reused, so a key
+  for one purpose cannot verify a statement made for another.
+
+  The test for this was written wrong first and said so in its own docstring: a
+  fresh service on the same seed prices identically, so comparing two numbers
+  across a restart passed whether or not the promise was honoured. Breaking the
+  token reader on purpose left it green. It now promises a price the pool would
+  not give, so the two outcomes cannot be confused — honoured, the policy costs
+  what was promised; not honoured, the pool prices again and refuses.
+
 ## 1.20.0, 26 September 2026
 
 - A purchase whose reply went missing can be asked for again, and asking again
