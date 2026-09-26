@@ -122,3 +122,71 @@ def test_the_build_publishes_the_faces() -> None:
     line = [l for l in build.splitlines() if "netlify.toml" in l and "for name_" in l]
     assert line, "could not find the build's copy list"
     assert '"fonts"' in line[0], f"fonts is not published: {line[0].strip()}"
+
+
+# ---------------------------------------------------------------------------
+# What survives minification
+# ---------------------------------------------------------------------------
+
+
+def test_the_palette_reaches_the_published_page_intact(build) -> None:
+    """Everything that measures this palette reads the readable source.
+
+    So nothing would notice a minifier that dropped a theme block, renamed a
+    custom property or rounded a colour: the contrast tests would keep passing
+    against a file nobody is served. The light theme is written twice, once for
+    the explicit choice and once for the device preference, and a build that
+    kept one of them would give the same reader a different page depending on
+    how they arrived at it.
+
+    This asks the minifier the question directly, which is cheap, rather than
+    running a whole build.
+    """
+    import re
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
+    style = page[page.index("<style>") + len("<style>"):page.index("</style>")]
+
+    def palettes(text):
+        """Every block that defines the ink, by what it contains rather than by
+        what it is called: the minifier rewrites selectors."""
+        return [dict(re.findall(r"--([a-z0-9-]+):\s*([^;}]+)", block))
+                for block in re.findall(r"\{([^{}]*--ink:[^{}]*)\}", text)]
+
+    source = palettes(style)
+    assert len(source) == 3, f"expected one dark and two light blocks, found {len(source)}"
+
+    minified = palettes(build.minify(style, "css"))
+    assert len(minified) == len(source), (
+        f"minification published {len(minified)} palettes where the source has {len(source)}")
+
+    for i, (before, after) in enumerate(zip(source, minified)):
+        for token in ("ink", "ink-2", "ink-3", "ground", "panel", "raised", "sunk",
+                      "art-line", "signal", "signal-ink", "signal-fill"):
+            if token not in before:
+                continue
+            assert token in after, f"palette {i}: --{token} did not survive minification"
+            assert before[token].strip().lower() == after[token].strip().lower(), (
+                f"palette {i}: --{token} was {before[token].strip()} and is "
+                f"published as {after[token].strip()}")
+
+
+def test_the_two_light_palettes_are_the_same_palette(build) -> None:
+    """One for the explicit choice, one for the device preference. A correction
+    applied to one of them makes the same page legible or not depending on how
+    the reader arrived at it, and that is exactly the kind of fault that hides:
+    whoever is testing has a preference set, and sees the half that works."""
+    import re
+    from pathlib import Path
+
+    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
+    style = page[page.index("<style>") + len("<style>"):page.index("</style>")]
+    blocks = [dict(re.findall(r"--([a-z0-9-]+):\s*([^;}]+)", b))
+              for b in re.findall(r"\{([^{}]*--ink:[^{}]*)\}", style)]
+    light = [b for b in blocks if int(b["ink"].strip().lstrip("#")[:2], 16) < 128]
+    assert len(light) == 2, f"expected two light palettes, found {len(light)}"
+    first, second = light
+    differing = {k for k in set(first) | set(second)
+                 if first.get(k, "").strip().lower() != second.get(k, "").strip().lower()}
+    assert not differing, f"the two light palettes disagree about {sorted(differing)}"

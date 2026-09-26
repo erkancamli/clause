@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.23.1, 26 September 2026
+
+- Two tests, for a hole found while checking that the last release had
+  reached the live page. Everything that measures the palette reads
+  `site/index.html`, the readable source, so nothing would notice a minifier
+  that dropped a theme block, renamed a custom property or rounded a colour:
+  the contrast tests would go on passing against a file nobody is served. The
+  minifier is now asked the question directly, which is cheap, rather than by
+  running a whole build.
+
+- The second one closes something sharper. The light theme is written twice,
+  once for the explicit choice and once for the device preference, and the
+  contrast test reads both of them as one span — so the later block overwrites
+  the earlier one and only the device palette is ever measured. Left stale on
+  purpose, the explicit-choice palette passed all thirty-four contrast
+  assertions. That is the kind of fault that hides: whoever is testing has a
+  preference set, and sees the half that works. The two are now required to be
+  the same palette.
+
+  Nothing served changes in this release.
+
 ## 1.23.0, 26 September 2026
 
 - The palette is measured with APCA as well as WCAG, and three tokens moved
