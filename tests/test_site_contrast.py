@@ -79,6 +79,47 @@ def ratio(fg, bg) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
+# ---------------------------------------------------------------------------
+# The other question
+# ---------------------------------------------------------------------------
+#
+# WCAG 2 adds 0.05 to both sides before dividing, which inflates every dark
+# pair: a dark interface can satisfy 1.4.11 and still be drawn in lines nobody
+# can follow. It happened here. The diagram lines measured 3.03 at worst, which
+# passes, and Lc 22.3, which is a line you cannot see. The formula also goes
+# the other way on saturated warm hues, passing coral text at a reading size
+# that no one can read.
+#
+# So both questions are asked. WCAG because it is the standard the product is
+# held to; APCA because it is the one that matches what a reader sees. The
+# implementation below is the W3C's SAPC-APCA 0.98G-4g, transcribed from the
+# published formula and pinned by the test underneath it, so a later edit to
+# the arithmetic cannot quietly change what every other test here means.
+
+APCA_BODY = 75.0      # a word at a reading size
+APCA_NONTEXT = 45.0   # a line or a boundary that carries meaning
+
+
+def _y(colour) -> float:
+    r, g, b = (v / 255.0 for v in (rgb(colour) if isinstance(colour, str) else colour))
+    return 0.2126729 * r ** 2.4 + 0.7151522 * g ** 2.4 + 0.0721750 * b ** 2.4
+
+
+def lc(text, background) -> float:
+    """Lightness contrast, as APCA reckons it. Sign carries the polarity;
+    every caller here wants the size of it."""
+    ytxt, ybg = _y(text), _y(background)
+    if ytxt < 0.022:
+        ytxt += (0.022 - ytxt) ** 1.414
+    if ybg < 0.022:
+        ybg += (0.022 - ybg) ** 1.414
+    if ybg > ytxt:
+        raw = (ybg ** 0.56 - ytxt ** 0.57) * 1.14
+        return 0.0 if abs(raw) < 0.1 else (raw - 0.027) * 100.0
+    raw = (ybg ** 0.65 - ytxt ** 0.62) * 1.14
+    return 0.0 if abs(raw) < 0.1 else (raw + 0.027) * 100.0
+
+
 def mix(a: str, b: str, share: float):
     """`color-mix(in srgb, a share%, b)`, as the stylesheet writes it."""
     x, y = rgb(a), rgb(b)
@@ -209,3 +250,80 @@ def test_the_two_border_tiers_have_not_been_collapsed(palette):
         assert loud > quiet * 1.5, (
             f"{theme}: --edge is {quiet:.2f}:1 and --edge-ctl is {loud:.2f}:1; "
             "they are no longer two tiers")
+
+
+# ---------------------------------------------------------------------------
+# The arithmetic itself
+# ---------------------------------------------------------------------------
+
+
+def test_the_lightness_contrast_formula_is_the_published_one() -> None:
+    """Mid grey on white is APCA's own worked example, and it is the one thing
+    here that can be checked against a number somebody else published: Lc 63.1.
+    Everything the palette is held to is computed with this, so if it drifts,
+    every other assertion in this file quietly means something else."""
+    assert lc("#888888", "#FFFFFF") == pytest.approx(63.1, abs=0.1)
+
+
+def test_polarity_is_carried_in_the_sign() -> None:
+    """Dark on light and light on dark are not the same reading, and APCA does
+    not pretend they are -- which is the whole reason it is here beside a
+    formula that does."""
+    assert lc("#888888", "#FFFFFF") > 0
+    assert lc("#FFFFFF", "#888888") < 0
+    assert abs(lc("#FFFFFF", "#888888")) != pytest.approx(lc("#888888", "#FFFFFF"), abs=1.0)
+
+
+def test_more_separation_reads_as_more_contrast() -> None:
+    steps = [lc(shade, "#FFFFFF") for shade in ("#DDDDDD", "#AAAAAA", "#777777", "#333333", "#000000")]
+    assert steps == sorted(steps), steps
+
+
+# ---------------------------------------------------------------------------
+# The palette, against the floor a reader actually feels
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("theme", ["dark", "light"])
+@pytest.mark.parametrize("ink", ["ink", "ink-2", "ink-3"])
+def test_every_text_tone_clears_the_reading_floor(palette, theme, ink) -> None:
+    """Tertiary is where this bites. It is what the 10.5px uppercase labels
+    are set in, and a label that small is the case APCA is strictest about,
+    not the most forgiving -- the light theme had it at Lc 67.4 on the sunk
+    surface while passing WCAG at 4.60."""
+    tokens = palette[theme]
+    for surface in SURFACES:
+        got = abs(lc(tokens[ink], tokens[surface]))
+        assert got >= APCA_BODY, (
+            f"{theme} --{ink} ({tokens[ink]}) on --{surface} ({tokens[surface]}) "
+            f"is Lc {got:.1f}, under the {APCA_BODY:.0f} a word at a reading size needs")
+
+
+@pytest.mark.parametrize("theme", ["dark", "light"])
+def test_the_lines_a_diagram_is_drawn_with_can_be_seen(palette, theme) -> None:
+    """The lines carry the meaning, so they are a graphical object and owe
+    contrast. The dark theme satisfied 1.4.11 at 3.03:1 and measured Lc 22.3,
+    which is a line you cannot follow; WCAG's formula inflates every dark pair
+    and this is what that looks like from the reader's side."""
+    tokens = palette[theme]
+    for surface in SURFACES:
+        got = abs(lc(tokens["art-line"], tokens[surface]))
+        assert got >= APCA_NONTEXT, (
+            f"{theme} --art-line ({tokens['art-line']}) on --{surface} "
+            f"({tokens[surface]}) is Lc {got:.1f}, under {APCA_NONTEXT:.0f}")
+
+
+@pytest.mark.parametrize("theme", ["dark", "light"])
+def test_the_two_quiet_inks_stay_a_step_apart(palette, theme) -> None:
+    """Secondary and tertiary are a hierarchy, not two names for the same
+    grey. Raising both to clear the floor is the obvious way to collapse
+    them, and the light theme nearly did: the first pair of corrected values
+    landed 0.1 apart."""
+    tokens = palette[theme]
+    for surface in SURFACES:
+        second = abs(lc(tokens["ink-2"], tokens[surface]))
+        third = abs(lc(tokens["ink-3"], tokens[surface]))
+        assert second - third >= 5.0, (
+            f"{theme} on --{surface}: --ink-2 is Lc {second:.1f} and --ink-3 "
+            f"is Lc {third:.1f}, {second - third:.1f} apart — too close to read "
+            f"as two tiers")

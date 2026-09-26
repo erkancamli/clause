@@ -70,7 +70,17 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      --edge-2 they measured 1.57:1, which is why the hero illustration read
      as an empty panel. --art-line-soft is for the rings and haloes that
      only set a mood. */
-  --art-line:#5C6A78; --art-line-soft:#364351;
+  /* Measured again, with APCA beside WCAG. #5C6A78 cleared 1.4.11's 3:1 on
+     every dark surface -- 3.03 at worst -- and measured Lc 22.3, which is a
+     line you cannot see. That is not a disagreement about taste: WCAG 2's
+     formula adds 0.05 to both sides before dividing, which inflates every
+     dark pair, so a dark interface can satisfy it and still be drawn in
+     lines nobody can follow. The hero illustration reading as an empty panel
+     was this fault once before, fixed then to the 3:1 that was asked for and
+     no further. This is the same hue and saturation, lifted until it clears
+     Lc 45 on the worst surface it is drawn on (45.1 on --raised); every WCAG
+     ratio went up with it, to 5.85 at worst. */
+  --art-line:#8D9AA7; --art-line-soft:#364351;
   --ink:#E9EFF5; --ink-2:#D2E0EE; --ink-3:#C4D2DF;
   /* One orange, the same in both themes. It used to be #FF6A2B here and
      #C83700 in the light theme, which measured 2.86:1 on white -- under the
@@ -122,7 +132,15 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --float:#FFFFFF;
   --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
-  --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
+  /* The light theme's ladder had drifted from the dark one's. Secondary text
+     measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
+     is what the 10.5px uppercase labels are set in, which is the size APCA is
+     strictest about, not the most forgiving. Both are darkened by the least
+     that clears Lc 75 on the worst surface, and secondary is taken further so
+     the two stay a step apart rather than collapsing into one tier with two
+     names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
+     both themes, which is what it was always meant to be. */
+  --ink:#0C1116; --ink-2:#3F4750; --ink-3:#535C64;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007B5F; --hold:#946200; --crit:#B62734;
@@ -142,7 +160,15 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --float:#FFFFFF;
   --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
-  --ink:#0C1116; --ink-2:#56616C; --ink-3:#636E78;
+  /* The light theme's ladder had drifted from the dark one's. Secondary text
+     measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
+     is what the 10.5px uppercase labels are set in, which is the size APCA is
+     strictest about, not the most forgiving. Both are darkened by the least
+     that clears Lc 75 on the worst surface, and secondary is taken further so
+     the two stay a step apart rather than collapsing into one tier with two
+     names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
+     both themes, which is what it was always meant to be. */
+  --ink:#0C1116; --ink-2:#3F4750; --ink-3:#535C64;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007B5F; --hold:#946200; --crit:#B62734;

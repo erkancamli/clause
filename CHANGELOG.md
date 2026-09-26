@@ -1,5 +1,45 @@
 # Changelog
 
+## 1.23.0, 26 September 2026
+
+- The palette is measured with APCA as well as WCAG, and three tokens moved
+  because of what that found. WCAG 2 adds 0.05 to both sides before dividing,
+  which inflates every dark pair: an interface can satisfy 1.4.11 and still be
+  drawn in lines nobody can follow. That is what had happened. The lines the
+  diagrams are drawn with measured 3.03:1 at worst — passing — and Lc 22.3,
+  which is a line you cannot see. This is the second time that fault has been
+  found here; the first time it was fixed to the 3:1 that was asked for and no
+  further, and the hero illustration reading as an empty panel was the symptom.
+  `--art-line` is now `#8D9AA7`: the same hue and saturation, lifted until it
+  clears Lc 45 on the worst surface it is drawn on. Every WCAG ratio went up
+  with it, to 5.85 at worst.
+
+- The light theme's ink ladder had drifted from the dark theme's. Secondary
+  text measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 — and tertiary
+  is what the 10.5px uppercase labels are set in, which is the size APCA is
+  strictest about, not the most forgiving, while WCAG passed it at 4.60. Both
+  are darkened by the least that clears Lc 75 everywhere. Secondary is taken
+  further on purpose: the first pair of corrected values landed 0.1 apart,
+  which is two names for one grey rather than a hierarchy. The gap is 8.3 now,
+  against the dark theme's 8.6 — one ladder in both themes, which is what it
+  was always meant to be.
+
+- The brand orange was left alone, and that is a decision rather than an
+  oversight. In the dark theme it measures Lc 41.7 against a non-text floor of
+  45, a near miss on a mark rather than on a word, and the only way to clear it
+  is to give the dark theme a different orange from the light one. That fork
+  existed once, worked, and cost the brand: two values 0.05 apart in OKLab,
+  bright orange by night and burnt brick by day, which is two brands and not
+  one. Four points of Lc on a fill is not worth buying that back.
+
+- `tests/test_site_contrast.py` now asks both questions of every pair it
+  already checked — WCAG because it is the standard the product is held to,
+  APCA because it is the one that matches what a reader sees — and holds the
+  ink tiers a measured step apart so a later correction cannot collapse them.
+  The formula is pinned to the one figure that can be checked against somebody
+  else's published number, mid grey on white at Lc 63.1, because everything
+  else in the file is computed with it.
+
 ## 1.22.0, 26 September 2026
 
 - The page serves its own typefaces. All three Latin families came from
