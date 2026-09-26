@@ -20,6 +20,13 @@ clause.env
 research_notes/
 reports/
 
+# Design explorations: direction pages, the screenshots taken of them, and the
+# font files fetched to judge them by. They are how a look is decided, not part
+# of the product, and a cancelled exploration is not something the history owes
+# anybody. Whatever a direction settles becomes site/index.html, which is
+# tracked; the sketches that got there stay on the machine they were drawn on.
+design/
+
 # Release packages
 clause-*.tar.gz
 clause-site-*.zip
