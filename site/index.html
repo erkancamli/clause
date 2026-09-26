@@ -131,7 +131,14 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
    which is the case a margin cannot reach. --pricebar-h is measured and
    is 0px when no bar is up. */
 html{-webkit-text-size-adjust:100%;
-  scroll-padding-top:96px;
+  /* The header's real height, measured, with the hand-set value as the
+     fallback for the moment before the script has run. It was 61px when
+     these offsets were written and every one of them added a margin to that
+     by hand. At 1024 the navigation wraps and the header is 89, so a panel
+     stuck at 76 sat thirteen pixels under it -- and the navigation wraps
+     sooner in a language whose words are longer, which is most of them. */
+  --header-h:61px;
+  scroll-padding-top:calc(var(--header-h) + 35px);
   scroll-padding-bottom:calc(var(--pricebar-h,0px) + var(--tabbar-h,0px) + 24px)}
 /* A column the height of the window, so a short page keeps its footer at
    the bottom instead of leaving it halfway up with dark ground beneath. */
@@ -896,13 +903,21 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 .hero-art{max-width:520px;margin:clamp(14px,3vw,22px) auto 0;width:100%;
   /* The header stays at the top and is 61px tall, so the stage stops
      below it rather than sliding half under it. */
-  position:sticky;top:calc(env(safe-area-inset-top,0px) + 69px);z-index:2;
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 8px);z-index:2;
   background:var(--ground);padding-block:8px 12px}
 @media (min-width:861px){
-  /* Clear of the header that stays at the top, so the picture is never
-     half under it while a step is being read. */
+  /* Centred in the viewport rather than pinned under the header. Pinned, a
+     395px panel in a 900px window left 429px empty beneath it the whole way
+     down the steps, and that gap is most of what reads as an unfinished page.
+     Centred it has about 250px above and below, which is a composition.
+     The header is 61px and the panel is far shorter than the window, so
+     nothing slides under it; on a window short enough for that to matter the
+     rule stands down. */
   .hero-art{margin:0;max-width:560px;align-self:start;background:none;
-    padding-block:0;top:calc(env(safe-area-inset-top,0px) + 76px)}
+    padding-block:0;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 15px)}
+  @media (min-height:640px){
+    .hero-art{top:50%;transform:translateY(-50%)}
+  }
 }
 .stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
   box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
@@ -1109,7 +1124,7 @@ h1 span{color:var(--signal-ink)}
   #view-cover > .wrap > .q > h2,
   #view-cover > .wrap > .q > .hint{max-width:56ch}
   #view-cover > .wrap > .runrail{display:grid;grid-column:2;grid-row:3;
-    position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px)}
+    position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 35px)}
   /* The bar at the bottom of the screen carries two things: the price, and
      the only way forward. The rail makes the price a duplicate; the buttons
      are not a duplicate of anything, and hiding the bar wholesale took the
@@ -1183,7 +1198,7 @@ h1 span{color:var(--signal-ink)}
   #s4 > h2,#s4 > p.hint{max-width:760px}
   #s4 > .q-body{grid-template-columns:minmax(0,1fr) 360px;gap:14px 32px;align-items:start}
   #s4 > .q-body > *{grid-column:1}
-  #s4 > .q-body > #answers{grid-column:2;grid-row:1 / span 99;position:sticky;top:96px;
+  #s4 > .q-body > #answers{grid-column:2;grid-row:1 / span 99;position:sticky;top:calc(var(--header-h) + 35px);
     max-height:calc(100vh - 130px - var(--pricebar-h,0px));overflow:auto}
 }
 
@@ -1200,7 +1215,7 @@ h1 span{color:var(--signal-ink)}
   #map-note{grid-area:note}
   /* The list of matches is long, so the map does not stretch to it: it
      keeps a size of its own and stays in view while the list scrolls. */
-  #where-map{grid-area:map;align-self:start;position:sticky;top:96px;
+  #where-map{grid-area:map;align-self:start;position:sticky;top:calc(var(--header-h) + 35px);
     height:clamp(420px,58vh,600px);margin:0}
 }
 .q h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15}
@@ -4513,6 +4528,27 @@ addEventListener("hashchange",function(){show(currentRoute(), true);});
   var last=null;
   function look(){ var on=window.scrollY>6; if(on!==last){ top.classList.toggle("is-scrolled",on); last=on; } }
   addEventListener("scroll",look,{passive:true}); look();
+
+  /* Everything that stops below the header -- the instrument, the summary
+     rail, the map, the answers -- was written against a 61px header and added
+     its own margin to that by hand. The header is 89px as soon as the
+     navigation wraps, which happens at 1024 in English and sooner in a
+     language whose words are longer, and a panel stuck at 76 then sat under
+     it. Measured here instead, and published as one number the sheet reads.
+     ResizeObserver rather than the resize event, because the header changes
+     height when its own contents change too: a language with longer words,
+     the sign-in button becoming an address, the strip above it appearing. */
+  var seen=0;
+  function height(){
+    var h=Math.round(top.getBoundingClientRect().height);
+    if(!h||h===seen)return;
+    seen=h;
+    document.documentElement.style.setProperty("--header-h",h+"px");
+  }
+  height();
+  if(window.ResizeObserver)new ResizeObserver(height).observe(top);
+  else addEventListener("resize",height,{passive:true});
+  LANG_LISTENERS.push(height);
 })();
 
 
