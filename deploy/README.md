@@ -32,11 +32,64 @@ builds a virtual environment; writes the service, the nginx site and the
 configuration file; and obtains the certificate. Running it again is safe and is
 how you deploy an update.
 
+## What happens when you run it again
+
+Running it again is how you deploy an update, and it replaces what is running
+or it leaves it exactly alone. There is no third outcome.
+
+    /opt/clause/
+      .venv/                          kept across releases
+      releases/1.19.0-20260926-0512/  the one being installed
+      releases/1.18.0-20260920-1104/  the one to fall back to
+      current -> releases/1.19.0-...  what the service runs
+
+The new release is assembled in a directory of its own. Nothing is written
+into the directory the service is answering out of, which used to be the case
+and meant a request arriving mid-copy could reach for a file that had just
+been deleted. The service is moved to the new release by renaming one symlink,
+then restarted, and it has ninety seconds to answer `/api/health` with the
+version that was just installed. If it does not, the link goes back, the old
+release is started again, and the script exits non-zero. Three releases are
+kept.
+
+During the restart itself nginx retries once, and if the service still is not
+listening it returns
+
+    503  {"error":"restarting", ...}   Retry-After: 5
+
+rather than its own 502 page. The site reads that: every GET it makes is asked
+again once after a moment, so an ordinary restart is invisible to somebody
+using the page. Writes are never retried, because a POST that appeared to fail
+may have been received, and sending it twice is how somebody is charged twice.
+
+To go back by hand, without waiting for an install:
+
+    ls -1t /opt/clause/releases
+    ln -sfn /opt/clause/releases/<the older one> /opt/clause/current.tmp
+    mv -Tf /opt/clause/current.tmp /opt/clause/current
+    systemctl restart clause
+
 ## Check it
 
     curl -s https://api.clause.insure/api/health
 
-You should get JSON with a block height that changes between calls. If not:
+You should get JSON with a block height that changes between calls, and a
+`sources` block saying whether the oracle is reading:
+
+    "sources": {
+      "measuring": true,            the loop is running
+      "rounds": 47,                 rounds finished since start
+      "seconds_since_round": 12.4,
+      "references_last_round": 3,   measured policies asked about
+      "readings_written": 9,
+      "failing": {},                per source, with what it said
+      "openmeteo_subscription": true
+    }
+
+`measuring: false` means this process is not running the chain, or the first
+round has not finished yet. `references_last_round: 0` with `measuring: true`
+is the answer to "I set the key and nothing happens": the loop is running and
+there is no measured policy for it to read for. If not:
 
     systemctl status clause
     journalctl -u clause -n 50 --no-pager

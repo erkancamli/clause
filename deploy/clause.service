@@ -19,15 +19,24 @@ StartLimitBurst=5
 Type=simple
 User=clause
 Group=clause
-WorkingDirectory=/opt/clause
+# The release that is current, by symlink, not the directory itself. The
+# installer assembles each release beside the last one and moves this link
+# with a single rename, so the code a running process was started from is
+# never rewritten underneath it, and going back is the same rename again.
+WorkingDirectory=/opt/clause/current
 # Where the book is kept between restarts: policies, the pool's ledger,
 # balances, settlements, companies and their reviews, sign in keys. The same
 # directory systemd creates and lets this service write (StateDirectory).
 Environment=CLAUSE_STATE_DIR=/var/lib/clause
 EnvironmentFile=/etc/clause/clause.env
 ExecStart=/opt/clause/.venv/bin/python -m clause serve --host 127.0.0.1 --port 8080
+# systemd resolves the symlink when it starts the unit, so a restart always
+# picks up whatever the link points at now.
+
 Restart=always
-RestartSec=3
+# Three seconds was a long time to be a 502 on every restart. One second still
+# leaves the start limit below room to work: five tries in sixty seconds.
+RestartSec=1
 
 # The audit found a stream that held the process open past shutdown, so the
 # stop path is bounded and the whole group is signalled.

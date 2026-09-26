@@ -141,3 +141,67 @@ def test_the_release_notes_are_the_changelog(monkeypatch) -> None:
     section = notes(clause.__version__)
     assert section.strip(), clause.__version__
     assert section.lstrip().startswith("-"), "a version's notes are a list of changes"
+
+
+# ------------------------------------------------- replacing what is running
+
+def test_the_installer_never_writes_into_the_running_release() -> None:
+    """It used to rsync --delete straight over the directory the service was
+    answering requests out of. Python imports a module the first time it is
+    asked for, so a request arriving in those seconds could reach for a file
+    that had just been deleted and not yet rewritten. Each release is its own
+    directory now, and the service is pointed at it by moving one symlink,
+    which is a single atomic rename.
+    """
+    script = (ROOT / "deploy" / "install.sh").read_text()
+    assert "rsync -a --delete" not in script, "the live directory is being overwritten again"
+    assert 'RELEASES="$APP_DIR/releases"' in script
+    assert 'mv -Tf "$APP_DIR/current.tmp" "$CURRENT"' in script
+
+
+def test_the_installer_waits_for_the_new_release_and_goes_back_if_it_fails() -> None:
+    """A release that could not start once took the site with it: the unit
+    raised on the way up, systemd restarted it, and it did that forty five
+    times while every request got a 502. A deployment either replaces what is
+    running or leaves it exactly alone.
+    """
+    script = (ROOT / "deploy" / "install.sh").read_text()
+    assert "/api/health" in script, "the installer does not check that it came up"
+    assert 'swap_to "$PREVIOUS"' in script, "there is no way back"
+    assert "did not answer in 90 seconds" in script
+
+
+def test_the_unit_runs_from_the_symlink() -> None:
+    """Pointed at the directory itself, a restart would pick up whatever had
+    been written over it; pointed at the link, it picks up whatever the
+    installer last proved."""
+    unit = (ROOT / "deploy" / "clause.service").read_text()
+    assert "WorkingDirectory=/opt/clause/current" in unit
+
+
+def test_a_restart_is_a_503_and_not_the_proxy_s_own_error_page() -> None:
+    """What reached the browser during a restart was nginx's 502: a wall of
+    English from a server the site never mentions, in place of a reply the
+    site knows how to handle. 503 is the honest code -- nothing is wrong,
+    something is being replaced -- and it is the one a monitor should not page
+    anybody about.
+    """
+    conf = (ROOT / "deploy" / "nginx.conf").read_text()
+    assert "proxy_next_upstream" in conf, "a restart is not retried at the proxy"
+    assert "@restarting" in conf
+    assert "Retry-After" in conf
+
+
+def test_a_read_is_asked_again_and_a_write_never_is() -> None:
+    """Replacing the protocol takes a second with nothing listening, and a
+    page that asked during it told the reader nothing could be reached. A GET
+    is the same question twice and is asked again once.
+
+    A POST is not. It may have been received and acted on, and the failure can
+    be the reply going missing rather than the request; sending it twice is
+    how somebody is charged twice.
+    """
+    page = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+    assert 'if (method === "GET" && !options.noRetry)' in page, (
+        "reads are no longer retried, or writes have been swept in with them")
+    assert "noRetry: true" in page, "nothing stops the retry retrying itself"

@@ -2215,7 +2215,11 @@
     "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "Это значит и обратное: в день, когда вы пострадали, показание может остановиться чуть ниже вашей черты, и вам не заплатят ничего. Это написано в предложении до оплаты, теми же словами.",
     "You file nothing. It can arrive before you have heard about the event.": "Вы ничего не подаёте. Это может прийти раньше, чем вы услышите о событии.",
     "Against": "От чего",
-    "New": "Новое"
+    "New": "Новое",
+    "Also offering this cover": "Это покрытие предлагают также",
+    "Compare all {n} side by side": "Сравнить все {n} рядом",
+    "Not sure": "Неизвестно",
+    "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Протокол сейчас заменяется и ответит через мгновение. Прежде чем пробовать снова, посмотрите «Моё покрытие»: если полис там — он куплен, если нет — ничего не списано."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

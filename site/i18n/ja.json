@@ -2215,7 +2215,11 @@
     "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "それは同時に、あなたが実際に被害を受けた日でも、測定値が線のわずか手前で止まれば一円も支払われないということです。支払う前に、同じ言葉で申込書に書かれています。",
     "You file nothing. It can arrive before you have heard about the event.": "あなたは何も提出しません。出来事を知る前に届くこともあります。",
     "Against": "対象の危険",
-    "New": "新着"
+    "New": "新着",
+    "Also offering this cover": "この補償を提供する他社",
+    "Compare all {n} side by side": "{n}社を並べて比較",
+    "Not sure": "不明",
+    "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "プロトコルを入れ替えている最中です。まもなく応答します。もう一度試す前に「マイ補償」をご確認ください。証券があれば購入済み、なければ何も請求されていません。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

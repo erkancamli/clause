@@ -2223,7 +2223,11 @@
     "Which also means it can read past your line and pay you nothing, on a day you were hurt. That is written on the offer before you pay, in the same words.": "Bu aynı zamanda şu demek: zarar gördüğünüz bir günde ölçüm çizginizin az berisinde kalabilir ve size hiç ödenmez. Bu, ödemeden önce teklifin üzerinde aynı sözcüklerle yazıyor.",
     "You file nothing. It can arrive before you have heard about the event.": "Hiçbir şey beyan etmezsiniz. Olayı duymanızdan önce bile gelebilir.",
     "Against": "Neye karşı",
-    "New": "Yeni"
+    "New": "Yeni",
+    "Also offering this cover": "Bu teminatı verenler",
+    "Compare all {n} side by side": "{n} şirketi yan yana karşılaştır",
+    "Not sure": "Belirsiz",
+    "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Protokol değiştiriliyor, birazdan yanıt verecek. Tekrar denemeden önce Teminatlarım'a bakın: poliçe oradaysa alınmıştır, değilse hiçbir şey tahsil edilmemiştir."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -964,12 +964,23 @@ def create_app(
             # every byte, and settles nothing, because the thing it reads has
             # been refusing it for a week into a log nobody opened.
             app.state.feed = feed
+            # And the round itself, because an empty failure list means two
+            # different things -- nothing is wrong, or nothing has run -- and
+            # an operator who has just set a key cannot tell them apart.
+            app.state.measuring = {"rounds": 0, "last_at": 0.0, "asked": 0,
+                                   "wrote": 0, "last_error": ""}
             while True:
                 try:
                     wrote = await run_in_threadpool(feed.poll, chain)
-                except Exception:
+                    app.state.measuring["last_error"] = ""
+                except Exception as error:                  # noqa: BLE001 - reported
                     logger.exception("reading the sources failed")
+                    app.state.measuring["last_error"] = f"{type(error).__name__}: {error}"
                     wrote = []
+                app.state.measuring["rounds"] += 1
+                app.state.measuring["last_at"] = time.time()
+                app.state.measuring["asked"] = len(wrote)
+                app.state.measuring["wrote"] += sum(1 for n in wrote if n.written)
                 for note in wrote:
                     if note.written:
                         logger.info("measured %s = %s (%s)",
@@ -5729,6 +5740,37 @@ def create_app(
         rows = sorted(complaints.complaints.values(), key=lambda c: (c.status != "open", c.deadline_at))
         return {"complaints": [complaint_view(c) for c in rows], "summary": complaints.summary(rows)}
 
+    def _sources_health() -> dict[str, Any]:
+        """What the oracle has actually been doing, not only what failed.
+
+        An empty failure list used to be the whole answer, and it means two
+        opposite things: every source answered, or the loop never ran. An
+        operator who has just set a subscription key cannot tell those apart,
+        and neither could this service. So it reports whether the loop is
+        running, when it last finished a round, how many references that round
+        asked about and how many readings have been written since start.
+        """
+        feed = getattr(app.state, "feed", None)
+        state = getattr(app.state, "measuring", None)
+        if feed is None or state is None:
+            return {"measuring": False,
+                    "why": ("this process does not run the chain"
+                            if not run_chain else "the first round has not finished"),
+                    "openmeteo_subscription": access.subscribed()}
+        since = time.time() - state["last_at"] if state["last_at"] else None
+        return {
+            "measuring": True,
+            "rounds": state["rounds"],
+            "seconds_since_round": round(since, 1) if since is not None else None,
+            # A round that asks about nothing is the answer to "I set the key
+            # and nothing happens": there is no measured policy to read for.
+            "references_last_round": state["asked"],
+            "readings_written": state["wrote"],
+            "failing": dict(feed.trouble),
+            "last_error": state["last_error"],
+            "openmeteo_subscription": access.subscribed(),
+        }
+
     @app.get("/api/health")
     async def health(response: Response) -> dict[str, Any]:
         """Whether this service is actually well, and a 503 when it is not.
@@ -5774,11 +5816,7 @@ def create_app(
             # being unwell, and flapping the health check on somebody else's
             # outage would take the site off its own load balancer. Reported,
             # though, because unreported is how it stays broken.
-            "sources": {
-                "failing": dict(getattr(app.state, "feed", None).trouble)
-                           if getattr(app.state, "feed", None) is not None else {},
-                "openmeteo_subscription": access.subscribed(),
-            },
+            "sources": _sources_health(),
         }
 
     # -- interface --------------------------------------------------------

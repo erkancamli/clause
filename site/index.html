@@ -1112,6 +1112,18 @@ h1 span{color:var(--signal-ink)}
 .flowline.mechline h3{font-size:15px;margin-top:7px;line-height:1.3}
 .flowline.mechline p{font-size:13px;color:var(--ink-2);margin-top:6px;line-height:1.5}
 .flowline.mechline .n{font-family:var(--mono);font-size:11px;color:var(--signal-ink);letter-spacing:0}
+/* The companies that are not the chosen one, named and priced, so that a
+   buyer can see there is a choice without the page becoming six cards. */
+.alts{margin-top:10px;display:grid;gap:1px;background:var(--edge);
+  border:1px solid var(--edge);border-radius:var(--r-sm);overflow:hidden}
+.alts .label{background:var(--sunk);padding:7px 12px}
+.alt{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+  width:100%;text-align:left;background:var(--panel);border:0;cursor:pointer;
+  padding:10px 12px;font:inherit;color:inherit;min-height:24px}
+.alt:hover{background:var(--sunk)}
+.alt .nm{font-size:13.5px;overflow-wrap:anywhere}
+.alt .pr{font-family:var(--mono);font-size:13px;color:var(--ink-2);
+  font-variant-numeric:tabular-nums;flex:none}
 .runrail{display:none}
 @media (min-width:1180px){
   #view-cover > .wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;
@@ -3973,8 +3985,29 @@ var API = (function(){
 
 var link = {live:false, checked:false, note:""};
 
+/* One retry, for reads only.
+   Replacing the protocol takes a second or two with nothing listening, and a
+   page that happened to ask during it showed the reader that nothing could be
+   reached. A GET asked again a moment later is free of consequence -- it is
+   the same question -- so it is asked again once, and the restart is invisible
+   instead of being reported.
+   Never a write. A POST that failed may have been received and acted on, and
+   the failure can be the reply going missing rather than the request: sending
+   it twice is how somebody is charged twice. Those still surface, and the
+   flow's own checkpoint is what recovers them. */
 function api(path, options){
   options = options || {};
+  var method = (options.method || "GET").toUpperCase();
+  if (method === "GET" && !options.noRetry) {
+    var again = Object.assign({}, options, {noRetry: true});
+    return api(path, again).then(null, function(reason){
+      var status = reason && reason.status;
+      var worthAsking = !status || status === 502 || status === 503 || status === 504;
+      if (!worthAsking) throw reason;
+      return new Promise(function(done){ setTimeout(done, 900); })
+        .then(function(){ return api(path, again); });
+    });
+  }
   var headers = {"content-type":"application/json"};
   if (options.token) headers["authorization"] = "Bearer " + options.token;
   if (options.headers) for (var h in options.headers) headers[h] = options.headers[h];
@@ -5737,10 +5770,29 @@ function renderOffers(){
       '<span class="price">'+money(o.total)+' <small>'+esc(o.fee>0?t("{premium} + {fee} fee",{premium:money(o.premium),fee:money(o.fee)}):t("no fee"))+'</small></span>'+
       '<ul>'+o.plus.map(function(x){return '<li class="p">'+esc(ts(x))+'</li>';}).join("")+o.minus.map(function(x){return '<li class="m">'+esc(ts(x))+'</li>';}).join("")+'</ul>'+
       '</button>';
-  }).join("")+(list.length>1?'<button class="btn btn-ghost btn-sm" type="button" id="offers-toggle" aria-expanded="'+(!!flow.offersOpen)+'">'+
-    esc(flow.offersOpen?t("Keep this company and hide the others"):t("Compare {n} other companies",{n:list.length-1}))+'</button>':'')+heldBackSaid();
-  Array.prototype.forEach.call($("offers").querySelectorAll(".offer"),function(b){
-    b.addEventListener("click",function(){ flow.carrier=b.dataset.carrier; renderPrice(); updatePriceBar(); });
+  }).join("")+
+    /* The others, as a line each, when they are collapsed.
+       One card and a link reading "compare five other companies" is a choice
+       a buyer cannot see: it looks like the protocol found one insurer, and
+       the only way to learn otherwise is to press something that sounds like
+       extra work. The alternatives are named with their prices instead, in a
+       row small enough that the page is still not three cards long before the
+       price has been read. Pressing one chooses it; the card above becomes
+       that company. */
+    ((!flow.offersOpen&&list.length>1)
+      ? '<div class="alts"><div class="label">'+esc(t("Also offering this cover"))+'</div>'+
+        list.filter(function(o){return o.carrier_id!==chosenId;}).map(function(o){
+          return '<button class="alt" type="button" data-carrier="'+esc(o.carrier_id)+'">'+
+            '<span class="nm">'+esc(ts(o.name))+'</span>'+
+            '<span class="pr">'+money(o.total)+'</span></button>';
+        }).join("")+'</div>'
+      : '')+
+    (list.length>1?'<button class="btn btn-ghost btn-sm" type="button" id="offers-toggle" aria-expanded="'+(!!flow.offersOpen)+'">'+
+    esc(flow.offersOpen?t("Keep this company and hide the others"):t("Compare all {n} side by side",{n:list.length}))+'</button>':'')+heldBackSaid();
+  Array.prototype.forEach.call($("offers").querySelectorAll(".offer,.alt"),function(b){
+    b.addEventListener("click",function(){
+      flow.carrier=b.dataset.carrier; renderOffers(); renderPrice(); updatePriceBar();
+    });
   });
   var toggle=$("offers-toggle"); if(toggle)toggle.addEventListener("click",function(){ flow.offersOpen=!flow.offersOpen; renderOffers(); });
 }
@@ -7541,8 +7593,23 @@ function bindSubjectOptions(){
       setNextLabel(); updatePriceBar();
     });
   });
-  Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(button){
-    button.addEventListener("click", function(){
+  /* Delegated, not bound to each button.
+     The airport suggestions are written into this box every time the reader
+     types, long after this function ran, so a handler attached to the buttons
+     that existed at bind time reached none of the ones a person actually
+     clicks: the list appeared, the click did nothing, no error was raised,
+     and the flight flow could not be completed at all. One listener on the
+     box, which does not get replaced, answers for whatever is inside it now.
+     Guarded so it is attached once even if this runs again. */
+  if(!box.dataset.bound){
+    box.dataset.bound="1";
+    box.addEventListener("click", function(event){
+      var button=event.target.closest?event.target.closest(".opt"):null;
+      if(button&&box.contains(button))chose(button);
+    });
+  }
+  function chose(button){
+    {
       if(button.dataset.air){
         setAirport(button.dataset.side, button.dataset.air);
         renderResults($("place")?$("place").value:"");
@@ -7562,8 +7629,8 @@ function bindSubjectOptions(){
       renderResults($("place")?$("place").value:"");
       updatePriceBar();
       setNextLabel();
-    });
-  });
+    }
+  }
 }
 
 function renderRadius(){
@@ -8695,7 +8762,12 @@ function completePurchase(){
     if(flow.carrier)terms.carrier_id=flow.carrier;
     if(CONTRACT.hash)terms.contract_hash=CONTRACT.hash;
     if(flow.instalments>1)terms.instalments=flow.instalments;
-    return api("/api/auth/challenge",{method:"POST",
+    // The same patience as the application it opens. At the default twelve
+    // seconds a slow moment here failed the purchase before it had begun, and
+    // an abort carries no reply, so what the buyer read was the banner about
+    // not knowing whether they had been charged -- for a request that had not
+    // been made yet.
+    return api("/api/auth/challenge",{method:"POST",timeout:40000,
       body:{address:identity.address, purpose:"buy", terms:terms}});
   }).then(function(challenge){
     return sign(challenge.message).then(function(signature){
@@ -8754,12 +8826,20 @@ function showBuyError(error){
   else if(payload&&Array.isArray(payload.detail)&&payload.detail.length){
     html=esc(t("The protocol could not read what the page sent:")+" "+malformedText(payload.detail)); refused=true;
   }
+  // Being replaced is not a refusal. The proxy answers a restart with a 503
+  // that carries this word, and without naming it here that reply would have
+  // fallen through to "nothing was charged" -- which is the one thing this
+  // banner must never say to somebody who was charged, because the request
+  // may have been read before the old process went away.
+  else if(payload&&payload.error==="restarting")
+    html=esc(t("The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken."));
   else if(!payload)html=esc(t("The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken."));
   else html=esc(t("The protocol did not accept this. Nothing was charged."));
   var box=$("compliance-box");
   box.hidden=false; box.className="verdict no";
-  box.innerHTML='<div class="vrow"><span class="pill no">'+esc(t("Not written"))+'</span>'+
-    '<span>'+esc(t(refused?"nothing was charged":"check My cover"))+'</span></div><p>'+html+'</p>';
+  var replacing=!!(payload&&payload.error==="restarting");
+  box.innerHTML='<div class="vrow"><span class="pill no">'+esc(replacing?t("Not sure"):t("Not written"))+'</span>'+
+    '<span>'+esc(t(refused&&!replacing?"nothing was charged":"check My cover"))+'</span></div><p>'+html+'</p>';
   box.scrollIntoView({behavior:"smooth",block:"center"});
 }
 

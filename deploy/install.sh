@@ -61,12 +61,48 @@ id -u clause >/dev/null 2>&1 || useradd --system --home "$APP_DIR" --shell /usr/
 mkdir -p "$APP_DIR" "$ENV_DIR" "$STATE_DIR"
 
 echo "==> code"
-# The venv is kept across runs; only the source is replaced.
-rsync -a --delete --exclude .venv --exclude '__pycache__' \
+# Beside the running release, never into it.
+#
+# This used to rsync --delete straight over /opt/clause while the service was
+# answering requests out of it. Python imports a module the first time
+# something asks for it, so a request arriving during those few seconds could
+# reach for a file that had just been deleted and not yet rewritten. The new
+# release is assembled in a directory of its own and the service is pointed at
+# it by moving one symlink, which is a single atomic rename: the old release
+# is whole until the instant the new one is, and the process that is running
+# holds its own files open regardless.
+RELEASES="$APP_DIR/releases"
+NEW="$RELEASES/$EXPECTED-$(date -u +%Y%m%d-%H%M%S)"
+CURRENT="$APP_DIR/current"
+mkdir -p "$RELEASES"
+
+# A server installed by an older version of this script has the source lying
+# flat in /opt/clause. Move it aside rather than delete it: it is the release
+# that is running right now and the one to fall back to if the new one will
+# not start.
+if [[ -d "$APP_DIR/clause" && ! -L "$CURRENT" ]]; then
+  LEGACY="$RELEASES/legacy-$(date -u +%Y%m%d-%H%M%S)"
+  mkdir -p "$LEGACY"
+  for item in "$APP_DIR"/*; do
+    case "$(basename "$item")" in
+      releases|current|.venv) continue ;;
+    esac
+    mv "$item" "$LEGACY"/ 2>/dev/null || true
+  done
+  ln -sfn "$LEGACY" "$CURRENT"
+  echo "    the flat layout was moved to $LEGACY and is the release to fall back to"
+fi
+
+PREVIOUS=""
+[[ -L "$CURRENT" ]] && PREVIOUS="$(readlink -f "$CURRENT" || true)"
+
+mkdir -p "$NEW"
+rsync -a --exclude .venv --exclude '__pycache__' \
       --exclude '.pytest_cache' --exclude 'node_modules' --exclude 'hazard_build' \
-      --exclude 'privy-bundle' "$SOURCE"/ "$APP_DIR"/
-chown -R clause:clause "$APP_DIR" "$STATE_DIR"
+      --exclude 'privy-bundle' "$SOURCE"/ "$NEW"/
+chown -R clause:clause "$NEW" "$STATE_DIR"
 chmod 750 "$STATE_DIR"
+echo "    assembled $NEW"
 
 echo "==> python environment"
 # A venv whose interpreter resolves outside /opt or /usr is one the service
@@ -84,7 +120,7 @@ if [[ ! -x "$APP_DIR/.venv/bin/python" ]]; then
   "$SYSTEM_PYTHON" -m venv "$APP_DIR/.venv"
 fi
 "$APP_DIR/.venv/bin/pip" install -q --upgrade pip
-"$APP_DIR/.venv/bin/pip" install -q -r "$APP_DIR/requirements.txt"
+"$APP_DIR/.venv/bin/pip" install -q -r "$NEW/requirements.txt"
 chown -R clause:clause "$APP_DIR/.venv"
 
 # Prove it runs before the service is told to run it, and prove it runs the way
@@ -92,7 +128,7 @@ chown -R clause:clause "$APP_DIR/.venv"
 # halves matter. Running it from wherever the installer happens to sit tests
 # nothing, and fails anyway when that is a home directory the clause user
 # cannot enter, which is a fault in the test rather than in the install.
-CHECK="$(cd "$APP_DIR" && setpriv --reuid=clause --regid=clause --clear-groups \
+CHECK="$(cd "$NEW" && setpriv --reuid=clause --regid=clause --clear-groups \
          "$APP_DIR/.venv/bin/python" -c 'import clause' 2>&1)" || {
   echo >&2
   echo "the environment at $APP_DIR/.venv cannot run as the clause user:" >&2
@@ -113,9 +149,9 @@ echo "==> wind model"
 # build that cannot reach NASA, or that fails its own test, leaves storm
 # cover unpriceable everywhere and the install goes on: nothing is sold on a
 # model that has not passed.
-if [[ ! -f "$APP_DIR/clause/hazard/models/wind_TR.json" ]]; then
+if [[ ! -f "$NEW/clause/hazard/models/wind_TR.json" ]]; then
   echo "    building clause/hazard/models/wind_TR.json from NASA POWER (81 places; minutes on a first run)"
-  if (cd "$APP_DIR" && setpriv --reuid=clause --regid=clause --clear-groups \
+  if (cd "$NEW" && setpriv --reuid=clause --regid=clause --clear-groups \
         "$APP_DIR/.venv/bin/python" -m clause.hazard.wind_build > "$STATE_DIR/wind_build.log" 2>&1); then
     tail -n 12 "$STATE_DIR/wind_build.log" | sed 's/^/    /'
   else
@@ -159,7 +195,74 @@ echo "==> service"
 install -m 644 "$SOURCE/deploy/clause.service" /etc/systemd/system/clause.service
 systemctl daemon-reload
 systemctl enable clause.service
+
+# Whether the service is answering, and with which version. Asked of the
+# service directly rather than through nginx, so that a proxy that has not
+# been reconfigured yet cannot make a healthy service look broken.
+answering() {
+  local body
+  body="$(curl -fsS --max-time 4 http://127.0.0.1:8080/api/health 2>/dev/null)" || return 1
+  [[ "$body" == *'"status":"ok"'* || "$body" == *'"status": "ok"'* ]] || return 1
+  [[ -n "${1:-}" ]] && [[ "$body" != *"\"$1\""* ]] && return 1
+  return 0
+}
+
+# Up, or back to what was up before.
+#
+# A release that cannot start used to take the site with it: the unit was
+# restarted, it raised on the way up, systemd restarted it again, and it did
+# that forty five times while every request got a 502. Nothing checked, and
+# nothing went back. Now the symlink is moved, the service is restarted, and
+# it has ninety seconds to answer with the version that was just installed.
+# If it does not, the symlink goes back to the release that was serving a
+# minute ago, that one is started again, and this script exits non-zero
+# without having changed anything that lasts. The rule is that a deployment
+# either replaces what is running or leaves it exactly alone.
+swap_to() {
+  ln -sfn "$1" "$APP_DIR/current.tmp"
+  mv -Tf "$APP_DIR/current.tmp" "$CURRENT"
+}
+
+echo "    pointing at $(basename "$NEW")"
+swap_to "$NEW"
 systemctl restart clause.service
+
+WAITED=0
+until answering "$EXPECTED"; do
+  WAITED=$((WAITED + 2))
+  if [[ $WAITED -ge 90 ]]; then
+    echo >&2
+    echo "the new release did not answer in 90 seconds." >&2
+    journalctl -u clause.service -n 25 --no-pager >&2 || true
+    if [[ -n "$PREVIOUS" && -d "$PREVIOUS" ]]; then
+      echo >&2
+      echo "==> going back to $(basename "$PREVIOUS")" >&2
+      swap_to "$PREVIOUS"
+      systemctl restart clause.service
+      BACK=0
+      until answering ""; do
+        BACK=$((BACK + 2))
+        [[ $BACK -ge 60 ]] && { echo "the previous release did not come back either." >&2; break; }
+        sleep 2
+      done
+      answering "" && echo "    the previous release is serving again; nothing was changed" >&2
+    else
+      echo "there is no previous release to go back to." >&2
+    fi
+    exit 1
+  fi
+  sleep 2
+done
+echo "    $EXPECTED is answering after ${WAITED}s"
+
+# Three releases kept: the one running, the one to fall back to, and one more.
+# Directories, not symlinks, and never the one being pointed at.
+KEEP="$(readlink -f "$CURRENT")"
+# shellcheck disable=SC2012
+ls -1dt "$RELEASES"/*/ 2>/dev/null | tail -n +4 | while read -r old; do
+  [[ "$(readlink -f "$old")" == "$KEEP" ]] && continue
+  rm -rf "$old"
+done
 
 front_door() {
 if [[ $NGINX -eq 0 ]]; then
