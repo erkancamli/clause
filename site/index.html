@@ -4028,11 +4028,27 @@ function api(path, options){
         var error = new Error("request failed");
         error.status = reply.status;
         error.payload = payload;
+        // What the page can say about it afterwards. A banner that reports
+        // every failure with one sentence cannot be acted on by the person
+        // reading it or by anybody they send the screenshot to.
+        error.kind = "http " + reply.status;
         throw error;
       }
       return payload;
     });
-  }, function(reason){ clearTimeout(timer); throw reason; });
+  }, function(reason){
+    clearTimeout(timer);
+    if (reason && !reason.kind) {
+      // An abort is this page giving up, and it is the failure that reaches a
+      // buyer most often on a slow line; a TypeError from fetch is the
+      // request never arriving at all. They have different answers and used
+      // to read identically.
+      reason.kind = (reason.name === "AbortError")
+        ? "no answer within " + Math.round((options.timeout || 12000) / 1000) + "s"
+        : "could not reach the server (" + (reason.name || "network") + ")";
+    }
+    throw reason;
+  });
 }
 
 function setLink(live, note){
@@ -5827,7 +5843,26 @@ function renderPlan(){
 }
 /* The contract, in full, before the signature; its hash goes into the terms. */
 var CONTRACT={key:"",text:"",hash:""};
-function contractKey(){ return JSON.stringify([PERIL_KEYS[flow.peril],subjectPayload(),flow.limit,flow.carrier,flow.instalments,flow.interest.address,sizePayload(),priced().premium]); }
+/* What makes this contract a different contract.
+   The premium used to be in here as the page's live figure, which meant the
+   contract was invalidated -- and the acceptance silently un-ticked -- every
+   time the price moved by a penny, for a reason that had nothing to do with
+   the buyer: another policy written somewhere in the book. A person reading
+   the contract, which is the longest thing on the page, could not get to the
+   end of it before the thing they were about to accept had been replaced
+   underneath them, and the tick box then answered to nothing.
+   A held quote is a promise about the price for ten minutes, and the protocol
+   keeps it: the contract is fetched with the lock's id and the purchase is
+   sent with it. So while a lock is held, the lock is the price, and what the
+   book does in the meantime is not the buyer's problem. Only when there is no
+   lock does the live figure stand in, because then there is nothing else. */
+function contractKey(){
+  var lock=flow.quoted&&flow.quoted.lock;
+  var held=lock&&lock.expires_at-Date.now()/1000>0;
+  return JSON.stringify([PERIL_KEYS[flow.peril],subjectPayload(),flow.limit,flow.carrier,
+                         flow.instalments,flow.interest.address,sizePayload(),
+                         held?["lock",lock.id]:priced().premium]);
+}
 function renderContract(){
   var box=$("contract-box"); if(!link.live){ box.hidden=true; return; }
   box.hidden=false;
@@ -5845,9 +5880,48 @@ function renderContract(){
     interest:{what:flow.interest.what, country:flow.interest.country, inside_trigger_area:true,
               value_at_risk:flow.interest.value, size:sizePayload(), address:flow.interest.address||undefined, professional:false},
   }}).then(function(r){
-    if(contractKey()!==key)return;
+    if(contractKey()!==key){
+      /* The terms moved while this was being fetched -- a price that changed,
+         a company chosen, the lock renewed -- so this text is the contract
+         for a policy nobody is buying. It used to be dropped here and nothing
+         was asked again: the panel stayed on "preparing", the checkbox went
+         dead, and ticking it did nothing at all, for ever, with no error to
+         see and no way to tell. Ask again for the terms that are on the
+         screen now, a few times, and then say so rather than sit there. */
+      renderContract.chased=(renderContract.chased||0)+1;
+      if(renderContract.chased<4){ renderContract(); return; }
+      renderContract.chased=0;
+      contractFailed(t("The price moved while the contract was being prepared."));
+      return;
+    }
+    renderContract.chased=0;
     CONTRACT={key:key,text:r.text,hash:r.hash}; $("contract-text").textContent=r.text; setNextLabel(); showLaterBox();
-  },function(e){ $("contract-text").textContent=refusalText(e); });
+  },function(e){
+    /* A contract that could not be prepared is not a tick box that does
+       nothing. What was held here before was the last contract's key, so the
+       button went on asking to accept a contract the page did not have. */
+    contractFailed(refusalText(e));
+  });
+}
+
+/* No contract, and it says so. The box is cleared rather than left holding a
+   key from a policy that is no longer on the screen, the button is told, and
+   there is a way to ask again -- because the alternative, which is what
+   shipped, is a checkbox that answers to nothing. */
+function contractFailed(why){
+  CONTRACT={key:"",text:"",hash:""};
+  var el=$("contract-text");
+  if(el){
+    el.textContent=why;
+    var ask=document.createElement("button");
+    ask.type="button"; ask.className="linkish"; ask.style.marginTop="8px";
+    ask.textContent=t("Try preparing it again");
+    ask.addEventListener("click",function(){ renderContract(); });
+    el.appendChild(document.createElement("br"));
+    el.appendChild(ask);
+  }
+  if($("accept"))$("accept").checked=false;
+  setNextLabel();
 }
 $("accept").addEventListener("change",setNextLabel);
 /* What a buyer can do after buying, said before they buy. */
@@ -8835,6 +8909,12 @@ function showBuyError(error){
     html=esc(t("The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken."));
   else if(!payload)html=esc(t("The protocol could not be reached, or answered with something the page could not read. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken."));
   else html=esc(t("The protocol did not accept this. Nothing was charged."));
+  // The technical cause, small and last. It is not for the buyer to
+  // understand; it is so that the answer to "it does not work" is one line
+  // instead of a week.
+  if(error&&error.kind)
+    html+='<span class="fine" style="display:block;margin-top:8px;opacity:.8">'+
+      esc(t("Reason: {kind}",{kind:error.kind}))+'</span>';
   var box=$("compliance-box");
   box.hidden=false; box.className="verdict no";
   var replacing=!!(payload&&payload.error==="restarting");

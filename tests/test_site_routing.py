@@ -99,3 +99,36 @@ def test_the_language_switcher_says_what_choosing_does():
         strings = json.loads((SITE / "i18n" / f"{lang}.json").read_text(encoding="utf-8"))["strings"]
         assert SWITCHER in strings, f"{lang} has no translation for the switcher's label"
         assert strings[SWITCHER].strip(), f"{lang}'s translation of the switcher's label is empty"
+
+
+# ------------------------------------------------ buying while the book moves
+
+def test_a_held_price_is_what_the_contract_is_keyed_on() -> None:
+    """The contract's identity used to carry the page's live premium, so every
+    move in the book -- another policy written by somebody else, anywhere --
+    replaced the contract underneath the person reading it and silently
+    un-ticked their acceptance. The contract is the longest thing on the page;
+    a reader could not reach the end of it before the thing they were about to
+    accept had been swapped, and the tick box then answered to nothing.
+
+    A held quote is a promise about the price for ten minutes and the protocol
+    keeps it: the contract is fetched with the lock's id and the purchase is
+    sent with it. So while the lock is held, the lock is the key, and what the
+    book does meanwhile is not the buyer's problem.
+    """
+    page = PAGE
+    assert 'held?["lock",lock.id]:priced().premium' in page, (
+        "contractKey no longer prefers the held lock, so a price move blocks buying")
+    assert "function contractKey()" in page
+
+
+def test_a_contract_that_could_not_be_prepared_says_so() -> None:
+    """Both failure paths used to end in a checkbox that answered to nothing:
+    the request failing wrote the refusal into the panel and left the old key
+    in place, and a reply that arrived after the terms had moved was dropped
+    with nothing asked again. Neither told anybody, and neither could be
+    retried."""
+    page = PAGE
+    assert "function contractFailed(" in page
+    assert "Try preparing it again" in page
+    assert "renderContract.chased" in page, "a discarded contract is not asked for again"

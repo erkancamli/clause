@@ -2219,7 +2219,10 @@
     "Also offering this cover": "Diese Deckung bieten auch",
     "Compare all {n} side by side": "Alle {n} nebeneinander vergleichen",
     "Not sure": "Ungewiss",
-    "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Das Protokoll wird gerade ersetzt und antwortet gleich. Sehen Sie vor einem neuen Versuch unter Mein Schutz nach: ist die Police dort, wurde sie gekauft; ist sie es nicht, wurde nichts abgebucht."
+    "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Das Protokoll wird gerade ersetzt und antwortet gleich. Sehen Sie vor einem neuen Versuch unter Mein Schutz nach: ist die Police dort, wurde sie gekauft; ist sie es nicht, wurde nichts abgebucht.",
+    "Reason: {kind}": "Grund: {kind}",
+    "The price moved while the contract was being prepared.": "Der Preis hat sich geändert, während der Vertrag erstellt wurde.",
+    "Try preparing it again": "Erneut erstellen lassen"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
