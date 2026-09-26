@@ -46,6 +46,11 @@ STAGES = (
     "contracted",  # the contract was fetched, which happens at the last step
     "applied",     # cover was asked for, the premium held
     "bought",      # cover was written
+    # Not a stage of its own: the same signed purchase arriving a second time,
+    # because the first reply did not reach the buyer. It is counted because it
+    # is the only visible measure of how often that happens, and one that keeps
+    # climbing is a network or a proxy to look at rather than a buyer's mistake.
+    "asked again",
 )
 
 #: How many days are kept. Enough to compare a month with the month before it.

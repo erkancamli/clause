@@ -1,5 +1,58 @@
 # Changelog
 
+## 1.20.0, 26 September 2026
+
+- A purchase whose reply went missing can be asked for again, and asking again
+  buys nothing more. This is the failure a buyer meets most often and can do
+  least about: the application is one POST, and if its answer is lost on the
+  way back — a phone changing network between sending and hearing, a proxy
+  dropping the connection, the protocol being replaced mid-request — the
+  browser cannot tell a request that was never read from one that was read and
+  acted on. Sending a second one is how somebody is charged twice, so the page
+  did not: it said the cover might already be theirs and they should go and
+  look. That was usually wrong in the worst direction, because the request had
+  in fact been read and the cover was already written.
+
+  What makes the second ask safe is that the challenge it is signed over is
+  single use, so the protocol can recognise the same purchase arriving twice.
+  `clause/api/repeat.py` keeps what each signed request was answered with for a
+  quarter of an hour, and `POST /api/applications` answers a repeat with the
+  application it already wrote, or the refusal it already gave, without writing
+  anything. Refusals are kept too: without that, the second ask reported an
+  authentication failure about a challenge the buyer had spent legitimately,
+  and the reason they were actually refused for was lost. The page then asks
+  exactly once more, and only when the failure carried no answer at all — a
+  refusal is an answer and is shown as one.
+
+  Nothing secret is kept. A signature that travelled once may have been
+  captured, and holding a captured signature is not holding the key that made
+  it, so a repeat reads back the application it already paid for and is given
+  no session: the page that legitimately asks again signed in seconds earlier
+  and still holds its own.
+
+  Measured, not assumed: driven in a browser against a proxy that answers the
+  first application and then drops the reply on the floor. Before, that ended
+  on the banner about not knowing whether the money moved. Now the buyer gets
+  their application, and the protocol wrote one.
+
+  The other direction is covered too. A first ask lost on its way *out* is
+  still being decided when the second arrives, and the challenge is spent by
+  then — which from the outside is indistinguishable from a forged one. That
+  used to answer "not authorised" to somebody whose cover was about to exist.
+  It now answers that the purchase is being decided, and the page says so
+  without promising the money stayed put: "not sure", never "nothing was
+  charged". Only a refusal may promise that.
+
+- A purchase no longer signs in twice. It always called `signIn()`, even
+  holding a session, so the device door registered, challenged and verified a
+  second time for one purchase: three round trips added to the most fragile
+  moment in the flow, on exactly the slow line where one of them is most
+  likely to be the one that fails. Seven requests after the button, now four.
+
+- `asked again` is counted, by day and by peril. It is the only visible measure
+  of how often a reply goes missing, and one that keeps climbing is a network
+  or a proxy to look at rather than a buyer doing something wrong.
+
 ## 1.19.0, 26 September 2026
 
 - The weather sources were never asked. A reference is written without a

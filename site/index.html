@@ -2928,6 +2928,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <details class="more" style="margin-top:8px"><summary data-i18n>"What you are insuring is not inside the area this index measures"</summary><div class="inner"><p data-i18n>The place you chose is not where the thing stands, or the index is measured elsewhere. Choose the place where the home, the car or the field actually is.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"but not for this peril", or no company offers to issue it</summary><div class="inner"><p data-i18n>No licensed company writes this peril at this place, or the ones that do have no room. Try another amount or term; on the demonstration the stand ins' licences decide what can be written where.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"The price moved while you were deciding"</summary><div class="inner"><p data-i18n>The book moved between the price you were shown and the moment you signed, and the new price is higher than what you agreed to. Nothing was taken. Ask for a fresh price and decide again.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>"This purchase is still being decided"</summary><div class="inner"><p data-i18n>Your browser asked twice, because the first answer did not arrive, and the second ask found the first one still being worked on. Nothing was sent twice: the protocol recognises the same signed purchase and will not write it again. Look at My cover in a moment. If the cover is there it went through, and if it is not, nothing was taken.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"Too many requests"</summary><div class="inner"><p data-i18n>Each address and each page is limited in how often it may ask for prices or sign in, to keep the protocol up for everyone. Wait a minute and try again.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"This browser does not hold the key these were sealed to"</summary><div class="inner"><p data-i18n>The applicant sealed the documents to the reading key of the browser that first opened this desk. Open them there, or ask the applicant to send them again from this browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>"That session ended" on the operator's page</summary><div class="inner"><p data-i18n>Operator sessions last forty five minutes and are not kept across a restart. Sign in again with the token.</p></div></details>
@@ -4046,6 +4047,11 @@ function api(path, options){
       reason.kind = (reason.name === "AbortError")
         ? "no answer within " + Math.round((options.timeout || 12000) / 1000) + "s"
         : "could not reach the server (" + (reason.name || "network") + ")";
+      // Nothing came back at all. Which is not the same as being refused: the
+      // request may have been read and acted on, so the only safe thing a
+      // caller can do with it is ask the same question again -- never send a
+      // different one.
+      reason.unanswered = true;
     }
     throw reason;
   });
@@ -8825,9 +8831,13 @@ function completePurchase(){
   if(!ruling.allowed){renderVerdict();return;}
   if(!link.live){demoDone();return;}
 
-  setBusy(t("Signing in…"));
+  // Signed in already, or signing in now. It used to sign in unconditionally,
+  // which meant the device door registered, challenged and verified twice for
+  // one purchase: three round trips added to the most fragile moment in the
+  // flow, on the slow line where they are most likely to be the one that fails.
+  setBusy(identity.token?t("Signing the terms…"):t("Signing in…"));
   var terms=null;
-  signIn().then(function(){
+  (identity.token?Promise.resolve():signIn()).then(function(){
     setBusy(t("Signing the terms…"));
     terms={peril:PERIL_KEYS[flow.peril], limit:flow.limit,
            term_days:PERILS[flow.peril].term, subject:subjectPayload(),
@@ -8846,7 +8856,7 @@ function completePurchase(){
   }).then(function(challenge){
     return sign(challenge.message).then(function(signature){
       setBusy(t("Sending the application…"));
-      return api("/api/applications",{method:"POST",timeout:40000,body:{
+      var application={
         peril:terms.peril, subject:terms.subject, limit:terms.limit,
         term_days:terms.term_days, holder:identity.address,
         nonce:challenge.nonce, signature:signature, settlement:ruling.asset,
@@ -8869,7 +8879,26 @@ function completePurchase(){
         interest:{what:flow.interest.what, country:flow.interest.country,
                   inside_trigger_area:true, value_at_risk:flow.interest.value, size:terms.size,
                   address:flow.interest.address||undefined, professional:false},
-      }});
+      };
+      // Asked, and asked once more if nothing came back.
+      //
+      // A POST that failed may have been received and acted on, so sending a
+      // different one is how somebody is charged twice -- but this is not a
+      // different one. The challenge it is signed over is single use, so the
+      // protocol recognises the same purchase arriving again and answers with
+      // the application it already wrote, or the refusal it already gave,
+      // without writing anything. That is what makes the second ask safe, and
+      // it is the difference between a buyer whose line stuttered getting their
+      // cover and getting a banner telling them to go and look for it.
+      //
+      // Only ever twice, and only when the failure carried no answer at all: a
+      // refusal is an answer and is shown as one.
+      return api("/api/applications",{method:"POST",timeout:40000,body:application})
+        .catch(function(error){
+          if(!(error&&error.unanswered))throw error;
+          setBusy(t("Still sending. Asking again…"));
+          return api("/api/applications",{method:"POST",timeout:40000,body:application});
+        });
     });
   }).then(function(reply){
     setBusy(null);
@@ -8892,7 +8921,13 @@ function showBuyError(error){
   // read, and the policy may exist. Saying "nothing was charged" to somebody
   // who was charged is the one thing this banner must never do.
   var refused=false;
-  if(payload&&payload.detail&&payload.detail.reasons){
+  // Still being decided. The first ask was lost on its way out rather than on
+  // its way back, so the protocol is deciding it now: not a refusal, and the
+  // one thing this must not say is that nothing was charged.
+  if(payload&&payload.detail&&payload.detail.deciding){
+    html=esc(t("This purchase is still being decided. Nothing was sent twice. Look at My cover in a moment: if the cover is there it went through, and if it is not, nothing was taken."));
+  }
+  else if(payload&&payload.detail&&payload.detail.reasons){
     html=payload.detail.reasons.map(tsHtml).join(" "); refused=true;
   }
   else if(payload&&payload.reasons){ html=payload.reasons.map(tsHtml).join(" "); refused=true; }
@@ -8917,9 +8952,11 @@ function showBuyError(error){
       esc(t("Reason: {kind}",{kind:error.kind}))+'</span>';
   var box=$("compliance-box");
   box.hidden=false; box.className="verdict no";
-  var replacing=!!(payload&&payload.error==="restarting");
-  box.innerHTML='<div class="vrow"><span class="pill no">'+esc(replacing?t("Not sure"):t("Not written"))+'</span>'+
-    '<span>'+esc(t(refused&&!replacing?"nothing was charged":"check My cover"))+'</span></div><p>'+html+'</p>';
+  // Two answers mean "we do not know yet", and both must read that way: being
+  // replaced, and being decided. Only a refusal may promise the money stayed.
+  var unsure=!!(payload&&(payload.error==="restarting"||(payload.detail&&payload.detail.deciding)));
+  box.innerHTML='<div class="vrow"><span class="pill no">'+esc(unsure?t("Not sure"):t("Not written"))+'</span>'+
+    '<span>'+esc(t(refused&&!unsure?"nothing was charged":"check My cover"))+'</span></div><p>'+html+'</p>';
   box.scrollIntoView({behavior:"smooth",block:"center"});
 }
 

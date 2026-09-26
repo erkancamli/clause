@@ -132,3 +132,75 @@ def test_a_contract_that_could_not_be_prepared_says_so() -> None:
     assert "function contractFailed(" in page
     assert "Try preparing it again" in page
     assert "renderContract.chased" in page, "a discarded contract is not asked for again"
+
+
+# ---------------------------------------------------------------------------
+# What happens when the reply to a purchase goes missing
+# ---------------------------------------------------------------------------
+
+
+def test_only_a_failure_that_carried_no_answer_may_be_asked_again() -> None:
+    """A refusal is an answer and must be shown, not retried. The flag that
+    tells the two apart is set in one place, on the branch where nothing came
+    back at all, and the retry is guarded by it."""
+    assert "reason.unanswered = true;" in PAGE
+    # Set only where no reply arrived: inside the rejection handler, under the
+    # same condition as the kind, and never on an http status.
+    assert PAGE.count("unanswered = true") == 1
+    # In the rejection handler, before it rethrows.
+    handler = PAGE[PAGE.index('reason.kind = (reason.name === "AbortError")'):]
+    assert handler.index("reason.unanswered = true;") < handler.index("throw reason;")
+    # And nowhere near the branch that has a status: a 409 is a decision the
+    # buyer must read, not a question to put again.
+    refused = PAGE[PAGE.index('error.kind = "http " + reply.status;'):]
+    assert "unanswered" not in refused[:refused.index("throw error;")]
+
+
+def test_the_purchase_asks_again_once_and_sends_the_same_request() -> None:
+    """The second ask is safe only because it is the same request: the protocol
+    recognises the challenge and answers with the application it already wrote.
+    A rebuilt body, with a fresh challenge, would be a second purchase."""
+    where = PAGE.index('setBusy(t("Sending the application…"));')
+    tail = PAGE[where:where + 3000]
+    # One body, built once, sent by both asks.
+    assert "var application={" in tail
+    assert tail.count("body:application}") == 2
+    # Guarded, so a refusal is never re-sent.
+    assert "if(!(error&&error.unanswered))throw error;" in tail
+    # And only twice: the second ask has no catch of its own.
+    assert tail.count('api("/api/applications"') == 2
+
+
+def test_a_purchase_does_not_sign_in_twice() -> None:
+    """Signing in unconditionally meant the device door registered, challenged
+    and verified twice for one purchase: three round trips added to the most
+    fragile moment in the flow."""
+    assert "(identity.token?Promise.resolve():signIn()).then(" in PAGE
+    assert "\n  signIn().then(function(){\n    setBusy(t(\"Signing the terms…\"));" not in PAGE
+
+
+def test_the_sentence_shown_while_it_asks_again_is_translated() -> None:
+    for code in LANGS:
+        strings = json.loads((SITE / "i18n" / f"{code}.json").read_text(encoding="utf-8"))["strings"]
+        assert strings.get("Still sending. Asking again…"), code
+
+
+def test_being_decided_never_promises_the_money_stayed() -> None:
+    """Two answers mean "we do not know yet" — being replaced, and being
+    decided — and the one thing this banner must never do is tell somebody who
+    was charged that they were not."""
+    assert "payload.detail&&payload.detail.deciding" in PAGE
+    where = PAGE.index('var unsure=!!(payload&&(payload.error==="restarting"')
+    line = PAGE[where:PAGE.index("\n", PAGE.index("nothing was charged", where))]
+    assert 'payload.detail&&payload.detail.deciding' in line
+    assert 'refused&&!unsure?"nothing was charged"' in line
+
+
+def test_the_sentence_for_a_purchase_still_being_decided_is_translated() -> None:
+    key = ("This purchase is still being decided. Nothing was sent twice. Look at My cover "
+           "in a moment: if the cover is there it went through, and if it is not, nothing "
+           "was taken.")
+    assert key in PAGE
+    for code in LANGS:
+        strings = json.loads((SITE / "i18n" / f"{code}.json").read_text(encoding="utf-8"))["strings"]
+        assert strings.get(key), code

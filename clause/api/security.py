@@ -53,7 +53,10 @@ MAX_STREAM_CLIENTS = 24         # each open stream costs a simulation every tick
 class Refused(HTTPException):
     """A refusal the caller is allowed to see the reason for."""
 
-    def __init__(self, status: int, detail: str, headers: dict[str, str] | None = None) -> None:
+    # The detail is usually a sentence, and sometimes a small object: the 451
+    # carries its reasons as a list the page renders one by one, and a purchase
+    # still being decided carries a flag the page must not read as a refusal.
+    def __init__(self, status: int, detail: Any, headers: dict[str, str] | None = None) -> None:
         super().__init__(status_code=status, detail=detail, headers=headers)
 
 

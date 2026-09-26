@@ -82,6 +82,7 @@ back, the payout does not go out.
 | `clause/chain/world.py` | Rialo shaped chain, Edge readings, settlement |
 | `clause/rpc/client.py` | The published Rialo RPC |
 | `clause/api/app.py` | HTTP surface and the event stream |
+| `clause/api/repeat.py` | What a signed request was answered with, kept for a quarter of an hour, so a purchase whose reply went missing can be asked for again and asking again buys nothing more |
 
 The dependency direction is strict: perils know nothing about pricing, pricing
 knows nothing about the pool, the pool knows nothing about the chain. A fourth

@@ -50,6 +50,7 @@ from ..protocol import (
 )
 from ..agent.rider import TOOLS as RIDER_TOOLS, Rider, RiderError
 from .privy import Accounts, PrivyError, PrivyVerifier
+from .repeat import Answers, DECIDING
 from ..protocol.valuation import KIND_FOR, ValuationError, schedule, value_of
 from ..live import QUIET_DAY, aeroapi_feed, airlabs_feed, flight_feed, quake_feed, quake_week_feed, select_quakes
 from ..protocol.auth import AuthError, Authenticator
@@ -1122,6 +1123,12 @@ def create_app(
             allow_headers=["content-type", "authorization", "x-operator-token", "x-clause-key"],
             max_age=600,
         )
+    # What a signed purchase was answered with, so a buyer whose reply went
+    # missing can ask again instead of being told they might have been
+    # charged. See clause/api/repeat.py.
+    repeats = Answers()
+    app.state.repeats = repeats
+    app.state.applications = applications
     app.state.pool = pool
     # Exposed because the health check reads it, and because "is the book
     # reaching disk" is the question an operator asks first and had no way to
@@ -3811,12 +3818,43 @@ def create_app(
             terms["contract_hash"] = request.contract_hash
         if request.instalments > 1:
             terms["instalments"] = float(request.instalments)
+        # Asked before the signature is checked, because checking it spends the
+        # challenge and a repeat's challenge is already spent. A buyer whose
+        # reply went missing is asking the same question again, not a new one,
+        # and gets the same answer: the application they already have, or the
+        # refusal they already earned. Nothing is written twice.
+        again = repeats.recall(request.nonce, request.signature)
+        if again is not None:
+            counting.count("asked again", request.peril)
+            if again.status == 200:
+                return again.body
+            if again.status == DECIDING:
+                # The first ask is still being decided: it was lost on its way
+                # out, not on its way back. Saying "not authorised" here, which
+                # is what a spent challenge looks like, would tell somebody
+                # whose cover is about to exist that they were refused.
+                raise Refused(409, {"deciding": True, "message":
+                                    "this purchase is still being decided. Nothing was sent "
+                                    "twice; look at My cover in a moment and it will be there "
+                                    "if it went through."})
+            raise Refused(again.status, again.body)
         holder = signed(request.holder, "buy", request.nonce, request.signature, terms)
+        # Authorised, and now being decided. Held before any work starts, so a
+        # repeat that arrives while this is still running is told so.
+        repeats.begin(request.nonce, request.signature)
+
+        def remembering(status: int, detail: str) -> Refused:
+            """A refusal, kept before it is raised. Asked again, this request
+            gets the reason it was refused for rather than an authentication
+            failure about a challenge it spent here."""
+            repeats.keep(request.nonce, request.signature, status=status, body=detail)
+            return Refused(status, detail)
+
         address = clean_address(request.interest.address)
         kind = KIND_FOR.get(request.peril)
         if kind in ("home", "vehicle") and not address:
-            raise Refused(422, "give the address of the home, or where the car is kept: the insurer "
-                               "checks that it is yours")
+            raise remembering(422, "give the address of the home, or where the car is kept: "
+                                   "the insurer checks that it is yours")
         # Double insurance. This pays on an index rather than on a loss, so two
         # covers on one home pay twice for one earthquake and no claim has to be
         # filed for it to happen. The register holds the three rules that an
@@ -3824,14 +3862,23 @@ def create_app(
         refused = property_refusals(holder, request.peril, subject, address,
                                     request.interest, limit, value_at_risk)
         if refused:
-            raise Refused(409, "; ".join(refused))
-        need, ruling, info = await issue(
-            holder=holder, peril=request.peril, subject=subject, limit=limit,
-            term_days=term_days, declared=request.interest, size=size,
-            value_at_risk=value_at_risk, settlement=request.settlement,
-            attestations=[], max_premium=request.max_premium, review=True,
-            carrier_id=request.carrier_id,
-        )
+            raise remembering(409, "; ".join(refused))
+        try:
+            need, ruling, info = await issue(
+                holder=holder, peril=request.peril, subject=subject, limit=limit,
+                term_days=term_days, declared=request.interest, size=size,
+                value_at_risk=value_at_risk, settlement=request.settlement,
+                attestations=[], max_premium=request.max_premium, review=True,
+                carrier_id=request.carrier_id,
+            )
+        except HTTPException as refusal:
+            # Compliance and the pool refuse here, and a refusal is a decision
+            # about this request: kept, so asking again reads back the reason
+            # rather than an authentication failure. The 451 carries its reasons
+            # as a dict, which is the shape the page already knows how to show.
+            repeats.keep(request.nonce, request.signature,
+                         status=refusal.status_code, body=refusal.detail)
+            raise
 
         try:
             app_ = await run_in_threadpool(
@@ -3841,15 +3888,15 @@ def create_app(
                 contract_hash=request.contract_hash, quote_id=request.quote_id, address=address,
                 need=need, ruling=ruling, info=info)
         except WalletError as error:
-            raise Refused(402, safe_detail(error, fallback="insufficient balance")) from error
+            raise remembering(402, safe_detail(error, fallback="insufficient balance")) from error
         except PriceMoved as error:
-            raise Refused(409, str(error)) from error
+            raise remembering(409, str(error)) from error
         except ContractNotAccepted as error:
-            raise Refused(409, str(error)) from error
+            raise remembering(409, str(error)) from error
         except ValueError as error:
-            raise Refused(422, safe_detail(error, fallback="that application was refused")) from error
+            raise remembering(422, safe_detail(error, fallback="that application was refused")) from error
         except PoolError as error:
-            raise Refused(409, safe_detail(error, fallback="the pool cannot write this cover")) from error
+            raise remembering(409, safe_detail(error, fallback="the pool cannot write this cover")) from error
         # The order is confirmed now; the right to withdraw is given when the
         # policy exists, since until the insurer decides there is no contract
         # to withdraw from and the premium is only held.
@@ -3867,8 +3914,14 @@ def create_app(
         except Exception:
             logger.exception("could not write the papers for %s", app_.app_id)
         counting.count("applied", request.peril)
-        return {"application": with_documents(app_), "wallet": wallets.require(holder).as_dict(),
-                "session": auth.issue_session(holder)}
+        reply = {"application": with_documents(app_), "wallet": wallets.require(holder).as_dict()}
+        # Kept without the session. A signature that travelled once may have
+        # been captured, and holding a captured signature is not holding the key
+        # that made it, so a repeat reads back the application and is given no
+        # new way in. The page that legitimately asks again signed in seconds
+        # earlier and still holds its own session.
+        repeats.keep(request.nonce, request.signature, status=200, body=dict(reply))
+        return {**reply, "session": auth.issue_session(holder)}
 
     @app.get("/api/applications/{app_id}/contract")
     async def application_contract(app_id: str, token: str | None = Depends(bearer)):
