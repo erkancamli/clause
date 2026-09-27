@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.33.0, 27 September 2026
+
+- The calculation rules page, which was the rulebook printed five times.
+
+  Five of its eleven rows carry the same text for every peril: how a reading
+  is attested, how long you have to object, what happens if a publisher stops
+  publishing, what is archived, and which version of the rulebook this is.
+  Measured rather than guessed at, from the protocol's own answer: five of
+  fifteen fields identical across all five perils. They are said once now, in
+  a panel above, and what actually differs between perils is what is left in
+  the panels below. Which rows those are is decided by reading the answer and
+  not by a list written into the page, so the day a peril is given an archive
+  rule of its own, that row moves down to it and nobody has to remember this.
+
+  The page is shorter for it even with the six stations, three new panels and
+  an index of the perils added.
+
+- What the page's title asks, set out. Six stations from what a source
+  publishes to what is settled and archived, and under them the three places
+  the sequence stops rather than guesses: nothing published, a test failed,
+  the readings disagreeing. That last is the difference between this and an
+  oracle that must always answer, and it was in the eleventh row of the fifth
+  panel where nobody would read it.
+
+  Both are type rather than a picture, and for the same reason. Drawn, the six
+  sat in a 760 unit figure that a 390px phone scales to 342px, which put the
+  legend at four and a half pixels. And the stops, cut into hand placed rows,
+  made "That reading is not used. The" a translatable string of its own: a
+  line placed inside a drawing is broken where English happens to end, and no
+  other language can re-break it. As boxes and paragraphs they reflow to one
+  column on a phone and keep their size.
+
+- The rulebook rows were set in as many 150px columns as the shared grid could
+  fit, which is right for a name beside an amount and wrong for a paragraph:
+  thirty six columns twenty two characters wide, four words to a line. The
+  page has a modifier of its own rather than bending a class thirteen other
+  places wear, and a label now sits beside its paragraph the way a
+  specification is read.
+
+- Two holes in the translation tests, found by falling into one of them.
+
+  Both of the tests that require a sentence to be translated excuse a line set
+  entirely in capitals, which is right for a unit and wrong for the labels on
+  this site's drawings. Every existing label was in fact translated, so the
+  exemption was never a decision; a new figure could have shipped its whole
+  legend in English through it. And nothing at all was checking the
+  descriptions a drawing gives a screen reader: four of them had been reaching
+  every non-English reader in English, since the releases that drew them.
+  Both are held now, and the four are translated.
+
+- The skip link took you off the page you were on, and had since it was added.
+
+  A hash router and an anchor inside the page want the same character. Routes
+  here are written "#/rules" and an anchor is written "#main"; the router read
+  what followed the hash, found no screen of that name, and fell through to
+  the home page. So "Skip to content", which exists so that somebody on a
+  keyboard can reach the content of the page they are on, moved them to a
+  different page instead. Found while building the rulebook's index of perils,
+  which was about to do the same thing.
+
+  In-page anchors are scrolled to and focused now without the hash changing.
+  Anything beginning with a slash is still the router's.
+
+- The guard written in 1.32.3 against a class reaching another screen was
+  Rialo's alone. It reads the markers now, so it covers every page that grows
+  styles of its own, and it caught this release borrowing the Rialo page's
+  figure frame onto the rules page before that page was finished.
+
+  It also had to learn the difference between a class and a compound. A bare
+  `.said` reaches every .said there is, which is what went wrong; `.kvs.rulebook`
+  reaches only what wears both, and leaves the thirteen plain .kvs alone. Written the first way it would have refused this release's own fix.
+
+  And written the first way it missed the first rule of every marked region.
+  The marker sits inside a comment, so the region begins mid-comment with a
+  closing `*/` that has no opener, and the prose ran on into the rule after
+  it. Found by breaking each rule in turn and noticing one break the test did
+  not report.
+
 ## 1.32.3, 27 September 2026
 
 - The home page was broken by the release before this one, and broken badly:

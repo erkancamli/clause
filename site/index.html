@@ -234,7 +234,7 @@ button{font:inherit;color:inherit}
    Hippo at 1250, Linear at 1280. None of them is wide. All of them are banded.
    The surfaces are the ones the palette already carries and the contrast tests
    already measure, so a band cannot introduce a pair nobody has checked. */
-/* == the Rialo page's own styles, begin ==
+/* == scoped styles for #view-rialo, begin ==
    Three small shapes: the calls this protocol makes, the
    figures the chain publishes about itself, and what it has written. */
 .rialo-calls{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
@@ -265,7 +265,7 @@ a.pub .sm{grid-column:2;font-size:13px;color:var(--ink-2);line-height:1.5;margin
   a.pub{grid-template-columns:minmax(0,1fr)}
   a.pub .wn,a.pub .sm{grid-column:1}
 }
-/* == the Rialo page's own styles, end == */
+/* == scoped styles, end == */
 .slab{width:100%;padding-block:var(--slab-y,clamp(40px,6vw,88px))}
 .slab-sunk{background:var(--sunk)}
 .slab-panel{background:var(--panel)}
@@ -1634,6 +1634,92 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .ans .v{overflow-wrap:anywhere}
 .ans .v small{color:var(--ink-3)}
 @media (max-width:520px){.ans{grid-template-columns:1fr auto}.ans .k{grid-column:1/-1}}
+/* == scoped styles for #view-rules, begin ==
+   The rulebook's values are paragraphs, not figures. The shared key and value
+   grid fits as many 150px columns as it can, which is right for a name beside
+   an amount beside a date and wrong for sixty one words: on this page it made
+   thirty six columns of prose twenty two characters wide, four words to a
+   line. So the page gets a modifier of its own rather than the shared class
+   being bent to suit it, since that class is worn in thirteen other places. */
+.kvs.rulebook{grid-template-columns:minmax(0,1fr);gap:0}
+.kvs.rulebook .kv{padding:12px 0;border-top:1px solid var(--edge)}
+.kvs.rulebook .kv:first-child{border-top:0;padding-top:0}
+.kvs.rulebook .v{max-width:72ch}
+@media (min-width:820px){
+  /* Label beside its paragraph, which is how a specification is read. */
+  .kvs.rulebook .kv{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr);
+    gap:4px 30px;align-items:baseline}
+  .kvs.rulebook .k{padding-top:3px}
+}
+
+/* Five perils, six thousand pixels, and the one you came for is somewhere in
+   the middle. A row of names that jumps to it. */
+.perilnav{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.perilnav a{display:inline-flex;align-items:baseline;gap:8px;min-height:34px;padding:7px 13px;
+  border:1px solid var(--edge);border-radius:999px;background:var(--panel);
+  font-size:13.5px;color:var(--ink-2);text-decoration:none;transition:border-color .15s,color .15s}
+.perilnav a:hover{border-color:var(--art-line);color:var(--ink)}
+.perilnav a .u{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+
+/* What every peril shares, said once. Set apart from the peril panels below
+   it, because a reader needs to know at a glance that this part is not one
+   peril's rule. */
+.common{border:1px solid var(--edge);border-left:2px solid var(--signal);border-radius:12px;
+  background:var(--sunk);padding:20px 22px}
+.common > h2{font-size:15px;letter-spacing:-.01em}
+.common > p.fine{margin:4px 0 14px;max-width:72ch}
+
+/* The numbers that govern a claim, which were buried mid-sentence: how long
+   until the figure is final, how long before the protocol gives up, how long
+   you have to object. */
+.rulefigs{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+/* Sized to what they hold. Allowed to grow, two of these split a 1160px panel
+   between them and each becomes a 560px card around a two digit number, which
+   is the same empty card as a drawing given a frame larger than itself. */
+.rulefigs > div{flex:0 1 auto;max-width:100%;border:1px solid var(--edge);border-radius:10px;
+  padding:9px 14px;background:var(--sunk);display:flex;gap:11px;align-items:baseline}
+.rulefigs .n{font-family:var(--display);font-size:23px;line-height:1.15;letter-spacing:-.02em}
+/* Beside the number, not under it. Under it, a caption long enough to wrap
+   three times built a tall card around one digit, which is the box far larger
+   than its ink this site has made before. */
+.rulefigs .c{font-size:12.5px;line-height:1.45;color:var(--ink-3);max-width:46ch}
+
+/* The peril's own name, and under it the one line that says what is measured,
+   which is the thing a reader is scanning for. On its own line and in the
+   reading face: beside the name and in the mono face it was one unbroken
+   run of a hundred and twenty seven characters. */
+.perilhead{padding-bottom:13px;margin-bottom:4px;border-bottom:1px solid var(--edge)}
+.perilhead h2{font-size:19px;letter-spacing:-.015em}
+.perilhead .u{margin-top:6px;max-width:72ch;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.perilhead .u b{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:400;margin-right:9px}
+
+/* The six stations, as boxes that reflow rather than as a picture that
+   shrinks. One to a row on a phone, three across where there is room. */
+.rulepath{margin:26px 0 0}
+.rulepath > .label{margin-bottom:12px}
+.stations{display:grid;gap:10px;grid-template-columns:minmax(0,1fr);
+  list-style:none;margin:0;padding:0}
+.stations > li{border:1px solid var(--edge);border-radius:10px;padding:12px 14px;
+  background:var(--panel)}
+.stations .c{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--ink-3)}
+.stations .s{font-family:var(--mono);font-size:12.5px;line-height:1.35;margin-top:6px;
+  color:var(--ink-2)}
+.stations > li.on{border-color:var(--settled)}
+.stations > li.on .c,.stations > li.on .s{color:var(--settled)}
+@media (min-width:720px){.stations{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
+
+/* The three places the sequence stops rather than guesses. The drawing above
+   says what happens when nothing goes wrong; this says what happens when
+   something does, which is the part a buyer is actually reading for. */
+.stops{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:12px;overflow:hidden;margin-top:14px}
+.stops > div{background:var(--panel);padding:16px 18px}
+.stops .c{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--signal-ink)}
+.stops h3{font-size:14.5px;margin-top:7px;letter-spacing:-.01em}
+.stops p{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:6px;max-width:52ch}
+@media (min-width:860px){.stops{grid-template-columns:repeat(3,1fr)}}
+/* == scoped styles, end == */
 .kv .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 /* What a company is asked to attach, by its own country: two lines, not a
    menu of everything any country has ever issued. */
@@ -1780,7 +1866,7 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
    Everything on this page is drawn rather than photographed, so the page
    carries no external files and renders identically years from now. Every
    stroke takes its colour from the theme tokens. */
-/* == the Rialo page's own styles, begin ==
+/* == scoped styles for #view-rialo, begin ==
    Three drawings on the Rialo page, and the type inside them. A drawing on
    this site is line work in the palette's own colours, so the fills here are
    tokens rather than values, and a figure is never given a frame wider than
@@ -1810,7 +1896,7 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
   .pullrow{grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:12px 44px;align-items:start}
   .pullrow > .pull{margin-top:0}
 }
-/* == the Rialo page's own styles, end == */
+/* == scoped styles, end == */
 .art{width:100%;height:auto;display:block;max-width:100%}
 .a-panel{fill:var(--panel)}
 .a-sunk{fill:var(--sunk)}
@@ -3603,7 +3689,37 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <div class="label" data-i18n>Calculation rules</div>
     <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px;max-width:26ch" data-i18n>How a reading becomes the number the policy settles on</h1>
     <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>Written down before anything happens, peril by peril: which source is read and which stands in when it is silent, what counts as the final figure and when it is frozen, the tests a reading must pass, how long you have to object, and what happens if a publisher goes away. The same text is section 10 of every contract.</p>
-    <div id="rules-out" style="margin-top:26px;display:grid;gap:14px"></div>
+
+    <!-- The page's own title asks how a reading becomes a number, and the
+         answer is a sequence of six stations with three places where it stops.
+         Those three are the point: an oracle that must always answer will
+         guess, and every one of these refuses instead. Set once here because
+         it is the same six stations for every peril below.
+
+         Written as boxes and not as a drawing. Drawn, the six sat in a 760
+         unit picture that a phone scales to 342px, which put the type at four
+         and a half pixels: a legend nobody on a phone can read is a legend the
+         page does not have. These reflow to one column and keep their size. -->
+    <figure class="rulepath">
+      <div class="label" data-i18n>From what is published to what is paid</div>
+      <ol class="stations">
+        <li><div class="c">01</div><div class="s" data-i18n>The source publishes</div></li>
+        <li><div class="c">02</div><div class="s" data-i18n>The reading is tested</div></li>
+        <li><div class="c">03</div><div class="s" data-i18n>Every validator reads it</div></li>
+        <li><div class="c">04</div><div class="s" data-i18n>The median is frozen</div></li>
+        <li><div class="c">05</div><div class="s" data-i18n>Compared to your line</div></li>
+        <li class="on"><div class="c">06</div><div class="s" data-i18n>Settled and archived</div></li>
+      </ol>
+      <figcaption class="stops">
+        <div><div class="c">01</div><h3 data-i18n>Nothing is published</h3><p data-i18n>The policy expires at the end of its term and the premium comes back in full. No estimate is put in the missing reading's place.</p></div>
+        <div><div class="c">02</div><h3 data-i18n>A test is failed</h3><p data-i18n>That reading is not used at all, and the next source in the peril's fallback chain is read instead, in the order written down here.</p></div>
+        <div><div class="c">03</div><h3 data-i18n>The readings disagree</h3><p data-i18n>Nothing settles. Where the validators differ by more than the peril tolerates the reading is refused rather than averaged, because an average of two answers that cannot both be right is a third answer nobody measured.</p></div>
+      </figcaption>
+    </figure>
+
+    <div id="rules-common" style="margin-top:22px"></div>
+    <nav id="rules-nav" class="perilnav" aria-label="Perils"></nav>
+    <div id="rules-out" style="margin-top:14px;display:grid;gap:14px"></div>
   </div>
 </section>
 
@@ -5240,6 +5356,33 @@ function announce(route, moved){
   try{ heading.focus({preventScroll:true}); }catch(e){ heading.focus(); }
 }
 addEventListener("hashchange",function(){show(currentRoute(), true);});
+
+/* A hash router and an anchor inside the page want the same character.
+
+   Routes here are written "#/rules"; an anchor is written "#main". The router
+   reads whatever follows the hash, finds no screen of that name, and falls
+   through to "/" -- so following an in page anchor took the reader home. The
+   skip link at the top of the document, which exists so that somebody on a
+   keyboard can reach the content of the page they are on, did exactly that
+   from every page. So did the rulebook's index of perils.
+
+   Anything whose fragment begins with a slash is the router's business and is
+   left alone. Anything else that names an element in the document is scrolled
+   to and focused here, and the hash is not touched, so there is nothing for
+   the router to mishear. */
+addEventListener("click",function(e){
+  if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+  if(!a)return;
+  var name=a.getAttribute("href").slice(1);
+  if(!name||name.charAt(0)==="/")return;
+  var el=document.getElementById(name);
+  if(!el)return;
+  e.preventDefault();
+  if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","-1");
+  try{ el.focus({preventScroll:true}); }catch(err){ el.focus(); }
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+});
 /* Sections rise into place as they come into view: the cards on the home
    page, the steps and the columns on the other pages. Each waits its turn
    after the one before it, so a row reads left to right. Nothing is hidden
@@ -11666,33 +11809,103 @@ function renderAnchorFor(id,box){
 
 /* The rulebook, read from the protocol so the page and the contract never
    differ: the same words, peril by peril. */
+/* The rulebook, read rather than remembered.
+
+   Five of its eleven rows carry the same text for every peril: how a reading
+   is attested, how long you have to object, what happens if a publisher goes
+   away, what is archived, and which version of the rulebook this is. Printed
+   peril by peril they came out five times each, which pushed what actually
+   differs between perils down a page of repetition.
+
+   So a row whose text is the same everywhere is stated once, above. Which
+   rows those are is decided by reading the answer, not by a list written here:
+   the day a peril gets an archive rule of its own, that row drops out of the
+   shared panel and appears in the peril's own, and nobody has to remember to
+   come back and change this. */
 function renderRules(){
-  var box=$("rules-out"); if(!box)return;
+  var box=$("rules-out"), top=$("rules-common"), nav=$("rules-nav"); if(!box)return;
   box.innerHTML='<div class="panel" style="padding:22px">'+esc(t("Reading the chain…"))+'</div>';
+  if(top)top.innerHTML=""; if(nav)nav.innerHTML="";
   whenLinked().then(function(){
     if(!link.live){ box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("This page cannot reach the protocol, so there is no record to read. It will not show you one it made up."))+'</p></div>'; return; }
     return api("/api/rulebook",{timeout:12000}).then(function(r){
-      var perils=r.perils||{};
-      box.innerHTML=Object.keys(perils).map(function(k){
+      var perils=r.perils||{}, keys=Object.keys(perils);
+      if(!keys.length){ box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("The protocol did not answer."))+'</p></div>'; return; }
+
+      /* Whether every peril says the same thing here. */
+      function common(field){
+        var first=JSON.stringify(perils[keys[0]][field]);
+        if(first===undefined)return false;
+        return keys.every(function(k){ return JSON.stringify(perils[k][field])===first; });
+      }
+      function row(label,html){ return '<div class="kv"><div class="k">'+esc(label)+'</div><div class="v">'+html+'</div></div>'; }
+      function days(h){ return Math.round(h/24); }
+
+      var shared={
+        attestation:{when:common("attestation"),
+          make:function(x){ return row(t("Attestation"),esc(ts(x.attestation||""))); }},
+        objection:{when:common("objection_days"),
+          make:function(x){ return row(t("Objection"),esc(t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days}))); }},
+        successor:{when:common("successor"),
+          make:function(x){ return row(t("Successor source"),esc(ts(x.successor))); }},
+        archive:{when:common("archive"),
+          make:function(x){ return row(t("Archive"),esc(ts(x.archive))); }}
+      };
+      var order=["attestation","objection","successor","archive"];
+
+      if(top){
+        var same=order.filter(function(f){ return shared[f].when; });
+        top.innerHTML=same.length
+          ? '<div class="common"><h2>'+esc(t("The same for every peril"))+'</h2>'+
+            '<p class="fine">'+esc(t("These four rules do not change from one peril to the next, so they are set down once here. Each of them is still part of section 10 of your own contract, whichever cover you hold."))+'</p>'+
+            '<div class="kvs rulebook">'+same.map(function(f){ return shared[f].make(perils[keys[0]]); }).join("")+'</div>'+
+            (common("version")?'<p class="fine" style="margin:14px 0 0">'+esc(t("Rulebook version {v}",{v:perils[keys[0]].version}))+'</p>':'')+
+            '</div>'
+          : "";
+      }
+
+      if(nav)nav.innerHTML=keys.map(function(k){
+        return '<a href="#rule-'+esc(k)+'">'+esc(t(perils[k].title))+'</a>';
+      }).join("");
+
+      box.innerHTML=keys.map(function(k){
         var x=perils[k];
-        function row(label,html){ return '<div class="kv"><div class="k">'+esc(label)+'</div><div class="v">'+html+'</div></div>'; }
-        return '<div class="panel" style="padding:22px"><h2 style="font-size:18px;margin-bottom:10px">'+esc(t(x.title))+'</h2><div class="kvs">'+
-          row(t("Index"),esc(ts(x.index)))+
+        /* Two waits that happen to be the same length on every peril today:
+           how long before the figure is final, and how long the protocol
+           waits for a figure before giving up and returning the premium. Two
+           cards side by side carrying the same digit read as a mistake, so
+           they are one card while they agree. Read from the answer, not
+           assumed: the day a peril sets them apart, there are two again. */
+        var frozen=days(x.freeze_hours), figs=[];
+        if(x.deadline_days===frozen)
+          figs.push({n:frozen,c:t("days until the figure is final, and the same wait before silence returns the premium")});
+        else{
+          figs.push({n:frozen,c:t("days until the figure is final")});
+          if(x.deadline_days)figs.push({n:x.deadline_days,c:t("days of silence and the premium comes back")});
+        }
+        if(!shared.objection.when)figs.push({n:x.objection_days,c:t("days to object")});
+
+        return '<div class="panel" id="rule-'+esc(k)+'" style="padding:22px;scroll-margin-top:84px">'+
+          '<div class="perilhead"><h2>'+esc(t(x.title))+'</h2><div class="u"><b>'+esc(t("Index"))+'</b>'+esc(ts(x.index))+'</div></div>'+
+          '<div class="rulefigs">'+figs.map(function(g){
+            return '<div><div class="n">'+esc(f0.format(g.n))+'</div><div class="c">'+esc(g.c)+'</div></div>';
+          }).join("")+'</div>'+
+          '<div class="kvs rulebook">'+
           row(t("Primary source"),esc(ts(x.primary)))+
           row(t("Fallbacks, in order"),'<ol style="margin:0;padding-left:18px">'+(x.fallbacks||[]).map(function(f){ return '<li>'+esc(ts(f))+'</li>'; }).join("")+'</ol>')+
-          row(t("Final figure"),esc(ts(x.final_data))+' · '+esc(t("frozen {days} days after the event",{days:Math.round(x.freeze_hours/24)})))+
+          row(t("Final figure"),esc(ts(x.final_data))+' · '+esc(t("frozen {days} days after the event",{days:days(x.freeze_hours)})))+
           row(t("Tests a reading must pass"),'<ul style="margin:0;padding-left:18px">'+(x.criteria||[]).map(function(c){ return '<li>'+esc(ts(c))+'</li>'; }).join("")+'</ul>')+
           (x.waiting?row(t("When the cover applies"),esc(ts(x.waiting))):'')+
-          row(t("Attestation"),esc(ts(x.attestation||"")))+
           (x.deadline_days?row(t("Silence"),esc(t("No final figure {days} days after the term ends: {then}",{days:x.deadline_days,then:ts(x.on_missing_data||"")}))):'')+
-          row(t("Objection"),esc(t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days})))+
-          row(t("Successor source"),esc(ts(x.successor)))+
-          row(t("Archive"),esc(ts(x.archive)))+
-          '</div><p class="fine" style="margin-top:10px">'+esc(t("Rulebook version {v}",{v:x.version}))+'</p></div>';
+          order.filter(function(f){ return !shared[f].when; }).map(function(f){ return shared[f].make(x); }).join("")+
+          '</div>'+
+          (common("version")?'':'<p class="fine" style="margin-top:10px">'+esc(t("Rulebook version {v}",{v:x.version}))+'</p>')+
+          '</div>';
       }).join("");
     },function(){ box.innerHTML='<div class="panel" style="padding:22px"><p>'+esc(t("The protocol did not answer."))+'</p></div>'; });
   });
 }
+
 /* What a decision is called, in the reader's language. The chain's own word
    for a policy that ran its term without the index reaching the line is
    "lapsed", which is right in a ledger and wrong on a page: it says the policy
