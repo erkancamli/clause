@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.29.0, 27 September 2026
+
+- The page is built in bands now, and the column stopped being the problem it
+  was being treated as. The complaint was a real one and had been made more
+  than once: on a wide screen the site is a narrow strip with nothing either
+  side of it. Measured on a 2560px screen, the composition was 1340px wide with
+  610px of nothing before it and 682px after -- half the screen was margin.
+
+  The first two repairs were both wrong and both were mine. Stretching the
+  instrument to fill the space made a bigger panel with the same drawing inside
+  it, hollow; the comment already in the file had said so. Then the container
+  was widened to 2080, which is the obvious repair and the wrong one. The sites
+  this one is measured against say so plainly: Stripe caps its main column at
+  939px, Lemonade at 1025, Hippo at 1250, Linear at 1280. Ours was 1240 and was
+  already right. None of them is wide. All of them are banded -- the section
+  reaches the edges of the window and the words stay where words can be read,
+  so the eye never meets a column adrift on an open field.
+
+  So the column goes back to 1240, rising to 1440, and a band is what fills the
+  screen. Three of them on the home page, each full width with its own ground:
+  the hero on its gradient, the covers on the sunk surface, the live readings on
+  the ground. The surfaces are the palette's own, already measured by the
+  contrast tests, so no band can introduce a pair nobody has checked.
+
+- The hero is a row, and plays once. It was two columns with a tall panel pinned
+  beside five steps of text, and that panel is what forced everything narrow: a
+  drawing in a fixed portrait frame, which cannot grow without going hollow. A
+  seismic reading is a thing that is long, so it is drawn long -- a new frame at
+  seven to one, across the full width, with the words above it as a row of their
+  own: the heading on one side and what follows it on the other.
+
+  A phone gets the tall drawing instead, because seven to one at 390px renders
+  51px high, which is a hairline. Two drawings of one instrument, and the screen
+  chooses; neither is the other stretched, since a drawing forced into a frame it
+  was not drawn for is the fault this release is about.
+
+  The five steps are five columns, so the whole policy is on the screen at once
+  rather than one fifth of it. That made the old behaviour incoherent -- it
+  showed whichever step was crossing the middle of the window, and now they all
+  are -- so the instrument plays the policy through once when it arrives, from
+  written to paid, and then holds the whole picture. Once, on arrival: nothing
+  on an interval, nothing drifting, nothing burning a background tab.
+
+  This is the home page. The other four screens are still laid out the way they
+  were and are next.
+
 ## 1.28.0, 27 September 2026
 
 - The register is a window, and says which one. It looked like an archive while

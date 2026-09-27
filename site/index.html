@@ -224,6 +224,21 @@ p{margin:0}
 a{color:inherit}
 button{font:inherit;color:inherit}
 .wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+
+/* ---------------- bands ----------------
+   A band is the full width of the window and carries one section. Its ground
+   changes from one to the next, so a 2560px screen reads as a page with parts
+   rather than a narrow column adrift in white -- which is what it was, and what
+   no amount of widening the column was going to fix. Measured against the sites
+   this one is held to: Stripe caps its column at 939px, Lemonade at 1025,
+   Hippo at 1250, Linear at 1280. None of them is wide. All of them are banded.
+   The surfaces are the ones the palette already carries and the contrast tests
+   already measure, so a band cannot introduce a pair nobody has checked. */
+.slab{width:100%;padding-block:var(--slab-y,clamp(40px,6vw,88px))}
+.slab-sunk{background:var(--sunk)}
+.slab-panel{background:var(--panel)}
+.slab-edge{border-top:1px solid var(--edge)}
+.slab-tight{--slab-y:clamp(24px,3.4vw,48px)}
 /* The page grows with the screen, in steps rather than continuously, because
    a layout that stretches forever turns a paragraph into a line nobody can
    track back to. On a 2560 monitor the old 1360 left six hundred empty pixels
@@ -231,9 +246,8 @@ button{font:inherit;color:inherit}
    Widening the page is safe because prose is capped separately, in ch: what
    gets the extra width is the work -- grids, registers, tables, the
    instrument -- and not the sentences. */
-@media (min-width:1500px){:root{--max:1400px}}
-@media (min-width:1800px){:root{--max:1560px;--gutter:56px}}
-@media (min-width:2200px){:root{--max:1720px;--gutter:72px}}
+@media (min-width:1500px){:root{--max:1360px}}
+@media (min-width:1800px){:root{--max:1440px;--gutter:56px}}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums}
 .label{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
@@ -824,7 +838,7 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
    inheriting the band's sunk fill, its rules above and below and its
    vertical padding, which is why the step being worked on looked like
    a box clipped by the gutter. */
-section.now{border-block:1px solid var(--edge);background:var(--sunk);padding:10px 0 12px}
+section.now{border-block:1px solid var(--edge);background:var(--ground)}
 .now-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
 .now-head b{font-family:var(--display);font-size:15px;font-weight:600}
 .now-head .pip{width:7px;height:7px;border-radius:50%;background:var(--settled);animation:blink 2.2s infinite;align-self:center}
@@ -950,16 +964,25 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
   .hero-text .hero-cta,.hero-text .trust{justify-content:center}
 }
 @media (min-width:861px){
-  .hero-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
-    grid-template-areas:"text art" "beats art"}
+  .hero-grid{grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"text" "art" "beats"}
   /* Past a point the words stop getting wider -- a heading is capped at 13ch
      and a paragraph at 52ch -- and stretching the instrument to fill the rest
      only made it emptier inside, because its drawing has a fixed frame. So
      the hero stops growing and centres itself, and the width the page gained
      goes to what below it can actually use: the cards, the registers, the
      tables. A section is not better for being wider; a grid of five is. */
-  @media (min-width:1500px){
-    .hero-grid{max-width:1340px;margin-inline:auto}
+  /* The words stop widening at about 52 characters, because past that a line
+     is harder to read rather than easier. The instrument does not: it is a
+     reading taken over time and time is the long axis, so it takes the row. */
+  .hero-text{max-width:none}
+  @media (min-width:1100px){
+    .hero-text{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+      column-gap:clamp(32px,4vw,72px);align-items:end}
+    .hero-text h1{grid-column:1;margin:0}
+    .hero-text > p{grid-column:2;grid-row:1;align-self:end;max-width:46ch;margin:0}
+    .hero-text .hero-cta{grid-column:2;margin-top:18px}
+    .hero-text .trust{grid-column:2}
   }
   .hero-flow{display:contents}
   .hero-text{grid-area:text}
@@ -977,6 +1000,22 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
    runs, so the page at rest is the hero it always was. */
 .hero-flow{min-width:0}
 .beats{display:grid;margin-top:clamp(18px,3vw,34px)}
+/* Five short blocks in one column left the other half of a wide screen
+   watching them. They are five, they are short, and they are steps -- which is
+   a row of columns, not a stack. The rule down the side of the one being read
+   moves to the top of it, because a column's edge is not where an eye looks. */
+@media (min-width:1100px){
+  .beats{grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:clamp(24px,2.6vw,48px);row-gap:0}
+  .beat{padding-left:0;padding-top:18px}
+  .beat + .beat{border-top:1px solid var(--edge)}
+  .beat::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px}
+  .beat p,.beat .said{max-width:44ch}
+}
+@media (min-width:1600px){
+  .beats{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .beat p,.beat .said{max-width:38ch}
+}
 .beat{display:grid;gap:10px;align-content:center;padding-block:clamp(22px,5vh,46px)}
 .beat + .beat{border-top:1px solid var(--edge)}
 .beat h2{font-size:clamp(18px,2.2vw,24px);font-family:var(--display);font-weight:600;
@@ -1003,7 +1042,7 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
   border-radius:2px;background:var(--edge);transition:background .4s}
 .beat[data-live="on"]::before{background:var(--signal)}
 
-.hero-art{max-width:520px;margin:clamp(14px,3vw,22px) auto 0;width:100%;
+.hero-art{max-width:none;margin:clamp(16px,3vw,26px) 0 0;width:100%;
   /* The header stays at the top and is 61px tall, so the stage stops
      below it rather than sliding half under it. */
   position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 8px);z-index:2;
@@ -1016,17 +1055,30 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
      The header is 61px and the panel is far shorter than the window, so
      nothing slides under it; on a window short enough for that to matter the
      rule stands down. */
-  .hero-art{margin:0;max-width:560px;align-self:start;background:none;
-    padding-block:0;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 15px)}
-  @media (min-height:640px){
-    .hero-art{top:50%;transform:translateY(-50%)}
-  }
+  /* Not pinned any more. Pinned, it had to be short enough to sit in a window
+     beside five steps of text, which is what made it a tall box with a small
+     drawing in it. As a row it is as wide as the page and as tall as it needs
+     to be. */
+  .hero-art{margin:0;max-width:none;width:100%;align-self:stretch;background:none;
+    padding-block:0;position:static;transform:none}
 }
 .stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
   box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
-.stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,150px);
-  gap:12px;padding:12px;align-items:center}
+.stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);
+  gap:clamp(12px,2vw,26px);padding:clamp(12px,1.6vw,20px);align-items:center}
 .stage-body > svg{display:block;width:100%;height:auto;min-width:0}
+/* Two drawings of one instrument, and the screen chooses. The row is seven to
+   one, which is the shape a reading taken over time actually has and what lets
+   the hero be a row at all -- and on a 390px phone it renders 51px tall, which
+   is a hairline nobody can read. The tall one is the same instrument in the
+   shape a phone has. Neither is a scaled copy of the other; a drawing stretched
+   to a frame it was not drawn for is what made the panel hollow in the first
+   place. */
+.stage-body > svg.art-tall{display:none}
+@media (max-width:860px){
+  .stage-body > svg.art:not(.art-tall){display:none}
+  .stage-body > svg.art-tall{display:block}
+}
 /* The handset is written, not drawn. A label in an SVG is one line at a fixed
    size that cannot wrap, so the policy's own sentence ran out of the card and
    over the bezel the moment it was not English. */
@@ -2073,7 +2125,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     </div>
   </div>
 
-  <div class="home-hero">
+  <div class="home-hero slab">
     <div class="hero-fx-clip" aria-hidden="true">
       <canvas class="readings" id="hero-fx"></canvas>
     </div>
@@ -2101,9 +2153,60 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <figure class="hero-art">
         <div class="stage on-1" id="hero-stage" data-beat="1">
         <div class="stage-body">
-        <svg class="art" viewBox="0 0 320 340" role="img" aria-label="A seismic reading crossing the line a policy was written on, with validators attesting it" data-i18n-aria>
+        <svg class="art" viewBox="0 0 1400 200" role="img" aria-label="A seismic reading crossing the line a policy was written on, with validators attesting it" data-i18n-aria>
           <defs>
             <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0 0 10 5 0 10Z" fill="var(--ink-3)"/>
+            </marker>
+          </defs>
+
+          <!-- the source the policy listens to, quiet, from the first step -->
+          <line class="a-edge-soft" x1="40" y1="120" x2="1340" y2="120" stroke-width="1"/>
+          <line class="a-edge-soft" x1="40" y1="112" x2="40" y2="128" stroke-width="1"/>
+          <line class="a-edge-soft" x1="690" y1="115" x2="690" y2="125" stroke-width="1"/>
+          <line class="a-edge-soft" x1="1340" y1="112" x2="1340" y2="128" stroke-width="1"/>
+          <text x="40" y="178" font-size="11" letter-spacing="1.6" data-i18n>LISTENING</text>
+
+          <!-- The station is reading before the policy has anything to say. -->
+          <g class="l-rest">
+            <path class="a-edge hx-rest" fill="none" stroke-width="1.3" d="M40 119 170 121 300 119 430 121 560 119 690 121 820 119 950 121 1080 119 1210 121 1340 119"/>
+            <circle class="hx-rest-dot a-signal-f" cx="40" cy="120" r="2.4"/>
+          </g>
+
+          <!-- 2. the ground moves, and is recorded -->
+          <g class="layer l-ground">
+            <circle class="a-edge-soft hx-ring hx-r1" cx="238" cy="120" r="26"/>
+            <circle class="a-edge-soft hx-ring hx-r2" cx="238" cy="120" r="48"/>
+            <circle class="a-edge-soft hx-ring hx-r3" cx="238" cy="120" r="72"/>
+            <circle class="a-signal-f hx-epi" cx="238" cy="120" r="4"/>
+            <path id="hero-trace" class="a-settled hx-trace" stroke-width="1.6" d="M40 120 119 118 179 122 238 118 298 122 358 119 417 121 477 118 536 122 576 120 616 90 645 148 675 59 705 168 735 73 764 143 794 100 834 128 874 112 913 123 963 117 1022 122 1082 118 1151 121 1221 119 1290 120 1340 120"/>
+            <text x="690" y="194" font-size="11" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04, 11 km deep</text>
+          </g>
+
+          <!-- 3. the validators who read it -->
+          <g class="layer l-validators">
+            <circle class="a-edge" cx="238" cy="30" r="11" stroke-width="1.2"/>
+            <circle class="a-edge" cx="675" cy="24" r="11" stroke-width="1.2"/>
+            <circle class="a-edge" cx="1112" cy="32" r="11" stroke-width="1.2"/>
+            <path class="a-settled hx-attest" d="M233 30.5 236.5 34 243 27" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M670 24.5 673.5 28 680 21" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M1107 32.5 1110.5 36 1117 29" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <line class="a-edge-soft a-dash" x1="238" y1="42" x2="238" y2="82" stroke-width="1"/>
+            <line class="a-edge-soft a-dash" x1="675" y1="36" x2="675" y2="82" stroke-width="1"/>
+            <line class="a-edge-soft a-dash" x1="1112" y1="44" x2="1112" y2="82" stroke-width="1"/>
+          </g>
+
+          <!-- 4. the line the rule was written on -->
+          <g class="layer l-trigger">
+            <line class="a-signal a-dash hx-trigger" x1="40" y1="92" x2="1340" y2="92"/>
+            <circle class="a-signal-f" cx="1356" cy="120" r="2.6"/>
+            <line class="a-edge" x1="1352" y1="120" x2="1388" y2="120" marker-end="url(#ah)" stroke-width="1.2"/>
+          </g>
+        </svg>
+
+        <svg class="art art-tall" viewBox="0 0 320 340" role="img" aria-label="A seismic reading crossing the line a policy was written on, with validators attesting it" data-i18n-aria>
+          <defs>
+            <marker id="ah-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
               <path d="M0 0 10 5 0 10Z" fill="var(--ink-3)"/>
             </marker>
           </defs>
@@ -2132,7 +2235,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
             <circle class="a-edge-soft hx-ring hx-r2" cx="66" cy="238" r="54"/>
             <circle class="a-edge-soft hx-ring hx-r3" cx="66" cy="238" r="80"/>
             <circle class="a-signal-f hx-epi" cx="66" cy="238" r="4"/>
-            <path id="hero-trace" class="a-settled hx-trace" stroke-width="1.6" d="M24 238 40 236 52 241 64 235 76 240 88 237 100 239 112 236 124 240 132 238 140 200 146 274 152 160 158 300 164 178 170 268 176 212 184 248 192 228 200 242 210 234 222 240 234 236 248 239 262 237 276 238 286 238"/>
+            <path id="hero-trace-tall" class="a-settled hx-trace" stroke-width="1.6" d="M24 238 40 236 52 241 64 235 76 240 88 237 100 239 112 236 124 240 132 238 140 200 146 274 152 160 158 300 164 178 170 268 176 212 184 248 192 228 200 242 210 234 222 240 234 236 248 239 262 237 276 238 286 238"/>
             <text x="152" y="326" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04, 11 km deep</text>
           </g>
 
@@ -2153,7 +2256,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <g class="layer l-trigger">
             <line class="a-signal a-dash hx-trigger" x1="24" y1="182" x2="286" y2="182"/>
             <circle class="a-signal-f" cx="299" cy="238" r="2.6"/>
-            <line class="a-edge" x1="296" y1="238" x2="316" y2="238" marker-end="url(#ah)" stroke-width="1.2"/>
+            <line class="a-edge" x1="296" y1="238" x2="316" y2="238" marker-end="url(#ah-t)" stroke-width="1.2"/>
           </g>
         </svg>
 
@@ -2241,7 +2344,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   </div>
 
 
-  <div class="wrap" style="padding-bottom:clamp(20px,3vw,34px)">
+  <section class="slab slab-sunk">
+   <div class="wrap">
     <h2 style="font-size:clamp(19px,2.4vw,24px);margin-bottom:12px" data-i18n>What would you like to protect?</h2>
     <div class="picks" id="home-picks">
       <button class="pick" type="button" data-peril="quake">
@@ -2382,7 +2486,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     </div>
   </div>
 
-  <section class="now" aria-labelledby="live-title">
+  </section>
+
+  <section class="slab slab-edge now" aria-labelledby="live-title">
     <div class="wrap">
       <div class="now-head"><span class="pip"></span><b id="live-title" data-i18n>Happening now</b>
         <span class="fine" data-i18n>What the sources this protocol settles against are reporting. Shown, not priced.</span>
@@ -11556,6 +11662,39 @@ function closeRider(){
     }
 
     if(!beats.length)return;
+
+    /* Wide enough for the steps to be a row rather than a stack, and then the
+       reader is not moving through them one at a time -- all five are on the
+       screen at once, so "whichever one is crossing the middle" picks whatever
+       it likes and the picture jumps. One run instead: the instrument plays the
+       policy through once when it arrives, from written to paid, and then
+       stays at the whole picture. It plays once and never again, so there is
+       still nothing on an interval and nothing burning a background tab. */
+    var asRow = window.matchMedia && window.matchMedia("(min-width:1100px)");
+    var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    if(asRow && asRow.matches && "IntersectionObserver" in window){
+      var lightUpTo = function(n){
+        beats.forEach(function(b){
+          b.dataset.live = Number(b.dataset.beat) <= n ? "on" : "off";
+        });
+      };
+      if(still && still.matches){ show(5); lightUpTo(5); return; }
+      var played = false;
+      var once = new IntersectionObserver(function(entries){
+        if(played)return;
+        if(!entries.some(function(e){ return e.isIntersecting; }))return;
+        played = true;
+        once.disconnect();
+        var n = 1;
+        (function step(){
+          show(n); lightUpTo(n);
+          if(n++ < 5) setTimeout(step, 1100);
+        })();
+      }, {threshold:0.3});
+      once.observe(stage);
+      return;
+    }
+
     if(!("IntersectionObserver" in window)){
       // No observer: show the whole picture rather than the first fifth of it.
       at=0; show(5);
