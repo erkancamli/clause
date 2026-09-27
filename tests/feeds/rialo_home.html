@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rialo</title>
+  <meta content="The only high-throughput network with configurable privacy built for real-world finance." name="description">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="css/simplified.css?v=20260525f" rel="stylesheet" type="text/css">
+  <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon">
+  <link href="images/webclip.png" rel="apple-touch-icon">
+</head>
+<body>
+  <!-- Background layers -->
+  <div class="bg-layer bg-layer-1"></div>
+  <div class="bg-layer bg-layer-2"></div>
+  <div class="bg-layer bg-layer-3"></div>
+  <div class="grain"></div>
+
+  <div class="nav-overlay" onclick="toggleMenu()"></div>
+  <nav class="nav">
+    <a href="/" class="logo">
+      <span class="logo-text">Rialo</span>
+      <span class="logo-dot"></span>
+    </a>
+    <div class="nav-links">
+      <a href="#docs" class="nav-link">Docs</a>
+      <a href="#blog" class="nav-link">Blog</a>
+      <a href="https://playground.rialo.io" target="_blank" class="nav-link">Playground</a>
+      <a href="https://learn.rialo.io" target="_blank" class="nav-link">Learn</a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </nav>
+  <script>
+    function toggleMenu() {
+      document.querySelector('.hamburger').classList.toggle('active');
+      document.querySelector('.nav-links').classList.toggle('active');
+      document.querySelector('.nav-overlay').classList.toggle('active');
+    }
+  </script>
+
+  <main class="main">
+    <section class="hero">
+      <div class="hero-bg-elements">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-grid"></div>
+      </div>
+      <div class="hero-content">
+        <h1 class="hero-title">Meet Rialo.</h1>
+        <p class="hero-subtitle">Rialo is the infrastructure for the next generation of intelligent systems.</p>
+      </div>
+    </section>
+
+    <!-- CBOE Innovation Spotlight Banner -->
+    <section class="spotlight-banner">
+      <a href="/posts/subzero-labs-cboe-innovation-spotlight" class="spotlight-link">
+        <div class="spotlight-badge">Featured</div>
+        <div class="spotlight-content">
+          <span class="spotlight-text">Subzero Labs (Rialo) Featured in CBOE Innovation Spotlight</span>
+          <svg class="spotlight-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </div>
+      </a>
+    </section>
+
+    <section id="dev-portal" class="section dev-portal-section">
+      <div class="section-bg"></div>
+      <div class="section-content" style="text-align: center; padding: 2rem 2rem 3rem;">
+        <h2 class="section-title" style="justify-content: center;">
+          Start Building
+        </h2>
+        <p style="color: rgba(255,255,255,0.7); max-width: 500px; margin: 1rem auto 2rem; font-size: 1rem;">Explore our architecture, performance benchmarks, and technical documentation.</p>
+        <a href="/for-devs" class="dev-portal-btn">
+          <span>Dev Portal</span>
+          <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+        <a href="#backers" class="scroll-indicator" style="margin-top: 1.5rem;">
+          <span>Scroll</span>
+          <svg class="scroll-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <section id="backers" class="section backers-section">
+      <div class="backers-group">
+        <h3 class="backers-label">Investors</h3>
+        <div class="logo-marquee">
+          <div class="logo-track">
+            <img src="images/Coinbase_Wordmark.svg" alt="Coinbase" class="backer-logo wide">
+            <img src="images/pantera-capital-vector-logo-2023-1.svg" alt="Pantera Capital" class="backer-logo wide">
+            <img src="images/white_susquehanna.svg" alt="Susquehanna" class="backer-logo wide">
+            <img src="images/id5M4ATEoj_logos.svg" alt="Investor" class="backer-logo">
+            <img src="images/edge-capital-.svg" alt="Edge Capital" class="backer-logo">
+            <img src="images/combination-logo.svg" alt="Investor" class="backer-logo">
+            <img src="images/mirana-logo.svg" alt="Mirana" class="backer-logo">
+            <img src="images/idyLR0_e27_logos.svg" alt="Investor" class="backer-logo">
+            <img src="images/Mysten-Labs-logo.png" alt="Mysten Labs" class="backer-logo">
+            <!-- Duplicate for seamless loop -->
+            <img src="images/Coinbase_Wordmark.svg" alt="Coinbase" class="backer-logo wide">
+            <img src="images/pantera-capital-vector-logo-2023-1.svg" alt="Pantera Capital" class="backer-logo wide">
+            <img src="images/white_susquehanna.svg" alt="Susquehanna" class="backer-logo wide">
+            <img src="images/id5M4ATEoj_logos.svg" alt="Investor" class="backer-logo">
+            <img src="images/edge-capital-.svg" alt="Edge Capital" class="backer-logo">
+            <img src="images/combination-logo.svg" alt="Investor" class="backer-logo">
+            <img src="images/mirana-logo.svg" alt="Mirana" class="backer-logo">
+            <img src="images/idyLR0_e27_logos.svg" alt="Investor" class="backer-logo">
+            <img src="images/Mysten-Labs-logo.png" alt="Mysten Labs" class="backer-logo">
+          </div>
+        </div>
+      </div>
+      <div class="backers-group">
+        <h3 class="backers-label">Partners</h3>
+        <div class="logo-marquee reverse">
+          <div class="logo-track">
+            <img src="images/nasdaq-black.png" alt="Nasdaq" class="backer-logo wide">
+            <img src="images/cboe.png" alt="CBOE" class="backer-logo">
+            <img src="images/nyse.svg" alt="NYSE" class="backer-logo">
+            <img src="images/Predicate_Logo-Color-Inverted.png" alt="Predicate" class="backer-logo">
+            <img src="images/doublezero_logo_3x.png" alt="DoubleZero" class="backer-logo wide">
+            <img src="images/m0.jpeg" alt="M0" class="backer-logo">
+            <img src="images/keplr.png" alt="Keplr" class="backer-logo">
+            <!-- Duplicate for seamless loop -->
+            <img src="images/nasdaq-black.png" alt="Nasdaq" class="backer-logo wide">
+            <img src="images/cboe.png" alt="CBOE" class="backer-logo">
+            <img src="images/nyse.svg" alt="NYSE" class="backer-logo">
+            <img src="images/Predicate_Logo-Color-Inverted.png" alt="Predicate" class="backer-logo">
+            <img src="images/doublezero_logo_3x.png" alt="DoubleZero" class="backer-logo wide">
+            <img src="images/m0.jpeg" alt="M0" class="backer-logo">
+            <img src="images/keplr.png" alt="Keplr" class="backer-logo">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="docs" class="section docs-section">
+      <div class="section-bg"></div>
+      <div class="section-content">
+        <div class="section-header">
+          <h2 class="section-title">
+            Docs
+          </h2>
+          <a href="/docs" class="view-archive">
+            All docs
+            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+        <div class="docs-grid" id="docsGrid">
+          <article class="docs-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">001</span>
+                <span class="card-date">Apr 2026</span>
+              </div>
+              <h3 class="card-title">Reactive Transactions: A Model for Native Automation on Rialo</h3>
+              <p class="card-description">Current blockchain applications rely on a fragile tower of offchain automation to function. Blockchains are fundamentally synchronous systems.</p>
+              <a href="https://www.rialo.io/posts/reactive-transactions-a-model-for-native-automation-on-rialo" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">002</span>
+                <span class="card-date">Apr 2026</span>
+              </div>
+              <h3 class="card-title">Rialo Foundations II: Supermodularity and Blockchain Integration</h3>
+              <p class="card-description">"Modular vs. monolithic" has been one of crypto's defining debates. This framing was useful when blockchain design was primarily concerned with basic properties.</p>
+              <a href="https://www.rialo.io/posts/rialo-foundations-ii-supermodularity" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">003</span>
+                <span class="card-date">Apr 2026</span>
+              </div>
+              <h3 class="card-title">Supermodularity and System Welfare: The Economics of Integration</h3>
+              <p class="card-description">Supermodularity serves as a guide for determining what is necessary to integrate into a blockchain environment and increase system welfare.</p>
+              <a href="https://www.rialo.io/posts/supermodularity-and-system-welfare-the-economics-of-integration" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">004</span>
+                <span class="card-date">Apr 2026</span>
+              </div>
+              <h3 class="card-title">Rethinking Protocol Upgrades with Gauss</h3>
+              <p class="card-description">State machine replication (SMR) underpins the reliability and safety of many distributed systems in production today.</p>
+              <a href="https://www.rialo.io/posts/rethinking-protocol-upgrades-with-gauss" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <!-- Hidden cards -->
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">005</span>
+                <span class="card-date">Apr 2026</span>
+              </div>
+              <h3 class="card-title">A Practical Guide to Consistency in Distributed Systems</h3>
+              <p class="card-description">Alice has $100 in her bank account and deposits $50 at a branch. Should her balance at a nearby ATM also return $150?</p>
+              <a href="https://www.rialo.io/posts/a-practical-guide-to-consistency-in-distributed-systems" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">006</span>
+                <span class="card-date">Apr 2026</span>
+              </div>
+              <h3 class="card-title">Building Blocks of Threshold Cryptography: Distributed Key Generation</h3>
+              <p class="card-description">Threshold cryptography is described in terms of what a group can do with a shared secret key without giving any one participant unilateral control.</p>
+              <a href="https://www.rialo.io/posts/understanding-distributed-key-generation" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">007</span>
+                <span class="card-date">Jan 2026</span>
+              </div>
+              <h3 class="card-title">Building Native Privacy for Real-World Blockchain Adoption</h3>
+              <p class="card-description">Public blockchains have shown it is possible to build open, verifiable systems that handle valuable transactions at scale.</p>
+              <a href="https://www.rialo.io/posts/building-native-privacy-for-real-world-blockchain-adoption" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">008</span>
+                <span class="card-date">Jan 2026</span>
+              </div>
+              <h3 class="card-title">A Visual Guide to Concurrency Control</h3>
+              <p class="card-description">Parallel execution is almost a default requirement for blockchains that want to increase throughput and reduce latency.</p>
+              <a href="https://www.rialo.io/posts/a-visual-guide-to-concurrency-control" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">009</span>
+                <span class="card-date">Dec 2025</span>
+              </div>
+              <h3 class="card-title">Stake for Service: A Better Way to Pay on Rialo</h3>
+              <p class="card-description">Blockchains have always faced an awkward split between capital and consumption.</p>
+              <a href="https://www.rialo.io/posts/stake-for-service" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">010</span>
+                <span class="card-date">Dec 2025</span>
+              </div>
+              <h3 class="card-title">Making the Agent Economy Simple and Safe with Rialo</h3>
+              <p class="card-description">We believe that the AI systems that will have the greatest impact on humanity will be decentralized.</p>
+              <a href="https://www.rialo.io/posts/making-the-agent-economy-simple-and-safe-with-rialo" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">011</span>
+                <span class="card-date">Dec 2025</span>
+              </div>
+              <h3 class="card-title">Rialo Makes Real World Assets Real</h3>
+              <p class="card-description">Real-world assets (RWAs) are one of blockchain's biggest promises and biggest letdowns.</p>
+              <a href="https://www.rialo.io/posts/rialo-makes-real-world-assets-real" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">012</span>
+                <span class="card-date">Dec 2025</span>
+              </div>
+              <h3 class="card-title">Rialo Foundations I: Double Marginalization in Crypto</h3>
+              <p class="card-description">When developers complain that crypto applications are expensive to build, there's a deeper issue: the compounding cost of middleware.</p>
+              <a href="https://www.rialo.io/posts/rialo-foundations-i-double-marginalization-in-crypto" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+          <article class="docs-card hidden-card">
+            <div class="card-glow"></div>
+            <div class="card-inner">
+              <div class="card-header">
+                <span class="card-label">013</span>
+                <span class="card-date">Dec 2025</span>
+              </div>
+              <h3 class="card-title">How Rialo Secures Prediction Markets</h3>
+              <p class="card-description">Prediction markets are where information becomes money. They allow people to trade on the likelihood of future events.</p>
+              <a href="https://www.rialo.io/posts/how-rialo-secures-prediction-markets" class="card-link">
+                <span>Read</span>
+                <svg class="arrow-icon small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
+              </a>
+            </div>
+          </article>
+        </div>
+        <div class="expand-section">
+          <button class="expand-btn" id="docsExpandBtn" data-target="docsGrid">
+            <span class="expand-text">View all 13 papers</span>
+            <span class="collapse-text">Show less</span>
+            <svg class="expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="blog" class="section blog-section">
+      <div class="section-bg"></div>
+      <div class="section-content">
+        <div class="section-header">
+          <h2 class="section-title">
+            Blog
+          </h2>
+          <a href="/blog" class="view-archive">
+            All posts
+            <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+        <div class="blog-list" id="blogList">
+          <a href="/posts/subzero-labs-cboe-innovation-spotlight" class="blog-entry">
+            <time class="entry-date">May 7, 2026</time>
+            <h3 class="entry-title">Subzero Labs (Rialo) Featured in CBOE Innovation Spotlight</h3>
+            <span class="entry-arrow">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </span>
+          </a>
+          <a href="https://www.rialo.io/posts/upgrading-the-consumer-lending-stack" class="blog-entry">
+            <time class="entry-date">Apr 22, 2026</time>
+            <h3 class="entry-title">Upgrading the Consumer Lending Stack</h3>
+            <span class="entry-arrow">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </span>
+          </a>
+          <a href="https://www.rialo.io/posts/bringing-private-credit-onchain" class="blog-entry">
+            <time class="entry-date">Apr 22, 2026</time>
+            <h3 class="entry-title">How to Bring Private Credit Onchain</h3>
+            <span class="entry-arrow">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </span>
+          </a>
+          <a href="https://www.rialo.io/posts/project-1337" class="blog-entry">
+            <time class="entry-date">Dec 19, 2025</time>
+            <h3 class="entry-title">Project 1337: The Recap</h3>
+            <span class="entry-arrow">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </span>
+          </a>
+          <!-- Hidden entries -->
+          <a href="https://www.rialo.io/posts/introducing-rialo" class="blog-entry hidden-entry">
+            <time class="entry-date">Sep 25, 2025</time>
+            <h3 class="entry-title">Introducing Rialo: A Blockchain Built for the Real World</h3>
+            <span class="entry-arrow">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </span>
+          </a>
+        </div>
+        <div class="expand-section">
+          <button class="expand-btn" id="blogExpandBtn" data-target="blogList">
+            <span class="expand-text">View all 6 posts</span>
+            <span class="collapse-text">Show less</span>
+            <svg class="expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contributors-section">
+      <div class="section-bg"></div>
+      <div class="section-content">
+        <div class="section-header centered">
+          <h2 class="section-title">
+            Contributors
+          </h2>
+        </div>
+        <p class="contributors-text">Our contributors comprise experienced builders and researchers from leading organizations across blockchain infrastructure and hyper-growth companies.</p>
+        <div class="contributors-grid">
+          <img src="images/meta.svg" alt="Meta" class="contributor-logo">
+          <img src="images/netflix.svg" alt="Netflix" class="contributor-logo">
+          <img src="images/google.svg" alt="Google" class="contributor-logo">
+          <img src="images/apple.svg" alt="Apple" class="contributor-logo">
+          <img src="images/amazon.svg" alt="Amazon" class="contributor-logo">
+          <img src="images/uber.svg" alt="Uber" class="contributor-logo">
+          <img src="images/robinhood.svg" alt="Robinhood" class="contributor-logo">
+          <img src="images/VMware.svg" alt="VMware" class="contributor-logo">
+          <img src="images/Solana.svg" alt="Solana" class="contributor-logo">
+          <img src="images/near.svg" alt="Near" class="contributor-logo">
+          <img src="images/eigenlayer.svg" alt="EigenLayer" class="contributor-logo">
+          <img src="images/magic-eden.svg" alt="Magic Eden" class="contributor-logo">
+          <img src="images/parity.svg" alt="Parity" class="contributor-logo">
+          <img src="images/diem.svg" alt="Diem" class="contributor-logo">
+          <img src="images/linera.svg" alt="Linera" class="contributor-logo">
+          <img src="images/MoonPay-1.svg" alt="MoonPay" class="contributor-logo">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">Rialo<span class="logo-dot"></span></div>
+      <div class="footer-copyright">&copy; 2024 Rialo Labs</div>
+      <div class="footer-social">
+        <a href="https://x.com/RialoHQ" target="_blank" aria-label="Twitter" class="social-link">
+          <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+          </svg>
+        </a>
+        <a href="https://github.com/rialo" target="_blank" aria-label="GitHub" class="social-link">
+          <svg class="social-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Scroll to top on logo click
+    document.querySelector('.logo').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Expand/collapse functionality
+    document.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const targetId = this.dataset.target;
+        const target = document.getElementById(targetId);
+        target.classList.toggle('expanded');
+        this.classList.toggle('expanded');
+      });
+    });
+
+    // Parallax effect for background layers
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      document.querySelector('.bg-layer-1').style.transform = `translateY(${scrollY * 0.1}px)`;
+      document.querySelector('.bg-layer-2').style.transform = `translateY(${scrollY * 0.05}px)`;
+      document.querySelector('.bg-layer-3').style.transform = `translateY(${scrollY * 0.02}px)`;
+    });
+  </script>
+</body>
+</html>

@@ -53,7 +53,8 @@ from .privy import Accounts, PrivyError, PrivyVerifier
 from . import holding
 from .repeat import Answers, DECIDING
 from ..protocol.valuation import KIND_FOR, ValuationError, schedule, value_of
-from ..live import QUIET_DAY, aeroapi_feed, airlabs_feed, flight_feed, quake_feed, quake_week_feed, select_quakes
+from ..live import (QUIET_DAY, aeroapi_feed, airlabs_feed, flight_feed, quake_feed,
+                    quake_week_feed, rialo_feed, select_quakes)
 from ..protocol.auth import AuthError, Authenticator
 from ..protocol import kyb
 from ..protocol.property import Register as PropertyRegister, key_for as property_key
@@ -727,6 +728,9 @@ def create_app(
     quakes_now = quake_feed(**live_kw)
     quakes_week = quake_week_feed(**live_kw)
     flights_now = flight_feed(**live_kw)
+    # What the chain this protocol runs on has published. Read from its own
+    # front page, because it publishes no feed to subscribe to.
+    rialo_now = rialo_feed(**live_kw)
     aeroapi_key = os.environ.get("CLAUSE_AEROAPI_KEY", "").strip()
     airlabs_key = os.environ.get("CLAUSE_AIRLABS_KEY", "").strip()
     flights_world = (airlabs_feed(airlabs_key, **live_kw) if airlabs_key
@@ -5575,6 +5579,22 @@ def create_app(
         feed = await run_in_threadpool(flights_world.read)
         items = [row for row in feed["items"] if row.get("country") == code][:40]
         return {**feed, "items": items, "country": code, "available": True}
+
+    @app.get("/api/live/rialo")
+    async def live_rialo(http: Request) -> dict[str, Any]:
+        """What Rialo has published, newest first.
+
+        This protocol names a chain on its front page, so it owes a reader a
+        way to see what that chain is actually doing rather than a logo. There
+        is no feed to subscribe to -- the docs are behind a sign in and the
+        blog serves nothing to a fetcher -- so this reads the front page
+        itself, a few times a day, and says when it last looked.
+
+        Shown, not relied on: nothing here prices or settles anything.
+        """
+        guard(http, "live", limit=60, window=60.0)
+        feed = await run_in_threadpool(rialo_now.read)
+        return {**feed, "available": True}
 
     # -- the public chain beside this one -----------------------------------
 
