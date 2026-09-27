@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.31.2, 27 September 2026
+
+- Still too big, and the last measurement was of the wrong thing. Narrowing the
+  column from 380 to 320 took 38px off the height and made the shape worse --
+  1:1.74 to 1:1.95 -- because the rule text under the drawing wraps to more
+  lines in a narrower card. The card was not too wide. The drawing was too tall
+  for what was in it.
+
+  It declared 340 units and drew in 296 of them, with 56 units of nothing
+  between the validators and the line the rule was written on and 33 above
+  them. Those are closed: the validators come down to meet the instrument, the
+  box is 278 units, and the ink uses 93% of it. Nothing was shrunk -- the
+  labels are the same size they were drawn at, because the caption is already
+  at the floor of what can be read.
+
+  The drawing is also capped at its own 320px now instead of being painted
+  across whatever the column gives it. Between the two the panel is 558px
+  rather than 661, and in a 900px window that is 200px of air below it rather
+  than 100.
+
+- The upright trace was drawing itself against a dash 1100 units long on a path
+  that is 916, because only the landscape one was ever measured. Both are now.
+
 ## 1.31.1, 27 September 2026
 
 - The instrument was too big, and it was too big for the reason it has been too
