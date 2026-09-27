@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.31.3, 27 September 2026
+
+- The confirm step was laid out in 952px of a 1328px page, with the rest blank
+  down the right of the longest page in the product. The running rail is the
+  page's second column on every question, and the confirm step is the one step
+  that hides it, because it is itself the summary -- but a grid track is held
+  open by the stylesheet, not by what is in it, so its 340px and the 36px gap
+  stayed behind as 376px of nothing.
+
+  The track goes when its occupant does. The step now takes 1200px, the measure
+  the stylesheet always meant it to have, centred rather than pinned left. On a
+  1920 screen that is 1200 of 1328 rather than 952, and the summary column
+  stops wrapping a street address onto five lines.
+
 ## 1.31.2, 27 September 2026
 
 - Still too big, and the last measurement was of the wrong thing. Narrowing the

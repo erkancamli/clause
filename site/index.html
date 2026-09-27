@@ -1375,6 +1375,15 @@ h1 span{color:var(--signal-ink)}
   #view-cover > .wrap > .q > .hint{max-width:56ch}
   #view-cover > .wrap > .runrail{display:grid;grid-column:2;grid-row:3;
     position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 35px)}
+  /* A hidden rail still holds its track open. The confirm step is the one
+     step that does not want a rail -- it is itself the summary -- so it was
+     laid out in 952px of a 1440px page with a 340px column and its gap, 376px
+     in all, reserved for nothing and left blank down the whole of the longest
+     page in the product. The track goes when its occupant does, and the step
+     keeps a measure of its own rather than spreading to the full width. */
+  #view-cover > .wrap.no-rail{grid-template-columns:minmax(0,1fr)}
+  #view-cover > .wrap.no-rail > .q,
+  #view-cover > .wrap.no-rail > .done{max-width:1200px;margin-inline:auto}
   /* The bar at the bottom of the screen carries two things: the price, and
      the only way forward. The rail makes the price a duplicate; the buttons
      are not a duplicate of anything, and hiding the bar wholesale took the
@@ -8219,6 +8228,9 @@ function updateRunRail(){
      that is itself the summary: on the confirm step the whole deal is on the
      left in full, and a shorter copy of it beside that is noise. */
   rail.hidden=flow.step>=CONFIRM_STEP;
+  /* The grid cannot see that the rail is hidden, so it is told. */
+  if(rail.parentNode&&rail.parentNode.classList)
+    rail.parentNode.classList.toggle("no-rail",rail.hidden);
   if(rail.hidden)return;
 
   var it=flow.interest||{}, where=subjectLabel();
