@@ -11074,7 +11074,7 @@ function qpaid(rows,book){
       '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
     '</div>'+
     sieveHtml(book)+
-    '<div id="register-out">'+registerHtml(rows)+'</div>'+
+    '<div id="register-out">'+registerHtml(rows,book)+'</div>'+
     lookupHtml());
 }
 
@@ -11099,12 +11099,21 @@ function sieveHtml(book){
         '</button>';
     }).join("")+'</div>';
 }
-function registerHtml(rows){
+function registerHtml(rows,book){
   if(rows.length)return '<div class="register">'+rows.map(decidedRow).join("")+'</div>';
-  return '<div class="panel" style="padding:22px"><p>'+esc(
-    sieveNow?t("No decision of this kind has been made yet."):
-      t("Nothing has been decided yet. The first policy to reach its line will appear here."))+
-    '</p></div>';
+  /* Empty does not always mean none. A tally outlives the record it counted:
+     this is a demonstration and it forgets its own old policies, so a filter
+     can come back with nothing while the button beside it says thousands. The
+     page said "no decision of this kind has been made yet" in that case, next
+     to a count of 2,974, which is a page contradicting itself on the one
+     subject it exists to be trusted about. */
+  var counted=book&&sieveNow?Number(book[sieveNow==="paid"?"paid":sieveNow]||0):0;
+  var why=!sieveNow
+    ? t("Nothing has been decided yet. The first policy to reach its line will appear here.")
+    : counted>0
+      ? t("{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.",{n:f0.format(counted)})
+      : t("No decision of this kind has been made yet.");
+  return '<div class="panel" style="padding:22px"><p>'+esc(why)+'</p></div>';
 }
 /* Bound by delegation, on the box rather than on the buttons: the register is
    redrawn on every choice, and a handler attached to a button that has been
@@ -11128,7 +11137,7 @@ function bindSieve(box){
     api("/api/decided?limit=12"+(sieveNow?"&kind="+encodeURIComponent(sieveNow):""),
         {timeout:9000}).then(function(reply){
       if(!out)return;
-      out.innerHTML=registerHtml((reply&&reply.items)||[]);
+      out.innerHTML=registerHtml((reply&&reply.items)||[],(reply&&reply.book)||null);
     },function(){
       if(out)out.innerHTML='<div class="panel" style="padding:22px"><p>'+
         esc(t("The protocol did not answer."))+'</p></div>';

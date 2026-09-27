@@ -2229,7 +2229,8 @@
     "Try preparing it again": "Попробовать подготовить снова",
     "Every decision": "Все решения",
     "Which decisions to show": "Какие решения показывать",
-    "No decision of this kind has been made yet.": "Решений такого рода пока не было."
+    "No decision of this kind has been made yet.": "Решений такого рода пока не было.",
+    "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "{n} из них были решены, и ни одной их записи здесь больше нет. Это демонстрация, и она забывает собственные старые полисы; счёт переживает запись. Любой из них по-прежнему отвечает на свой идентификатор ниже."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.25.0, 27 September 2026
+
+- Nobody arrives who was not sent by a person. A policy was written every eight
+  seconds — about eleven thousand a day — so that a fresh deployment would not
+  demonstrate an empty pool. That was worth having when there was nothing else
+  in the book, and it stops being worth having the moment real policies are in
+  there: the invented ones crowd the register, they are what the retention then
+  has to forget, and every figure on the proof page becomes mostly about them.
+  `CLAUSE_DEMO_ARRIVALS` is the gap in seconds; unset or zero, nobody arrives.
+
+- The policies that paid are kept when the quiet ones are forgotten, and that
+  is why the register could not show a payment. The demonstration forgets its
+  own old closed policies, and payments were in the same pot as everything
+  else — so they were flushed at the same rate, and since they are a few in a
+  hundred the register ran out of them long before it ran out of anything.
+  Measured on the live protocol: 2,974 payments counted, and not one that could
+  be opened. A tally outlives the record it counted; only the record can be
+  read back. `CLAUSE_DEMO_KEEP_PAID` holds them, four hundred by default.
+
+- And where the register still comes back empty, the page says why. It said
+  "no decision of this kind has been made yet" next to a button reading 2,974 —
+  a page contradicting itself, on the one subject it exists to be trusted
+  about. It now says how many were decided, that this is a demonstration which
+  forgets its own old policies, and that any one of them still answers to its
+  id.
+
+  These three are one fault seen from three sides, and the one that mattered
+  was the third: the first two are a demonstration's housekeeping, and the
+  third was the page telling a reader something untrue.
+
 ## 1.24.0, 27 September 2026
 
 - The proof register can be read one half at a time, because in practice it

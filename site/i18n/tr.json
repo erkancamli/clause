@@ -2237,7 +2237,8 @@
     "Try preparing it again": "Yeniden hazırlamayı dene",
     "Every decision": "Her karar",
     "Which decisions to show": "Hangi kararlar gösterilsin",
-    "No decision of this kind has been made yet.": "Bu türden henüz bir karar verilmedi."
+    "No decision of this kind has been made yet.": "Bu türden henüz bir karar verilmedi.",
+    "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "Bunlardan {n} tanesi karara bağlandı ve kayıtlarının hiçbiri artık burada değil. Bu bir gösterim ve kendi eski poliçelerini unutuyor; sayı kayıttan uzun yaşıyor. Herhangi biri aşağıda kimliğiyle hâlâ yanıt verir."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

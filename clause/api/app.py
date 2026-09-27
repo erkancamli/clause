@@ -947,14 +947,31 @@ def create_app(
         if run_chain:
             anchor.start()
 
-        # Buyers keep arriving. Without this the book drains as policies settle
-        # and the protocol ends up demonstrating an empty pool.
+        # A trickle of invented buyers, off unless somebody turns it on.
+        #
+        # It wrote one every eight seconds -- about eleven thousand a day -- so
+        # that a fresh deployment would not demonstrate an empty pool. That was
+        # worth having when there was nothing else in the book. It stops being
+        # worth having the moment real policies are in there: the invented ones
+        # crowd the register, they are what the retention then has to forget,
+        # and every figure on the proof page is mostly about them.
+        #
+        # CLAUSE_DEMO_ARRIVALS is the number of seconds between them. Unset or
+        # zero, nobody arrives who was not sent by a person.
+        arrival_gap = 0.0
+        try:
+            arrival_gap = float(os.environ.get("CLAUSE_DEMO_ARRIVALS", "0") or 0)
+        except ValueError:
+            logger.warning("CLAUSE_DEMO_ARRIVALS is not a number; no invented buyers")
         arrivals = (
             asyncio.create_task(
-                _arrivals(pool, chain, wallets, app.state.declined, registry)
+                _arrivals(pool, chain, wallets, app.state.declined, registry,
+                          every=arrival_gap)
             )
-            if run_chain else None
+            if run_chain and arrival_gap > 0 else None
         )
+        if run_chain and arrival_gap <= 0:
+            logger.info("invented buyers are off (CLAUSE_DEMO_ARRIVALS)")
         async def resend() -> None:
             # Payout orders a partner's rail did not take, webhooks a partner
             # did not answer: tried again, with a back off, until they land.
@@ -3692,6 +3709,13 @@ def create_app(
     # do not move. Nothing a person bought is touched: the test is the
     # demonstration's own marker, or an address it derived for itself.
     demo_keep = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP", "2000") or 0))
+    #: How many of the demonstration's *paid* policies are kept on top of that.
+    #: They are a small share of the book -- about four in a hundred -- and they
+    #: are the whole of what the proof page is for. Kept in the same pot, they
+    #: were flushed with everything else: the page's own figure said thousands
+    #: had been paid and its register could not produce one, because the tally
+    #: outlives the record and the record is what a reader can check.
+    demo_keep_paid = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP_PAID", "400") or 0))
 
     def demo_policy(policy: Any, claimable: set[str] | None = None) -> bool:
         """The demonstration's own, by three tests in order.
@@ -3739,14 +3763,29 @@ def create_app(
             claimable = claimable_holders()
             closed = [p for p in pool.policies.values()
                       if not p.is_open and demo_policy(p, claimable)]
-            if len(closed) <= demo_keep:
+            # The ones that paid are kept in their own pot. Sharing one with the
+            # quiet majority meant they were flushed at the same rate, and since
+            # they are four in a hundred the register ran out of them long
+            # before it ran out of anything else -- so the page said thousands
+            # had been paid and could not show a single one. A tally outlives
+            # the record it counted; only the record can be read back.
+            def paid(policy):
+                return str(getattr(policy.status, "value", policy.status)) == "paid"
+
+            payments = [p for p in closed if paid(p)]
+            quiet = [p for p in closed if not paid(p)]
+            order = lambda p: (p.ends_at or p.bought_at or 0.0)
+            payments.sort(key=order)
+            quiet.sort(key=order)
+            gone = {p.policy_id for p in quiet[: max(0, len(quiet) - demo_keep)]}
+            gone |= {p.policy_id for p in payments[: max(0, len(payments) - demo_keep_paid)]}
+            if not gone:
                 return 0
-            closed.sort(key=lambda p: (p.ends_at or p.bought_at or 0.0))
-            gone = {p.policy_id for p in closed[: len(closed) - demo_keep]}
             for policy_id in gone:
                 pool.policies.pop(policy_id, None)
             chain.forget(gone)
-        logger.info("forgot %d settled demonstration policies, keeping %d", len(gone), demo_keep)
+        logger.info("forgot %d settled demonstration policies, keeping %d quiet and "
+                    "up to %d that paid", len(gone), demo_keep, demo_keep_paid)
         return len(gone)
 
     app.state.forget_demo_book = forget_demo_book

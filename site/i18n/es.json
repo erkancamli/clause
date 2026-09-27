@@ -2229,7 +2229,8 @@
     "Try preparing it again": "Intentar prepararlo de nuevo",
     "Every decision": "Todas las decisiones",
     "Which decisions to show": "Qué decisiones mostrar",
-    "No decision of this kind has been made yet.": "Todavía no se ha tomado ninguna decisión de este tipo."
+    "No decision of this kind has been made yet.": "Todavía no se ha tomado ninguna decisión de este tipo.",
+    "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "{n} de estas se han decidido y ninguno de sus registros sigue aquí. Esto es una demostración y olvida sus propias pólizas antiguas; el recuento sobrevive al registro. Cualquiera de ellas sigue respondiendo a su identificador abajo."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

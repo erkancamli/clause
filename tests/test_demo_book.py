@@ -53,15 +53,24 @@ def test_settled_demonstration_policies_are_forgotten_and_the_figures_do_not_mov
         kept_ids = set(pool.policies)
         settled = [p for p in pool.policies.values()
                    if not p.is_open and app.state.demo_policy(p)]
-        newest = {p.policy_id for p in sorted(settled, key=lambda p: (p.ends_at or 0.0))[-4:]}
+        # Two pots, not one. The ones that paid are a few in a hundred and they
+        # are the whole of what the proof page is for; sharing a pot with the
+        # quiet majority flushed them at the same rate, so the page ended up
+        # counting thousands of payments it could not show a single one of.
+        paid = lambda x: str(getattr(x.status, "value", x.status)) == "paid"
+        payments = sorted([p for p in settled if paid(p)], key=lambda p: (p.ends_at or 0.0))
+        quiet = sorted([p for p in settled if not paid(p)], key=lambda p: (p.ends_at or 0.0))
+        newest = {p.policy_id for p in quiet[-4:]} | {p.policy_id for p in payments}
         forgotten = app.state.forget_demo_book()
 
-        assert forgotten == len(settled) - 4 > 0, "all but the four most recent"
+        assert forgotten == max(0, len(quiet) - 4) > 0, "all but the four most recent quiet ones"
+        assert all(p.policy_id in pool.policies for p in payments), (
+            "a policy that paid is the proof, and is kept while there is room")
         assert bought.policy_id in pool.policies, "a policy a person bought is never forgotten"
         assert open_demo.policy_id in pool.policies, "an open policy is never forgotten"
         gone = kept_ids - set(pool.policies)
         assert len(gone) == forgotten and all(s.policy_id not in gone for s in chain.settlements)
-        assert newest & gone == set(), "the most recent are the ones kept"
+        assert newest & gone == set(), "the most recent, and every payment, are kept"
         assert {p.policy_id for p in settled} - gone == newest
 
         after = client.get("/api/health").json()["chain"]
@@ -171,3 +180,46 @@ def test_a_key_that_cannot_be_read_does_not_make_its_owner_nobody() -> None:
 
     assert "addr-unreadable" not in auth.keys, "it genuinely could not be read"
     assert "addr-unreadable" in auth.unreadable, "but it is still somebody's"
+
+
+# ---------------------------------------------------------------------------
+# Who arrives, and what is kept
+# ---------------------------------------------------------------------------
+
+
+def test_nobody_arrives_who_was_not_sent_by_a_person() -> None:
+    """A policy every eight seconds is eleven thousand a day. That was worth
+    having when the book was empty and stops being worth having the moment
+    real policies are in it: the invented ones crowd the register, they are
+    what the retention then has to forget, and every figure on the proof page
+    becomes mostly about them."""
+    import os
+    import re
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parent.parent / "clause" / "api" / "app.py").read_text(encoding="utf-8")
+    line = [l for l in source.splitlines() if "CLAUSE_DEMO_ARRIVALS" in l and "environ" in l]
+    assert line, "the trickle has no switch"
+    assert '"0"' in line[0], f"invented buyers are on by default: {line[0].strip()}"
+    # And the task is only created when the switch says a positive number.
+    assert "if run_chain and arrival_gap > 0 else None" in source
+
+
+def test_the_policies_that_paid_are_kept_when_the_quiet_ones_are_forgotten() -> None:
+    """The count outlives the record, and only the record can be read back.
+
+    Sharing one pot meant payments were flushed at the same rate as everything
+    else, and since they are a few in a hundred the register ran out of them
+    long before it ran out of anything: the proof page said thousands had been
+    paid and could not show one. Measured on the live protocol, which had
+    2,974 payments counted and none that could be opened.
+    """
+    from pathlib import Path
+
+    source = (Path(__file__).resolve().parent.parent / "clause" / "api" / "app.py").read_text(encoding="utf-8")
+    assert "demo_keep_paid" in source, "payments have no pot of their own"
+    where = source.index("def forget_demo_book")
+    body = source[where:where + 2400]
+    assert "payments" in body and "quiet" in body, "the two are not separated"
+    assert "len(quiet) - demo_keep" in body
+    assert "len(payments) - demo_keep_paid" in body
