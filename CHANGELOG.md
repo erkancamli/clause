@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.31.5, 27 September 2026
+
+- A reader insured a flat, went back to the first question, chose a flight
+  instead, and was carried all the way past the price and the contract before
+  the protocol refused the purchase: "http 422", against a declared value at
+  risk of 150,000 on a trip, where a trip is capped at 20,000.
+
+  Three things put that figure there, and all three are fixed. The declaration
+  opened at a made up 150,000 that nobody had entered; a change of peril
+  cleared every field of the declaration except the figure, so a flat's value
+  rode along onto a flight; and the slider that offers the figure was bounded
+  by four times the largest cover rather than by the bounds the protocol
+  publishes for exactly this purpose -- its own endpoint says "so the page can
+  show a buyer the ceiling as they type and the protocol can hold them to it".
+  Walked in a browser along the reader's own path: 118,737 declared against a
+  flight before, 1,000 after.
+
+- And the sentence they were shown, which was not English: "what the trip cost
+  must be between 50 and 20000". Those names are read back inside two
+  sentences, so they are noun phrases now rather than questions.
+
 ## 1.31.4, 27 September 2026
 
 - A flight policy showed somebody else's cover on the page they sign on. The
