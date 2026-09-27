@@ -933,6 +933,26 @@ def create_app(
                 retired = retire_world_specimens(registry)
                 if retired:
                     logger.info("suspended %s stand in companies", retired)
+        # The counts of records that are no longer here, cleared once.
+        #
+        # A book saved before the rule changed carries them: on the live
+        # protocol 72,466 of the 74,474 decisions it published had no record
+        # behind them, which is a page reporting a history it cannot show, and
+        # the count for the one thing it exists to be trusted about. They are
+        # dropped here rather than migrated, because there is nothing to migrate
+        # them to -- the records they counted were deleted, permanently, and no
+        # arithmetic brings one back. Every figure the chain publishes is a
+        # figure it can now be asked to show.
+        #
+        # This stays a no-op afterwards: the demonstration's retention no longer
+        # adds to this, so an empty dict is what every later start finds. Only
+        # the demonstration's own policies were ever forgotten -- the retention
+        # is guarded on it -- so nothing a person bought is counted here.
+        phantom = int((chain.forgotten or {}).get("settlements", 0))
+        if phantom:
+            chain.forgotten = {}
+            logger.info("dropped the counts of %s decisions whose records are "
+                        "gone; the figures now follow the records", phantom)
         if seed_book and not restored:
             _seed(pool, chain, wallets, registry)
         if keeper is not None:
@@ -963,15 +983,29 @@ def create_app(
             arrival_gap = float(os.environ.get("CLAUSE_DEMO_ARRIVALS", "0") or 0)
         except ValueError:
             logger.warning("CLAUSE_DEMO_ARRIVALS is not a number; no invented buyers")
+        # And how many are wanted in the end. CLAUSE_DEMO_TARGET is the size the
+        # demonstration book fills to, after which nobody else arrives: the
+        # trickle is bounded now, so it cannot go back to being eleven thousand a
+        # day. It defaults to what the retention keeps, because a book that fills
+        # past what is kept is a book being deleted as fast as it is written.
+        try:
+            arrival_target = max(0, int(os.environ.get("CLAUSE_DEMO_TARGET", "") or demo_keep))
+        except ValueError:
+            arrival_target = demo_keep
+            logger.warning("CLAUSE_DEMO_TARGET is not a number; using %s", demo_keep)
         arrivals = (
             asyncio.create_task(
                 _arrivals(pool, chain, wallets, app.state.declined, registry,
-                          every=arrival_gap)
+                          every=arrival_gap, until=arrival_target,
+                          is_demo=app.state.demo_policy)
             )
             if run_chain and arrival_gap > 0 else None
         )
         if run_chain and arrival_gap <= 0:
             logger.info("invented buyers are off (CLAUSE_DEMO_ARRIVALS)")
+        elif arrivals is not None:
+            logger.info("invented buyers every %ss until the demonstration book "
+                        "holds %s policies, then never again", arrival_gap, arrival_target)
         async def resend() -> None:
             # Payout orders a partner's rail did not take, webhooks a partner
             # did not answer: tried again, with a back off, until they land.
@@ -3708,14 +3742,14 @@ def create_app(
     # settlements, whose arithmetic the chain keeps so its published figures
     # do not move. Nothing a person bought is touched: the test is the
     # demonstration's own marker, or an address it derived for itself.
-    demo_keep = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP", "2000") or 0))
+    demo_keep = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP", "10000") or 0))
     #: How many of the demonstration's *paid* policies are kept on top of that.
     #: They are a small share of the book -- about four in a hundred -- and they
     #: are the whole of what the proof page is for. Kept in the same pot, they
     #: were flushed with everything else: the page's own figure said thousands
     #: had been paid and its register could not produce one, because the tally
     #: outlives the record and the record is what a reader can check.
-    demo_keep_paid = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP_PAID", "400") or 0))
+    demo_keep_paid = max(0, int(os.environ.get("CLAUSE_DEMO_KEEP_PAID", "2000") or 0))
 
     def demo_policy(policy: Any, claimable: set[str] | None = None) -> bool:
         """The demonstration's own, by three tests in order.
@@ -3783,7 +3817,9 @@ def create_app(
                 return 0
             for policy_id in gone:
                 pool.policies.pop(policy_id, None)
-            chain.forget(gone)
+            # Its arithmetic goes with its record. Keeping the arithmetic is
+            # what let this page publish 2,976 payments and open one of them.
+            chain.forget(gone, keep_arithmetic=False)
         logger.info("forgot %d settled demonstration policies, keeping %d quiet and "
                     "up to %d that paid", len(gone), demo_keep, demo_keep_paid)
         return len(gone)
@@ -6505,8 +6541,16 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
 async def _arrivals(
     pool: Pool, chain: Chain, wallets: Wallets,
     declined: list[dict[str, Any]], registry: Any = None, *, every: float = 8.0,
+    until: int = 0, is_demo: Any = None,
 ) -> None:
     """A trickle of new buyers, so the book keeps turning over.
+
+    It stops. ``until`` is how many demonstration policies are wanted, and once
+    the book holds that many the loop ends and writes nothing further. Without a
+    bound this wrote one every eight seconds for ever -- eleven thousand a day --
+    which is what made the register almost entirely invented and what the
+    retention then spent its time deleting. A book that fills once to the size
+    it is meant to be, and then stops, is the same demonstration without either.
 
     Each arrival is priced against the book as it stands at that moment, which
     is also the point: the same cover gets cheaper as the pool diversifies and
@@ -6539,6 +6583,12 @@ async def _arrivals(
     counter = 0
     while True:
         await asyncio.sleep(every)
+        if until > 0 and is_demo is not None:
+            held = sum(1 for policy in list(pool.policies.values()) if is_demo(policy))
+            if held >= until:
+                logger.info("the demonstration book holds %s policies, which is what "
+                            "was asked for; no more arrive", held)
+                return
         counter += 1
         peril, subject, (low, high), term = rng.choice(candidates)
         subject = dict(subject)

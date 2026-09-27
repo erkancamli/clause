@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.27.0, 27 September 2026
+
+- The figures answer for records that are here. 1.26.0 gave the proof page a
+  sentence explaining why it could count 2,976 payments and open one of them.
+  This removes the thing it was explaining. Measured on the live protocol:
+  74,474 decisions published, and 72,466 of them with no record behind them at
+  all -- so of the records the page invited a reader to check, 97 in 100 were
+  gone. The sentence was honest about a page that should not have needed it.
+
+  Forgetting a settled policy kept its arithmetic, so every figure the chain
+  published stayed the same afterwards. That is the right rule for a real book,
+  whose history happened whether or not its record is still carried, and it is
+  the wrong rule for a demonstration: a page whose whole argument is that you do
+  not have to believe it may not publish a figure it cannot show you. That is
+  the thing it argues against. So the demonstration's retention now drops the
+  arithmetic with the record, and the counts already in the saved book -- the
+  ones whose records were deleted permanently, which no arithmetic brings back
+  -- are dropped once on the next start. A real book's rule is unchanged, and it
+  is safe because that retention is the only caller of forgetting and is guarded
+  on nobody being able to reach the policy. Nothing a person bought is touched
+  by either rule.
+
+  The live page will read smaller for it, and that is the correction rather than
+  a cost: about two thousand decisions instead of 74,474, and a payment count in
+  the single figures instead of 2,976. Every one of them can be opened.
+
+- The book is allowed to be ten thousand, and the invented buyers stop when it
+  is. The retention keeps 10,000 rather than 2,000, payments keep 2,000 of their
+  own, and arrivals take a target: the book fills once to the size it is meant
+  to be and then nobody else arrives, ever. Unbounded was the actual fault
+  behind all of this -- one every eight seconds is eleven thousand a day, which
+  the retention then spent itself deleting -- and turning it off in 1.25.0 left
+  the book unable to reach a useful size. A bound answers both.
+
+  Arrivals stay off unless asked for, and what they cost is now written down
+  rather than discovered: each one is priced against the book as it stands,
+  measured at 938 ms of one core at the 12,000 trials this service runs with, so
+  ten thousand records is about 156 minutes of a core fully busy however small
+  the gap is made. A gap of two seconds spreads that across roughly eight hours
+  at about a third of a core.
+
+  The test for it runs the loop and waits for it to stop, rather than reading the
+  source for a switch, because the thing worth knowing is that it actually stops.
+
 ## 1.26.0, 27 September 2026
 
 - The live readings are above the hero, not at the foot of the page. Three
