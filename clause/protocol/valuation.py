@@ -820,7 +820,7 @@ def value_of(size: dict[str, Any], *, country: str | None = None,
     if kind == "vehicle":
         # A car's value is its market value, which the buyer knows and a size
         # cannot tell; stated, and bounded.
-        value = _number(size, "value", VEHICLE, "what the vehicle is worth")
+        value = _number(size, "value", VEHICLE, "the vehicle's value")
         if "model_year" not in size:
             return Valuation(value, "the vehicle's market value, as stated",
                              {"kind": "vehicle", "value": value})
@@ -830,7 +830,7 @@ def value_of(size: dict[str, Any], *, country: str | None = None,
                          f"the stated value of {value:,.0f}, capped at {cap:,.0f} for a {year} model",
                          {"kind": "vehicle", "value": value, "model_year": year})
     if kind == "trip":
-        value = _number(size, "value", TRIP, "what the trip cost")
+        value = _number(size, "value", TRIP, "the trip cost")
         return Valuation(value, "the cost of the trip, as stated", {"kind": "trip", "value": value})
     raise ValuationError("describe what is at risk: a home, a field or a trip")
 

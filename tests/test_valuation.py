@@ -285,3 +285,37 @@ def test_every_country_with_a_trap_has_it_written_down_by_name() -> None:
     for country, figure in REFUSED.items():
         assert figure.kind in ("permit", "budget", "insurance"), country
         assert len(figure.note) > 60, f"{country} does not say why"
+
+
+def test_a_refused_figure_says_so_in_a_sentence() -> None:
+    """These names are read back inside two sentences, so they have to be noun
+    phrases. Written as questions, a buyer was shown "what the trip cost must
+    be between 50 and 20000", which is not English.
+    """
+    from clause.protocol.valuation import ValuationError, value_of
+
+    for size, head in (({"kind": "trip"}, "give "),
+                       ({"kind": "vehicle", "model_year": 2020}, "give ")):
+        try:
+            value_of(size)
+        except ValuationError as error:
+            said = str(error)
+            assert said.startswith(head), said
+            assert not said.startswith(head + "what "), (
+                f"reads as a question rather than a thing: {said!r}"
+            )
+        else:
+            raise AssertionError(f"{size} gave a value with nothing to value")
+
+    for size in ({"kind": "trip", "value": 10 ** 6},
+                 {"kind": "vehicle", "value": 1, "model_year": 2020}):
+        try:
+            value_of(size)
+        except ValuationError as error:
+            said = str(error)
+            assert " must be between " in said, said
+            assert not said.startswith("what "), (
+                f"reads as a question rather than a thing: {said!r}"
+            )
+        else:
+            raise AssertionError(f"{size} was accepted and should not be")

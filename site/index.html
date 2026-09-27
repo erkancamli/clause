@@ -6456,7 +6456,11 @@ var flow={
   step:1, reached:1,
   peril:"quake", subject:null, radius:50, limit:100000, instalments:1,
   // The declaration that separates cover from a wager.
-  interest:{what:"", value:150000, inside:false, country:"TR", touched:false, declared:0, modelYear:null, address:null},
+  // Nothing is declared until somebody declares it. This opened at 150,000,
+  // which is where that figure on a flight came from: the value a reader had
+  // never entered, carried past a change of peril the reset did not cover.
+  // Zero means "not yet", and the risk step starts it from the cover instead.
+  interest:{what:"", value:0, inside:false, country:"TR", touched:false, declared:0, modelYear:null, address:null},
   place:null, busy:false, quoted:null, quotedFor:null, refusal:null, seq:0, stationKm:0,
   // Where the chosen point is, as the protocol answered: its country, and for
   // a point outside Türkiye the catalogue model's rates for each radius.
@@ -8404,7 +8408,11 @@ function choosePeril(key){
   if(key!==flow.peril||!flow.chosen){
     // A different thing to protect starts its own declaration: "a flat in
     // Kadıköy" is not what is at risk on a flight.
-    flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
+    // The figure is part of the declaration too. It was the one field left
+    // behind, so 150,000 declared against a flat rode along onto a flight,
+    // where the protocol caps a trip at 20,000 -- and said so only at the
+    // last step, as "http 422", after the price and the contract.
+    flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.value=0; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
     flow.place=null; flow.quoted=null; flow.refusal=null;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
@@ -8488,9 +8496,24 @@ $("next").addEventListener("click",function(){
    at risk, and refused outright if the thing insured is not inside the area the
    index measures. Both are checked here, and again by the protocol. */
 
+/* What may be declared at risk, held to what the protocol will accept.
+
+   This was four times the largest cover and nothing else, which for a flight
+   reached 20,000 by arithmetic rather than by agreement -- and for anything
+   carried in from another peril, no ceiling at all. The protocol publishes its
+   own bounds for exactly this ("so the page can show a buyer the ceiling as
+   they type and the protocol can hold them to it"), so they are what bounds
+   the slider. A reader cannot be offered a figure that will be refused after
+   they have read the contract. */
+var VALUE_BOUNDS={flight:"trip", car:"vehicle"};
 function valueRange(){
-  var limits=PERILS[flow.peril].limits;
-  return [limits[0], limits[1]*4];
+  var limits=PERILS[flow.peril].limits, low=limits[0], high=limits[1]*4;
+  var said=VALUATION&&VALUATION[VALUE_BOUNDS[flow.peril]];
+  if(said&&said.length===2&&said[0]<said[1]){
+    low=Math.max(low,said[0]);
+    high=Math.min(high,said[1]);
+  }
+  return [low, Math.max(high, low*1.01)];
 }
 function valueFromSlider(v){
   var range=valueRange(),f=(v-1)/99;
@@ -8543,6 +8566,10 @@ function renderInterest(){
   $("value-field").hidden=!trip;
   if(trip){
     if(!interest.touched) interest.value=Math.max(interest.value||0, flow.limit);
+    var bounds=valueRange();
+    interest.value=Math.min(bounds[1],Math.max(bounds[0],interest.value||bounds[0]));
+    if(interest.declared)
+      interest.declared=Math.min(bounds[1],Math.max(bounds[0],interest.declared));
     $("value").value=sliderFromValue(interest.declared||interest.value);
     $("value-val").textContent=f0.format(interest.declared||interest.value)+" USDC";
     $("size-box").innerHTML=flow.peril==="car"?carYearHtml():"";
@@ -8648,7 +8675,10 @@ var VALUATION={
     ID:{maize:2214}, PH:{maize:985},
     JP:{wheat:1276,barley:2354,sugar_beet:7147},
     NZ:{wheat:3091,barley:2075,maize:3639}},
-  area_m2:[15,3000], area_ha:[0.01,5000], built:[1900,new Date().getFullYear()], model_year:[1990,new Date().getFullYear()]};
+  area_m2:[15,3000], area_ha:[0.01,5000], built:[1900,new Date().getFullYear()], model_year:[1990,new Date().getFullYear()],
+  // The protocol's own bounds for a declared figure, held here too so the
+  // slider is right before /api/valuation has answered rather than after.
+  trip:[50,20000], vehicle:[1000,250000]};
 var VALUATION_READ=false;
 function loadValuation(){
   if(VALUATION_READ||!link.live)return;
