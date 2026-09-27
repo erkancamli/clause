@@ -2233,7 +2233,9 @@
     "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "このうち {n} 件は判定済みですが、その記録はもうここにありません。これはデモンストレーションで、自らの古い契約を忘れます。件数は記録より長く残ります。いずれも下の欄に証券番号を入れれば今も応答します。",
     "Reading the sources…": "情報源を読み込んでいます…",
     "Nothing to report right now.": "いま報告はありません。",
-    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "直近の {n} 件です。各ボタンの数字はすべてを数えており、上限はありません。"
+    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "直近の {n} 件です。各ボタンの数字はすべてを数えており、上限はありません。",
+    "This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged.": "この補償は表示できないため、購入もできません。一つ前の手順に戻って選び直してください。請求は一切ありません。",
+    "This cover cannot be shown": "この補償は表示できません"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

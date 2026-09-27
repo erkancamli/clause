@@ -2233,7 +2233,9 @@
     "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "{n} de estas se han decidido y ninguno de sus registros sigue aquí. Esto es una demostración y olvida sus propias pólizas antiguas; el recuento sobrevive al registro. Cualquiera de ellas sigue respondiendo a su identificador abajo.",
     "Reading the sources…": "Leyendo las fuentes…",
     "Nothing to report right now.": "Nada que informar ahora.",
-    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "Los {n} más recientes. La cifra de cada botón los cuenta todos y nada la limita."
+    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "Los {n} más recientes. La cifra de cada botón los cuenta todos y nada la limita.",
+    "This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged.": "Esta cobertura no puede mostrarse, así que no puede comprarse. Vuelva un paso atrás y elija de nuevo; no se ha cobrado nada.",
+    "This cover cannot be shown": "Esta cobertura no puede mostrarse"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

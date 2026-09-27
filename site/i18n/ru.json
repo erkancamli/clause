@@ -2233,7 +2233,9 @@
     "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "{n} из них были решены, и ни одной их записи здесь больше нет. Это демонстрация, и она забывает собственные старые полисы; счёт переживает запись. Любой из них по-прежнему отвечает на свой идентификатор ниже.",
     "Reading the sources…": "Чтение источников…",
     "Nothing to report right now.": "Сейчас сообщать нечего.",
-    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "Последние {n}. Число на каждой кнопке считает все и ничем не ограничено."
+    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "Последние {n}. Число на каждой кнопке считает все и ничем не ограничено.",
+    "This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged.": "Это покрытие невозможно показать, а значит и купить. Вернитесь на шаг назад и выберите заново; ничего не списано.",
+    "This cover cannot be shown": "Это покрытие невозможно показать"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
