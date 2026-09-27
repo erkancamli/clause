@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.27.2, 27 September 2026
+
+- The row above the hero moved the hero, and the measurement that said it did
+  not was the fault. 1.26.0 claimed the digest holds its height from the first
+  paint, "measured at 55px empty and 55px full". The measurement was worthless:
+  the feeds it used answered instantly, so by the time the row was read it had
+  already filled. "Before" was the same moment as "after", and the state the
+  measurement existed to check was never on screen.
+
+  Measured properly -- the live feeds, with their answers held back four seconds
+  -- the row stood 65px while it said it was reading and 55px once it had
+  readings, so the hero moved ten pixels under the reader at the top of the page.
+  That is the whole thing the standing-in line was added to prevent.
+
+  Two constants were tried before the fix and both were wrong. The line of text
+  was 43px against an assumed 37; then a 37px floor against a chip that actually
+  measures 35.19px here. The figure moves with the font, so no number written
+  here is right for long. The stand-in is a chip now, which is the same height as
+  a chip by construction, and the row is 55px in both states on a phone and a
+  desktop with nothing to get wrong. Its test holds that mechanism rather than
+  the sentence, because the old test passed for the whole time the row was ten
+  pixels out.
+
+  Fixing the height broke the width, and that was measured too. A chip sits in a
+  track that hides its overflow behind a mask, and the sentence the digest
+  carried wanted 451px of a 252px track: a phone was shown two thirds of it, with
+  the mask making the cut look like a fade. What the row says is one row long now
+  -- and for the case where the protocol is not answering, it says what the sign
+  in strip already says, which is short and already translated. Where even the
+  short one does not fit, at 320px, it ends in an ellipsis, which at least says it
+  was cut; that needed the row to stop being as wide as it wants, because a
+  max-content row makes "as wide as the row" mean "as wide as you like".
+
+  And the languages were never switched. Every measurement in 1.26.0 that claimed
+  four or six languages set localStorage's "clause.lang"; the page reads
+  "clause-lang". One language, measured four times, reported as four. Measured
+  properly, at 390px and 320px, in English and all six: nothing overflows.
+
+  Found by running the published page against the live protocol in a browser,
+  which is also where the second look came from: the digest carried six chips
+  rather than nine because the United States flight feed genuinely had no delay
+  programmes in force. Three feeds, one of them empty, three plus three plus
+  nothing -- the row was right and the expectation of nine was the mock's.
+
 ## 1.27.1, 27 September 2026
 
 - 1.27.0 is reverted, and one part of it cannot be. The code is back to what

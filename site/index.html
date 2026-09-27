@@ -882,6 +882,18 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
    label is what holds the row to the height of a single chip. */
 .now-top{padding-top:10px;padding-bottom:0}
 .band-one{margin-top:0}
+.band-one .band-run{align-items:center}
+/* The stand-in is a chip, so the row is a chip tall whatever it says -- and what
+   it says is kept to the width there is. At 320px the track is 182px and six of
+   the seven translations wanted between 183 and 219, so a reader was shown most
+   of a sentence with a mask over the cut. It ends in an ellipsis now, which says
+   it was cut, and at 390px nothing is. The text sits in a span because the
+   ellipsis needs a block to happen in and the chip's own height comes from its
+   being a flex row -- changing that changes the height this exists to hold. */
+.band-one .band-run.one-line{width:100%}
+.band-one .chip.saying{max-width:100%;min-width:0}
+.band-one .chip.saying>span{display:block;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;min-width:0}
 @media (max-width:640px){
   .band-one{grid-template-columns:104px 1fr}
   .band-one .band-label{border-right:1px solid var(--edge);border-bottom:0;padding:8px 10px}
@@ -11951,7 +11963,7 @@ function paintDigest(){
   if(!DIGEST_FEEDS.some(function(feed){ return held[feed] !== undefined; })){
     if(LIVE.digestDrawn === null)return;
     LIVE.digestDrawn = null;
-    bandFill("band-now-run", [], t("Reading the sources…"));
+    digestSaying(t("Reading the sources…"));
     return;
   }
   all.sort(function(a, b){ return chipRank(a) - chipRank(b); });
@@ -11966,24 +11978,52 @@ function paintDigest(){
      the beginning every minute, above the hero, reads as a fault rather than as
      a refresh. The three bands below are left as they are: each is rewritten
      only by its own feed, and each is at the foot of the page. */
+  if(!all.length){
+    digestSaying(t("Nothing to report right now."));
+    return;
+  }
   var run = $("band-now-run"), was = null;
   try{
     if(run.getAnimations)
       run.getAnimations().forEach(function(a){ if(was === null)was = a.currentTime; });
   }catch(err){}
-  bandFill("band-now-run", all.map(chipUnlinked),
-    t("The sources this protocol settles against have nothing to report right now."));
+  run.classList.remove("one-line");
+  bandFill("band-now-run", all.map(chipUnlinked), "");
   try{
     if(was !== null && run.getAnimations)
       run.getAnimations().forEach(function(a){ a.currentTime = was; });
   }catch(err){}
 }
 
+/* What the row says before it has readings, said in a chip.
+   It was a line of text, and the row was then a different height from the row it
+   stands in for: 65px against 55, a ten pixel shift at the top of the page,
+   which is the whole reason the stand-in exists. Two constants were tried and
+   both were wrong -- a chip measures 35.19px here, not the 37 that was assumed,
+   and the figure moves with the font. A chip is the same height as a chip, so
+   the stand-in is one. The shift was measured as zero before that because the
+   measurement filled the row before it read it: feeds that answer instantly
+   make "before" the same moment as "after". */
+function digestSaying(text){
+  var run = $("band-now-run");
+  if(!run)return;
+  // Measured at 390px: the track is 252px and the sentence this used to carry
+  // wanted 451px, so a phone was shown two thirds of it under a mask that made
+  // the cut look like a fade. What the digest says is kept to one row's worth.
+  run.style.animation = "none";
+  run.style.removeProperty("--dur");
+  run.classList.add("one-line");
+  run.innerHTML = '<span class="chip saying"><span>' + esc(text) + '</span></span>';
+}
+
 function digestUnreachable(){
   LIVE.digest = {};
   LIVE.digestDrawn = undefined;
   if($("band-now-run"))
-    bandFill("band-now-run", [], t("The protocol is not reachable, so there is nothing live to show."));
+    // The short one, which the sign in strip already uses and which already has
+    // its six translations: the long sentence is the three bands' to say, where
+    // there is a row each to say it in.
+    digestSaying(t("The protocol is not answering."));
 }
 
 function renderLive(){

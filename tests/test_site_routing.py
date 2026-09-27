@@ -307,14 +307,35 @@ def test_the_digest_carries_no_links() -> None:
 
 def test_the_digest_holds_its_height_before_it_has_anything_to_say() -> None:
     """An empty row that fills later moves the hero under the reader, at the top
-    of the page, which is the worst place for it. It says it is reading instead,
-    from the first paint, and the row is the same height either way -- measured
-    at 55px empty and 55px full, on a phone and on a desktop, in four
-    languages."""
+    of the page, which is the worst place for it. So it says it is reading from
+    the first paint -- and for that to help, the row has to be the same height
+    while it says so.
+
+    It was not. The stand-in was a line of text and stood 65px; with readings in
+    it the row is 55px. Ten pixels, at the top of the page, which is the whole
+    thing the stand-in exists to prevent. It was reported as zero because the
+    measurement filled the row before it read it: feeds that answer instantly
+    make "before" the same moment as "after", so the state being measured was
+    never on screen. Measured against the live feeds with their answers held
+    back, it was ten; it is zero now, on a phone and a desktop.
+
+    Two constants were tried before this and both were wrong -- a chip measures
+    35.19px here, not the 37 that was assumed -- because the figure moves with
+    the font. A chip is the same height as a chip, so the stand-in is one, and
+    there is no number to get wrong.
+    """
     assert "paintDigest();\n  fillNowCountries();" in PAGE, (
         "the row is not drawn until the protocol answers")
-    where = PAGE.index("function paintDigest")
-    assert "Reading the sources" in PAGE[where:where + 900]
+    where = PAGE.index("function digestSaying")
+    saying = PAGE[where:where + 800]
+    assert 'class="chip saying"' in saying, (
+        "the stand-in is not a chip, so the row is a different height for it")
+    assert "band-empty" not in saying, (
+        "a line of text is not the height of the chip it stands in for")
+    digest = PAGE[PAGE.index("function paintDigest"):PAGE.index("function digestSaying")]
+    assert 'bandFill("band-now-run", [],' not in digest, (
+        "the digest still paints an empty row through the line-of-text path")
+    assert "Reading the sources" in digest
 
 
 def test_no_feed_can_leave_the_digest_waiting() -> None:
@@ -348,3 +369,52 @@ def test_the_digest_takes_only_a_few_from_each_feed() -> None:
     assert "chipRank" in body, "a feed's own share is not ordered by severity"
     merged = PAGE[PAGE.index("function paintDigest"):PAGE.index("function digestUnreachable")]
     assert "chipRank" in merged, "the merged row is not ordered by severity"
+
+
+def test_what_the_digest_says_fits_the_row_it_says_it_in() -> None:
+    """One row is one row wide, and a sentence longer than it is a sentence a
+    reader cannot finish.
+
+    Making the stand-in a chip fixed its height and broke this: a chip sits in a
+    track that hides its overflow behind a mask, so the sentence the digest used
+    to carry -- 451px of it against a 252px track on a 390px phone -- was cut and
+    the mask made the cut look like a fade. It says something one row long now,
+    and where even that does not fit it ends in an ellipsis, which at least says
+    it was cut. Measured at 390px and 320px in all six languages and English:
+    nothing overflows.
+
+    The ellipsis needed the row to stop being as wide as it wants. The track is
+    what there is, so the run takes the track's width while it is standing in,
+    and the readings go back to taking the width they need because the row
+    scrolls them.
+    """
+    where = PAGE.index("function digestSaying")
+    saying = PAGE[where:where + 900]
+    assert 'class="chip saying"' in saying, "the stand-in cannot be measured against the row"
+    assert 'classList.add("one-line")' in saying, (
+        "the row is still as wide as it wants, so nothing constrains the sentence")
+    assert ".band-one .band-run.one-line{width:100%}" in PAGE
+    assert "text-overflow:ellipsis" in PAGE[PAGE.index(".band-one .chip.saying"):][:300], (
+        "a sentence too long for the row is cut without saying so")
+    # And the readings take their own width back, or they would all be squeezed
+    # into one screen instead of scrolling.
+    digest = PAGE[PAGE.index("function paintDigest"):PAGE.index("function digestSaying")]
+    assert 'classList.remove("one-line")' in digest
+
+
+def test_the_digest_says_something_a_row_can_hold() -> None:
+    """The long sentence was the wrong length for the place it was put, and the
+    six translations of it are longer still. The short one is what the row says,
+    and the sign in strip's own "not answering" stands in for the long
+    unreachable sentence, which the three bands at the foot of the page have room
+    for and the digest does not."""
+    assert "The sources this protocol settles against have nothing to report" not in PAGE, (
+        "the sentence that needed 451px is back in a 252px row")
+    assert '"Nothing to report right now."' in PAGE
+    for code in LANGS:
+        strings = json.loads((SITE / "i18n" / f"{code}.json").read_text(encoding="utf-8"))["strings"]
+        short = strings.get("Nothing to report right now.")
+        assert short and short != "Nothing to report right now.", code
+        # No translation may be wildly longer than the English, because the row
+        # is the same width in every language.
+        assert len(short) <= 40, f"{code}: {short!r} is {len(short)} characters"

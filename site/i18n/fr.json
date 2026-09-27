@@ -2232,8 +2232,8 @@
     "No decision of this kind has been made yet.": "Aucune décision de ce type n’a encore été prise.",
     "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "{n} d’entre elles ont été décidées, et aucun de leurs enregistrements n’est encore ici. Ceci est une démonstration et elle oublie ses propres anciennes polices ; le compte survit à l’enregistrement. Chacune répond encore à son identifiant ci-dessous.",
     "Reading the sources…": "Lecture des sources…",
-    "The sources this protocol settles against have nothing to report right now.": "Les sources sur lesquelles ce protocole règle n’ont rien à signaler pour le moment.",
-    "All {n} of these were decided. The protocol still carries the most recent {shown}: this is a demonstration and it forgets its own old policies, so the count outlives the record. Any of the others still answers to its id below.": "Toutes ces {n} ont été décidées. Le protocole conserve encore les {shown} plus récentes : ceci est une démonstration et elle oublie ses propres anciennes polices, de sorte que le compte survit à l’enregistrement. N’importe laquelle des autres répond encore à son identifiant ci-dessous."
+    "All {n} of these were decided. The protocol still carries the most recent {shown}: this is a demonstration and it forgets its own old policies, so the count outlives the record. Any of the others still answers to its id below.": "Toutes ces {n} ont été décidées. Le protocole conserve encore les {shown} plus récentes : ceci est une démonstration et elle oublie ses propres anciennes polices, de sorte que le compte survit à l’enregistrement. N’importe laquelle des autres répond encore à son identifiant ci-dessous.",
+    "Nothing to report right now.": "Rien à signaler pour le moment."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

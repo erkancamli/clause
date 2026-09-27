@@ -2232,8 +2232,8 @@
     "No decision of this kind has been made yet.": "Eine Entscheidung dieser Art gibt es noch nicht.",
     "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "{n} davon wurden entschieden, und keiner ihrer Datensätze ist noch hier. Dies ist eine Demonstration, die ihre eigenen alten Policen vergisst; die Zahl überlebt den Datensatz. Jede einzelne antwortet unten weiterhin auf ihre Kennung.",
     "Reading the sources…": "Die Quellen werden gelesen…",
-    "The sources this protocol settles against have nothing to report right now.": "Die Quellen, gegen die dieses Protokoll abrechnet, melden im Moment nichts.",
-    "All {n} of these were decided. The protocol still carries the most recent {shown}: this is a demonstration and it forgets its own old policies, so the count outlives the record. Any of the others still answers to its id below.": "Alle {n} davon wurden entschieden. Das Protokoll trägt noch die {shown} neuesten: Dies ist eine Demonstration, die ihre eigenen alten Policen vergisst, deshalb überlebt die Zahl den Datensatz. Jede der übrigen antwortet unten weiterhin auf ihre Kennung."
+    "All {n} of these were decided. The protocol still carries the most recent {shown}: this is a demonstration and it forgets its own old policies, so the count outlives the record. Any of the others still answers to its id below.": "Alle {n} davon wurden entschieden. Das Protokoll trägt noch die {shown} neuesten: Dies ist eine Demonstration, die ihre eigenen alten Policen vergisst, deshalb überlebt die Zahl den Datensatz. Jede der übrigen antwortet unten weiterhin auf ihre Kennung.",
+    "Nothing to report right now.": "Im Moment nichts zu melden."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
