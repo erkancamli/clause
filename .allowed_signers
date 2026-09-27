@@ -1,0 +1,21 @@
+# Who may sign a commit here, and with which key.
+#
+# Commits are signed with SSH rather than GPG: one key, no keyring, and the
+# signature carries the public half so it can be read back off any commit
+# without asking anybody for it. This file is what lets git check a signature
+# locally -- without it, "git log --show-signature" cannot say good or bad, only
+# that it has nothing to compare against, which is how 134 signed commits sat
+# here reading as unsigned.
+#
+# Public keys only. Nothing in this file is a secret, which is why it can be in
+# the repository at all.
+#
+#   git -c gpg.ssh.allowedSignersFile=.allowed_signers log --show-signature
+#
+# and, to have it always:
+#
+#   git config gpg.ssh.allowedSignersFile .allowed_signers
+#
+# namespaces="git" keeps a key that may sign commits from also standing for a
+# key that may sign anything else.
+erkancamli@gmail.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKy87HxSEheG8vEPhSs9u2KZCtVErAQfpmprtUJCZ2w7
