@@ -167,6 +167,46 @@ def test_a_single_word_is_translated_too(lang) -> None:
 
 
 @pytest.mark.parametrize("lang", LANGS)
+def test_the_type_inside_a_drawing_is_translated(lang) -> None:
+    """The two tests above both excuse a line set entirely in capitals.
+
+    That is right for a unit or a ticker, and wrong for the labels on this
+    site's drawings, which are set in capitals as a matter of style and are
+    ordinary English underneath. Every one of them is in fact translated, so
+    the exemption was never a decision about drawings; it was a hole those two
+    tests happened to leave, and a new figure could ship its whole legend in
+    English through it.
+    """
+    strings = dictionary(lang)["strings"]
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    labels = set()
+    for svg in re.findall(r"<svg\b.*?</svg>", html, re.S):
+        for text in re.findall(r"<text[^>]*\bdata-i18n\b[^>]*>([^<]+)</text>", svg):
+            text = re.sub(r"\s+", " ", text).strip()
+            if re.search(r"[A-Za-z]{2}", text):
+                labels.add(text)
+    assert len(labels) > 20, f"only {len(labels)} labels found; the drawings are not being read"
+    missing = sorted(s for s in labels if s not in strings)
+    assert not missing, missing[:8]
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_what_a_drawing_says_to_a_screen_reader_is_translated(lang) -> None:
+    """A drawing's description is the whole of it for anyone who cannot see it.
+
+    Nothing was checking these, and five figures reached every non-English
+    reader with their description in English. Four of them had been that way
+    since the release that drew them.
+    """
+    strings = dictionary(lang)["strings"]
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    described = set(re.findall(r'aria-label="([^"]+)" data-i18n-aria', html))
+    assert described, "no described elements found; the page is not being read"
+    missing = sorted(s for s in described if s not in strings)
+    assert not missing, missing[:8]
+
+
+@pytest.mark.parametrize("lang", LANGS)
 def test_the_binding_text_is_english(lang) -> None:
     assert dictionary(lang)["binding"] == "en"
 
