@@ -1008,9 +1008,15 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
       column-gap:clamp(32px,4vw,72px);align-items:start}
     .hero-text h1{grid-column:1;grid-row:1;margin:0}
     .hero-text .choose{grid-column:1;grid-row:2 / span 2;margin-top:clamp(18px,2.4vw,30px)}
-    .hero-text > p{grid-column:2;grid-row:1;max-width:46ch;margin:0}
-    .hero-text .hero-cta{grid-column:2;grid-row:2;align-self:start;margin:clamp(18px,2.4vw,30px) 0 0}
-    .hero-text .trust{grid-column:2;grid-row:3;margin-top:14px;align-self:start}
+    /* Centred in the column it is given. Left against its edge, the buttons
+       took 409px of a 678px column and the marks under them 328, so a third of
+       the column stood empty beside both and the block read as pushed aside
+       rather than placed. */
+    .hero-text > p{grid-column:2;grid-row:1;max-width:46ch;margin:0 auto;text-align:center}
+    .hero-text .hero-cta{grid-column:2;grid-row:2;align-self:start;justify-self:center;
+      justify-content:center;margin:clamp(18px,2.4vw,30px) 0 0}
+    .hero-text .trust{grid-column:2;grid-row:3;margin-top:14px;align-self:start;
+      justify-self:center;justify-content:center}
 
     /* One under another, and each one a row rather than a card: the picture
        becomes a thumbnail, the name and the line it pays on sit beside it. A
@@ -1048,36 +1054,25 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
    a row of columns, not a stack. The rule down the side of the one being read
    moves to the top of it, because a column's edge is not where an eye looks. */
 @media (min-width:1300px){
-  /* Five columns of four parts each: the label, the heading, what it says and
-     the line the protocol wrote. Left to themselves the columns centred their
-     own contents, so every one of them started at a different height and the
-     five code boxes landed wherever their paragraph left them -- a row of five
-     things that plainly were not a row. Subgrid puts the four parts on four
-     rows the whole band shares, so the labels sit on one line, the headings on
-     another, and the boxes on the floor together, whatever length the words
-     are in whichever of six languages. */
-  .beats{grid-template-columns:repeat(5,minmax(0,1fr));
-    grid-auto-rows:auto auto 1fr auto;
-    column-gap:clamp(16px,1.8vw,40px);row-gap:clamp(10px,1vw,14px)}
-  .beat{padding-left:0;padding-top:18px;align-content:start;gap:0;
+  /* Five rows, not five columns. Side by side each step had about 250px to say
+     itself in and the block ran 1328px wide, so the words broke into short
+     stacks and the row was wide without being full. Across, a step is one line
+     of reading: what it is called, what happens, and the line the protocol
+     wrote, left to right -- and the block stops at a width a sentence can be
+     read across rather than taking whatever the window has. */
+  .beats{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto;
+    max-width:1180px;margin-inline:auto;row-gap:0;column-gap:0}
+  .beat{grid-template-columns:minmax(210px,.85fr) minmax(0,1.35fr) minmax(230px,.9fr);
+    grid-template-areas:"num text said" "head text said";
+    column-gap:clamp(20px,2.4vw,46px);row-gap:6px;
+    align-items:start;align-content:start;
+    padding:clamp(20px,2.2vw,30px) 0 clamp(20px,2.2vw,30px);
     border-top:1px solid var(--edge)}
-  .beat + .beat{border-top:1px solid var(--edge)}
   .beat::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px}
-  .beat p,.beat .said{max-width:44ch}
-  /* One line of code or three, the boxes are one floor: tops already share a
-     row, and stretching gives them a bottom as well. */
-  .beat .said{align-self:stretch}
-  @supports (grid-template-rows:subgrid){
-    .beat{grid-row:span 4;grid-template-rows:subgrid}
-  }
-  /* Without subgrid the parts cannot share rows, so the columns at least start
-     together and the boxes are pushed to the bottom of each. */
-  @supports not (grid-template-rows:subgrid){
-    .beat{grid-template-rows:auto auto 1fr auto;row-gap:10px}
-  }
-}
-@media (min-width:1600px){
-  .beat p,.beat .said{max-width:38ch}
+  .beat .num{grid-area:num}
+  .beat h2{grid-area:head;margin:0}
+  .beat > p{grid-area:text;max-width:52ch;margin:0}
+  .beat .said{grid-area:said;max-width:none;align-self:start;margin:0}
 }
 .beat{display:grid;gap:10px;align-content:center;padding-block:clamp(22px,5vh,46px)}
 .beat + .beat{border-top:1px solid var(--edge)}
@@ -1122,7 +1117,7 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
      beside five steps of text, which is what made it a tall box with a small
      drawing in it. As a row it is as wide as the page and as tall as it needs
      to be. */
-  .hero-art{margin:0;max-width:none;width:100%;align-self:stretch;background:none;
+  .hero-art{margin:0 auto;max-width:1180px;width:100%;align-self:stretch;background:none;
     padding-block:0;position:static;transform:none}
 }
 .stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);

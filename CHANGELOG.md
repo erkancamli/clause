@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.30.1, 27 September 2026
+
+- The hero's right hand block is centred in the column it was given. Held to
+  the column's left edge, the buttons took 409px of 678 and the marks under
+  them 328, so a third of it stood empty beside both and the block read as
+  pushed aside rather than placed. The three of them now share one axis: the
+  sentence, the buttons and the marks all centre on 1605 of a column running
+  1266 to 1944.
+
+  What moved them was not what it looked like. They are narrower than the area
+  they sit in, so centring them is justify-self on the item; justify-content
+  inside it does nothing, which is what the first attempt did and why the
+  paragraph moved and the buttons did not.
+
+- The five steps are five rows. Side by side each had about 250px to say itself
+  in and the block ran 1328px wide, so the words broke into short stacks and
+  the row was wide without being full. Across, a step is one line of reading:
+  what it is called, what happened, and the line the protocol wrote, left to
+  right. The three columns hold their positions down all five rows, and the
+  block stops at 1180px -- a width a sentence can be read across rather than
+  whatever the window happens to have.
+
+  The instrument above them stops at the same 1180. One block with one edge,
+  rather than a reading and its explanation stepping in and out of each other.
+
 ## 1.30.0, 27 September 2026
 
 - Every screen is banded now, not just the home page. A band reaches the edges
