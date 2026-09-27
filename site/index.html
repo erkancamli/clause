@@ -2736,6 +2736,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <p class="fine" style="margin-bottom:6px" data-i18n>Everything you chose, in one place. Anything wrong can be changed before you pay.</p>
           <div id="answers-rows"></div>
         </section>
+        <p class="verdict no" id="confirm-broken" role="alert" hidden></p>
         <p class="plain" id="plain"></p>
         <figure class="chart-box">
           <svg class="art" id="curve" viewBox="0 0 540 272" role="img" aria-label="Payout curve" data-i18n-aria></svg>
@@ -6971,9 +6972,19 @@ function plainSentence(){
       {station:esc(s.name), km:f0.format(Math.round(flow.stationKm)), place:esc(subjectLabel()),
        mm:f0.format(Math.round(.8*s.normal)), season:esc(t(s.season)), full:money(l), premium:money(q.premium)});
   }
-  var r=ROUTES[flow.subject];
+  // The two ends, named the way the rest of the step names them. This read
+  // ROUTES[flow.subject], and could not ever hit: the subject of a flight is
+  // "IST-GZT" while that table is keyed "TK-IST-LHR", and the table only holds
+  // six routes in any case. So the lookup was undefined and this line threw on
+  // every flight policy -- and renderPrice stops where it throws, which left
+  // the sentence, the chart, the table, the company and the contract all
+  // showing the policy before this one, with the summary beside them showing
+  // this one. The page the buyer signs on cannot be pieced together from two
+  // different policies.
   return t("If your flight from {from} to {to} arrives <b>more than two hours late</b>, you receive <em>{first} USDC</em>, rising to <em>{full}</em> if it is cancelled. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-    {from:esc(r.from), to:esc(r.to), first:money(.30*l), full:money(l), premium:money(q.premium)});
+    {from:esc(flow.flightFromText||flow.flightFrom||""),
+     to:esc(flow.flightToText||flow.flightTo||""),
+     first:money(.30*l), full:money(l), premium:money(q.premium)});
 }
 function payRows(){
   var c=structure(),l=flow.limit,rows=[];
@@ -7364,6 +7375,14 @@ function setNextLabel(){
     button.textContent=missing?missing.say:t("Continue");
     return;
   }
+  // Nothing below a redraw that did not finish is this policy, so there is
+  // nothing here to agree to, whatever the rest of the gate would have said.
+  if(flow.unshowable){
+    button.disabled=true;
+    button.setAttribute("aria-disabled","true");
+    button.textContent=t("This cover cannot be shown");
+    return;
+  }
   var ruling=localRuling();
   var carried=!(flow.quoted&&flow.quoted.can_write===false);
   var priced=!link.live||!!flow.quoted;
@@ -7460,7 +7479,46 @@ function renderAnswers(){
     });
   });
 }
+/* The page a buyer signs on, drawn top to bottom from one policy.
+
+   Drawn top to bottom, a redraw that stops halfway leaves everything below the
+   stop showing the policy before this one. That is not a cosmetic state: a
+   reader who moved from a home to a flight was shown an earthquake sentence,
+   an earthquake payout table and an earthquake contract underneath a summary
+   of their flight, and could not go on, because the contract on screen was not
+   the contract the gate was hashing -- so the button asked them to accept a
+   contract they had just accepted.
+
+   Nothing below a redraw that did not finish belongs to this policy, so
+   nothing below it is shown, and the purchase stops rather than leaving
+   somebody to agree to terms that are not theirs. The fault still reaches the
+   console, because a page that swallows its own errors is how this one stayed
+   hidden. */
 function renderPrice(){
+  try{
+    renderPriceBody();
+  }catch(err){
+    if(window.console&&console.error)console.error(err);
+    confirmUnshowable();
+  }
+}
+function confirmUnshowable(){
+  // A flag rather than a disabled button: the button's state is written by
+  // setNextLabel, which half a dozen other things call, so disabling it here
+  // lasts only until the next of them runs. The gate has to know.
+  flow.unshowable=true;
+  var blanks=["plain","pay-rows","market-box","offers","contract-text","curve"];
+  for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
+  var cap=$("curve-cap"); if(cap)cap.textContent="";
+  var said=$("confirm-broken");
+  if(said){ said.hidden=false; said.textContent=t("This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged."); }
+  var button=$("next");
+  if(button){ button.disabled=true; button.setAttribute("aria-disabled","true");
+              button.textContent=t("This cover cannot be shown"); }
+}
+function renderPriceBody(){
+  flow.unshowable=false;
+  var said=$("confirm-broken"); if(said)said.hidden=true;
   var q=priced(),total=Math.max(q.premium,1e-9);
   renderAnswers();
   $("plain").innerHTML=plainSentence();

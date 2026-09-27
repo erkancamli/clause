@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.31.4, 27 September 2026
+
+- A flight policy showed somebody else's cover on the page they sign on. The
+  confirm step drew an earthquake sentence, an earthquake payout table, an
+  earthquake chart and an earthquake contract underneath a summary of the
+  reader's flight, with three prices on screen that did not agree, and the
+  purchase could not be completed: the button asked for a contract to be
+  accepted that had just been accepted.
+
+  One line caused all of it. The flight sentence read the route out of ROUTES
+  by flow.subject. The subject of a flight is "IST-GZT"; that table is keyed
+  "TK-IST-LHR" and holds six routes in all, so the lookup was undefined and
+  the line threw on every flight policy. The step is drawn top to bottom, so
+  everything after the throw kept what it had: the policy before this one. The
+  button stayed stuck because the contract on screen was not the contract the
+  gate was hashing. The sentence names the two ends of the flight the reader
+  chose, the way the summary beside it already did.
+
+- And the class of it, rather than only the instance: a redraw of that step
+  that does not finish now blanks what it could not redraw, says so where the
+  reader is looking, and stops the purchase. Nothing below a failed redraw
+  belongs to this policy, so nothing below it is shown and nothing can be
+  agreed to. The fault still reaches the console; a page that swallows its own
+  errors is how this one stayed hidden.
+
 ## 1.31.3, 27 September 2026
 
 - The confirm step was laid out in 952px of a 1328px page, with the rest blank

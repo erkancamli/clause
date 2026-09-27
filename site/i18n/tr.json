@@ -2241,7 +2241,9 @@
     "{n} of these have been decided, and none of their records are still here. This is a demonstration and it forgets its own old policies; the count outlives the record. Any one of them still answers to its id below.": "Bunlardan {n} tanesi karara bağlandı ve kayıtlarının hiçbiri artık burada değil. Bu bir gösterim ve kendi eski poliçelerini unutuyor; sayı kayıttan uzun yaşıyor. Herhangi biri aşağıda kimliğiyle hâlâ yanıt verir.",
     "Reading the sources…": "Kaynaklar okunuyor…",
     "Nothing to report right now.": "Şu an bildirilecek bir şey yok.",
-    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "En yeni {n} tanesi. Her düğmedeki sayı hepsini sayar ve hiçbir sınıra bağlı değildir."
+    "The most recent {n}. The figure on each button counts all of them, and nothing caps it.": "En yeni {n} tanesi. Her düğmedeki sayı hepsini sayar ve hiçbir sınıra bağlı değildir.",
+    "This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged.": "Bu teminat gösterilemiyor, dolayısıyla satın alınamaz. Bir adım geri dönüp yeniden seçin; hiçbir tahsilat yapılmadı.",
+    "This cover cannot be shown": "Bu teminat gösterilemiyor"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
