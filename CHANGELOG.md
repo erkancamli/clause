@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.32.3, 27 September 2026
+
+- The home page was broken by the release before this one, and broken badly:
+  the policy's own sentence, the one the whole page is about, came out one
+  character to a line in a tall thin column on any screen wider than 1000px.
+
+  The Rialo page introduced a two column row and called it "said". So do the
+  hero's five beats, and have since long before that page existed. A class
+  selector reaches every element wearing that class, so the rule reached all
+  seven: a 390px box became a grid whose second column was 26rem, the first
+  collapsed to nothing, and the text stacked. It is named for what it is now,
+  and a test holds that nothing declared in this page's own style regions is
+  worn on another screen. That test was written twice: the first version
+  passed with the collision put back, because it decided which classes were
+  "this page's" from a list of name prefixes, which is the answer written
+  into the question.
+
+  Three names moved rather than being renamed: t-2, t-3 and t-settled name a
+  colour of text inside a drawing, and the hero's landscape instrument was
+  already wearing one of them. They belong with a-edge and a-signal as shared
+  vocabulary, not inside one page's region.
+
+- The REX drawing was wrong, and wrong about the thing it exists to explain.
+  It showed four validators labelled with four agency names and applied the
+  agencies' tolerance to them. Those are two different disagreements. Each
+  validator reads every agency and keeps their middle answer; then the four
+  validators' answers are reconciled on chain, three of four, median, five per
+  cent. So the picture is two stages now, which is what world.py does, and the
+  earlier correction in 1.32.2 was itself half wrong: 5% was never the wrong
+  figure for REX, the agency names on those dots were.
+
+- Small print given the measure the rest of the page has. A 13.5px paragraph
+  filling a 1120px band is a 166 character line, and the Proof page had four,
+  For insurers eight and the pool one. All now sit at the same measure as the
+  prose above them. Checked afterwards: the one thing still that wide is a
+  single line verdict banner, which has no next line for an eye to find, so it
+  was left alone.
+
 ## 1.32.2, 27 September 2026
 
 - Three drawings on the Rialo page, because the page's subject is a mechanism
