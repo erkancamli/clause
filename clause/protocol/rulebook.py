@@ -39,6 +39,14 @@ RULES: dict[str, dict[str, Any]] = {
         "primary": "The national seismic network (in Türkiye AFAD, with Kandilli as a second reading), the reviewed event page. Where this protocol does not yet read a national network, the primary is USGS and the policy says so rather than naming a source nobody asks",
         "fallbacks": [
             "USGS ShakeMap and the USGS reviewed magnitude for the same event, when the national network has not published within 24 hours",
+            # The chain of agencies actually queried is USGS, EMSC, GFZ GEOFON
+            # and the national network (hazard/regions.py), and every one of
+            # them is read on every event so that oracle/agreement.py can see
+            # whether they agree. Two of them were missing from this text,
+            # which is section 10 of the contract: a source whose reading can
+            # settle money, or refuse to, has to be named in the terms rather
+            # than only in the code that calls it.
+            "The European Mediterranean Seismological Centre and GFZ GEOFON for the same event. All of these are read on every event, not only when one is silent: the settled figure is the primary's, the others are recorded beside it, and where they differ by more than this peril tolerates nothing is settled at all until they agree or the objection window closes",
             "A modelled footprint from the catalogue magnitude and the ground-motion model this protocol prices with, only when neither network has published within 72 hours; marked as modelled on the Proof page",
         ],
         "final_data": "The reviewed magnitude as published 7 days after the origin time; for shaking, the ShakeMap or national shaking map version current 72 hours after the origin time",
