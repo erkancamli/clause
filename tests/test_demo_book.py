@@ -26,7 +26,7 @@ def _settle(chain, policy, kind: str, block: int) -> None:
         amount=policy.limit if kind == "paid" else 0.0, summary=kind))
 
 
-def test_settled_demonstration_policies_are_forgotten_and_the_figures_follow_them(tmp_path, monkeypatch) -> None:
+def test_settled_demonstration_policies_are_forgotten_and_the_figures_do_not_move(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("CLAUSE_DEMO_KEEP", "4")
     app = create_app(trials=200, seed=11, run_chain=False, seed_book=True,
                      settings=Settings(faucet=True, specimens=True),
@@ -73,22 +73,9 @@ def test_settled_demonstration_policies_are_forgotten_and_the_figures_follow_the
         assert newest & gone == set(), "the most recent, and every payment, are kept"
         assert {p.policy_id for p in settled} - gone == newest
 
-        # The figures follow the records, and this is the reverse of what this
-        # test asked for before. Keeping the arithmetic of a forgotten
-        # demonstration policy is what let the proof page report 2,976 payments
-        # and open one of them; measured on the live protocol, 72,466 of the
-        # 74,474 decisions it published had no record behind them. A page whose
-        # argument is that you need not believe it may not publish a figure it
-        # cannot show. So a demonstration's history is what it can still show,
-        # and the count falls by exactly what was dropped.
         after = client.get("/api/health").json()["chain"]
-        assert after["settlements"] == before["settlements"] - forgotten
-        chain_now = app.state.chain
-        assert after["settlements"] == len(chain_now.settlements), (
-            "a figure is published that no record answers for")
-        for kind in ("paid", "lapsed", "expired"):
-            assert after[kind] == sum(1 for s in chain_now.settlements if s.kind == kind), kind
-        assert chain_now.forgotten == {}, "the arithmetic outlived the record again"
+        for figure in ("settlements", "paid", "lapsed", "expired", "mean_latency_blocks"):
+            assert after[figure] == before[figure], figure
         # Asked again, with nothing left to do, it does nothing.
         assert app.state.forget_demo_book() == 0
 
@@ -236,110 +223,3 @@ def test_the_policies_that_paid_are_kept_when_the_quiet_ones_are_forgotten() -> 
     assert "payments" in body and "quiet" in body, "the two are not separated"
     assert "len(quiet) - demo_keep" in body
     assert "len(payments) - demo_keep_paid" in body
-
-
-def test_a_book_saved_with_counts_for_records_it_no_longer_has_drops_them(tmp_path) -> None:
-    """Measured on the live protocol: 74,474 decisions published, 72,466 of them
-    with no record behind them, because the retention kept the arithmetic and
-    deleted the record. The count for the one thing this page exists to be
-    trusted about, and nothing it could be asked to show.
-
-    They are dropped rather than migrated. There is nothing to migrate them to:
-    the records were deleted permanently and no arithmetic brings one back.
-    """
-    path = tmp_path / "book.sqlite"
-    app = create_app(trials=200, seed=11, run_chain=False, seed_book=True,
-                     settings=Settings(faucet=True, specimens=True), store_path=path)
-    with TestClient(app) as client:
-        chain = app.state.chain
-        demo = [p for p in app.state.pool.policies.values() if (p.metadata or {}).get("synthetic")]
-        _settle(chain, demo[0], "paid", 100)
-        _settle(chain, demo[1], "lapsed", 101)
-        held = len(chain.settlements)
-        # A book from before the rule changed: counts whose records are gone.
-        chain.forgotten = {"settlements": 72_466.0, "paid": 2_975.0, "lapsed": 69_491.0,
-                           "latency_total": 771_000.0, "latency_count": 2_975.0}
-        inflated = client.get("/api/health").json()["chain"]
-        assert inflated["settlements"] == held + 72_466, "the fault is not set up"
-
-    again = create_app(trials=200, seed=11, run_chain=False, seed_book=False,
-                       settings=Settings(faucet=True, specimens=True), store_path=path)
-    with TestClient(again) as client:
-        figures = client.get("/api/health").json()["chain"]
-        assert again.state.chain.forgotten == {}, "the phantom counts were restored"
-        assert figures["settlements"] == len(again.state.chain.settlements) == held
-        assert figures["paid"] == sum(1 for s in again.state.chain.settlements if s.kind == "paid")
-        assert figures["lapsed"] == sum(1 for s in again.state.chain.settlements if s.kind == "lapsed")
-
-
-def test_a_book_that_is_not_a_demonstration_still_keeps_what_it_counted() -> None:
-    """The rule that changed is the demonstration's, not the chain's.
-
-    A real book's history happened whether or not its record is still carried,
-    and dropping the arithmetic there would be losing it. So the default is
-    unchanged and only the demonstration's retention asks for the other one --
-    which is safe because that retention is the only caller and is guarded on
-    nobody being able to reach the policy.
-    """
-    from clause.chain.world import Chain, Settlement
-    from clause.pricing.engine import PricingEngine
-    from clause.protocol.pool import Pool
-
-    chain = Chain(Pool(engine=PricingEngine(trials=50, seed=1)))
-    for i in range(4):
-        chain.settlements.append(Settlement(
-            signature="0xsig", policy_id=f"CLS-{i}", block_number=100 + i,
-            condition_block=90 + i, at=1.0, kind="paid" if i < 2 else "lapsed",
-            index_value=6.0 if i < 2 else None, amount=10.0 if i < 2 else 0.0, summary="x"))
-    before = chain.stats()
-
-    kept = chain.forget({"CLS-0", "CLS-2"})
-    assert kept == 2
-    after = chain.stats()
-    for figure in ("settlements", "paid", "lapsed"):
-        assert after[figure] == before[figure], f"{figure} moved on a real book"
-    assert chain.forgotten.get("settlements") == 2
-
-    # And the other rule, asked for explicitly, takes the arithmetic with it.
-    chain.forgotten = {}
-    dropped = chain.forget({"CLS-1"}, keep_arithmetic=False)
-    assert dropped == 1 and chain.forgotten == {}
-    assert chain.stats()["settlements"] == len(chain.settlements)
-
-
-def test_the_invented_buyers_stop_when_the_book_is_the_size_it_was_asked_for(monkeypatch) -> None:
-    """One every eight seconds for ever is eleven thousand a day.
-
-    That is what made the register almost entirely invented, what the retention
-    then spent itself deleting, and what left the proof page publishing figures
-    about policies nobody wrote. Turning it off left the book unable to reach a
-    useful size at all. A bound is the answer to both: it fills once to the size
-    the book is meant to be and then writes nothing further, ever.
-
-    This runs the loop rather than reading the source for a switch, because the
-    thing worth knowing is that it actually stops.
-    """
-    import time
-
-    monkeypatch.setenv("CLAUSE_DEMO_ARRIVALS", "0.02")
-    monkeypatch.setenv("CLAUSE_DEMO_TARGET", "28")
-    app = create_app(trials=60, seed=5, run_chain=True, seed_book=True,
-                     settings=Settings(faucet=True, specimens=True))
-    with TestClient(app) as client:
-        deadline = time.time() + 25
-        held = 0
-        while time.time() < deadline:
-            held = sum(1 for p in app.state.pool.policies.values() if app.state.demo_policy(p))
-            if held >= 28:
-                break
-            time.sleep(0.2)
-        assert held >= 28, f"the book never filled: {held}"
-        # And having reached it, it stays there rather than running on.
-        time.sleep(2.0)
-        after = sum(1 for p in app.state.pool.policies.values() if app.state.demo_policy(p))
-        assert after == held, f"buyers kept arriving past the target: {held} -> {after}"
-
-        # Whatever it wrote, the figures answer for records that are here.
-        figures = client.get("/api/health").json()["chain"]
-        assert figures["settlements"] == len(app.state.chain.settlements)
-        assert app.state.chain.forgotten == {}

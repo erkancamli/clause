@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.27.1, 27 September 2026
+
+- 1.27.0 is reverted, and one part of it cannot be. The code is back to what
+  1.26.0 shipped: forgetting a settled demonstration policy keeps its
+  arithmetic again, the retention keeps 2,000 rather than 10,000, payments keep
+  400 rather than 2,000, and the invented buyers have no target to stop at.
+
+  What is not back is the numbers. 1.27.0 reached the server and did the one
+  thing it was built to do first: it dropped the counts of decisions whose
+  records had been deleted. The live protocol reported 74,474 decisions and
+  2,976 payments before, and 2,003 decisions and 1 payment after. Those counts
+  were the only thing left of policies that no longer exist, so nothing restores
+  them -- not this revert and not any arithmetic. The figures are the records
+  now, and they stay that way for the records that were already gone.
+
+  What the revert does bring back is the behaviour that produced the gap: from
+  here, a settled demonstration policy forgotten by the retention will again add
+  to the published count without leaving a record behind it, and the proof page's
+  own sentence about a register shorter than its count -- which 1.26.0 added and
+  which this keeps -- will be doing that work again.
+
+  The entry below is left in place rather than removed with the code. It is the
+  only record of why the live figures changed, and a changelog that quietly drops
+  the release that changed them is a changelog that cannot be used to find out.
+
 ## 1.27.0, 27 September 2026
 
 - The figures answer for records that are here. 1.26.0 gave the proof page a

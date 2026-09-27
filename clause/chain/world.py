@@ -1576,25 +1576,14 @@ class Chain:
             rows.sort(key=lambda row: row["registered_at"])
             return rows
 
-    def forget(self, policy_ids: set[str], *, keep_arithmetic: bool = True) -> int:
+    def forget(self, policy_ids: set[str]) -> int:
         """Drop the settlements of policies that are no longer in the book.
 
-        With ``keep_arithmetic``, only the record is dropped: what each dropped
-        settlement contributed to the counts and to the mean latency is kept, so
-        every figure the chain publishes is the same afterwards. That is the
-        right rule for a book whose history happened whether or not its record
-        is still carried.
-
-        It is the wrong rule for a demonstration, and this is the second fault
-        it caused. The proof page said 2,976 payments had been made and could
-        open one of them, because the count was the arithmetic and the record
-        was gone -- and on the live protocol 72,466 of the 74,474 decisions it
-        published had no record behind them at all. A page whose whole argument
-        is that you do not have to believe it may not publish a figure it cannot
-        show you; that is the thing it argues against. So the demonstration's
-        own retention passes ``keep_arithmetic=False`` and its figures follow
-        its records. Nothing a person bought is ever forgotten, by either rule:
-        the only caller is guarded on that.
+        Only the record is dropped, never the arithmetic: what each dropped
+        settlement contributed to the counts and to the mean latency is kept,
+        so every figure the chain publishes is the same afterwards. Used for
+        the demonstration's own policies, which arrive by the thousand and
+        would otherwise be walked by everything, for ever.
         """
         if not policy_ids:
             return 0
@@ -1605,12 +1594,11 @@ class Chain:
                     keep.append(s)
                     continue
                 gone += 1
-                if keep_arithmetic:
-                    self.forgotten["settlements"] = self.forgotten.get("settlements", 0) + 1
-                    self.forgotten[s.kind] = self.forgotten.get(s.kind, 0) + 1
-                    if s.kind == "paid":
-                        self.forgotten["latency_total"] = self.forgotten.get("latency_total", 0.0) + s.latency_blocks
-                        self.forgotten["latency_count"] = self.forgotten.get("latency_count", 0) + 1
+                self.forgotten["settlements"] = self.forgotten.get("settlements", 0) + 1
+                self.forgotten[s.kind] = self.forgotten.get(s.kind, 0) + 1
+                if s.kind == "paid":
+                    self.forgotten["latency_total"] = self.forgotten.get("latency_total", 0.0) + s.latency_blocks
+                    self.forgotten["latency_count"] = self.forgotten.get("latency_count", 0) + 1
             if gone:
                 self.settlements = keep
             for account, armed in list(self.armed.items()):
