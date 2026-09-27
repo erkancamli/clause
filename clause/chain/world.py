@@ -1728,7 +1728,15 @@ class Chain:
         with self.lock:
             return [item.to_dict() for item in self.settlements[-limit:]][::-1]
 
-    def recent_decisions(self, limit: int = 12) -> list[dict[str, Any]]:
+    #: How far back a filtered read will walk before it gives up. The scan runs
+    #: under the lock, and a kind that has not happened for a long time would
+    #: otherwise hold it while it read the whole history. Twelve of anything
+    #: that happens at all is found in the first few hundred; this is the guard
+    #: against the ones that do not.
+    DECISION_SCAN = 20_000
+
+    def recent_decisions(self, limit: int = 12,
+                         kind: str | None = None) -> list[dict[str, Any]]:
         """The policies the chain decided most recently, paid and not paid.
 
         The proof page used to open with an empty box asking for a policy id,
@@ -1746,11 +1754,23 @@ class Chain:
         reaching the line is the harder half of the promise and the one worth
         showing: an insurer that only publishes what it paid has published an
         advertisement.
+
+        `kind` is what makes that true in practice rather than only in
+        principle. The last twelve decisions are whatever the book happened to
+        decide last, and in a book where most policies run their term quietly
+        that is twelve quiet ones -- so a reader looking for a payment found
+        none, on a page whose own figures said thousands had been made. Asking
+        for one half is not hiding the other: the page offers both, and says
+        how many there are of each.
         """
         with self.lock:
             seen: set[str] = set()
             out: list[dict[str, Any]] = []
-            for item in reversed(self.settlements):
+            for scanned, item in enumerate(reversed(self.settlements)):
+                if scanned >= self.DECISION_SCAN:
+                    break
+                if kind is not None and item.kind != kind:
+                    continue
                 if item.policy_id in seen:
                     continue
                 policy = self.pool.policies.get(item.policy_id)

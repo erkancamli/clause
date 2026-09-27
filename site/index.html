@@ -566,6 +566,20 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
   flex-wrap:wrap}
 /* A policy id is a link of its own in its row, not one inside a sentence,
    so it has to be big enough to hit: WCAG 2.5.8 wants 24 by 24. */
+/* The register's two halves, and the button that chooses between them. Not a
+   tab bar: a tab bar says these are different places, and these are the same
+   place read two ways. The count sits on the button so that choosing one half
+   never hides how large the other is. */
+.sieve{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.sv{display:inline-flex;align-items:baseline;gap:8px;cursor:pointer;
+  font:inherit;font-size:13.5px;color:var(--ink-2);background:var(--panel);
+  border:1px solid var(--edge-ctl);border-radius:999px;padding:8px 15px;
+  min-height:36px;transition:color .16s ease,border-color .16s ease,background .16s ease}
+.sv:hover{color:var(--ink);border-color:var(--ink-3)}
+.sv .n{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sv.on{color:var(--signal-on-fill);background:var(--signal-fill);border-color:var(--signal-fill)}
+.sv.on .n{color:var(--signal-on-fill);opacity:.82}
+.sv:focus-visible{outline:2px solid var(--signal-line);outline-offset:2px}
 .reg-id{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none;
   display:inline-flex;align-items:center;min-height:24px}
 .reg-id:hover{text-decoration:underline}
@@ -11059,10 +11073,67 @@ function qpaid(rows,book){
       '<div><b>'+esc(f0.format(book.paid||0))+'</b><span>'+esc(t("paid without a claim"))+'</span></div>'+
       '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
     '</div>'+
-    (rows.length
-      ? '<div class="register">'+rows.map(decidedRow).join("")+'</div>'
-      : '<div class="panel" style="padding:22px"><p>'+esc(t("Nothing has been decided yet. The first policy to reach its line will appear here."))+'</p></div>')+
+    sieveHtml(book)+
+    '<div id="register-out">'+registerHtml(rows)+'</div>'+
     lookupHtml());
+}
+
+/* Which half of the register to read.
+   The last twelve decisions of any kind are, in a book where most policies run
+   their term quietly, twelve quiet ones -- so a reader looking for a payment
+   found none, on a page whose own figures said thousands had been made. The
+   counts are on the buttons because a filter that hides how large the other
+   half is would be the advertisement this page exists not to be. */
+var SIEVE=[{kind:"",label:N("Every decision"),count:"evaluated"},
+           {kind:"paid",label:N("Paid"),count:"paid"},
+           {kind:"lapsed",label:N("Not triggered"),count:"lapsed"}];
+var sieveNow="";
+function sieveHtml(book){
+  return '<div class="sieve" role="group" aria-label="'+esc(t("Which decisions to show"))+'">'+
+    SIEVE.map(function(one){
+      var n=book?book[one.count]:null;
+      return '<button type="button" class="sv'+(one.kind===sieveNow?" on":"")+'" '+
+        'data-sieve="'+esc(one.kind)+'" aria-pressed="'+(one.kind===sieveNow?"true":"false")+'">'+
+        esc(t(one.label))+
+        (n===null||n===undefined?"":'<span class="n">'+esc(f0.format(n))+'</span>')+
+        '</button>';
+    }).join("")+'</div>';
+}
+function registerHtml(rows){
+  if(rows.length)return '<div class="register">'+rows.map(decidedRow).join("")+'</div>';
+  return '<div class="panel" style="padding:22px"><p>'+esc(
+    sieveNow?t("No decision of this kind has been made yet."):
+      t("Nothing has been decided yet. The first policy to reach its line will appear here."))+
+    '</p></div>';
+}
+/* Bound by delegation, on the box rather than on the buttons: the register is
+   redrawn on every choice, and a handler attached to a button that has been
+   replaced is a handler on nothing. */
+function bindSieve(box){
+  if(!box||box.dataset.sieveBound)return;
+  box.dataset.sieveBound="1";
+  box.addEventListener("click",function(event){
+    var button=event.target.closest?event.target.closest("[data-sieve]"):null;
+    if(!button||!box.contains(button))return;
+    var want=button.dataset.sieve||"";
+    if(want===sieveNow)return;
+    sieveNow=want;
+    Array.prototype.forEach.call(box.querySelectorAll("[data-sieve]"),function(b){
+      var on=(b.dataset.sieve||"")===sieveNow;
+      b.classList.toggle("on",on);
+      b.setAttribute("aria-pressed",on?"true":"false");
+    });
+    var out=box.querySelector("#register-out");
+    if(out)out.innerHTML='<p class="fine" style="padding:14px 2px">'+esc(t("Reading the chain…"))+'</p>';
+    api("/api/decided?limit=12"+(sieveNow?"&kind="+encodeURIComponent(sieveNow):""),
+        {timeout:9000}).then(function(reply){
+      if(!out)return;
+      out.innerHTML=registerHtml((reply&&reply.items)||[]);
+    },function(){
+      if(out)out.innerHTML='<div class="panel" style="padding:22px"><p>'+
+        esc(t("The protocol did not answer."))+'</p></div>';
+    });
+  });
 }
 
 function renderProof(id){
@@ -11085,6 +11156,7 @@ function renderProof(id){
       var reply=got[0]||{}, rows=reply.items||[], book=reply.book||{};
       box.innerHTML=qmoney(got[1])+qdecides(got[2])+qpaid(rows,book);
       bindLookup();
+      bindSieve(box);
       /* The witness on the public chain belongs to the third question, not
          below all three: it is the part of "has it paid anyone" that somebody
          else can check. Into that band's body, or the box if the band is not

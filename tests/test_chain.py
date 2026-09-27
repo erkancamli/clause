@@ -414,3 +414,57 @@ def test_cover_a_person_bought_runs_in_real_time_not_the_demonstrations() -> Non
         chain.produce_block()
     assert pool.policies[synthetic.policy_id].status is not PolicyStatus.ACTIVE
     assert pool.policies[real.policy_id].status is PolicyStatus.ACTIVE
+
+
+# ---------------------------------------------------------------------------
+# Reading one half of the register
+# ---------------------------------------------------------------------------
+
+
+def test_the_register_can_be_read_one_kind_at_a_time() -> None:
+    """The proof page opens on the last twelve decisions of any kind, and in a
+    book where most policies run their term quietly that is twelve quiet ones.
+    A reader looking for a payment found none, on a page whose own figures
+    said thousands had been made. Asking for one half is what makes "both
+    halves are here" true in practice as well as in principle.
+    """
+    from clause.chain.world import Settlement
+
+    pool, chain = built(seed=5)
+    kinds = ["lapsed"] * 30 + ["paid", "lapsed", "expired", "paid"]
+    for i, kind in enumerate(kinds):
+        policy = write(pool, chain, "earthquake", {"latitude": 40.99, "longitude": 29.03,
+                                                   "radius_km": 50.0},
+                       limit=10_000.0, term=30.0, wait=False, simulated=True)
+        chain.settlements.append(Settlement(
+            signature=f"sig-{i}", policy_id=policy.policy_id, block_number=100 + i,
+            condition_block=90 + i, at=float(i), kind=kind,
+            index_value=6.0 if kind == "paid" else 4.0,
+            amount=10_000.0 if kind == "paid" else 0.0, summary=kind))
+
+    everything = chain.recent_decisions(limit=12)
+    assert len(everything) == 12
+    # Without a filter the newest twelve are what they are, and here the quiet
+    # ones crowd out all but the two payments at the very end.
+    assert sum(1 for row in everything if row["kind"] == "paid") == 2
+
+    paid = chain.recent_decisions(limit=12, kind="paid")
+    assert [row["kind"] for row in paid] == ["paid", "paid"], (
+        "asking for payments must reach past the quiet ones to find them")
+    assert all(row["amount"] > 0 for row in paid)
+
+    quiet = chain.recent_decisions(limit=12, kind="lapsed")
+    assert len(quiet) == 12 and {row["kind"] for row in quiet} == {"lapsed"}
+
+    gone = chain.recent_decisions(limit=12, kind="expired")
+    assert [row["kind"] for row in gone] == ["expired"]
+
+
+def test_a_kind_that_never_happened_reads_empty_without_a_long_walk() -> None:
+    """The scan runs under the chain's lock, so a kind that has not happened
+    must not hold it while the whole history is read."""
+    from clause.chain.world import Chain
+
+    pool, chain = built(seed=6)
+    assert chain.recent_decisions(limit=12, kind="paid") == []
+    assert Chain.DECISION_SCAN >= 1_000

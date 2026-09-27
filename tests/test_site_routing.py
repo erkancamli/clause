@@ -204,3 +204,47 @@ def test_the_sentence_for_a_purchase_still_being_decided_is_translated() -> None
     for code in LANGS:
         strings = json.loads((SITE / "i18n" / f"{code}.json").read_text(encoding="utf-8"))["strings"]
         assert strings.get(key), code
+
+
+# ---------------------------------------------------------------------------
+# Reading one half of the proof register
+# ---------------------------------------------------------------------------
+
+
+def test_the_register_offers_both_halves_and_counts_them() -> None:
+    """The page opened on the last twelve decisions of any kind, and in a book
+    where most policies run their term quietly that is twelve quiet ones: a
+    reader looking for a payment found none, on a page whose own figures said
+    thousands had been made. The counts are on the buttons because a filter
+    that hides how large the other half is would be the advertisement this page
+    exists not to be."""
+    assert 'data-sieve=' in PAGE
+    for kind in ('""', '"paid"', '"lapsed"'):
+        assert f'kind:{kind}' in PAGE.replace('kind: ', 'kind:'), kind
+    assert 'count:"evaluated"' in PAGE and 'count:"paid"' in PAGE and 'count:"lapsed"' in PAGE
+
+
+def test_choosing_a_half_asks_the_protocol_for_that_half() -> None:
+    """Filtering in the browser would filter the twelve rows it already has,
+    which are the twelve that do not contain what the reader is looking for."""
+    where = PAGE.index("function bindSieve")
+    tail = PAGE[where:where + 1800]
+    assert '"/api/decided?limit=12"+(sieveNow?"&kind="+encodeURIComponent(sieveNow):"")' in tail
+
+
+def test_the_buttons_are_bound_by_delegation() -> None:
+    """The register is redrawn on every choice, so a handler attached to a
+    button that has been replaced is a handler on nothing."""
+    where = PAGE.index("function bindSieve")
+    tail = PAGE[where:where + 900]
+    assert "box.addEventListener" in tail
+    assert "closest" in tail
+
+
+def test_the_words_on_the_filter_are_translated() -> None:
+    for code in LANGS:
+        strings = json.loads((SITE / "i18n" / f"{code}.json").read_text(encoding="utf-8"))["strings"]
+        for key in ("Every decision", "Paid", "Not triggered",
+                    "Which decisions to show",
+                    "No decision of this kind has been made yet."):
+            assert strings.get(key), f"{code} is missing {key!r}"

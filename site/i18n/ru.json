@@ -2226,7 +2226,10 @@
     "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Протокол сейчас заменяется и ответит через мгновение. Прежде чем пробовать снова, посмотрите «Моё покрытие»: если полис там — он куплен, если нет — ничего не списано.",
     "Reason: {kind}": "Причина: {kind}",
     "The price moved while the contract was being prepared.": "Пока готовился договор, цена изменилась.",
-    "Try preparing it again": "Попробовать подготовить снова"
+    "Try preparing it again": "Попробовать подготовить снова",
+    "Every decision": "Все решения",
+    "Which decisions to show": "Какие решения показывать",
+    "No decision of this kind has been made yet.": "Решений такого рода пока не было."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

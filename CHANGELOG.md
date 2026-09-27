@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.24.0, 27 September 2026
+
+- The proof register can be read one half at a time, because in practice it
+  could only be read as one. The page opens on the last twelve decisions of
+  any kind, and in a book where most policies run their term quietly that is
+  twelve quiet ones — so a reader looking for a payment scrolled a page of
+  "nothing paid" while the figures at the top of that same page said thousands
+  had been made. The band's own words are "both halves are here", and they were
+  true of the record and not of the reading.
+
+  `GET /api/decided` takes `kind`, one of paid, lapsed or expired, and the
+  chain walks back past the quiet decisions to find them. The counts come back
+  either way and sit on the buttons: a filter that hid how large the other half
+  is would be the advertisement this page exists not to be.
+
+  The walk is capped. It runs under the chain's lock, and a kind that has not
+  happened for a long time would otherwise hold it while the whole history was
+  read; twelve of anything that happens at all is found in the first few
+  hundred.
+
+  The buttons are bound by delegation, on the band rather than on themselves,
+  because the register is redrawn on every choice and a handler attached to a
+  button that has been replaced is a handler on nothing. And the choice asks
+  the protocol rather than filtering the rows already on the page — those are
+  the twelve that do not contain what the reader is looking for.
+
 ## 1.23.1, 26 September 2026
 
 - Two tests, for a hole found while checking that the last release had

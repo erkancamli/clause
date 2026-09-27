@@ -2234,7 +2234,10 @@
     "The protocol is being replaced and will answer in a moment. Check My cover before trying again: if the policy is there it was bought, and if it is not, nothing was taken.": "Protokol değiştiriliyor, birazdan yanıt verecek. Tekrar denemeden önce Teminatlarım'a bakın: poliçe oradaysa alınmıştır, değilse hiçbir şey tahsil edilmemiştir.",
     "Reason: {kind}": "Sebep: {kind}",
     "The price moved while the contract was being prepared.": "Sözleşme hazırlanırken fiyat değişti.",
-    "Try preparing it again": "Yeniden hazırlamayı dene"
+    "Try preparing it again": "Yeniden hazırlamayı dene",
+    "Every decision": "Her karar",
+    "Which decisions to show": "Hangi kararlar gösterilsin",
+    "No decision of this kind has been made yet.": "Bu türden henüz bir karar verilmedi."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

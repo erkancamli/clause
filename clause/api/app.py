@@ -2560,8 +2560,11 @@ def create_app(
         return await run_in_threadpool(
             rewards.mine, address, list(pool.policies.values()))
 
+    DECISION_KINDS = ("paid", "lapsed", "expired")
+
     @app.get("/api/decided")
-    async def decided(limit: int = Query(12, ge=1, le=50)) -> dict[str, Any]:
+    async def decided(limit: int = Query(12, ge=1, le=50),
+                      kind: str | None = Query(None, max_length=16)) -> dict[str, Any]:
         """What the chain decided last, paid and not paid, with the figures.
 
         The companion to /api/lineage: that one answers about a policy you can
@@ -2569,14 +2572,26 @@ def create_app(
         field here is new — a settlement is a public transaction and any
         policy's lineage already answers to its id — and the holder is left out,
         because no part of the argument needs it.
+
+        `kind` asks for one half. Without it the answer is the last twelve
+        decisions of any kind, which in a book where most policies run their
+        term quietly is twelve quiet ones: a reader looking for a payment found
+        none, on a page whose own figures said thousands had been made. The
+        counts come back either way, so choosing one half never hides how large
+        the other is.
         """
+        if kind is not None and kind not in DECISION_KINDS:
+            raise Refused(422, f"kind is one of {', '.join(DECISION_KINDS)}")
         stats = chain.stats()
         return {
-            "items": chain.recent_decisions(limit),
+            "items": chain.recent_decisions(limit, kind=kind),
+            "kind": kind,
             "book": {
                 "policies": len(pool.policies),
                 "evaluated": stats["settlements"],
                 "paid": stats["paid"],
+                "lapsed": stats["lapsed"],
+                "expired": stats["expired"],
                 "height": stats["height"],
                 "mean_latency_blocks": round(stats["mean_latency_blocks"], 1),
             },
