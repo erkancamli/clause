@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.31.1, 27 September 2026
+
+- The instrument was too big, and it was too big for the reason it has been too
+  big every time: a drawing given a frame larger than itself. Upright beside the
+  steps it had whatever the column gave it, which was 499px for a drawing that
+  is 320 wide -- 1.43 times itself, with every gap inside it stretched to match.
+  The card came out 499 by 787.
+
+  It gets a column it fits in now: 380px at most, which renders the drawing at
+  1.06 times its own size, and the width it does not need goes to the steps,
+  which are words and can use it -- 892px instead of 773 on a 2560 screen. The
+  five steps still advance with the scroll, a little sooner for having more room
+  to say themselves in: two at 360px, three at 600, four at 840, five at 1080.
+
 ## 1.31.0, 27 September 2026
 
 - The instrument is upright again, pinned beside the steps, and the reader
