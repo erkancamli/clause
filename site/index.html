@@ -239,6 +239,23 @@ button{font:inherit;color:inherit}
 .slab-panel{background:var(--panel)}
 .slab-edge{border-top:1px solid var(--edge)}
 .slab-tight{--slab-y:clamp(24px,3.4vw,48px)}
+
+/* A band inside a column. Every screen but the home page is one wrap with its
+   sections stacked inside it, and rebuilding that markup to hang each section
+   off the page root would touch every line of four screens to change where a
+   background starts. This reaches the window's edges from inside the column and
+   puts its own content back where the column had it, so the ground is a band
+   and the words never move. 100% of the parent rather than 100vw, because vw
+   counts the scrollbar and a band a few pixels wider than the window is a
+   window that scrolls sideways -- which is measured, not assumed. */
+.full{margin-inline:calc(50% - 50vw);padding-inline:calc(50vw - 50%)}
+@supports (width:1svw){
+  .full{margin-inline:calc(50% - 50svw);padding-inline:calc(50svw - 50%)}
+}
+.full-sunk{background:var(--sunk)}
+.full-panel{background:var(--panel)}
+.full-edge{border-block:1px solid var(--edge)}
+.full-y{padding-block:var(--slab-y,clamp(34px,4.6vw,68px))}
 /* The page grows with the screen, in steps rather than continuously, because
    a layout that stretches forever turns a paragraph into a line nobody can
    track back to. On a 2560 monitor the old 1360 left six hundred empty pixels
@@ -976,13 +993,39 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
      is harder to read rather than easier. The instrument does not: it is a
      reading taken over time and time is the long axis, so it takes the row. */
   .hero-text{max-width:none}
-  @media (min-width:1100px){
-    .hero-text{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
-      column-gap:clamp(32px,4vw,72px);align-items:end}
-    .hero-text h1{grid-column:1;margin:0}
-    .hero-text > p{grid-column:2;grid-row:1;align-self:end;max-width:46ch;margin:0}
-    .hero-text .hero-cta{grid-column:2;margin-top:18px}
-    .hero-text .trust{grid-column:2}
+  @media (min-width:1300px){
+    /* The choosing goes where the space was. The heading is two lines and the
+       column under it was empty all the way down, while the five covers this
+       page exists to sell sat in a band below the fold. Stacked beside the
+       words they are the first thing on the screen and the heading has
+       something under it. */
+    /* Three rows, and the last one takes the slack. The covers are taller than
+       the words beside them, and without somewhere for that height to go it
+       landed between the buttons and the marks under them -- 370px of nothing
+       in the middle of the one column that had something to say. */
+    .hero-text{display:grid;grid-template-columns:minmax(360px,.92fr) minmax(0,1.08fr);
+      grid-template-rows:auto auto 1fr;
+      column-gap:clamp(32px,4vw,72px);align-items:start}
+    .hero-text h1{grid-column:1;grid-row:1;margin:0}
+    .hero-text .choose{grid-column:1;grid-row:2 / span 2;margin-top:clamp(18px,2.4vw,30px)}
+    .hero-text > p{grid-column:2;grid-row:1;max-width:46ch;margin:0}
+    .hero-text .hero-cta{grid-column:2;grid-row:2;align-self:start;margin:clamp(18px,2.4vw,30px) 0 0}
+    .hero-text .trust{grid-column:2;grid-row:3;margin-top:14px;align-self:start}
+
+    /* One under another, and each one a row rather than a card: the picture
+       becomes a thumbnail, the name and the line it pays on sit beside it. A
+       card with a banner across it is 200px tall and five of them is a
+       thousand, which is not a column, it is a page. */
+    .choose h2{font-size:clamp(15px,1.1vw,17px);margin-bottom:10px;color:var(--ink-2)}
+    .choose .picks{grid-template-columns:minmax(0,1fr);gap:8px}
+    .choose .pick{flex-direction:row;align-items:center;gap:14px;padding:10px 14px}
+    .choose .pick .banner{flex:none;width:96px;height:36px;max-height:none;
+      border-radius:6px;overflow:hidden;margin:0}
+    .choose .pick .banner svg{width:100%;height:100%;display:block}
+    .choose .pick h3{font-size:15.5px;margin:0}
+    .choose .pick p{font-size:12.5px;margin:0;color:var(--ink-3)}
+    .choose .pick .from{display:none}
+    .choose .pick .txt{display:grid;gap:2px;min-width:0}
   }
   .hero-flow{display:contents}
   .hero-text{grid-area:text}
@@ -1004,16 +1047,36 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
    watching them. They are five, they are short, and they are steps -- which is
    a row of columns, not a stack. The rule down the side of the one being read
    moves to the top of it, because a column's edge is not where an eye looks. */
-@media (min-width:1100px){
-  .beats{grid-template-columns:repeat(3,minmax(0,1fr));
-    column-gap:clamp(24px,2.6vw,48px);row-gap:0}
-  .beat{padding-left:0;padding-top:18px}
+@media (min-width:1300px){
+  /* Five columns of four parts each: the label, the heading, what it says and
+     the line the protocol wrote. Left to themselves the columns centred their
+     own contents, so every one of them started at a different height and the
+     five code boxes landed wherever their paragraph left them -- a row of five
+     things that plainly were not a row. Subgrid puts the four parts on four
+     rows the whole band shares, so the labels sit on one line, the headings on
+     another, and the boxes on the floor together, whatever length the words
+     are in whichever of six languages. */
+  .beats{grid-template-columns:repeat(5,minmax(0,1fr));
+    grid-auto-rows:auto auto 1fr auto;
+    column-gap:clamp(16px,1.8vw,40px);row-gap:clamp(10px,1vw,14px)}
+  .beat{padding-left:0;padding-top:18px;align-content:start;gap:0;
+    border-top:1px solid var(--edge)}
   .beat + .beat{border-top:1px solid var(--edge)}
   .beat::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px}
   .beat p,.beat .said{max-width:44ch}
+  /* One line of code or three, the boxes are one floor: tops already share a
+     row, and stretching gives them a bottom as well. */
+  .beat .said{align-self:stretch}
+  @supports (grid-template-rows:subgrid){
+    .beat{grid-row:span 4;grid-template-rows:subgrid}
+  }
+  /* Without subgrid the parts cannot share rows, so the columns at least start
+     together and the boxes are pushed to the bottom of each. */
+  @supports not (grid-template-rows:subgrid){
+    .beat{grid-template-rows:auto auto 1fr auto;row-gap:10px}
+  }
 }
 @media (min-width:1600px){
-  .beats{grid-template-columns:repeat(5,minmax(0,1fr))}
   .beat p,.beat .said{max-width:38ch}
 }
 .beat{display:grid;gap:10px;align-content:center;padding-block:clamp(22px,5vh,46px)}
@@ -2133,6 +2196,147 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <div class="hero-flow">
       <div class="hero-text">
       <h1 data-i18n>Cover that <span>pays itself</span>.</h1>
+
+      <div class="choose">
+        <h2 style="font-size:clamp(19px,2.4vw,24px);margin-bottom:12px" data-i18n>What would you like to protect?</h2>
+    <div class="picks" id="home-picks">
+      <button class="pick" type="button" data-peril="quake">
+        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A house inside three widening circles, with the fault line running past it" data-i18n-aria>
+          <defs>
+            <linearGradient id="gq-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".14"/><stop offset="1" stop-color="var(--signal)" stop-opacity="0"/></linearGradient>
+            <radialGradient id="gq-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="var(--signal)" stop-opacity=".55"/><stop offset="1" stop-color="var(--signal)" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="120" fill="url(#gq-ground)"/>
+          <g fill="none" stroke="var(--signal)" stroke-width="1">
+            <circle class="bq-ring bq-1" cx="232" cy="72" r="26" opacity=".9"/><circle class="bq-ring bq-2" cx="232" cy="72" r="50" opacity=".55"/><circle class="bq-ring bq-3" cx="232" cy="72" r="78" opacity=".3"/><circle class="bq-ring bq-4" cx="232" cy="72" r="108" opacity=".14"/>
+          </g>
+          <circle class="bq-glow" cx="232" cy="72" r="18" fill="url(#gq-glow)"/><circle class="bq-epi" cx="232" cy="72" r="3.5" fill="var(--signal)"/>
+          <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
+          <g class="a-ink">
+            <path d="M58 98V66l30-24 30 24v32Z" opacity=".92"/>
+            <path d="M46 70 88 36l42 34" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <rect x="80" y="78" width="16" height="20" rx="2" fill="var(--panel)"/>
+          <rect x="102" y="72" width="12" height="10" rx="1.5" fill="var(--panel)" opacity=".8"/>
+          <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-2)">
+            <text x="252" y="24">M 7.2</text><text x="252" y="36" fill="var(--ink-3)" data-i18n>EPICENTRE</text>
+          </g>
+        </svg></figure>
+        <h3 data-i18n>My home</h3>
+        <p data-i18n>Against an earthquake near where you live.</p>
+        <span class="from" data-i18n>Pays on magnitude, within minutes</span>
+      </button>
+      <button class="pick" type="button" data-peril="drought">
+        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A field with furrows and a rain gauge standing well below its normal mark" data-i18n-aria>
+          <defs>
+            <linearGradient id="gd-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--hold)" stop-opacity=".16"/><stop offset="1" stop-color="var(--hold)" stop-opacity="0"/></linearGradient>
+            <linearGradient id="gd-field" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".18"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity=".04"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="120" fill="url(#gd-sky)"/>
+          <circle class="bd-sun" cx="60" cy="34" r="16" fill="none" stroke="var(--hold)" stroke-width="1.4" opacity=".9"/>
+          <circle class="bd-core" cx="60" cy="34" r="7" fill="var(--hold)" opacity=".35"/>
+          <path d="M0 84c60-18 120-18 180 0s100 14 140 6v30H0Z" fill="url(#gd-field)"/>
+          <g fill="none" stroke="var(--ink-3)" stroke-width="1" opacity=".55">
+            <path d="M0 92c60-14 120-14 180 2M0 102c60-14 120-14 180 2M0 112c60-14 120-14 180 2"/>
+          </g>
+          <g class="bd-heat" fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round">
+            <path d="M40 96V80M34 86l6-7 6 7M74 98V78M68 84l6-7 6 7M108 100V84M102 90l6-7 6 7"/>
+          </g>
+          <rect x="228" y="18" width="30" height="82" rx="8" fill="var(--panel)" stroke="var(--edge-2)" stroke-width="1.2"/>
+          <rect class="bd-fill" x="231" y="72" width="24" height="25" rx="5" fill="var(--signal)" opacity=".85"/>
+          <path d="M218 44h50" stroke="var(--ink-2)" stroke-width="1.1" stroke-dasharray="3 3"/>
+          <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-2)">
+            <text x="314" y="47" text-anchor="end" data-i18n>NORMAL</text><text x="314" y="88" text-anchor="end" fill="var(--signal)" data-i18n>THIS YEAR</text>
+          </g>
+        </svg></figure>
+        <h3 data-i18n>My harvest</h3>
+        <p data-i18n>Against a season that does not bring enough rain.</p>
+        <span class="from" data-i18n>Pays on the season's rainfall total</span>
+      </button>
+      <button class="pick" type="button" data-peril="flight">
+        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A plane with a scheduled arrival bar and a longer actual arrival bar showing the delay" data-i18n-aria>
+          <defs>
+            <linearGradient id="gf-sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--settled)" stop-opacity=".14"/><stop offset="1" stop-color="var(--settled)" stop-opacity="0"/></linearGradient>
+            <linearGradient id="gf-late" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--signal)" stop-opacity=".35"/><stop offset="1" stop-color="var(--signal)"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="120" fill="url(#gf-sky)"/>
+          <path d="M14 78C60 40 110 30 150 42" fill="none" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="2 4"/>
+          <g class="bf-plane"><g class="a-ink" transform="translate(150 42) rotate(-18)">
+            <path d="M-30 6 6-2l16-14 6 2-10 16 24 2 4 4-30 8-8 10-6 0 2-10-14 2Z" opacity=".95"/>
+          </g></g>
+          <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-3)">
+            <text x="180" y="30" data-i18n>SCHEDULED</text><text x="180" y="72" data-i18n>ACTUAL</text>
+          </g>
+          <rect x="180" y="36" width="70" height="8" rx="4" fill="var(--ink-3)" opacity=".35"/>
+          <rect x="180" y="78" width="130" height="8" rx="4" fill="var(--signal)" opacity=".18"/>
+          <rect class="bf-late" x="250" y="78" width="60" height="8" rx="4" fill="url(#gf-late)"/>
+          <path d="M250 24v70" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".8"/>
+          <text class="bf-delay" x="310" y="104" font-family="var(--mono)" font-size="9" text-anchor="end" fill="var(--signal)">+2h 40m</text>
+        </svg></figure>
+        <h3 data-i18n>My trip</h3>
+        <p data-i18n>Against a flight that lands late or never leaves.</p>
+        <span class="from" data-i18n>Pays before you reach the carousel</span>
+      </button>
+      <button class="pick" type="button" data-peril="car">
+        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A car under heavy rain with the water line rising past a marked extreme level" data-i18n-aria>
+          <defs>
+            <linearGradient id="gc-rain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".22"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity="0"/></linearGradient>
+            <linearGradient id="gc-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".55"/><stop offset="1" stop-color="var(--signal)" stop-opacity=".15"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="120" fill="url(#gc-rain)"/>
+          <g class="bc-rain bc-r1" stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".7">
+            <path d="M30 10l-6 16M62 6l-6 16M94 12l-6 16M126 6l-6 16M158 12l-6 16M190 6l-6 16M222 12l-6 16M254 8l-6 16M286 12l-6 16"/>
+          </g>
+          <g class="bc-rain bc-r2" stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".35">
+            <path d="M46 34l-6 16M110 30l-6 16M174 34l-6 16M238 30l-6 16M302 34l-6 16"/>
+          </g>
+          <g class="a-ink">
+            <path d="M44 86c0-6 4-10 10-10h10l16-18c2-2 4-3 7-3h44c3 0 5 1 7 3l18 18h20c6 0 10 4 10 10v8H44Z" opacity=".95"/>
+            <path d="M92 76l10-12h34l12 12Z" fill="var(--panel)" opacity=".85"/>
+          </g>
+          <circle cx="76" cy="94" r="9" fill="var(--ink)"/><circle cx="76" cy="94" r="4" fill="var(--panel)"/>
+          <circle cx="160" cy="94" r="9" fill="var(--ink)"/><circle cx="160" cy="94" r="4" fill="var(--panel)"/>
+          <path class="bc-water" d="M-40 96c20-6 40-6 60 0s40 6 60 0 40-6 60 0 40 6 60 0 40-6 60 0 40 6 60 0 40-6 80 0v24H-40Z" fill="url(#gc-water)"/>
+          <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
+          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 10 YEARS</text>
+        </svg></figure>
+        <h3 data-i18n>My car</h3>
+        <p data-i18n>Against flooding from a day of extreme rain where it is kept.</p>
+        <span class="from" data-i18n>Pays on the rain, not an assessor</span>
+      </button>
+      <button class="pick" type="button" data-peril="storm">
+        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A house in a gale, with wind streaks, a bending tree and a marked extreme wind level" data-i18n-aria>
+          <defs>
+            <linearGradient id="gs-sky" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".2"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity="0"/></linearGradient>
+            <linearGradient id="gs-gust" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--signal)" stop-opacity="0"/><stop offset="1" stop-color="var(--signal)"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="320" height="120" fill="url(#gs-sky)"/>
+          <g class="bs-wind" fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-linecap="round" opacity=".7">
+            <path d="M8 22c40 0 60-8 100-8M20 40c50 0 70-10 130-10M6 58c30 0 50-6 80-6"/>
+          </g>
+          <g class="bs-gust" fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" opacity=".9">
+            <path d="M120 30c50 0 80-8 140-8M150 48c40 0 70-6 120-6" stroke="url(#gs-gust)"/>
+          </g>
+          <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
+          <g class="a-ink">
+            <path d="M176 98V66l30-24 30 24v32Z" opacity=".92"/>
+            <path d="M164 70 206 36l42 34" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <rect x="198" y="78" width="16" height="20" rx="2" fill="var(--panel)"/>
+          <path class="bs-tile" d="M224 44l12-10 10 6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="bs-tree">
+          <path d="M48 98c2-16 4-30 4-44" fill="none" stroke="var(--ink-2)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M52 56c22-18 46-16 62-2-10 4-18 12-20 24-8-8-22-10-42-6 8-6 12-10 0-16Z" fill="var(--ink-2)" opacity=".75"/>
+          </g>
+          <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
+          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 25 YEARS</text>
+        </svg></figure>
+        <h3 data-i18n>My roof</h3>
+        <p data-i18n>Against a storm: a day of extreme wind where the home stands.</p>
+        <span class="from" data-i18n>Pays on the wind, before the next front</span>
+      </button>
+      </div>
+      </div>
       <p data-i18n>
         Protect your home, your harvest or your trip. If the thing you insured against
         happens, the money arrives on its own. There is no claim to file and nobody to
@@ -2344,150 +2548,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   </div>
 
 
-  <section class="slab slab-sunk">
-   <div class="wrap">
-    <h2 style="font-size:clamp(19px,2.4vw,24px);margin-bottom:12px" data-i18n>What would you like to protect?</h2>
-    <div class="picks" id="home-picks">
-      <button class="pick" type="button" data-peril="quake">
-        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A house inside three widening circles, with the fault line running past it" data-i18n-aria>
-          <defs>
-            <linearGradient id="gq-ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".14"/><stop offset="1" stop-color="var(--signal)" stop-opacity="0"/></linearGradient>
-            <radialGradient id="gq-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="var(--signal)" stop-opacity=".55"/><stop offset="1" stop-color="var(--signal)" stop-opacity="0"/></radialGradient>
-          </defs>
-          <rect x="0" y="0" width="320" height="120" fill="url(#gq-ground)"/>
-          <g fill="none" stroke="var(--signal)" stroke-width="1">
-            <circle class="bq-ring bq-1" cx="232" cy="72" r="26" opacity=".9"/><circle class="bq-ring bq-2" cx="232" cy="72" r="50" opacity=".55"/><circle class="bq-ring bq-3" cx="232" cy="72" r="78" opacity=".3"/><circle class="bq-ring bq-4" cx="232" cy="72" r="108" opacity=".14"/>
-          </g>
-          <circle class="bq-glow" cx="232" cy="72" r="18" fill="url(#gq-glow)"/><circle class="bq-epi" cx="232" cy="72" r="3.5" fill="var(--signal)"/>
-          <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
-          <g class="a-ink">
-            <path d="M58 98V66l30-24 30 24v32Z" opacity=".92"/>
-            <path d="M46 70 88 36l42 34" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <rect x="80" y="78" width="16" height="20" rx="2" fill="var(--panel)"/>
-          <rect x="102" y="72" width="12" height="10" rx="1.5" fill="var(--panel)" opacity=".8"/>
-          <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-2)">
-            <text x="252" y="24">M 7.2</text><text x="252" y="36" fill="var(--ink-3)" data-i18n>EPICENTRE</text>
-          </g>
-        </svg></figure>
-        <h3 data-i18n>My home</h3>
-        <p data-i18n>Against an earthquake near where you live.</p>
-        <span class="from" data-i18n>Pays on magnitude, within minutes</span>
-      </button>
-      <button class="pick" type="button" data-peril="drought">
-        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A field with furrows and a rain gauge standing well below its normal mark" data-i18n-aria>
-          <defs>
-            <linearGradient id="gd-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--hold)" stop-opacity=".16"/><stop offset="1" stop-color="var(--hold)" stop-opacity="0"/></linearGradient>
-            <linearGradient id="gd-field" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".18"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity=".04"/></linearGradient>
-          </defs>
-          <rect x="0" y="0" width="320" height="120" fill="url(#gd-sky)"/>
-          <circle class="bd-sun" cx="60" cy="34" r="16" fill="none" stroke="var(--hold)" stroke-width="1.4" opacity=".9"/>
-          <circle class="bd-core" cx="60" cy="34" r="7" fill="var(--hold)" opacity=".35"/>
-          <path d="M0 84c60-18 120-18 180 0s100 14 140 6v30H0Z" fill="url(#gd-field)"/>
-          <g fill="none" stroke="var(--ink-3)" stroke-width="1" opacity=".55">
-            <path d="M0 92c60-14 120-14 180 2M0 102c60-14 120-14 180 2M0 112c60-14 120-14 180 2"/>
-          </g>
-          <g class="bd-heat" fill="none" stroke="var(--ink-2)" stroke-width="1.4" stroke-linecap="round">
-            <path d="M40 96V80M34 86l6-7 6 7M74 98V78M68 84l6-7 6 7M108 100V84M102 90l6-7 6 7"/>
-          </g>
-          <rect x="228" y="18" width="30" height="82" rx="8" fill="var(--panel)" stroke="var(--edge-2)" stroke-width="1.2"/>
-          <rect class="bd-fill" x="231" y="72" width="24" height="25" rx="5" fill="var(--signal)" opacity=".85"/>
-          <path d="M218 44h50" stroke="var(--ink-2)" stroke-width="1.1" stroke-dasharray="3 3"/>
-          <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-2)">
-            <text x="314" y="47" text-anchor="end" data-i18n>NORMAL</text><text x="314" y="88" text-anchor="end" fill="var(--signal)" data-i18n>THIS YEAR</text>
-          </g>
-        </svg></figure>
-        <h3 data-i18n>My harvest</h3>
-        <p data-i18n>Against a season that does not bring enough rain.</p>
-        <span class="from" data-i18n>Pays on the season's rainfall total</span>
-      </button>
-      <button class="pick" type="button" data-peril="flight">
-        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A plane with a scheduled arrival bar and a longer actual arrival bar showing the delay" data-i18n-aria>
-          <defs>
-            <linearGradient id="gf-sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--settled)" stop-opacity=".14"/><stop offset="1" stop-color="var(--settled)" stop-opacity="0"/></linearGradient>
-            <linearGradient id="gf-late" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--signal)" stop-opacity=".35"/><stop offset="1" stop-color="var(--signal)"/></linearGradient>
-          </defs>
-          <rect x="0" y="0" width="320" height="120" fill="url(#gf-sky)"/>
-          <path d="M14 78C60 40 110 30 150 42" fill="none" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="2 4"/>
-          <g class="bf-plane"><g class="a-ink" transform="translate(150 42) rotate(-18)">
-            <path d="M-30 6 6-2l16-14 6 2-10 16 24 2 4 4-30 8-8 10-6 0 2-10-14 2Z" opacity=".95"/>
-          </g></g>
-          <g font-family="var(--mono)" font-size="8.5" letter-spacing="1" fill="var(--ink-3)">
-            <text x="180" y="30" data-i18n>SCHEDULED</text><text x="180" y="72" data-i18n>ACTUAL</text>
-          </g>
-          <rect x="180" y="36" width="70" height="8" rx="4" fill="var(--ink-3)" opacity=".35"/>
-          <rect x="180" y="78" width="130" height="8" rx="4" fill="var(--signal)" opacity=".18"/>
-          <rect class="bf-late" x="250" y="78" width="60" height="8" rx="4" fill="url(#gf-late)"/>
-          <path d="M250 24v70" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".8"/>
-          <text class="bf-delay" x="310" y="104" font-family="var(--mono)" font-size="9" text-anchor="end" fill="var(--signal)">+2h 40m</text>
-        </svg></figure>
-        <h3 data-i18n>My trip</h3>
-        <p data-i18n>Against a flight that lands late or never leaves.</p>
-        <span class="from" data-i18n>Pays before you reach the carousel</span>
-      </button>
-      <button class="pick" type="button" data-peril="car">
-        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A car under heavy rain with the water line rising past a marked extreme level" data-i18n-aria>
-          <defs>
-            <linearGradient id="gc-rain" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".22"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity="0"/></linearGradient>
-            <linearGradient id="gc-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--signal)" stop-opacity=".55"/><stop offset="1" stop-color="var(--signal)" stop-opacity=".15"/></linearGradient>
-          </defs>
-          <rect x="0" y="0" width="320" height="120" fill="url(#gc-rain)"/>
-          <g class="bc-rain bc-r1" stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".7">
-            <path d="M30 10l-6 16M62 6l-6 16M94 12l-6 16M126 6l-6 16M158 12l-6 16M190 6l-6 16M222 12l-6 16M254 8l-6 16M286 12l-6 16"/>
-          </g>
-          <g class="bc-rain bc-r2" stroke="var(--ink-3)" stroke-width="1.2" stroke-linecap="round" opacity=".35">
-            <path d="M46 34l-6 16M110 30l-6 16M174 34l-6 16M238 30l-6 16M302 34l-6 16"/>
-          </g>
-          <g class="a-ink">
-            <path d="M44 86c0-6 4-10 10-10h10l16-18c2-2 4-3 7-3h44c3 0 5 1 7 3l18 18h20c6 0 10 4 10 10v8H44Z" opacity=".95"/>
-            <path d="M92 76l10-12h34l12 12Z" fill="var(--panel)" opacity=".85"/>
-          </g>
-          <circle cx="76" cy="94" r="9" fill="var(--ink)"/><circle cx="76" cy="94" r="4" fill="var(--panel)"/>
-          <circle cx="160" cy="94" r="9" fill="var(--ink)"/><circle cx="160" cy="94" r="4" fill="var(--panel)"/>
-          <path class="bc-water" d="M-40 96c20-6 40-6 60 0s40 6 60 0 40-6 60 0 40 6 60 0 40-6 60 0 40 6 60 0 40-6 80 0v24H-40Z" fill="url(#gc-water)"/>
-          <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
-          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 10 YEARS</text>
-        </svg></figure>
-        <h3 data-i18n>My car</h3>
-        <p data-i18n>Against flooding from a day of extreme rain where it is kept.</p>
-        <span class="from" data-i18n>Pays on the rain, not an assessor</span>
-      </button>
-      <button class="pick" type="button" data-peril="storm">
-        <figure class="banner"><svg class="art" viewBox="0 0 320 120" role="img" aria-label="A house in a gale, with wind streaks, a bending tree and a marked extreme wind level" data-i18n-aria>
-          <defs>
-            <linearGradient id="gs-sky" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ink-3)" stop-opacity=".2"/><stop offset="1" stop-color="var(--ink-3)" stop-opacity="0"/></linearGradient>
-            <linearGradient id="gs-gust" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--signal)" stop-opacity="0"/><stop offset="1" stop-color="var(--signal)"/></linearGradient>
-          </defs>
-          <rect x="0" y="0" width="320" height="120" fill="url(#gs-sky)"/>
-          <g class="bs-wind" fill="none" stroke="var(--ink-3)" stroke-width="1.3" stroke-linecap="round" opacity=".7">
-            <path d="M8 22c40 0 60-8 100-8M20 40c50 0 70-10 130-10M6 58c30 0 50-6 80-6"/>
-          </g>
-          <g class="bs-gust" fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" opacity=".9">
-            <path d="M120 30c50 0 80-8 140-8M150 48c40 0 70-6 120-6" stroke="url(#gs-gust)"/>
-          </g>
-          <path d="M0 98h320" stroke="var(--edge)" stroke-width="1"/>
-          <g class="a-ink">
-            <path d="M176 98V66l30-24 30 24v32Z" opacity=".92"/>
-            <path d="M164 70 206 36l42 34" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <rect x="198" y="78" width="16" height="20" rx="2" fill="var(--panel)"/>
-          <path class="bs-tile" d="M224 44l12-10 10 6" fill="none" stroke="var(--signal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <g class="bs-tree">
-          <path d="M48 98c2-16 4-30 4-44" fill="none" stroke="var(--ink-2)" stroke-width="3" stroke-linecap="round"/>
-          <path d="M52 56c22-18 46-16 62-2-10 4-18 12-20 24-8-8-22-10-42-6 8-6 12-10 0-16Z" fill="var(--ink-2)" opacity=".75"/>
-          </g>
-          <path d="M0 90h320" stroke="var(--signal)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>
-          <text x="312" y="84" font-family="var(--mono)" font-size="8.5" letter-spacing="1" text-anchor="end" fill="var(--signal)" data-i18n>1 IN 25 YEARS</text>
-        </svg></figure>
-        <h3 data-i18n>My roof</h3>
-        <p data-i18n>Against a storm: a day of extreme wind where the home stands.</p>
-        <span class="from" data-i18n>Pays on the wind, before the next front</span>
-      </button>
-    </div>
-  </div>
-
-  </section>
-
   <section class="slab slab-edge now" aria-labelledby="live-title">
     <div class="wrap">
       <div class="now-head"><span class="pip"></span><b id="live-title" data-i18n>Happening now</b>
@@ -2517,7 +2577,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <!-- The steps carry the page visually. A reader moving by headings had
          nothing to land on, so the page's own name is here for them. -->
     <h1 class="sr" data-i18n>Get cover</h1>
-    <div class="steps" id="steps"></div>
+    <div class="steps full full-panel full-edge" id="steps"></div>
 
     <!-- Not hidden, alone among the steps. Opened cold this screen always
          starts here, so the question can be on the page before the script
@@ -2533,7 +2593,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
            strongest content this product owns and it was on another page. The
            four cells are the mechanism, in order, and the third is the one
            that matters: nothing here is anybody's decision. -->
-      <section class="mech" aria-labelledby="mech-title">
+      <section class="mech full full-y full-sunk" aria-labelledby="mech-title">
         <div class="label" id="mech-title" data-i18n>What happens after you buy</div>
         <div class="flowline mechline">
           <div><div class="n">01</div>
@@ -2839,7 +2899,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       </figcaption>
     </figure>
 
-    <div class="sec">
+    <div class="sec full full-y full-sunk">
       <h2 data-i18n>A farmer in Konya should not need a seed phrase.</h2>
       <p class="lead" data-i18n>
         The hard part of using a chain is not holding a key, it is being asked to approve
@@ -2873,7 +2933,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec full full-y full-edge">
       <h2 data-i18n>What it will not do</h2>
       <p class="lead" data-i18n>
         This pays on a measurement, not on your actual loss. If the ground shakes hard at your
@@ -2889,7 +2949,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       </p>
     </div>
 
-    <div class="sec">
+    <div class="sec full full-y full-sunk">
       <h2 data-i18n>What is real here, and what is simulated</h2>
       <div class="two">
         <div class="card real">
@@ -3052,7 +3112,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       it being here rather than in our files.
     </p>
 
-    <div id="mine-out" style="margin-top:26px">
+    <div id="mine-out" class="full full-y full-sunk" style="margin-top:26px">
       <div class="panel" style="padding:26px;display:grid;gap:16px;max-width:520px" id="mine-signin">
         <h2 style="font-size:19px" data-i18n>Sign in to see it</h2>
         <p style="font-size:14.5px;color:var(--ink-2)" data-i18n>
@@ -11136,7 +11196,8 @@ function bindLookup(){
    because a proof page that invents its evidence is the thing it argues
    against. */
 function qband(n,question,lead,body){
-  return '<section class="qband">'+
+  var ground = n % 2 ? " full-sunk" : " full-edge";
+  return '<section class="qband full full-y'+ground+'">'+
     '<div class="qhead"><span class="qnum" aria-hidden="true">'+esc(String(n))+'</span>'+
       '<h2>'+esc(question)+'</h2></div>'+
     '<p class="qlead">'+esc(lead)+'</p>'+
@@ -11670,7 +11731,7 @@ function closeRider(){
        policy through once when it arrives, from written to paid, and then
        stays at the whole picture. It plays once and never again, so there is
        still nothing on an interval and nothing burning a background tab. */
-    var asRow = window.matchMedia && window.matchMedia("(min-width:1100px)");
+    var asRow = window.matchMedia && window.matchMedia("(min-width:1300px)");
     var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
     if(asRow && asRow.matches && "IntersectionObserver" in window){
       var lightUpTo = function(n){

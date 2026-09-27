@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.30.0, 27 September 2026
+
+- Every screen is banded now, not just the home page. A band reaches the edges
+  of the window and puts its own content back where the column had it, so the
+  ground is a band and the words never move: the explanation's three parts, the
+  cover flow's rail and its "what happens after you buy", the proof page's three
+  questions, and what the holder's page found. It is done from inside the column
+  rather than by rebuilding the markup of four screens, and it is measured
+  rather than assumed -- a band a few pixels wider than the window is a window
+  that scrolls sideways, and none of the five screens does at 2560, 1440 or
+  390px.
+
+- The five steps are a row that is actually a row. They were five columns whose
+  contents each centred themselves, so every one started at a different height
+  and the five code boxes landed wherever their own paragraph left them -- a row
+  of five things that plainly were not a row. Subgrid puts the label, the
+  heading, the words and the line the protocol wrote on four rows the whole band
+  shares. Measured at 2560 and 1440, in English, Turkish and German: every one
+  of the four aligns to the pixel, and the boxes share a floor as well as a
+  ceiling.
+
+  Five into three columns is a row of three and a row of two, which is the
+  asymmetry it was meant to fix, so the row is five columns or it is a stack.
+
+- The covers are in the hero, stacked beside the heading. They were in a band
+  below the fold while the column under the heading was empty for its whole
+  height -- the five things this page exists to sell, under the part of the page
+  nobody scrolls to. Each is a row now rather than a card: the picture is a
+  thumbnail at the size it was drawn, the name and what it pays on beside it. A
+  card with a banner across it is 200px tall and five of them is a thousand,
+  which is not a column.
+
+  The right of the hero had 370px of nothing between the buttons and the marks
+  under them, because the covers are taller than the words beside them and the
+  height had nowhere to go. It has a row to go to now, and the gap is 26px.
+
 ## 1.29.0, 27 September 2026
 
 - The page is built in bands now, and the column stopped being the problem it
