@@ -234,6 +234,36 @@ button{font:inherit;color:inherit}
    Hippo at 1250, Linear at 1280. None of them is wide. All of them are banded.
    The surfaces are the ones the palette already carries and the contrast tests
    already measure, so a band cannot introduce a pair nobody has checked. */
+/* The Rialo page. Three small shapes: the calls this protocol makes, the
+   figures the chain publishes about itself, and what it has written. */
+.rialo-calls{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r-sm);overflow:hidden;margin-top:16px}
+.rialo-call{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:6px 16px;
+  align-items:baseline;background:var(--panel);padding:12px 14px}
+.rialo-call code{font-size:13px;color:var(--signal-ink);overflow-wrap:anywhere}
+.rialo-call span{font-size:13.5px;color:var(--ink-2)}
+@media (max-width:560px){.rialo-call{grid-template-columns:minmax(0,1fr)}}
+.rialo-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin-top:16px}
+.rialo-figs > div{background:var(--panel);border:1px solid var(--edge);
+  border-radius:var(--r-sm);padding:14px 16px;display:grid;gap:4px}
+.rialo-figs b{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums}
+.rialo-figs span{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.pubs{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r-sm);overflow:hidden}
+a.pub{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;
+  background:var(--panel);padding:12px 14px;text-decoration:none;color:inherit}
+a.pub:hover{background:var(--sunk)}
+a.pub .no{font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;padding-top:3px}
+a.pub .nm{font-size:14.5px;font-weight:500;line-height:1.35}
+a.pub .wn{grid-column:2;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+a.pub .sm{grid-column:2;font-size:13px;color:var(--ink-2);line-height:1.5;margin-top:2px}
+@media (max-width:560px){
+  a.pub{grid-template-columns:minmax(0,1fr)}
+  a.pub .wn,a.pub .sm{grid-column:1}
+}
 .slab{width:100%;padding-block:var(--slab-y,clamp(40px,6vw,88px))}
 .slab-sunk{background:var(--sunk)}
 .slab-panel{background:var(--panel)}
@@ -1715,6 +1745,9 @@ tr:last-child td{border-bottom:0}
 .sec{display:grid;gap:12px;margin-top:28px}
 .sec > h2{font-size:clamp(22px,3.2vw,30px)}
 .sec > p.lead{color:var(--ink-2);max-width:60ch}
+/* Small print that runs wider than the prose above it reads as a rag,
+   and it is the least important text on the page. Same measure. */
+.sec > p.fine{max-width:76ch}
 
 footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-3);font-size:13px;margin-top:auto}
 /* The Ask Rider button is fixed to the bottom right corner, so whenever
@@ -2168,6 +2201,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <a href="#/proof" data-route="/proof" data-i18n>Proof</a>
       <a href="#/insurers" data-route="/insurers" data-for="company" data-i18n>For insurers</a>
       <a href="#/how" data-route="/how" data-i18n>How it works</a>
+      <a href="#/rialo" data-route="/rialo" data-i18n>Rialo</a>
       <a href="#/pool" data-route="/pool" data-for="capital" data-i18n>The pool</a>
     </nav>
     <div class="whobox">
@@ -2598,6 +2632,99 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     </div>
   </section>
 
+</section>
+
+<!-- ============================== RIALO ============================== -->
+<!-- Why this page exists: the front page says "Built on Rialo" and nothing
+     else, which tells a reader a logo rather than a fact. What is actually
+     true is more interesting than the badge: the thing this protocol is built
+     out of is the chain's own headline feature, and a parametric policy is
+     the shape that feature was made for. -->
+<section class="view" id="view-rialo">
+  <div class="wrap pad">
+    <h1 style="font-size:clamp(28px,4.4vw,42px);max-width:22ch;text-align:left" data-i18n>A policy is a condition, and the chain is what watches it.</h1>
+    <p class="lead" style="margin-top:14px;max-width:62ch" data-i18n>
+      Most chains can only be pushed. Something outside has to notice that the world
+      changed and send a transaction saying so, which is why ordinary automation is a
+      tower of bots and keepers. Rialo can be pulled: a condition is written onto the
+      chain and the network itself evaluates it. That is the whole of what a parametric
+      policy needs, and it is why this protocol is built here rather than somewhere else.
+    </p>
+
+    <div class="flowline mechline" style="margin-top:26px">
+      <div><div class="n">01</div><h3 data-i18n>The condition is written down</h3><p data-i18n>Rialo calls it a predicate: a logical expression that lives on the chain rather than in a service somewhere. Your policy is one.</p></div>
+      <div><div class="n">02</div><h3 data-i18n>The chain evaluates it, every block</h3><p data-i18n>In Rialo's own words, continuously evaluated during block execution. Nothing has to remember to check; the checking is what a block is.</p></div>
+      <div><div class="n">03</div><h3 data-i18n>It may watch the world, not only the chain</h3><p data-i18n>Chain state and block height, and also readings attested by the validators themselves — oracle data and calls out to the web. A magnitude is a thing a predicate can see.</p></div>
+      <div><div class="n">04</div><h3 data-i18n>When it becomes true, the chain acts</h3><p data-i18n>The transaction is enqueued by the network, in that block or the next. Nobody files anything and nobody approves anything, because there is nobody in the path.</p></div>
+    </div>
+
+    <div class="sec full full-y full-edge">
+      <h2 data-i18n>What this protocol calls, by name</h2>
+      <p class="lead" data-i18n>
+        Three of the methods below are taken straight from Rialo's published client SDK.
+        They are the reactive machinery, and they are what a policy here is made of: a
+        subscription is the standing condition, a triggered transaction is the moment it
+        came true, and the lineage is how a payout can be walked back to the reading that
+        caused it.
+      </p>
+      <div class="rialo-calls">
+        <div class="rialo-call"><code class="mono">get_subscription</code><span data-i18n>the condition, as the chain holds it</span></div>
+        <div class="rialo-call"><code class="mono">get_triggered_transactions</code><span data-i18n>what it has fired, and when</span></div>
+        <div class="rialo-call"><code class="mono">get_workflow_lineage</code><span data-i18n>the trail from a payout back to its reading</span></div>
+      </div>
+      <p class="fine" style="margin-top:14px" data-i18n>
+        The chain reading methods are not pinned down by the public SDK, and Rialo's runtime
+        carries SVM compatibility, so the client tries both spellings of each, remembers the
+        one the node accepted, and says which it tried if none works.
+      </p>
+    </div>
+
+    <div class="sec full full-y full-sunk">
+      <h2 data-i18n>What Rialo says about itself</h2>
+      <p class="lead" data-i18n>
+        These are Rialo's published figures, not this protocol's measurements of it. They
+        are here because they are the reason a settlement can land in the block a reading
+        does, rather than a day later.
+      </p>
+      <div class="rialo-figs">
+        <div><b>50 ms</b><span data-i18n>consensus block time</span></div>
+        <div><b>100 ms</b><span data-i18n>read latency, down from seconds</span></div>
+        <div><b>&gt;40&times;</b><span data-i18n>faster than the top oracles, for data</span></div>
+        <div><b>&gt;100k</b><span data-i18n>concurrent calls out to the web</span></div>
+      </div>
+      <p class="fine" style="margin-top:14px" data-i18n>
+        Read from Rialo's developer page. This protocol runs against a simulation of a chain
+        of that shape; what is written here about the chain is Rialo's claim, and what is
+        written elsewhere on this site about the demonstration is ours.
+      </p>
+    </div>
+
+    <div class="sec full full-y full-edge">
+      <h2 data-i18n>What Rialo has published</h2>
+      <p class="lead" data-i18n>
+        Read from Rialo's own front page a few times a day. There is no feed to subscribe
+        to: the documentation is behind a sign in and the blog answers a fetcher with
+        nothing, so the front page is the source, and this says when it was last read.
+      </p>
+      <p class="fine" id="rialo-said" role="status"></p>
+      <div id="rialo-out" style="margin-top:12px"></div>
+    </div>
+
+    <div class="sec full full-y full-sunk">
+      <h2 data-i18n>What this protocol does not use, yet</h2>
+      <p class="lead" data-i18n>
+        Said plainly, because a page that lists only what is used reads as a brochure.
+        Rialo publishes work on native privacy, on threshold cryptography and distributed
+        key generation, and on consistency levels. None of it is in this protocol today.
+        The parts used are the reactive ones above, the address shape, and the signature
+        scheme a passkey signs with.
+      </p>
+      <p class="fine" style="margin-top:18px">
+        <a href="#/how" data-i18n>How a payout actually happens</a> ·
+        <a href="#/proof" data-i18n>The register, and every policy in it</a>
+      </p>
+    </div>
+  </div>
 </section>
 
 <!-- ============================== COVER ============================== -->
@@ -4729,7 +4856,7 @@ function privySignIn(){
 
 /* ================= routing ================= */
 var VIEWS={"/":"view-home","/cover":"view-cover","/mine":"view-mine","/profile":"view-profile",
-           "/how":"view-how","/pool":"view-pool","/proof":"view-proof",
+           "/how":"view-how","/pool":"view-pool","/proof":"view-proof","/rialo":"view-rialo",
            "/insurers":"view-insurers","/privacy":"view-privacy","/faq":"view-faq","/rules":"view-rules",
            "/company":"view-company","/admin":"view-admin"};
 function currentRoute(){return (location.hash||"#/").replace(/^#/,"")||"/";}
@@ -4766,6 +4893,7 @@ function show(route, moved){
   if(route==="/insurers"){ renderInsurers(); renderAskedDocuments(); }
   if(route==="/company")renderCompany();
   if(route==="/admin"){ whenLinked().then(bindOperator); }
+  if(route==="/rialo")renderRialo();
   announce(route, moved);
 }
 
@@ -9362,6 +9490,51 @@ function showBuyError(error){
 }
 
 var LAST_DONE=null;
+
+/* ---- what the chain this protocol runs on has published -----------------
+   Read by the protocol, not by the browser: one fetch every few hours from
+   one server is a polite use of somebody else's front page; a fetch per
+   visitor is not. The list is theirs, so the titles are theirs too and are
+   not translated -- a title is a name.
+
+   Three states, and the third is the one that matters: the source answered,
+   the source has not answered yet, and the source stopped answering after it
+   had. The last shows what it last said and says how old that is, rather
+   than showing nothing as though Rialo had published nothing. */
+var RIALO_READ=false;
+function renderRialo(){
+  var box=$("rialo-out"), said=$("rialo-said");
+  if(!box)return;
+  if(RIALO_READ)return;
+  RIALO_READ=true;
+  said.textContent=t("Reading the sources…");
+  api("/api/live/rialo",{timeout:12000}).then(function(reply){
+    var rows=(reply&&reply.items)||[];
+    if(!rows.length){
+      said.textContent=t("Rialo's front page could not be read just now.");
+      box.innerHTML="";
+      RIALO_READ=false;
+      return;
+    }
+    // agoText already says "ago" in the reader's language, so neither of
+    // these sentences says it a second time.
+    said.textContent=reply.stale
+      ? t("Last read {ago}, and the page has not answered since.",{ago:agoText(reply.age_seconds)})
+      : t("Read from rialo.io, {ago}.",{ago:agoText(reply.age_seconds)});
+    box.innerHTML='<div class="pubs">'+rows.map(function(row){
+      return '<a class="pub" href="'+esc(row.url)+'" target="_blank" rel="noopener noreferrer">'+
+        '<span class="no">'+esc(row.number||"·")+'</span>'+
+        '<span class="nm">'+esc(row.title)+'</span>'+
+        (row.when?'<span class="wn">'+esc(row.when)+'</span>':"")+
+        (row.summary?'<span class="sm">'+esc(row.summary)+'</span>':"")+
+        '</a>';
+    }).join("")+'</div>';
+  },function(){
+    said.textContent=t("Rialo's front page could not be read just now.");
+    RIALO_READ=false;
+  });
+}
+
 /* ---- the papers that show the thing is yours ---------------------------
    These are asked for after the purchase, not during it. The insurer decides
    afterwards in any case, and nothing about the price depends on them, so
