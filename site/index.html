@@ -1153,7 +1153,14 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 @media (min-width:1300px){
   /* Upright in a column, the rule it wrote goes under the drawing rather than
      beside it: 220px of card next to a portrait leaves neither room. */
-  .stage-body{grid-template-columns:minmax(0,1fr)}
+  /* Stacked, the card's height is the drawing plus the handset plus the chrome
+     between them, so the chrome is where the slack is: 20px of padding and
+     26px of gap around two pictures that are each as small as they can be read
+     at. And the drawing is never given a frame larger than itself -- blown up
+     to fill 340px of column it was a 1.06x enlargement of a 320px drawing,
+     which is how a panel ends up looking bigger than what is in it. */
+  .stage-body{grid-template-columns:minmax(0,1fr);gap:16px;padding:14px}
+  .stage-body > svg.art-tall{max-width:320px;margin-inline:auto}
 }
 /* The handset is written, not drawn. A label in an SVG is one line at a fixed
    size that cannot wrap, so the policy's own sentence ran out of the card and
@@ -2421,7 +2428,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           </g>
         </svg>
 
-        <svg class="art art-tall" viewBox="0 0 320 340" role="img" aria-label="A seismic reading crossing the line a policy was written on, with validators attesting it" data-i18n-aria>
+        <svg class="art art-tall" viewBox="0 0 320 278" role="img" aria-label="A seismic reading crossing the line a policy was written on, with validators attesting it" data-i18n-aria>
           <defs>
             <marker id="ah-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
               <path d="M0 0 10 5 0 10Z" fill="var(--ink-3)"/>
@@ -2429,11 +2436,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           </defs>
 
           <!-- the source the policy listens to, quiet, from the first step -->
-          <line class="a-edge-soft" x1="24" y1="238" x2="286" y2="238" stroke-width="1"/>
-          <line class="a-edge-soft" x1="24" y1="230" x2="24" y2="246" stroke-width="1"/>
-          <line class="a-edge-soft" x1="155" y1="234" x2="155" y2="242" stroke-width="1"/>
-          <line class="a-edge-soft" x1="286" y1="230" x2="286" y2="246" stroke-width="1"/>
-          <text x="24" y="218" font-size="8.5" letter-spacing="1" data-i18n>LISTENING</text>
+          <line class="a-edge-soft" x1="24" y1="178" x2="286" y2="178" stroke-width="1"/>
+          <line class="a-edge-soft" x1="24" y1="170" x2="24" y2="186" stroke-width="1"/>
+          <line class="a-edge-soft" x1="155" y1="174" x2="155" y2="182" stroke-width="1"/>
+          <line class="a-edge-soft" x1="286" y1="170" x2="286" y2="186" stroke-width="1"/>
+          <text x="24" y="158" font-size="8.5" letter-spacing="1" data-i18n>LISTENING</text>
 
           <!-- The station is reading before the policy has anything to say. A
                resting trace sweeps this same baseline from the first frame, so
@@ -2442,38 +2449,38 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
                actually moves and the real trace takes the line. -->
           <g class="l-rest">
             <path class="a-edge hx-rest" fill="none" stroke-width="1.3"
-                  d="M24 238 52 238 58 236 64 240 70 238 104 238 110 227 116 249 122 238 156 238 162 235 168 241 174 238 208 238 214 229 220 247 226 238 260 238 266 236 272 240 278 238 286 238"/>
-            <circle class="hx-rest-dot a-signal-f" cx="24" cy="238" r="2.4"/>
+                  d="M24 178 52 178 58 176 64 180 70 178 104 178 110 167 116 189 122 178 156 178 162 175 168 181 174 178 208 178 214 169 220 187 226 178 260 178 266 176 272 180 278 178 286 178"/>
+            <circle class="hx-rest-dot a-signal-f" cx="24" cy="178" r="2.4"/>
           </g>
 
           <!-- 2. the ground moves, and is recorded -->
           <g class="layer l-ground">
-            <circle class="a-edge-soft hx-ring hx-r1" cx="66" cy="238" r="30"/>
-            <circle class="a-edge-soft hx-ring hx-r2" cx="66" cy="238" r="54"/>
-            <circle class="a-edge-soft hx-ring hx-r3" cx="66" cy="238" r="80"/>
-            <circle class="a-signal-f hx-epi" cx="66" cy="238" r="4"/>
-            <path id="hero-trace-tall" class="a-settled hx-trace" stroke-width="1.6" d="M24 238 40 236 52 241 64 235 76 240 88 237 100 239 112 236 124 240 132 238 140 200 146 274 152 160 158 300 164 178 170 268 176 212 184 248 192 228 200 242 210 234 222 240 234 236 248 239 262 237 276 238 286 238"/>
-            <text x="152" y="326" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04, 11 km deep</text>
+            <circle class="a-edge-soft hx-ring hx-r1" cx="66" cy="178" r="30"/>
+            <circle class="a-edge-soft hx-ring hx-r2" cx="66" cy="178" r="54"/>
+            <circle class="a-edge-soft hx-ring hx-r3" cx="66" cy="178" r="80"/>
+            <circle class="a-signal-f hx-epi" cx="66" cy="178" r="4"/>
+            <path id="hero-trace-tall" class="a-settled hx-trace" stroke-width="1.6" d="M24 178 40 176 52 181 64 175 76 180 88 177 100 179 112 176 124 180 132 178 140 140 146 214 152 100 158 240 164 118 170 208 176 152 184 188 192 168 200 182 210 174 222 180 234 176 248 179 262 177 276 178 286 178"/>
+            <text x="152" y="266" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>M7.2, 09:41:04, 11 km deep</text>
           </g>
 
           <!-- 3. the validators who read it -->
           <g class="layer l-validators">
-            <circle class="a-edge" cx="64" cy="58" r="11" stroke-width="1.2"/>
-            <circle class="a-edge" cx="152" cy="44" r="11" stroke-width="1.2"/>
-            <circle class="a-edge" cx="240" cy="60" r="11" stroke-width="1.2"/>
-            <path class="a-settled hx-attest" d="M59 58.5 62.5 62 69 55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path class="a-settled hx-attest" d="M147 44.5 150.5 48 157 41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path class="a-settled hx-attest" d="M235 60.5 238.5 64 245 57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <line class="a-edge-soft a-dash" x1="64" y1="70" x2="64" y2="126" stroke-width="1"/>
-            <line class="a-edge-soft a-dash" x1="152" y1="56" x2="152" y2="126" stroke-width="1"/>
-            <line class="a-edge-soft a-dash" x1="240" y1="72" x2="240" y2="126" stroke-width="1"/>
+            <circle class="a-edge" cx="64" cy="34" r="11" stroke-width="1.2"/>
+            <circle class="a-edge" cx="152" cy="20" r="11" stroke-width="1.2"/>
+            <circle class="a-edge" cx="240" cy="36" r="11" stroke-width="1.2"/>
+            <path class="a-settled hx-attest" d="M59 34.5 62.5 38 69 31" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M147 20.5 150.5 24 157 17" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="a-settled hx-attest" d="M235 36.5 238.5 40 245 33" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <line class="a-edge-soft a-dash" x1="64" y1="46" x2="64" y2="66" stroke-width="1"/>
+            <line class="a-edge-soft a-dash" x1="152" y1="32" x2="152" y2="66" stroke-width="1"/>
+            <line class="a-edge-soft a-dash" x1="240" y1="48" x2="240" y2="66" stroke-width="1"/>
           </g>
 
           <!-- 4. the line the rule was written on -->
           <g class="layer l-trigger">
-            <line class="a-signal a-dash hx-trigger" x1="24" y1="182" x2="286" y2="182"/>
-            <circle class="a-signal-f" cx="299" cy="238" r="2.6"/>
-            <line class="a-edge" x1="296" y1="238" x2="316" y2="238" marker-end="url(#ah-t)" stroke-width="1.2"/>
+            <line class="a-signal a-dash hx-trigger" x1="24" y1="122" x2="286" y2="122"/>
+            <circle class="a-signal-f" cx="299" cy="178" r="2.6"/>
+            <line class="a-edge" x1="296" y1="178" x2="316" y2="178" marker-end="url(#ah-t)" stroke-width="1.2"/>
           </g>
         </svg>
 
@@ -11711,10 +11718,13 @@ function closeRider(){
     var stage=$("hero-stage"), cap=$("hero-cap");
     if(!stage)return;
 
-    var trace=$("hero-trace");
-    if(trace&&trace.getTotalLength){
+    // Both drawings draw their trace by unrolling a dash the length of the
+    // path. The upright one was left on the 1100 fallback, which is longer
+    // than it is, so the line finished early and then waited.
+    [].slice.call(document.querySelectorAll(".hx-trace")).forEach(function(trace){
+      if(!trace.getTotalLength)return;
       try{ trace.style.setProperty("--len",String(Math.ceil(trace.getTotalLength()))); }catch(e){}
-    }
+    });
 
     var beats=[].slice.call(document.querySelectorAll("#hero-beats .beat"));
     var ticks=[].slice.call(stage.querySelectorAll(".ticks i"));
