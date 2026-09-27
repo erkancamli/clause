@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.32.2, 27 September 2026
+
+- Three drawings on the Rialo page, because the page's subject is a mechanism
+  and a mechanism is shown rather than described. A condition riding above a
+  run of blocks, faint while it is false and lit once the reading lands, with
+  the settlement drawn inside that same block and not after it. Four agencies
+  reporting on one earthquake, plotted where they actually fall. A call passing
+  four filters with the credential held behind the last of them.
+
+  The middle one was drawn wrong twice before it was drawn right. First the
+  four readings sat at even spacing, which is the one thing a picture about
+  distance must not do: two of those agencies published the same magnitude and
+  belong on the same mark. Then it was labelled "5% tolerance", which is REX's
+  generic default and not what an earthquake uses. The figure in the code is
+  0.2 of a magnitude, absolute, because a tenth is routine between agencies and
+  a third is not. It now plots the real readings from Elbistan on 6 February
+  2023, on a scale, inside the band the contract actually names.
+
+- Two sentences lifted out of their paragraphs and set beside them, because
+  each is the sentence its section exists to make. Set beside, not underneath:
+  a quote given a row of its own leaves the other half of that row empty, which
+  is the same fault as a page that does not use its width.
+
+- Attribution for the sets this site shows and did not credit. The protocol has
+  been sending the airportsdata line with every airport search and the page was
+  dropping it, which is a licence not being met rather than a styling lapse; it
+  now sits under the results, where GeoNames already sits under the place
+  results. And the model behind the assistant is named, because one that will
+  not say whose judgement it runs on is asking for more trust than it has
+  earned.
+
+- The earthquake terms name every agency that is actually asked. The chain
+  queried on each event is USGS, EMSC, GFZ GEOFON and the national network, and
+  two of those were in the code and not in the text that is section 10 of the
+  contract. A source whose reading can settle money, or refuse to, belongs in
+  the terms.
+
 ## 1.32.1, 27 September 2026
 
 - The Rialo page named one thing this protocol uses and left out the two that
