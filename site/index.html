@@ -234,7 +234,8 @@ button{font:inherit;color:inherit}
    Hippo at 1250, Linear at 1280. None of them is wide. All of them are banded.
    The surfaces are the ones the palette already carries and the contrast tests
    already measure, so a band cannot introduce a pair nobody has checked. */
-/* The Rialo page. Three small shapes: the calls this protocol makes, the
+/* == the Rialo page's own styles, begin ==
+   Three small shapes: the calls this protocol makes, the
    figures the chain publishes about itself, and what it has written. */
 .rialo-calls{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
   border-radius:var(--r-sm);overflow:hidden;margin-top:16px}
@@ -264,6 +265,7 @@ a.pub .sm{grid-column:2;font-size:13px;color:var(--ink-2);line-height:1.5;margin
   a.pub{grid-template-columns:minmax(0,1fr)}
   a.pub .wn,a.pub .sm{grid-column:1}
 }
+/* == the Rialo page's own styles, end == */
 .slab{width:100%;padding-block:var(--slab-y,clamp(40px,6vw,88px))}
 .slab-sunk{background:var(--sunk)}
 .slab-panel{background:var(--panel)}
@@ -1746,8 +1748,21 @@ tr:last-child td{border-bottom:0}
 .sec > h2{font-size:clamp(22px,3.2vw,30px)}
 .sec > p.lead{color:var(--ink-2);max-width:60ch}
 /* Small print that runs wider than the prose above it reads as a rag,
-   and it is the least important text on the page. Same measure. */
-.sec > p.fine{max-width:76ch}
+   and it is the least important text on the page. Same measure.
+
+   And the same everywhere prose is read rather than labelled. Measured
+   across the site, a 13.5px paragraph filling a 1120px band is a 166
+   character line: the Proof page had four of them, For insurers eight, and
+   the pool one. The comfortable range is 45 to 75 characters and 90 is
+   already generous, so the small print gets the measure the rest of the
+   page already had. Only paragraphs in reading containers: a label in a
+   chip, a cell in a table or a caption in a band is not prose and keeps
+   whatever width it sits in. */
+.sec > p.fine,
+.qbody > p, .qbody > .panel > p,
+.more .inner > p,
+.sec > .panel > p,
+#coverage-out > p{max-width:76ch}
 
 footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-3);font-size:13px;margin-top:auto}
 /* The Ask Rider button is fixed to the bottom right corner, so whenever
@@ -1765,15 +1780,13 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
    Everything on this page is drawn rather than photographed, so the page
    carries no external files and renders identically years from now. Every
    stroke takes its colour from the theme tokens. */
-/* Three drawings on the Rialo page, and the type inside them. A drawing on
+/* == the Rialo page's own styles, begin ==
+   Three drawings on the Rialo page, and the type inside them. A drawing on
    this site is line work in the palette's own colours, so the fills here are
    tokens rather than values, and a figure is never given a frame wider than
    the drawing it holds. */
 .fig-wide{margin:20px 0 0;width:100%}
 .fig-wide svg{display:block;width:100%;height:auto}
-.t-2{fill:var(--ink-2)}
-.t-3{fill:var(--ink-3)}
-.t-settled{fill:var(--settled)}
 .fig-wide text.mono,.fig-wide .mono text,.fig-wide g.mono text{font-family:var(--mono)}
 /* A line worth stopping on, set apart from the paragraph it came out of.
    Not a decoration: on this page each one is the sentence the section exists
@@ -1783,14 +1796,21 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .pull p{font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.32;
   letter-spacing:-.015em;color:var(--ink)}
 .pull small{display:block;margin-top:8px;font-size:12.5px;color:var(--ink-3)}
-.said{display:grid;gap:14px}
+.pullrow{display:grid;gap:14px}
 @media (min-width:1000px){
   /* Beside the prose rather than under it, where there is room for both. A
      quote given a row of its own leaves the other half of that row empty,
-     which is the same fault as a page that does not use its width. */
-  .said{grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:12px 44px;align-items:start}
-  .said > .pull{margin-top:0}
+     which is the same fault as a page that does not use its width.
+
+     Named for what it is rather than for what it holds: this was .said for
+     one release, which is also what the hero's five beats have called their
+     own line since long before this page existed. The rule reached all seven
+     and squeezed a 390px box to nothing, so the policy's own sentence came
+     out one character to a line. */
+  .pullrow{grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:12px 44px;align-items:start}
+  .pullrow > .pull{margin-top:0}
 }
+/* == the Rialo page's own styles, end == */
 .art{width:100%;height:auto;display:block;max-width:100%}
 .a-panel{fill:var(--panel)}
 .a-sunk{fill:var(--sunk)}
@@ -1801,6 +1821,12 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .a-mute{fill:var(--ink-3)}
 .a-signal{stroke:var(--signal);fill:none}
 .a-signal-f{fill:var(--signal)}
+/* Text inside a drawing, in the palette's own inks. Shared, not one page's:
+   the hero's landscape instrument has worn t-2 since before the Rialo page
+   existed, which is how a rule written for one page reached another. */
+.t-2{fill:var(--ink-2)}
+.t-3{fill:var(--ink-3)}
+.t-settled{fill:var(--settled)}
 .a-settled{stroke:var(--settled);fill:none}
 
 /* ---- living illustrations: the trigger loop on the hero, the weather on the
@@ -2742,7 +2768,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         itself and publishes its own answer, so what lands on the chain is not one agreed
         figure but a set of independent measurements.
       </p>
-      <div class="said">
+      <div class="pullrow">
       <p class="lead" data-i18n>
         Reconciling them is left to a separate aggregator, and the default one's rule is
         not published: no stated quorum, no median rule, no dispute path, nothing written
@@ -2766,55 +2792,61 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
            and AFAD said 7.6. Drawn on a scale rather than listed, because the
            rule is about distance and a list hides distance. -->
       <figure class="fig-wide">
-        <svg class="art" viewBox="0 0 760 196" role="img" aria-label="Four agencies reporting on one earthquake, plotted on a magnitude scale with the median taken and the tolerance band drawn around it" data-i18n-aria>
-          <text x="0" y="11" font-size="9.5" letter-spacing="1.2" class="t-3" data-i18n>FOUR VALIDATORS, ONE EVENT, FOUR ANSWERS</text>
+        <svg class="art" viewBox="0 0 760 232" role="img" aria-label="Each validator reading three agencies and keeping their middle answer, then the four validators reconciled on chain" data-i18n-aria>
+          <text x="0" y="11" font-size="9.5" letter-spacing="1.2" class="t-3" data-i18n>EACH VALIDATOR ASKS EVERY AGENCY, AND KEEPS THE MIDDLE ANSWER</text>
 
-          <!-- Each agency, and what it said. Elbistan, 6 February 2023. -->
+          <!-- stage one: three agencies, read by every validator -->
           <g class="a-edge">
-            <rect x="8"   y="26" width="150" height="38" rx="6" stroke-width="1.1"/>
-            <rect x="198" y="26" width="150" height="38" rx="6" stroke-width="1.1"/>
-            <rect x="388" y="26" width="150" height="38" rx="6" stroke-width="1.1"/>
-            <rect x="578" y="26" width="150" height="38" rx="6" stroke-width="1.1"/>
+            <rect x="0" y="30" width="150" height="26" rx="5" stroke-width="1.1"/>
+            <rect x="0" y="64" width="150" height="26" rx="5" stroke-width="1.1"/>
+            <rect x="0" y="98" width="150" height="26" rx="5" stroke-width="1.1"/>
           </g>
           <g class="t-3" font-size="9" letter-spacing=".08em">
-            <text x="20" y="41">USGS</text><text x="210" y="41">EMSC</text>
-            <text x="400" y="41">GFZ</text><text x="590" y="41">AFAD</text>
+            <text x="12" y="47">USGS</text><text x="12" y="81">EMSC</text><text x="12" y="115">AFAD</text>
           </g>
-          <g class="mono t-2" font-size="15" text-anchor="end" font-variant-numeric="tabular-nums">
-            <text x="146" y="55">7.50</text><text x="336" y="55">7.50</text>
-            <text x="526" y="55">7.54</text><text x="716" y="55">7.60</text>
+          <g class="mono t-2" font-size="12" text-anchor="end" font-variant-numeric="tabular-nums">
+            <text x="138" y="47">7.50</text><text x="138" y="81">7.50</text><text x="138" y="115">7.60</text>
           </g>
-
-          <!-- and where that falls on the scale, which is the whole point:
-               two of them land on the same mark, and the fourth is a tenth
-               away, which is routine between agencies. -->
-          <g class="a-edge-soft a-dash">
-            <!-- One lane each, so a leader crossing another reads as two
-                 lines and not as a junction. The outermost travels furthest
-                 and so takes the deepest lane. -->
-            <path d="M83 66 L83 98 L384 98 L384 120" stroke-width="1" fill="none"/>
-            <path d="M273 66 L273 90 L384 90 L384 120" stroke-width="1" fill="none"/>
-            <path d="M463 66 L463 74 L426 74 L426 120" stroke-width="1" fill="none"/>
-            <path d="M653 66 L653 82 L489 82 L489 120" stroke-width="1" fill="none"/>
-          </g>
-
-          <rect x="194" y="118" width="422" height="22" rx="3" class="a-settled-w"/>
-          <line class="a-edge" x1="24" y1="129" x2="736" y2="129" stroke-width="1"/>
           <g class="a-edge-soft">
-            <line x1="194" y1="118" x2="194" y2="140" stroke-width="1"/>
-            <line x1="616" y1="118" x2="616" y2="140" stroke-width="1"/>
+            <path d="M150 43 C 200 43, 200 77, 250 77" fill="none" stroke-width="1"/>
+            <path d="M150 77 L250 77" fill="none" stroke-width="1"/>
+            <path d="M150 111 C 200 111, 200 77, 250 77" fill="none" stroke-width="1"/>
           </g>
-          <g class="a-signal-f">
-            <circle cx="384" cy="129" r="5.5"/><circle cx="426" cy="129" r="5.5"/>
-            <circle cx="489" cy="129" r="5.5"/>
+          <text x="200" y="128" font-size="9" text-anchor="middle" class="t-3" data-i18n>one validator</text>
+
+          <!-- what that validator puts on chain: the middle of the three -->
+          <rect x="250" y="62" width="104" height="30" rx="5" class="a-signal-w a-edge" stroke-width="1.2"/>
+          <text x="302" y="82" font-size="13" text-anchor="middle" class="mono t-2" font-variant-numeric="tabular-nums">7.50</text>
+          <text x="302" y="106" font-size="9" text-anchor="middle" class="t-3" data-i18n>its middle answer</text>
+
+          <!-- stage two: four of those, reconciled on chain -->
+          <line class="a-edge-soft a-dash" x1="386" y1="20" x2="386" y2="172" stroke-width="1"/>
+          <text x="404" y="30" font-size="9.5" letter-spacing="1.2" class="t-3" data-i18n>THEN THE FOUR, ON CHAIN</text>
+          <g class="a-edge">
+            <rect x="404" y="44" width="150" height="24" rx="5" stroke-width="1.1"/>
+            <rect x="404" y="74" width="150" height="24" rx="5" stroke-width="1.1"/>
+            <rect x="404" y="104" width="150" height="24" rx="5" stroke-width="1.1"/>
+            <rect x="404" y="134" width="150" height="24" rx="5" stroke-width="1.1"/>
           </g>
-          <line class="a-settled" x1="405" y1="116" x2="405" y2="142" stroke-width="2.4"/>
-          <g class="mono t-3" font-size="9" text-anchor="middle">
-            <text x="194" y="156">7.32</text><text x="616" y="156">7.72</text>
+          <g class="t-3" font-size="9">
+            <text x="414" y="60">validator 1</text><text x="414" y="90">validator 2</text>
+            <text x="414" y="120">validator 3</text><text x="414" y="150">validator 4</text>
           </g>
-          <text x="405" y="158" font-size="12" text-anchor="middle" class="t-settled mono">7.52</text>
-          <text x="405" y="174" font-size="9.5" text-anchor="middle" class="t-2" data-i18n>the middle report, which is what settles</text>
-          <text x="0" y="190" font-size="9.5" class="t-3" data-i18n>They may differ by up to 0.2 of a magnitude. Wider than that, or fewer than three of the four reporting, and nothing settles at all.</text>
+          <g class="mono t-2" font-size="11.5" text-anchor="end" font-variant-numeric="tabular-nums">
+            <text x="544" y="60">7.50</text><text x="544" y="90">7.50</text>
+            <text x="544" y="120">7.52</text><text x="544" y="150">7.49</text>
+          </g>
+          <g class="a-edge-soft">
+            <path d="M554 56 C 592 56, 592 101, 620 101" fill="none" stroke-width="1"/>
+            <path d="M554 86 C 592 86, 592 101, 620 101" fill="none" stroke-width="1"/>
+            <path d="M554 116 C 592 116, 592 101, 620 101" fill="none" stroke-width="1"/>
+            <path d="M554 146 C 592 146, 592 101, 620 101" fill="none" stroke-width="1"/>
+          </g>
+          <rect x="620" y="84" width="140" height="34" rx="5" class="a-settled a-settled-w" stroke-width="1.8"/>
+          <text x="690" y="106" font-size="15" text-anchor="middle" class="mono t-settled" font-variant-numeric="tabular-nums">7.50</text>
+          <text x="690" y="132" font-size="9" text-anchor="middle" class="t-3" data-i18n>what settles</text>
+          <text x="0" y="200" font-size="9.5" class="t-3" data-i18n>One agency serving a stale answer moves no validator's middle, and one validator out of step moves no settlement.</text>
+          <text x="0" y="218" font-size="9.5" class="t-3" data-i18n>Three of the four must report, the middle of them settles, and beyond 5% apart nothing settles at all.</text>
         </svg>
       </figure>
       <div class="rialo-calls">
@@ -2838,7 +2870,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         the model reads during a task, including a place name somebody typed, is a chance
         to persuade it. A key in that position is full authority.
       </p>
-      <div class="said">
+      <div class="pullrow">
       <p class="lead" data-i18n>
         Rialo publishes Latch for exactly this, and Clause uses it. The model key is
         stored there once and never comes back out. What this server holds is a scoped

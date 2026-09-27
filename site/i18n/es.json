@@ -2291,15 +2291,19 @@
     "the same block, not the next one": "el mismo bloque, no el siguiente",
     "What lands on the chain is not one agreed figure. It is four answers, and somebody has to say which one settles.": "Lo que llega a la cadena no es una cifra acordada. Son cuatro respuestas, y alguien tiene que decir cuál liquida.",
     "Rialo does not say. This protocol does, in the contract.": "Rialo no lo dice. Este protocolo sí, en el contrato.",
-    "FOUR VALIDATORS, ONE EVENT, FOUR ANSWERS": "CUATRO VALIDADORES, UN SUCESO, CUATRO RESPUESTAS",
-    "the middle report, which is what settles": "el informe del medio, que es el que liquida",
     "A prompt is a request, not a constraint.": "Una instrucción es una petición, no una restricción.",
     "which is why the key is not here": "por eso la clave no está aquí",
     "THE CALL, AND WHAT IT PASSES": "LA LLAMADA, Y LO QUE ATRAVIESA",
     "the key": "la clave",
     "never leaves": "nunca sale",
     "The first filter to refuse ends the call, and this server never holds the credential at all.": "El primer filtro que rechaza acaba con la llamada, y este servidor nunca llega a tener la credencial.",
-    "They may differ by up to 0.2 of a magnitude. Wider than that, or fewer than three of the four reporting, and nothing settles at all.": "Pueden diferir como mucho en 0,2 de magnitud. Más que eso, o menos de tres de los cuatro informando, y no se liquida nada."
+    "EACH VALIDATOR ASKS EVERY AGENCY, AND KEEPS THE MIDDLE ANSWER": "CADA VALIDADOR PREGUNTA A TODAS LAS AGENCIAS Y SE QUEDA CON LA RESPUESTA DEL MEDIO",
+    "one validator": "un validador",
+    "its middle answer": "su respuesta del medio",
+    "THEN THE FOUR, ON CHAIN": "LUEGO LOS CUATRO, EN LA CADENA",
+    "what settles": "lo que liquida",
+    "One agency serving a stale answer moves no validator's middle, and one validator out of step moves no settlement.": "Una agencia que sirve una respuesta rancia no mueve el medio de ningún validador, y un validador descolocado no mueve ninguna liquidación.",
+    "Three of the four must report, the middle of them settles, and beyond 5% apart nothing settles at all.": "Tres de los cuatro deben informar, el del medio liquida, y más allá de un 5 % de separación no se liquida nada."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

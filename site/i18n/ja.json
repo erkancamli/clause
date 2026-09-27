@@ -2291,15 +2291,19 @@
     "the same block, not the next one": "次ではなく同じブロック",
     "What lands on the chain is not one agreed figure. It is four answers, and somebody has to say which one settles.": "チェーンに載るのは合意された一つの数値ではありません。四つの答えであり、どれで決めるかを誰かが言わねばなりません。",
     "Rialo does not say. This protocol does, in the contract.": "Rialo は言いません。このプロトコルは契約の中で言います。",
-    "FOUR VALIDATORS, ONE EVENT, FOUR ANSWERS": "四つのバリデータ、一つの事象、四つの答え",
-    "the middle report, which is what settles": "真ん中の報告。決めるのはこれです",
     "A prompt is a request, not a constraint.": "指示は制約ではなく依頼です。",
     "which is why the key is not here": "だから鍵はここにありません",
     "THE CALL, AND WHAT IT PASSES": "呼び出しと、それが通るもの",
     "the key": "鍵",
     "never leaves": "外に出ません",
     "The first filter to refuse ends the call, and this server never holds the credential at all.": "最初に拒んだフィルタが呼び出しを終わらせます。このサーバが資格情報を持つことは一度もありません。",
-    "They may differ by up to 0.2 of a magnitude. Wider than that, or fewer than three of the four reporting, and nothing settles at all.": "食い違いはマグニチュードで 0.2 までです。それより広いか、四つのうち三つに満たない報告なら、何も決まりません。"
+    "EACH VALIDATOR ASKS EVERY AGENCY, AND KEEPS THE MIDDLE ANSWER": "各バリデータがすべての機関に尋ね、真ん中の答えを取る",
+    "one validator": "一つのバリデータ",
+    "its middle answer": "その真ん中の答え",
+    "THEN THE FOUR, ON CHAIN": "次に四つ、チェーン上で",
+    "what settles": "決まる値",
+    "One agency serving a stale answer moves no validator's middle, and one validator out of step moves no settlement.": "古い答えを返す機関が一つあっても、どのバリデータの真ん中も動きません。歩調の外れたバリデータが一つあっても、決済は動きません。",
+    "Three of the four must report, the middle of them settles, and beyond 5% apart nothing settles at all.": "四つのうち三つが報告し、その真ん中が決め、5% を超えて離れれば何も決まりません。"
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

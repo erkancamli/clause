@@ -126,3 +126,49 @@ def test_the_copy_does_not_write_with_a_dash_where_punctuation_belongs() -> None
                           .read_text(encoding="utf-8"))["strings"]
         bad = [k for k, v in said.items() if "—" in k or "—" in v]
         assert not bad, f"{lang} still writes with a dash: {bad[:2]}"
+
+
+def test_no_class_this_page_lays_out_belongs_to_another_screen() -> None:
+    """A layout rule reaches every element with that class, everywhere.
+
+    This page introduced a two column row and called it .said. So do the
+    hero's five beats, and have since long before this page existed, so the
+    rule reached all seven: a 390px box became a two column grid whose second
+    column was 26rem, the first collapsed, and the policy's own sentence came
+    out one character to a line on the home page.
+
+    The rule is therefore about where a class is declared, not about what it
+    is called: every class declared inside this page's own style regions is
+    this page's, and nothing outside this page may wear one. Written against
+    the regions rather than against a list of prefixes, because a list of
+    prefixes is the answer written into the question, and the first version of
+    this test passed with the collision put back.
+    """
+    regions = re.findall(
+        r"== the Rialo page's own styles, begin ==(.*?)== the Rialo page's own styles, end ==",
+        PAGE, re.S)
+    assert len(regions) == 2, f"{len(regions)} style regions found, expected 2"
+    # The leftmost class of a selector is the one that can escape: anything
+    # further right is already scoped by it. `.pub .no` cannot reach a
+    # `.verdict.no` somewhere else, but a bare `.said` reaches every .said
+    # there is, which is the whole of what went wrong.
+    declared = set()
+    for region in regions:
+        body = re.sub(r"/\*.*?\*/", "", region, flags=re.S)
+        for group in re.findall(r"(?:^|[},])\s*([^{}@]+?)\{", body, re.M):
+            for selector in group.split(","):
+                first = re.split(r"[ >+~]", selector.strip(), 1)[0]
+                declared.update(re.findall(r"\.([a-z][\w-]*)", first))
+    assert declared, "the page's style regions declare no classes"
+
+    # Elsewhere means another screen's markup. This page's own renderer
+    # writes its rows from script, so script is not elsewhere.
+    others = re.sub(r"<script\b.*?</script>", "", PAGE.replace(VIEW, ""), flags=re.S)
+    trespass = {}
+    for name in sorted(declared):
+        worn = re.findall(r'class="[^"]*\b' + re.escape(name) + r'\b[^"]*"', others)
+        if worn:
+            trespass[name] = worn[:2]
+    assert not trespass, (
+        "these are declared for this page and worn on another screen: " + repr(trespass)
+    )

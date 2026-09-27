@@ -2291,15 +2291,19 @@
     "the same block, not the next one": "derselbe Block, nicht der nächste",
     "What lands on the chain is not one agreed figure. It is four answers, and somebody has to say which one settles.": "Was auf der Kette landet, ist keine vereinbarte Zahl. Es sind vier Antworten, und jemand muss sagen, welche zählt.",
     "Rialo does not say. This protocol does, in the contract.": "Rialo sagt es nicht. Dieses Protokoll sagt es, im Vertrag.",
-    "FOUR VALIDATORS, ONE EVENT, FOUR ANSWERS": "VIER VALIDATOREN, EIN EREIGNIS, VIER ANTWORTEN",
-    "the middle report, which is what settles": "die mittlere Meldung, und sie ist es, die zählt",
     "A prompt is a request, not a constraint.": "Eine Anweisung ist eine Bitte, keine Schranke.",
     "which is why the key is not here": "darum liegt der Schlüssel nicht hier",
     "THE CALL, AND WHAT IT PASSES": "DER AUFRUF UND WAS ER PASSIERT",
     "the key": "der Schlüssel",
     "never leaves": "geht nie hinaus",
     "The first filter to refuse ends the call, and this server never holds the credential at all.": "Der erste Filter, der ablehnt, beendet den Aufruf, und dieser Server hält die Anmeldung überhaupt nie.",
-    "They may differ by up to 0.2 of a magnitude. Wider than that, or fewer than three of the four reporting, and nothing settles at all.": "Sie dürfen um höchstens 0,2 Magnitude auseinanderliegen. Weiter auseinander, oder melden weniger als drei der vier, wird gar nichts abgerechnet."
+    "EACH VALIDATOR ASKS EVERY AGENCY, AND KEEPS THE MIDDLE ANSWER": "JEDER VALIDATOR FRAGT JEDE AGENTUR UND BEHÄLT DIE MITTLERE ANTWORT",
+    "one validator": "ein Validator",
+    "its middle answer": "seine mittlere Antwort",
+    "THEN THE FOUR, ON CHAIN": "DANN DIE VIER, AUF DER KETTE",
+    "what settles": "was zählt",
+    "One agency serving a stale answer moves no validator's middle, and one validator out of step moves no settlement.": "Eine Agentur mit einer veralteten Antwort verschiebt keine Mitte eines Validators, und ein Validator aus dem Tritt verschiebt keine Abrechnung.",
+    "Three of the four must report, the middle of them settles, and beyond 5% apart nothing settles at all.": "Drei der vier müssen melden, die mittlere zählt, und weiter als 5 % auseinander wird gar nichts abgerechnet."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",

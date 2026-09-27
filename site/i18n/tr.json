@@ -2299,15 +2299,19 @@
     "the same block, not the next one": "aynı blok, bir sonraki değil",
     "What lands on the chain is not one agreed figure. It is four answers, and somebody has to say which one settles.": "Zincire düşen şey üzerinde anlaşılmış tek bir rakam değil. Dört cevap, ve hangisinin sonuçlandıracağını birinin söylemesi gerekiyor.",
     "Rialo does not say. This protocol does, in the contract.": "Rialo söylemiyor. Bu protokol söylüyor, sözleşmenin içinde.",
-    "FOUR VALIDATORS, ONE EVENT, FOUR ANSWERS": "DÖRT DOĞRULAYICI, BİR OLAY, DÖRT CEVAP",
-    "the middle report, which is what settles": "ortadaki bildirim, sonuçlandıran da odur",
     "A prompt is a request, not a constraint.": "Yönerge bir kısıt değil, bir ricadır.",
     "which is why the key is not here": "anahtarın burada olmamasının sebebi bu",
     "THE CALL, AND WHAT IT PASSES": "ÇAĞRI VE GEÇTİĞİ FİLTRELER",
     "the key": "anahtar",
     "never leaves": "hiç çıkmaz",
     "The first filter to refuse ends the call, and this server never holds the credential at all.": "Reddeden ilk filtre çağrıyı bitirir; bu sunucu kimlik bilgisini hiçbir zaman tutmaz.",
-    "They may differ by up to 0.2 of a magnitude. Wider than that, or fewer than three of the four reporting, and nothing settles at all.": "Aralarında en çok 0,2 büyüklük fark olabilir. Bundan geniş bir ayrışmada ya da dörtten azı bildirdiğinde hiçbir şey sonuçlanmaz."
+    "EACH VALIDATOR ASKS EVERY AGENCY, AND KEEPS THE MIDDLE ANSWER": "HER DOĞRULAYICI TÜM AJANSLARA SORAR VE ORTADAKİ CEVABI ALIR",
+    "one validator": "bir doğrulayıcı",
+    "its middle answer": "ortadaki cevabı",
+    "THEN THE FOUR, ON CHAIN": "SONRA DÖRDÜ, ZİNCİR ÜZERİNDE",
+    "what settles": "sonuçlandıran",
+    "One agency serving a stale answer moves no validator's middle, and one validator out of step moves no settlement.": "Bayat cevap veren tek bir ajans hiçbir doğrulayıcının ortancasını kaydırmaz; sıradan çıkan tek bir doğrulayıcı da hiçbir sonuçlandırmayı kaydırmaz.",
+    "Three of the four must report, the middle of them settles, and beyond 5% apart nothing settles at all.": "Dördün üçü bildirmeli, ortadaki sonuçlandırır, ve %5'ten fazla ayrışmada hiçbir şey sonuçlanmaz."
   },
   "patterns": [
     "Doubling the radius would bring in about {rate} times as much of the trace.",
