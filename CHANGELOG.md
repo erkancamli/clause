@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.25.1, 27 September 2026
+
+- One old policy was answering for the whole book. `GET /api/policies` came
+  back five hundred on the live protocol — two thousand policies, and the
+  endpoint unreadable because one of them was written before the airport
+  catalogue existed.
+
+  Cover from then names one of six routes rather than two airport codes, and
+  `validate_subject` reads that back into the two airports so that cover
+  already sold describes and settles the same way. But it runs when a policy is
+  written, and a policy already in the book was written before it: restored
+  from disk, those records still carry `route` and no `origin`. Every line that
+  reached for `subject["origin"]` raised KeyError on them, and because the
+  endpoint formats every policy in the book, one bad row was the whole answer.
+
+  The migration belonged to the reading and not only to the door. `airports_of`
+  resolves either shape and every reader in the peril goes through it — the
+  description, the route key, the sector distance and the scheduled departure,
+  all four of which would have failed on the same record. A route nothing can
+  resolve comes back empty rather than raising: a record that cannot be named
+  is still a record, and failing to name one must not take a page down.
+
+  Both hypotheses I formed before reading the traceback were wrong — a None
+  sort key, and a dictionary mutated while being iterated. The log said
+  KeyError: 'origin', which was neither.
+
 ## 1.25.0, 27 September 2026
 
 - Nobody arrives who was not sent by a person. A policy was written every eight

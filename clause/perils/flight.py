@@ -102,6 +102,40 @@ ROUTES: dict[str, RouteStatistics] = {
 }
 
 
+def airports_of(subject: dict[str, Any]) -> tuple[str, str]:
+    """Where a flight leaves from and lands, whichever shape the record is in.
+
+    Cover written before the airport catalogue existed named one of six routes
+    instead of two codes. validate_subject reads that back into the two
+    airports -- but it runs when a policy is written, and a policy already in
+    the book was written before it. Restored from disk, those records still
+    carry `route` and no `origin`, so every line that reached for
+    subject["origin"] raised KeyError on them: the whole of /api/policies came
+    back as a five hundred because one old flight policy was in the book.
+
+    The migration belonged to the reading and not only to the door, which is
+    what this is. Anything it cannot resolve comes back empty rather than
+    raising, because a record that cannot be described is still a record, and
+    failing to name a route must not take a page down.
+    """
+    origin = str(subject.get("origin", "") or "").upper().strip()
+    destination = str(subject.get("destination", "") or "").upper().strip()
+    if origin and destination:
+        return origin, destination
+    route = str(subject.get("route", "") or "").upper().strip()
+    known = ROUTES.get(route)
+    if known is not None:
+        return known.origin, known.destination
+    # A bare "IST-LHR", without the carrier the catalogue keys on.
+    for stats in ROUTES.values():
+        if stats.route == route:
+            return stats.origin, stats.destination
+    parts = route.split("-")
+    if len(parts) == 2 and all(len(part) == 3 for part in parts):
+        return parts[0], parts[1]
+    return origin, destination
+
+
 class FlightDelay(Peril):
     key = "flight_delay"
     name = "Flight delay and cancellation"
@@ -195,7 +229,7 @@ class FlightDelay(Peril):
         """
         from .airports import find
 
-        airport = find(subject["origin"])
+        airport = find(airports_of(subject)[0])
         zone = ZoneInfo(airport["tz"] if airport else "UTC")
         day = dt.date.fromisoformat(str(subject["departure_date"]))
         clock = dt.time.fromisoformat(str(subject.get("departure_time") or "00:00"))
@@ -233,7 +267,7 @@ class FlightDelay(Peril):
         if known is not None:
             return known
         carrier = str(subject.get("flight_number", ""))[:2].upper()
-        origin, destination = subject["origin"], subject["destination"]
+        origin, destination = airports_of(subject)
         km = self.sector_km(subject)
         for limit, cancelled, late, median in DISTANCE_BANDS:
             if km <= limit:
@@ -242,7 +276,8 @@ class FlightDelay(Peril):
 
     def route_key(self, subject: dict[str, Any]) -> str:
         carrier = str(subject.get("flight_number", ""))[:2].upper()
-        return f"{carrier}-{subject.get('origin', '')}-{subject.get('destination', '')}"
+        origin, destination = airports_of(subject)
+        return f"{carrier}-{origin}-{destination}"
 
     def published(self, subject: dict[str, Any]) -> bool:
         """Whether this route's own record was used, or the distance band."""
@@ -251,7 +286,8 @@ class FlightDelay(Peril):
     def sector_km(self, subject: dict[str, Any]) -> float:
         from .airports import find, great_circle_km
 
-        origin, destination = find(subject["origin"]), find(subject["destination"])
+        left, landed = airports_of(subject)
+        origin, destination = find(left), find(landed)
         if origin is None or destination is None:
             return 2_000.0
         return great_circle_km(
@@ -335,9 +371,11 @@ class FlightDelay(Peril):
         )
 
     def describe_subject(self, subject: dict[str, Any]) -> str:
+        origin, destination = airports_of(subject)
+        flight = subject.get("flight_number") or "?"
+        when = subject.get("departure_date") or "?"
         return (
-            f"{subject['flight_number']} on {subject['origin']} to "
-            f"{subject['destination']}, {subject['departure_date']}"
+            f"{flight} on {origin or '?'} to {destination or '?'}, {when}"
             + (f" at {subject['departure_time']}" if subject.get("departure_time") else "")
         )
 

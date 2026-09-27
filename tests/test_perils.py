@@ -477,3 +477,63 @@ def test_every_peril_names_what_happens_when_data_is_missing() -> None:
         source = peril.data_source(subject)
         assert source.settlement_deadline_days > 0
         assert "return" in source.on_missing_data.lower()
+
+
+# ---------------------------------------------------------------------------
+# A record older than the shape it is read with
+# ---------------------------------------------------------------------------
+
+
+def test_a_flight_policy_from_before_the_airport_catalogue_can_still_be_read() -> None:
+    """One old record took a whole page down.
+
+    Cover written before the catalogue existed names a route rather than two
+    airport codes. validate_subject reads that back into the two airports --
+    but it runs when a policy is written, and a policy already in the book was
+    written before it existed. Restored from disk, those records still carry
+    `route`, so every line reaching for subject["origin"] raised KeyError on
+    them and GET /api/policies answered five hundred for the whole book,
+    because one of two thousand policies was old. Measured on the live
+    protocol: ERR-46E6357A, KeyError: 'origin'.
+    """
+    from clause.perils.flight import FlightDelay, airports_of
+
+    peril = FlightDelay()
+    old = {"route": "TK-IST-LHR", "flight_number": "TK1979",
+           "departure_date": "2026-11-02", "departure_time": "07:45"}
+    assert airports_of(old) == ("IST", "LHR")
+    said = peril.describe_subject(old)
+    assert "IST" in said and "LHR" in said and "TK1979" in said
+    # And the rest of the peril reads it too, not only its description.
+    assert peril.route_key(old) == "TK-IST-LHR"
+    assert peril.sector_km(old) > 0
+    assert peril.departs_at(old) > 0
+
+
+def test_the_two_shapes_describe_the_same_flight_the_same_way() -> None:
+    """The comment on the migration says cover already sold must describe and
+    settle the same way. That is only true if both shapes come out alike."""
+    from clause.perils.flight import FlightDelay
+
+    peril = FlightDelay()
+    common = {"flight_number": "TK1979", "departure_date": "2026-11-02",
+              "departure_time": "07:45"}
+    old = {**common, "route": "TK-IST-LHR"}
+    new = {**common, "origin": "IST", "destination": "LHR"}
+    assert peril.describe_subject(old) == peril.describe_subject(new)
+    assert peril.route_key(old) == peril.route_key(new)
+    assert peril.sector_km(old) == peril.sector_km(new)
+
+
+def test_a_record_nothing_can_name_is_still_a_record() -> None:
+    """Failing to resolve a route must not take a page down with it: that is
+    the fault this is here about, and raising a different exception in the
+    same place would only change its name."""
+    from clause.perils.flight import FlightDelay, airports_of
+
+    peril = FlightDelay()
+    nonsense = {"route": "not-a-route", "flight_number": "XX1",
+                "departure_date": "2026-11-02"}
+    assert airports_of(nonsense) == ("", "")
+    assert isinstance(peril.describe_subject(nonsense), str)
+    assert isinstance(peril.describe_subject({}), str)

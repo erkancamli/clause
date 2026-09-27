@@ -744,3 +744,33 @@ def test_an_unexpected_error_is_json_the_page_can_read_from_its_own_origin() -> 
         assert "foresee" not in reply.text
         stranger = client.get("/api/_boom", headers={"origin": "https://evil.example"})
         assert stranger.status_code == 500 and "access-control-allow-origin" not in stranger.headers
+
+
+def test_one_old_policy_does_not_take_the_whole_book_down(client) -> None:
+    """GET /api/policies formats every policy in the book, so a record it
+    cannot format is not one bad row -- it is the whole endpoint answering
+    five hundred. That is what happened on the live protocol: two thousand
+    policies, one of them written before the airport catalogue existed, and
+    the book unreadable because of it.
+    """
+    from clause.perils.flight import FlightDelay
+
+    ok = client.get("/api/policies?limit=5")
+    assert ok.status_code == 200, ok.text
+
+    # A record in the shape the store holds from before the migration: a route
+    # and no airport codes. It goes straight into the book, because that is how
+    # it got there -- restored from disk, not written through the door.
+    book = client.app.state.pool.policies
+    victim = next(iter(book.values()))
+    victim.peril_key = "flight_delay"
+    victim.subject = {"route": "TK-IST-LHR", "flight_number": "TK1979",
+                      "departure_date": "2026-11-02", "departure_time": "07:45"}
+
+    again = client.get("/api/policies?limit=200")
+    assert again.status_code == 200, (
+        "one policy the page cannot name must not answer for the whole book: "
+        + again.text[:200])
+    rows = again.json()["items"]
+    old = [r for r in rows if r["policy_id"] == victim.policy_id]
+    assert old and "IST" in old[0]["subject_text"] and "LHR" in old[0]["subject_text"]
