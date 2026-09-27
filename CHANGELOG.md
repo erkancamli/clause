@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.28.0, 27 September 2026
+
+- The register is a window, and says which one. It looked like an archive while
+  being one, and that is the whole of what made the figure beside it read as a
+  contradiction: 2,976 payments on a button and a single row underneath. Two
+  repairs were tried on the wrong end of it. 1.26.0 added a sentence explaining
+  the gap where a reader happened to meet it. 1.27.0 dropped the counts until
+  they matched what was kept, which threw away the history to make the page
+  consistent. Raising what is kept until they agreed was the third wrong answer
+  waiting to be given: ten thousand records kept so that a page can show ten is
+  ten thousand records nobody reads.
+
+  Nobody needs the whole book to see that this protocol decides. So the page
+  shows the most recent ten of a stage and says so beside the buttons that choose
+  it, before a reader meets the rows rather than after -- and the count on each
+  button is every decision of that kind this protocol has ever made, with nothing
+  capping it. The gap between the two is the design, stated, instead of a
+  discrepancy to be explained. The sentence 1.26.0 added is gone with the thing
+  it apologised for.
+
+  Driven through the page's own buttons against the live protocol: ten rows for
+  every decision, ten for those that did not trigger, the one payment the book
+  still carries, and none for the stage with no data, which is correct because
+  there are none. No console errors.
+
+- Every stage has its own ten, including the one where the data never came. That
+  filter was missing while the protocol has always decided it and the endpoint
+  has always answered for it, so the one question a parametric buyer is most
+  nervous about -- what happens when the source says nothing -- was the one
+  question the register could not be asked. Its label is the words the row itself
+  carries, so it needed no new ones.
+
+  One figure it will not show honestly for a while: the uncapped count restarts
+  from 2,003 rather than 74,474, because 1.27.0 reached the server and dropped
+  the counts of records already deleted. Nothing brings those back. From here the
+  count is uncapped again, as it was before, and this is what it is counting from.
+
 ## 1.27.2, 27 September 2026
 
 - The row above the hero moved the hero, and the measurement that said it did

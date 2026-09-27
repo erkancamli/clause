@@ -259,24 +259,44 @@ def test_the_words_on_the_filter_are_translated() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_a_register_shorter_than_its_count_says_why() -> None:
-    """The button said 2,976 paid and the register could open one of them.
+def test_the_register_is_a_window_and_says_which_one() -> None:
+    """The last ten of each stage, and the count is the count.
 
-    Giving payments a pot of their own stopped the cause, but the records
-    deleted before that pot existed are gone for good, and between the two
-    figures the page said nothing at all -- on the one subject it exists to be
-    trusted about. Empty already explained itself; short did not.
+    The register looked like an archive while being a window, and that is what
+    made the figure beside it read as a contradiction: 2,976 payments on a button
+    and one row under it. Raising what is kept until the two agreed was the wrong
+    repair -- nobody needs the whole book to see that this protocol decides, and
+    keeping ten thousand records to prove it is ten thousand records nobody reads.
 
-    Fewer rows than were asked for is what "the protocol has no more" looks
-    like. A full page is just a page and says nothing, which is why the test
-    below holds the comparison and not merely the sentence.
+    So the page says what it is showing before a reader meets it: the most recent
+    ten, with a count that nothing caps. An explanation offered after the fact,
+    in the one case somebody happened to look, is what this replaces.
     """
-    where = PAGE.index("function registerHtml")
-    body = PAGE[where:where + 2200]
-    assert "rows.length<REGISTER_LIMIT" in body, (
-        "a full page of rows is not a protocol that has run out")
-    assert "counted>rows.length" in body, "nothing is said unless the count exceeds the rows"
-    assert "All {n} of these were decided" in body
+    assert "var REGISTER_LIMIT=10;" in PAGE
+    assert "The most recent {n}. The figure on each button counts all of them" in PAGE
+    # Said next to the filter, not buried under the rows it is explaining.
+    where = PAGE.index("The most recent {n}.")
+    assert "sieveHtml(book)" in PAGE[where - 400:where], (
+        "the window is not stated beside the buttons that choose it")
+    # And nothing apologises for the gap any more, because the gap is stated.
+    assert "the count outlives the record. Any of the others" not in PAGE
+
+
+def test_every_stage_has_its_own_ten() -> None:
+    """Paid, not triggered, and the one where the data never came. The third was
+    missing from the filter although the protocol has always decided it and the
+    endpoint has always answered for it -- so a reader could not ask the one
+    question this peril makes people most nervous about: what happens when the
+    source says nothing. Its label is the one the row itself carries, so it
+    needed no new words."""
+    for kind in ('""', '"paid"', '"lapsed"', '"expired"'):
+        assert f"kind:{kind}" in PAGE.replace("kind: ", "kind:"), kind
+    for count in ("evaluated", "paid", "lapsed", "expired"):
+        assert f'count:"{count}"' in PAGE, count
+    assert 'label:N("No data")' in PAGE
+    for code in LANGS:
+        strings = json.loads((SITE / "i18n" / f"{code}.json").read_text(encoding="utf-8"))["strings"]
+        assert strings.get("No data"), code
 
 
 def test_the_register_asks_for_as_many_rows_as_it_compares_against() -> None:
@@ -284,7 +304,8 @@ def test_the_register_asks_for_as_many_rows_as_it_compares_against() -> None:
     two figures have to be one figure. Twelve written in three places is two of
     them being left behind when the third is changed."""
     assert PAGE.count("REGISTER_LIMIT") >= 4, "the limit is not named where it is used"
-    assert "?limit=12" not in PAGE, "a literal twelve is still in a request"
+    assert "?limit=12" not in PAGE and "?limit=10" not in PAGE, (
+        "a literal figure is still in a request")
 
 
 # ---------------------------------------------------------------------------

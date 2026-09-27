@@ -11114,6 +11114,9 @@ function qpaid(rows,book){
       '<div><b>'+esc(f0.format(book.height||0))+'</b><span>'+esc(t("the chain's current block"))+'</span></div>'+
     '</div>'+
     sieveHtml(book)+
+    '<p class="fine" style="margin:-6px 2px 14px">'+
+      esc(t("The most recent {n}. The figure on each button counts all of them, and nothing caps it.",
+            {n:f0.format(REGISTER_LIMIT)}))+'</p>'+
     '<div id="register-out">'+registerHtml(rows,book)+'</div>'+
     lookupHtml());
 }
@@ -11124,12 +11127,16 @@ function qpaid(rows,book){
    found none, on a page whose own figures said thousands had been made. The
    counts are on the buttons because a filter that hides how large the other
    half is would be the advertisement this page exists not to be. */
-/* How many the register asks for. registerHtml compares against it to tell a
-   page that is merely full from a protocol that has run out. */
-var REGISTER_LIMIT=12;
+/* How many of each kind the register shows. It is a window on purpose and says
+   so: nobody needs the whole book to see that the protocol decides, and a page
+   that looked like an archive while being a window was the thing that made the
+   count beside it read as a contradiction. The count is the count -- every
+   decision this protocol has made, uncapped -- and this is the last ten of them. */
+var REGISTER_LIMIT=10;
 var SIEVE=[{kind:"",label:N("Every decision"),count:"evaluated"},
            {kind:"paid",label:N("Paid"),count:"paid"},
-           {kind:"lapsed",label:N("Not triggered"),count:"lapsed"}];
+           {kind:"lapsed",label:N("Not triggered"),count:"lapsed"},
+           {kind:"expired",label:N("No data"),count:"expired"}];
 var sieveNow="";
 function sieveHtml(book){
   return '<div class="sieve" role="group" aria-label="'+esc(t("Which decisions to show"))+'">'+
@@ -11151,21 +11158,7 @@ function countedNow(book){
 
 function registerHtml(rows,book){
   var counted=countedNow(book);
-  if(rows.length){
-    /* Fewer rows than were asked for means the protocol had no more to give,
-       not that the page turned -- and the count beside it can be in the
-       thousands. Live, after the payments were given a pot of their own, the
-       button read 2,976 paid and the register could open exactly one, with
-       nothing between the two figures to explain it. The records deleted before
-       that pot existed are gone for good; saying so is the only honest thing
-       left to do about them, and it is what the empty case below already does.
-       The last twelve of a longer history are not this case: a full page is a
-       page, and it says nothing. */
-    var short=rows.length<REGISTER_LIMIT&&counted>rows.length
-      ? '<p class="fine" style="margin:12px 2px 0">'+esc(t("All {n} of these were decided. The protocol still carries the most recent {shown}: this is a demonstration and it forgets its own old policies, so the count outlives the record. Any of the others still answers to its id below.",{n:f0.format(counted),shown:f0.format(rows.length)}))+'</p>'
-      : "";
-    return '<div class="register">'+rows.map(decidedRow).join("")+'</div>'+short;
-  }
+  if(rows.length)return '<div class="register">'+rows.map(decidedRow).join("")+'</div>';
   /* Empty does not always mean none. A tally outlives the record it counted:
      this is a demonstration and it forgets its own old policies, so a filter
      can come back with nothing while the button beside it says thousands. The
