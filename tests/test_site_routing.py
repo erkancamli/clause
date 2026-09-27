@@ -229,7 +229,11 @@ def test_choosing_a_half_asks_the_protocol_for_that_half() -> None:
     which are the twelve that do not contain what the reader is looking for."""
     where = PAGE.index("function bindSieve")
     tail = PAGE[where:where + 1800]
-    assert '"/api/decided?limit=12"+(sieveNow?"&kind="+encodeURIComponent(sieveNow):"")' in tail
+    assert "/api/decided?limit=" in tail
+    assert '"&kind="' in tail and "encodeURIComponent(sieveNow)" in tail
+    # The figure asked for is the named one, because the register compares what
+    # came back against it to tell a full page from a protocol out of records.
+    assert "REGISTER_LIMIT" in tail
 
 
 def test_the_buttons_are_bound_by_delegation() -> None:
@@ -248,3 +252,99 @@ def test_the_words_on_the_filter_are_translated() -> None:
                     "Which decisions to show",
                     "No decision of this kind has been made yet."):
             assert strings.get(key), f"{code} is missing {key!r}"
+
+
+# ---------------------------------------------------------------------------
+# A register shorter than its own count
+# ---------------------------------------------------------------------------
+
+
+def test_a_register_shorter_than_its_count_says_why() -> None:
+    """The button said 2,976 paid and the register could open one of them.
+
+    Giving payments a pot of their own stopped the cause, but the records
+    deleted before that pot existed are gone for good, and between the two
+    figures the page said nothing at all -- on the one subject it exists to be
+    trusted about. Empty already explained itself; short did not.
+
+    Fewer rows than were asked for is what "the protocol has no more" looks
+    like. A full page is just a page and says nothing, which is why the test
+    below holds the comparison and not merely the sentence.
+    """
+    where = PAGE.index("function registerHtml")
+    body = PAGE[where:where + 2200]
+    assert "rows.length<REGISTER_LIMIT" in body, (
+        "a full page of rows is not a protocol that has run out")
+    assert "counted>rows.length" in body, "nothing is said unless the count exceeds the rows"
+    assert "All {n} of these were decided" in body
+
+
+def test_the_register_asks_for_as_many_rows_as_it_compares_against() -> None:
+    """The sentence appears when fewer came back than were asked for, so the
+    two figures have to be one figure. Twelve written in three places is two of
+    them being left behind when the third is changed."""
+    assert PAGE.count("REGISTER_LIMIT") >= 4, "the limit is not named where it is used"
+    assert "?limit=12" not in PAGE, "a literal twelve is still in a request"
+
+
+# ---------------------------------------------------------------------------
+# The digest above the hero
+# ---------------------------------------------------------------------------
+
+
+def test_the_digest_carries_no_links() -> None:
+    """The quake chips in the bands at the foot of the page are anchors to
+    USGS, and they belong there, beside the source line. In front of the hero
+    they would be tab stops a keyboard reader pays on the way to the first
+    thing they came to do, for a second copy of something already on the page.
+    Measured in a browser: nine chips in the digest, no anchors in it, and the
+    bands below still linked."""
+    assert "function chipUnlinked" in PAGE
+    where = PAGE.index("function paintDigest")
+    body = PAGE[where:PAGE.index("function digestUnreachable")]
+    assert "map(chipUnlinked)" in body, "the digest paints the chips as they came"
+
+
+def test_the_digest_holds_its_height_before_it_has_anything_to_say() -> None:
+    """An empty row that fills later moves the hero under the reader, at the top
+    of the page, which is the worst place for it. It says it is reading instead,
+    from the first paint, and the row is the same height either way -- measured
+    at 55px empty and 55px full, on a phone and on a desktop, in four
+    languages."""
+    assert "paintDigest();\n  fillNowCountries();" in PAGE, (
+        "the row is not drawn until the protocol answers")
+    where = PAGE.index("function paintDigest")
+    assert "Reading the sources" in PAGE[where:where + 900]
+
+
+def test_no_feed_can_leave_the_digest_waiting() -> None:
+    """The digest is drawn by whichever feed finishes last, so a path that
+    paints its own band and does not tell the digest leaves "Reading the
+    sources" above the hero for ever -- including the paths that answer with
+    nothing, which are the easy ones to forget: a feed that failed, and a
+    country with no places listed. Every place a band is filled is a place the
+    digest is told."""
+    import collections
+
+    body = PAGE[PAGE.index("function renderLive"):PAGE.index("function startLive")]
+    cut = body.index("fillNowCountries()")
+    assert "digestUnreachable()" in body[:cut], (
+        "an unreachable protocol leaves the digest reading for ever")
+    live = body[cut:]
+    fills = collections.Counter(re.findall(r'bandFill\("band-(quakes|weather|flights)"', live))
+    tells = collections.Counter(re.findall(r'digestKeep\("(quakes|weather|flights)"', live))
+    assert fills == tells, f"bands filled {dict(fills)}, digest told {dict(tells)}"
+
+
+def test_the_digest_takes_only_a_few_from_each_feed() -> None:
+    """One noisy source -- a hundred late departures -- would otherwise be the
+    whole digest, and the other two sources would never appear in it. Severe
+    readings come first within a feed and across all of them, because the row
+    scrolls and what a glance gets is whatever is in view."""
+    assert "DIGEST_PER_FEED = 3" in PAGE
+    where = PAGE.index("function digestKeep")
+    body = PAGE[where:where + 500]
+    assert "slice(0, DIGEST_PER_FEED)" in body
+    assert "chipRank" in body, "a feed's own share is not ordered by severity"
+    merged = PAGE[PAGE.index("function paintDigest"):PAGE.index("function digestUnreachable")]
+    assert "chipRank" in merged, "the merged row is not ordered by severity"

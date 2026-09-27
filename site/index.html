@@ -872,6 +872,22 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.band-track{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
   .band-run{animation:none}.band-run .dup{display:none}}
 
+/* The digest, above the hero. The three bands are the detail and they sit at
+   the foot of the home page, where a reader who never scrolls -- most of them
+   -- never learns that any of this is live. One row above the hero carries the
+   same readings. Measured before it was built: the whole section above the hero
+   would have taken 457px of a 390x844 phone, 54% of the first screen before its
+   first word; one row takes 57px. So it keeps its two columns at every width,
+   where the section below stacks, and it carries no source line -- a one-line
+   label is what holds the row to the height of a single chip. */
+.now-top{padding-top:10px;padding-bottom:0}
+.band-one{margin-top:0}
+@media (max-width:640px){
+  .band-one{grid-template-columns:104px 1fr}
+  .band-one .band-label{border-right:1px solid var(--edge);border-bottom:0;padding:8px 10px}
+  .band-one .band-label span{font-size:12.5px;line-height:1.2}
+}
+
 /* ---------------- home ---------------- */
 .home-hero{position:relative;padding-block:clamp(16px,2.4vw,30px) clamp(12px,1.8vw,20px)}
 .hero-fx-clip{position:absolute;inset:0 0 auto 0;height:min(100svh,900px);
@@ -2033,6 +2049,18 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 
 <!-- ============================== HOME ============================== -->
 <section class="view" id="view-home">
+  <!-- The digest: one row of what the sources are reporting, above the hero.
+       No anchors in it, unlike the bands below: the quake chips there link to
+       USGS, and nine extra tab stops in front of the page's first action is a
+       cost a keyboard reader pays on every visit. The same chips, with their
+       links and their sources, are in "Happening now" at the foot of the page. -->
+  <div class="wrap now-top">
+    <div class="band band-one" id="band-now">
+      <div class="band-label"><span data-i18n>Happening now</span></div>
+      <div class="band-track"><div class="band-run" id="band-now-run"></div></div>
+    </div>
+  </div>
+
   <div class="home-hero">
     <div class="hero-fx-clip" aria-hidden="true">
       <canvas class="readings" id="hero-fx"></canvas>
@@ -11084,6 +11112,9 @@ function qpaid(rows,book){
    found none, on a page whose own figures said thousands had been made. The
    counts are on the buttons because a filter that hides how large the other
    half is would be the advertisement this page exists not to be. */
+/* How many the register asks for. registerHtml compares against it to tell a
+   page that is merely full from a protocol that has run out. */
+var REGISTER_LIMIT=12;
 var SIEVE=[{kind:"",label:N("Every decision"),count:"evaluated"},
            {kind:"paid",label:N("Paid"),count:"paid"},
            {kind:"lapsed",label:N("Not triggered"),count:"lapsed"}];
@@ -11099,15 +11130,36 @@ function sieveHtml(book){
         '</button>';
     }).join("")+'</div>';
 }
+/* How many decisions of the kind now being read the book says there are. The
+   buttons carry the same figures; "" is every decision, and the book calls that
+   one evaluated. */
+function countedNow(book){
+  return book?Number(book[sieveNow||"evaluated"]||0):0;
+}
+
 function registerHtml(rows,book){
-  if(rows.length)return '<div class="register">'+rows.map(decidedRow).join("")+'</div>';
+  var counted=countedNow(book);
+  if(rows.length){
+    /* Fewer rows than were asked for means the protocol had no more to give,
+       not that the page turned -- and the count beside it can be in the
+       thousands. Live, after the payments were given a pot of their own, the
+       button read 2,976 paid and the register could open exactly one, with
+       nothing between the two figures to explain it. The records deleted before
+       that pot existed are gone for good; saying so is the only honest thing
+       left to do about them, and it is what the empty case below already does.
+       The last twelve of a longer history are not this case: a full page is a
+       page, and it says nothing. */
+    var short=rows.length<REGISTER_LIMIT&&counted>rows.length
+      ? '<p class="fine" style="margin:12px 2px 0">'+esc(t("All {n} of these were decided. The protocol still carries the most recent {shown}: this is a demonstration and it forgets its own old policies, so the count outlives the record. Any of the others still answers to its id below.",{n:f0.format(counted),shown:f0.format(rows.length)}))+'</p>'
+      : "";
+    return '<div class="register">'+rows.map(decidedRow).join("")+'</div>'+short;
+  }
   /* Empty does not always mean none. A tally outlives the record it counted:
      this is a demonstration and it forgets its own old policies, so a filter
      can come back with nothing while the button beside it says thousands. The
      page said "no decision of this kind has been made yet" in that case, next
      to a count of 2,974, which is a page contradicting itself on the one
      subject it exists to be trusted about. */
-  var counted=book&&sieveNow?Number(book[sieveNow==="paid"?"paid":sieveNow]||0):0;
   var why=!sieveNow
     ? t("Nothing has been decided yet. The first policy to reach its line will appear here.")
     : counted>0
@@ -11134,7 +11186,7 @@ function bindSieve(box){
     });
     var out=box.querySelector("#register-out");
     if(out)out.innerHTML='<p class="fine" style="padding:14px 2px">'+esc(t("Reading the chain…"))+'</p>';
-    api("/api/decided?limit=12"+(sieveNow?"&kind="+encodeURIComponent(sieveNow):""),
+    api("/api/decided?limit="+REGISTER_LIMIT+(sieveNow?"&kind="+encodeURIComponent(sieveNow):""),
         {timeout:9000}).then(function(reply){
       if(!out)return;
       out.innerHTML=registerHtml((reply&&reply.items)||[],(reply&&reply.book)||null);
@@ -11158,7 +11210,7 @@ function renderProof(id){
        own place rather than taking the other two down with it, which is why
        the two that are not the register swallow their own error. */
     Promise.all([
-      api("/api/decided?limit=12",{timeout:9000}),
+      api("/api/decided?limit="+REGISTER_LIMIT,{timeout:9000}),
       api("/api/pool",{timeout:9000}).then(null,function(){return null;}),
       loadCoverage().then(null,function(){return null;})
     ]).then(function(got){
@@ -11852,8 +11904,91 @@ function flightChip(f){
     (f.name?'<span>'+esc(f.name)+'</span>':'')+
     '<span>'+esc(parts.join(" · "))+'</span></span>';
 }
+/* ---------------- the digest above the hero ----------------
+   The three bands each answer their own feed and paint as soon as it replies.
+   The digest is the three of them in one row, so it cannot be painted by any
+   one of them: each stores what it built, and whoever finishes last draws the
+   merged row. Kept in LIVE so a country change replaces a feed's share rather
+   than adding to it.
+
+   Severe readings come first, because the row scrolls and the first thing in
+   view is what a glance gets. Three from each feed at most: one noisy source
+   -- a hundred late departures -- would otherwise be the whole digest and the
+   other two would never appear in it. */
+var DIGEST_FEEDS = ["quakes", "weather", "flights"];
+var DIGEST_PER_FEED = 3;
+
+function chipRank(html){
+  return /\blv-crit\b/.test(html) ? 0 : /\blv-warn\b/.test(html) ? 1 : 2;
+}
+
+/* The same chip without its link. The quake chips are anchors to USGS and they
+   belong in the band at the foot of the page, which has the source line beside
+   them; in front of the hero they would be tab stops on the way to the first
+   thing a buyer came to do. The class is what carries the colour, so it stays. */
+function chipUnlinked(html){
+  return html.replace(/<a\b([^>]*)>/g, function(all, attrs){
+    return "<span" + attrs.replace(/\s(?:href|target|rel)="[^"]*"/g, "") + ">";
+  }).replace(/<\/a>/g, "</span>");
+}
+
+function digestKeep(feed, chips){
+  LIVE.digest = LIVE.digest || {};
+  LIVE.digest[feed] = (chips || []).slice()
+    .sort(function(a, b){ return chipRank(a) - chipRank(b); })
+    .slice(0, DIGEST_PER_FEED);
+  paintDigest();
+}
+
+function paintDigest(){
+  if(!$("band-now-run"))return;
+  var held = LIVE.digest || {}, all = [];
+  DIGEST_FEEDS.forEach(function(feed){
+    (held[feed] || []).forEach(function(chip){ all.push(chip); });
+  });
+  // Nothing yet from any of them: the row keeps its height and says so, rather
+  // than standing empty above the hero and then pushing it down when it fills.
+  if(!DIGEST_FEEDS.some(function(feed){ return held[feed] !== undefined; })){
+    if(LIVE.digestDrawn === null)return;
+    LIVE.digestDrawn = null;
+    bandFill("band-now-run", [], t("Reading the sources…"));
+    return;
+  }
+  all.sort(function(a, b){ return chipRank(a) - chipRank(b); });
+  var drawn = all.join("");
+  if(drawn === LIVE.digestDrawn)return;
+  LIVE.digestDrawn = drawn;
+  /* Keep where the row had got to. Filling a band rewrites its contents, which
+     restarts the animation at the left, and the digest is repainted whenever
+     any one of the three feeds answers -- three times on a load, and again each
+     minute, because a reading carries its own "fifteen minutes ago" and that
+     sentence changes while the earthquake does not. A row that jumped back to
+     the beginning every minute, above the hero, reads as a fault rather than as
+     a refresh. The three bands below are left as they are: each is rewritten
+     only by its own feed, and each is at the foot of the page. */
+  var run = $("band-now-run"), was = null;
+  try{
+    if(run.getAnimations)
+      run.getAnimations().forEach(function(a){ if(was === null)was = a.currentTime; });
+  }catch(err){}
+  bandFill("band-now-run", all.map(chipUnlinked),
+    t("The sources this protocol settles against have nothing to report right now."));
+  try{
+    if(was !== null && run.getAnimations)
+      run.getAnimations().forEach(function(a){ a.currentTime = was; });
+  }catch(err){}
+}
+
+function digestUnreachable(){
+  LIVE.digest = {};
+  LIVE.digestDrawn = undefined;
+  if($("band-now-run"))
+    bandFill("band-now-run", [], t("The protocol is not reachable, so there is nothing live to show."));
+}
+
 function renderLive(){
   if(!link.live){
+    digestUnreachable();
     $("band-quakes-src").textContent=""; $("band-flights-src").textContent="";
     bandFill("band-quakes",[],t("The protocol is not reachable, so there is nothing live to show."));
     bandFill("band-flights",[],t("The protocol is not reachable, so there is nothing live to show."));
@@ -11862,6 +11997,12 @@ function renderLive(){
   }
   fillNowCountries();
   var code=LIVE.country||"", name=code?regionName(code):"";
+  // A country change starts the digest over, because holding the previous
+  // country's readings while the new ones arrive would put a reading from
+  // somewhere else at the top of the page. A refresh must not: this runs every
+  // sixty seconds, and clearing it there made the row read "Reading the
+  // sources" for a moment every minute, above the hero.
+  if(LIVE.digestCountry!==code){ LIVE.digest={}; LIVE.digestCountry=code; paintDigest(); }
   var query=code?"?country="+encodeURIComponent(code):"";
   var asked=code;
   api("/api/live/quakes"+query,{timeout:10000}).then(function(feed){
@@ -11871,26 +12012,32 @@ function renderLive(){
         : week ? t("USGS, {country}, past 7 days",{country:name})
         : t("USGS, {country}, past 24 hours",{country:name}))+
       (feed.stale&&feed.age_seconds!=null?" · "+t("last updated {ago}",{ago:agoText(feed.age_seconds)}):"");
-    bandFill("band-quakes",(feed.items||[]).map(function(q){return quakeChip(q,now);}),
+    var quakeChips=(feed.items||[]).map(function(q){return quakeChip(q,now);});
+    digestKeep("quakes",quakeChips);
+    bandFill("band-quakes",quakeChips,
       code ? t("No earthquake of magnitude 2.5 or more has been recorded in {country} in the past week.",{country:name})
            : t("No earthquake of magnitude 2.5 or more has been recorded in the past day."));
-  },function(){ bandFill("band-quakes",[],t("The earthquake feed did not answer.")); });
+  },function(){ digestKeep("quakes",[]); bandFill("band-quakes",[],t("The earthquake feed did not answer.")); });
   api("/api/live/weather?country="+encodeURIComponent(code||""),{timeout:45000}).then(function(feed){
     if(asked!==(LIVE.country||""))return;
     var where=code?name:t("worldwide");
     if(feed.available===false){
       $("band-weather-src").textContent=t("No places listed for {country}",{country:where});
+      digestKeep("weather",[]);
       bandFill("band-weather",[],t("No places are listed for {country} yet.",{country:where}));
       return;
     }
     $("band-weather-src").textContent=t("Open-Meteo, {country}, today",{country:where})+
       (feed.stale&&feed.age_seconds!=null?" · "+t("last updated {ago}",{ago:agoText(feed.age_seconds)}):"");
-    bandFill("band-weather",(feed.items||[]).map(weatherChip),t("The weather feed did not answer."));
-  },function(){ bandFill("band-weather",[],t("The weather feed did not answer.")); });
+    var weatherChips=(feed.items||[]).map(weatherChip);
+    digestKeep("weather",weatherChips);
+    bandFill("band-weather",weatherChips,t("The weather feed did not answer."));
+  },function(){ digestKeep("weather",[]); bandFill("band-weather",[],t("The weather feed did not answer.")); });
   api("/api/live/flights"+query,{timeout:10000}).then(function(feed){
     if(asked!==(LIVE.country||""))return;
     if(feed.available===false){
       $("band-flights-src").textContent=t("No public feed for {country}",{country:name});
+      digestKeep("flights",[]);
       bandFill("band-flights",[],t("There is no public live flight delay feed for {country}. The United States publishes one, through the FAA; other countries follow when a licensed feed is connected.",{country:name}));
       return;
     }
@@ -11899,12 +12046,15 @@ function renderLive(){
         : feed.source==="AirLabs" ? t("AirLabs, {country}, departures 45 minutes late or more",{country:code?name:t("worldwide")})
         : t("FlightAware, {country}",{country:code?name:t("worldwide")}))+
       (feed.stale&&feed.age_seconds!=null?" · "+t("last updated {ago}",{ago:agoText(feed.age_seconds)}):"");
-    bandFill("band-flights",(feed.items||[]).map(flightChip),
+    var flightChips=(feed.items||[]).map(flightChip);
+    digestKeep("flights",flightChips);
+    bandFill("band-flights",flightChips,
       usa ? t("No delay programmes are in force at United States airports right now.")
           : t("No airport in {country} is reporting delays right now.",{country:code?name:t("the world")}));
-  },function(){ bandFill("band-flights",[],t("The flight delay feed did not answer.")); });
+  },function(){ digestKeep("flights",[]); bandFill("band-flights",[],t("The flight delay feed did not answer.")); });
 }
 function startLive(){
+  paintDigest();
   fillNowCountries();
   $("now-country").addEventListener("change",function(e){
     LIVE.country=e.target.value;

@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.26.0, 27 September 2026
+
+- The live readings are above the hero, not at the foot of the page. Three
+  bands carry what the sources this protocol settles against are reporting --
+  earthquakes, today's weather, flight delays -- and they sat at the bottom of
+  the home page, where a reader who does not scroll never learns that any of it
+  is live. That is the strongest thing the page has to say about itself and it
+  was the last thing on it.
+
+  One row now carries the same readings above the hero, and it is one row for a
+  measured reason. The whole section put there would have taken 457px of a
+  390x844 phone: 54% of the first screen before the hero's first word, on a
+  product whose buyers are on mid range Android phones. One row takes 55px, and
+  the hero moves down 65px -- 7.7% of that screen. It keeps its two columns at
+  every width, where the section below stacks, and carries no source line,
+  because a one line label is what holds the row to the height of a single chip.
+
+  It says it is reading from the first paint rather than standing empty and
+  filling later, so the hero does not move under the reader: measured at 55px
+  empty and 55px full, on a phone and a desktop, in four languages. The three
+  feeds answer separately, so none of them can draw the row alone -- each
+  stores what it built and whoever finishes last draws the merge, which means a
+  feed that fails or has nothing still has to say so or the row reads for ever.
+  A test counts the two against each other. Severe readings come first, because
+  the row scrolls and a glance gets whatever is in view, and no feed may take
+  more than three places: a hundred late departures would otherwise be the whole
+  row. It carries no links, unlike the bands below, where the earthquake chips
+  point at USGS beside their source line -- in front of the hero those are nine
+  tab stops a keyboard reader pays on the way to the first thing they came to do.
+
+- A register shorter than its own count says why. The button read 2,976 paid and
+  the register could open one of them, with nothing between the two figures to
+  explain it -- on the one subject this page exists to be trusted about. 1.25.0
+  gave payments a pot of their own and stopped the cause; the records deleted
+  before that pot existed are gone for good, and that is what needed saying.
+  Empty already explained itself. Short did not.
+
+  Fewer rows than were asked for is what a protocol out of records looks like; a
+  full page is just a page and says nothing. The figure asked for is now named
+  once, because the sentence compares what came back against it and two twelves
+  in two places is one of them being changed alone.
+
 ## 1.25.2, 27 September 2026
 
 - Three releases were tested and none of them was deployed. The run that gates
