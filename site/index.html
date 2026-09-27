@@ -11838,27 +11838,74 @@ function renderRules(){
         if(first===undefined)return false;
         return keys.every(function(k){ return JSON.stringify(perils[k][field])===first; });
       }
-      function row(label,html){ return '<div class="kv"><div class="k">'+esc(label)+'</div><div class="v">'+html+'</div></div>'; }
       function days(h){ return Math.round(h/24); }
 
-      var shared={
-        attestation:{when:common("attestation"),
-          make:function(x){ return row(t("Attestation"),esc(ts(x.attestation||""))); }},
-        objection:{when:common("objection_days"),
-          make:function(x){ return row(t("Objection"),esc(t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days}))); }},
-        successor:{when:common("successor"),
-          make:function(x){ return row(t("Successor source"),esc(ts(x.successor))); }},
-        archive:{when:common("archive"),
-          make:function(x){ return row(t("Archive"),esc(ts(x.archive))); }}
-      };
-      var order=["attestation","objection","successor","archive"];
+      /* The rulebook is the terms, and the English is the binding text, so it
+         is never more than a click away. Once per peril rather than once per
+         sentence: a reader who wants the binding wording wants all of it, and
+         eleven separate toggles in one panel is a page of controls.
+
+         Both readings are built by the same function, which is given the way
+         to say a sentence: translated, or left as the protocol wrote it. Two
+         functions would drift, and the one that drifted would be the one
+         nobody reads until it matters. */
+      function rows(x, en){
+        var say=en?function(s){return String(s==null?"":s);}:ts;
+        var lab=en?function(s){return s;}:t;
+        var out=[];
+        function row(label,html){ out.push('<div class="kv"><div class="k">'+esc(lab(label))+'</div><div class="v">'+html+'</div></div>'); }
+        function list(tag,items){ return '<'+tag+' style="margin:0;padding-left:18px">'+(items||[]).map(function(i){ return '<li>'+esc(say(i))+'</li>'; }).join("")+'</'+tag+'>'; }
+
+        if(!common("attestation")||en)row("Attestation",esc(say(x.attestation||"")));
+        row("Primary source",esc(say(x.primary)));
+        row("Fallbacks, in order",list("ol",x.fallbacks));
+        var frozen=en?("frozen "+days(x.freeze_hours)+" days after the event")
+                     :t("frozen {days} days after the event",{days:days(x.freeze_hours)});
+        row("Final figure",esc(say(x.final_data))+' · '+esc(frozen));
+        row("Tests a reading must pass",list("ul",x.criteria));
+        if(x.waiting)row("When the cover applies",esc(say(x.waiting)));
+        if(x.deadline_days)row("Silence",esc(
+          en?("No final figure "+x.deadline_days+" days after the term ends: "+say(x.on_missing_data||""))
+            :t("No final figure {days} days after the term ends: {then}",{days:x.deadline_days,then:ts(x.on_missing_data||"")})));
+        if(!common("objection_days")||en)row("Objection",esc(
+          en?("Within "+x.objection_days+" days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.")
+            :t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days})));
+        if(!common("successor")||en)row("Successor source",esc(say(x.successor)));
+        if(!common("archive")||en)row("Archive",esc(say(x.archive)));
+        return out.join("");
+      }
+
+      /* The same for every peril, said once. Only the rows that really are. */
+      function sharedRows(x, en){
+        var say=en?function(s){return String(s==null?"":s);}:ts;
+        var lab=en?function(s){return s;}:t;
+        var out=[];
+        function row(label,html){ out.push('<div class="kv"><div class="k">'+esc(lab(label))+'</div><div class="v">'+html+'</div></div>'); }
+        if(common("attestation"))row("Attestation",esc(say(x.attestation||"")));
+        if(common("objection_days"))row("Objection",esc(
+          en?("Within "+x.objection_days+" days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.")
+            :t("Within {days} days of a settlement, on the Proof page, naming the reading you dispute; the operator answers with the archived inputs.",{days:x.objection_days})));
+        if(common("successor"))row("Successor source",esc(say(x.successor)));
+        if(common("archive"))row("Archive",esc(say(x.archive)));
+        return out.join("");
+      }
+
+      /* Shown only where there is something to show: in English the two
+         readings are the same text, and a toggle onto an identical copy of
+         what is already on screen is a control that does nothing. */
+      function binding(body){
+        if(LANG==="en"||!body)return "";
+        return '<details class="orig"><summary>'+esc(t("English original"))+'</summary>'+
+               '<div class="kvs rulebook" style="margin-top:10px">'+body+'</div></details>';
+      }
 
       if(top){
-        var same=order.filter(function(f){ return shared[f].when; });
-        top.innerHTML=same.length
+        var same=sharedRows(perils[keys[0]],false);
+        top.innerHTML=same
           ? '<div class="common"><h2>'+esc(t("The same for every peril"))+'</h2>'+
             '<p class="fine">'+esc(t("These four rules do not change from one peril to the next, so they are set down once here. Each of them is still part of section 10 of your own contract, whichever cover you hold."))+'</p>'+
-            '<div class="kvs rulebook">'+same.map(function(f){ return shared[f].make(perils[keys[0]]); }).join("")+'</div>'+
+            '<div class="kvs rulebook">'+same+'</div>'+
+            binding(sharedRows(perils[keys[0]],true))+
             (common("version")?'<p class="fine" style="margin:14px 0 0">'+esc(t("Rulebook version {v}",{v:perils[keys[0]].version}))+'</p>':'')+
             '</div>'
           : "";
@@ -11883,22 +11930,15 @@ function renderRules(){
           figs.push({n:frozen,c:t("days until the figure is final")});
           if(x.deadline_days)figs.push({n:x.deadline_days,c:t("days of silence and the premium comes back")});
         }
-        if(!shared.objection.when)figs.push({n:x.objection_days,c:t("days to object")});
+        if(!common("objection_days"))figs.push({n:x.objection_days,c:t("days to object")});
 
         return '<div class="panel" id="rule-'+esc(k)+'" style="padding:22px;scroll-margin-top:84px">'+
           '<div class="perilhead"><h2>'+esc(t(x.title))+'</h2><div class="u"><b>'+esc(t("Index"))+'</b>'+esc(ts(x.index))+'</div></div>'+
           '<div class="rulefigs">'+figs.map(function(g){
             return '<div><div class="n">'+esc(f0.format(g.n))+'</div><div class="c">'+esc(g.c)+'</div></div>';
           }).join("")+'</div>'+
-          '<div class="kvs rulebook">'+
-          row(t("Primary source"),esc(ts(x.primary)))+
-          row(t("Fallbacks, in order"),'<ol style="margin:0;padding-left:18px">'+(x.fallbacks||[]).map(function(f){ return '<li>'+esc(ts(f))+'</li>'; }).join("")+'</ol>')+
-          row(t("Final figure"),esc(ts(x.final_data))+' · '+esc(t("frozen {days} days after the event",{days:days(x.freeze_hours)})))+
-          row(t("Tests a reading must pass"),'<ul style="margin:0;padding-left:18px">'+(x.criteria||[]).map(function(c){ return '<li>'+esc(ts(c))+'</li>'; }).join("")+'</ul>')+
-          (x.waiting?row(t("When the cover applies"),esc(ts(x.waiting))):'')+
-          (x.deadline_days?row(t("Silence"),esc(t("No final figure {days} days after the term ends: {then}",{days:x.deadline_days,then:ts(x.on_missing_data||"")}))):'')+
-          order.filter(function(f){ return !shared[f].when; }).map(function(f){ return shared[f].make(x); }).join("")+
-          '</div>'+
+          '<div class="kvs rulebook">'+rows(x,false)+'</div>'+
+          binding('<div class="kv"><div class="k">Index</div><div class="v">'+esc(x.index)+'</div></div>'+rows(x,true))+
           (common("version")?'':'<p class="fine" style="margin-top:10px">'+esc(t("Rulebook version {v}",{v:x.version}))+'</p>')+
           '</div>';
       }).join("");

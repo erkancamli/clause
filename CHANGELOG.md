@@ -1,5 +1,45 @@
 # Changelog
 
+## 1.34.0, 27 September 2026
+
+- The rulebook is readable in six languages. It was not, and the page around
+  it was, which is the worst version of this fault because it looks finished:
+  a Turkish reader got the labels, the headings and the layout in Turkish, and
+  the rules themselves -- which source is read, which stands in when it is
+  silent, when the figure is frozen, why the wait exists -- in English.
+
+  Fifty of the fifty-four sentences had no entry in any dictionary. All fifty
+  are translated now, in Turkish, German, French, Spanish, Russian and
+  Japanese, with the terms the rest of the site already uses.
+
+- And the English is one click away, because it is the binding text and this
+  is the wording that decides money. Once per peril, not once per sentence:
+  written the second way first, it put eleven toggles in one panel and added
+  1,500px to the page. A reader who wants the binding wording wants all of it.
+
+  Both readings come out of one function that is handed a way to say a
+  sentence, translated or as the protocol wrote it. Two functions would drift,
+  and the one that drifted would be the one nobody reads until it matters.
+  An English reader is offered no toggle, since it would open onto a copy of
+  what is already on the screen.
+
+- Two guards, because this text decides money.
+
+  The first reads the protocol rather than a list, so a peril added or a rule
+  reworded fails instead of shipping untranslated. The first thing it found
+  was a sentence this work had missed: the earthquake rule for a policy
+  written on shaking rather than magnitude. The rulebook the API answers with
+  names one of those two, so measuring from one live answer could not see the
+  other. Reading the source could.
+
+  The second holds the figures and the sources through translation. A
+  translation that writes 48 where the protocol wrote 24, or drops GFZ GEOFON
+  from the list of who is read, has not mistranslated a sentence but rewritten
+  a term, and nobody reading only the translation could tell. Units are the
+  one thing allowed to change: km/h is written km/sa in Turkish and км/ч in
+  Russian, which is the unit arriving in the reader's own alphabet rather than
+  a figure going missing.
+
 ## 1.33.0, 27 September 2026
 
 - The calculation rules page, which was the rulebook printed five times.

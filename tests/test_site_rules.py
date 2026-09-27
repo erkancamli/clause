@@ -53,20 +53,43 @@ def test_every_row_the_rulebook_publishes_is_printed_somewhere() -> None:
 
 
 def test_a_row_is_printed_once_and_the_page_decides_which_half() -> None:
-    """Each shared row has exactly two possible homes and one test choosing.
+    """Each shared row has two possible homes and one test choosing.
 
-    Written so the choice cannot drift apart: the same ``shared[f].when`` picks
-    the row into the panel above and out of the peril's own. A list of "these
-    four are the same" written into the page would be true until the day a
-    peril is given an archive rule of its own, and then silently wrong.
+    The same ``common(field)`` picks the row into the panel above and out of
+    the peril's own, so the two cannot drift apart. A list of "these four are
+    the same" written into the page would be true until the day a peril is
+    given an archive rule of its own, and then silently wrong.
     """
     assert "keys.every(" in RENDER, "the page assumes what is shared instead of reading it"
-    above = "same=order.filter(function(f){ return shared[f].when; })"
-    below = "order.filter(function(f){ return !shared[f].when; })"
-    assert above.replace(" ", "") in RENDER.replace(" ", ""), "the shared panel does not read the test"
-    assert below.replace(" ", "") in RENDER.replace(" ", ""), "the peril panel does not read the test"
-    # And the rulebook's version, which is the same kind of row.
+    for field in ("attestation", "objection_days", "successor", "archive"):
+        assert RENDER.count(f'common("{field}")') >= 2, (
+            f"{field} is not tested in both halves, so the two can disagree"
+        )
     assert RENDER.count('common("version")') == 2, "the version is not chosen the same way"
+
+
+def test_the_binding_english_is_built_by_the_same_code_as_the_translation() -> None:
+    """The rulebook is the terms and the English text is the binding one.
+
+    So it is one click away, once per peril rather than once per sentence: a
+    reader who wants the binding wording wants all of it, and eleven toggles
+    in one panel is a page of controls. Written as per-sentence toggles first,
+    which added 1,500px to the page.
+
+    Both readings come out of one function given a way to say a sentence.
+    Two functions would drift, and the one that drifted would be the one
+    nobody reads until it decides money.
+    """
+    assert "rows(x,false)" in RENDER.replace(" ", ""), "the translated rows are built some other way"
+    assert "rows(x,true)" in RENDER.replace(" ", ""), "the binding English is not built from the same rows"
+    assert RENDER.count("function rows(") == 1, "there is more than one row builder to drift apart"
+    assert RENDER.count("function sharedRows(") == 1
+    for body in ("sharedRows(perils[keys[0]],false)", "sharedRows(perils[keys[0]],true)"):
+        assert body.replace(" ", "") in RENDER.replace(" ", ""), body
+    # And it is not offered to a reader who is already reading the English.
+    assert 'if(LANG==="en"' in RENDER.replace(" ", ""), (
+        "an English reader is offered a toggle onto the text already on screen"
+    )
 
 
 def test_the_six_stations_are_type_and_not_a_picture() -> None:

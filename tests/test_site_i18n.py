@@ -331,6 +331,86 @@ def test_every_refusal_can_be_read(lang) -> None:
     assert not missing, missing[:6]
 
 
+def rulebook_sentences() -> dict[str, str]:
+    """Every sentence the calculation rules page prints, from the protocol.
+
+    The page is the rulebook: which source is read, which stands in when it is
+    silent, what counts as the final figure, the tests a reading must pass,
+    when the cover applies. It reached every non-English reader in English --
+    49 of its 53 sentences had no entry in any dictionary -- while the layout
+    around them translated perfectly, which is the worst version of the fault
+    because it looks finished.
+
+    Read from the protocol rather than from a list here, so a peril added or a
+    rule reworded fails this instead of shipping untranslated.
+    """
+    root = Path(__file__).resolve().parent.parent / "clause"
+    found: dict[str, str] = {}
+
+    from clause.protocol import rulebook
+    for key, rule in rulebook.RULES.items():
+        for field in ("index", "primary", "final_data", "waiting"):
+            if rule.get(field):
+                found.setdefault(rule[field], f"rulebook.{key}.{field}")
+        for group in ("fallbacks", "criteria"):
+            for i, text in enumerate(rule.get(group) or []):
+                found.setdefault(text, f"rulebook.{key}.{group}[{i}]")
+    found.setdefault(rulebook.SUCCESSOR_RULE, "rulebook.SUCCESSOR_RULE")
+    found.setdefault(rulebook.ARCHIVE_RULE, "rulebook.ARCHIVE_RULE")
+
+    # And what a source says when it never publishes, which the page prints as
+    # the Silence row. Those sentences live with the perils, not the rulebook.
+    for path in sorted((root / "perils").rglob("*.py")):
+        src = path.read_text(encoding="utf-8")
+        for m in re.finditer(r"on_missing_data=\(?\s*((?:\s*\"[^\"]*\")+)", src):
+            text = "".join(re.findall(r'"([^"]*)"', m.group(1)))
+            if len(text) > 20:
+                found.setdefault(text, f"{path.name}:{src[:m.start()].count(chr(10)) + 1}")
+    return found
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_every_rule_that_decides_money_can_be_read(lang) -> None:
+    data = dictionary(lang)
+    sentences = rulebook_sentences()
+    assert len(sentences) > 40, f"only {len(sentences)} rules read out of the protocol"
+    missing = [f"{where}: {text[:60]}" for text, where in sorted(sentences.items())
+               if not _resolves(text, data)]
+    assert not missing, missing[:6]
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_a_rule_keeps_its_figures_and_its_sources_in_translation(lang) -> None:
+    """A threshold that changed in translation is a different rule.
+
+    These sentences decide money: 24 hours before a fallback is read, 0.3
+    magnitude units between two networks, 15 days before a season's sales
+    close. A translator who writes 48 where the protocol wrote 24, or drops
+    GFZ GEOFON from the list of who is read, has not mistranslated a sentence
+    but rewritten a term, and nobody reading only the translation can tell.
+
+    Units are the one thing allowed to change, because km/h is written km/sa
+    in Turkish and км/ч in Russian, and that is the unit arriving in the
+    reader's own alphabet rather than a figure going missing.
+    """
+    strings = dictionary(lang)["strings"]
+    named = ["USGS", "ShakeMap", "AFAD", "Kandilli", "GEOFON", "ERA5-Land", "ERA5",
+             "NASA POWER", "MERRA-2", "ADS-B", "MMI", "Mw"]
+    wrong = []
+    for english in rulebook_sentences():
+        local = strings.get(english)
+        if not local or local == english:
+            continue
+        for name in named:
+            if name in english and name not in local:
+                wrong.append(f"{name} lost: {english[:50]}")
+        for figure in sorted(set(re.findall(r"(?<![\w.,])\d+(?:\.\d+)?(?![\w])", english))):
+            if figure in local or figure.replace(".", ",") in local:
+                continue
+            wrong.append(f"{figure} lost: {english[:50]}")
+    assert not wrong, wrong[:6]
+
+
 def table_sentences() -> dict[str, list[str]]:
     """English the page translates through a variable rather than a literal.
 
