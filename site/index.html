@@ -983,6 +983,15 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 @media (min-width:861px){
   .hero-grid{grid-template-columns:minmax(0,1fr);
     grid-template-areas:"text" "art" "beats"}
+  @media (min-width:1300px){
+    /* The reading is upright again and it stays while the steps go past it.
+       A row played once and then held the whole picture, which is a picture of
+       the end; upright and pinned it answers whichever step is being read, and
+       the reader moves it. */
+    .hero-grid{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+      grid-template-areas:"text text" "beats art";
+      column-gap:clamp(28px,3vw,56px)}
+  }
   /* Past a point the words stop getting wider -- a heading is capped at 13ch
      and a paragraph at 52ch -- and stretching the instrument to fill the rest
      only made it emptier inside, because its drawing has a fixed frame. So
@@ -1061,10 +1070,10 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
      wrote, left to right -- and the block stops at a width a sentence can be
      read across rather than taking whatever the window has. */
   .beats{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto;
-    max-width:1180px;margin-inline:auto;row-gap:0;column-gap:0}
-  .beat{grid-template-columns:minmax(210px,.85fr) minmax(0,1.35fr) minmax(230px,.9fr);
-    grid-template-areas:"num text said" "head text said";
-    column-gap:clamp(20px,2.4vw,46px);row-gap:6px;
+    max-width:none;margin-inline:0;row-gap:0;column-gap:0}
+  .beat{grid-template-columns:minmax(190px,.8fr) minmax(0,1.2fr);
+    grid-template-areas:"num text" "head text" "head said";
+    column-gap:clamp(20px,2.2vw,40px);row-gap:8px;
     align-items:start;align-content:start;
     padding:clamp(20px,2.2vw,30px) 0 clamp(20px,2.2vw,30px);
     border-top:1px solid var(--edge)}
@@ -1119,6 +1128,10 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
      to be. */
   .hero-art{margin:0 auto;max-width:1180px;width:100%;align-self:stretch;background:none;
     padding-block:0;position:static;transform:none}
+  @media (min-width:1300px){
+    .hero-art{max-width:none;align-self:start;position:sticky;
+      top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 18px)}
+  }
 }
 .stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
   box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
@@ -1133,9 +1146,14 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
    to a frame it was not drawn for is what made the panel hollow in the first
    place. */
 .stage-body > svg.art-tall{display:none}
-@media (max-width:860px){
+@media (max-width:860px),(min-width:1300px){
   .stage-body > svg.art:not(.art-tall){display:none}
   .stage-body > svg.art-tall{display:block}
+}
+@media (min-width:1300px){
+  /* Upright in a column, the rule it wrote goes under the drawing rather than
+     beside it: 220px of card next to a portrait leaves neither room. */
+  .stage-body{grid-template-columns:minmax(0,1fr)}
 }
 /* The handset is written, not drawn. A label in an SVG is one line at a fixed
    size that cannot wrap, so the policy's own sentence ran out of the card and
@@ -11726,30 +11744,49 @@ function closeRider(){
        policy through once when it arrives, from written to paid, and then
        stays at the whole picture. It plays once and never again, so there is
        still nothing on an interval and nothing burning a background tab. */
-    var asRow = window.matchMedia && window.matchMedia("(min-width:1300px)");
     var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
-    if(asRow && asRow.matches && "IntersectionObserver" in window){
-      var lightUpTo = function(n){
-        beats.forEach(function(b){
-          b.dataset.live = Number(b.dataset.beat) <= n ? "on" : "off";
-        });
+
+    /* Beside the steps, the reading follows how far through them the reader is.
+       "Whichever step is crossing the middle of the window" is the right rule
+       when the steps are a page tall each; here the five of them are 875px on a
+       1400px screen, so the middle of the window is past the last one before
+       the second has been read and the instrument jumps to the end and stays
+       there -- measured, at 2560 by 1400. Distance through the block is the
+       thing that actually tracks the reading, so that is what moves it. */
+    var pinned = window.matchMedia && window.matchMedia("(min-width:1300px)");
+    if(pinned && pinned.matches){
+      if(still && still.matches){
+        show(5);
+        beats.forEach(function(b){ b.dataset.live = "on"; });
+        return;
+      }
+      var box = $("hero-beats"), waiting = false;
+      var follow = function(){
+        waiting = false;
+        if(!box)return;
+        var r = box.getBoundingClientRect();
+        // Where the reader is inside the block, from its top edge reaching the
+        // middle of the window to its bottom edge doing the same.
+        var through = (window.innerHeight * 0.55 - r.top) / Math.max(1, r.height);
+        var n = Math.min(5, Math.max(1, Math.ceil(through * 5)));
+        if(n !== at){
+          show(n);
+          beats.forEach(function(b){
+            b.dataset.live = Number(b.dataset.beat) === n ? "on" : "off";
+          });
+        }
       };
-      if(still && still.matches){ show(5); lightUpTo(5); return; }
-      var played = false;
-      var once = new IntersectionObserver(function(entries){
-        if(played)return;
-        if(!entries.some(function(e){ return e.isIntersecting; }))return;
-        played = true;
-        once.disconnect();
-        var n = 1;
-        (function step(){
-          show(n); lightUpTo(n);
-          if(n++ < 5) setTimeout(step, 1100);
-        })();
-      }, {threshold:0.3});
-      once.observe(stage);
+      var onScroll = function(){
+        if(waiting)return;
+        waiting = true;
+        (window.requestAnimationFrame || setTimeout)(follow, 16);
+      };
+      window.addEventListener("scroll", onScroll, {passive:true});
+      window.addEventListener("resize", onScroll, {passive:true});
+      follow();
       return;
     }
+
 
     if(!("IntersectionObserver" in window)){
       // No observer: show the whole picture rather than the first fifth of it.

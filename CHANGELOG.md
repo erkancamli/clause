@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.31.0, 27 September 2026
+
+- The instrument is upright again, pinned beside the steps, and the reader
+  moves it. A row played the policy through once on arrival and then held the
+  whole picture, which is a picture of the end; standing up beside five steps
+  that scroll past it, it answers whichever one is being read. The steps take
+  the left of the page and the reading the right, so the width carries two
+  things at once instead of one thing twice.
+
+  Three drawings of one instrument is still two: the long one for the band of
+  widths where the instrument has a row to be long in, the upright one where it
+  has a column -- on a phone, and now above 1300px as well. Checked at eight
+  widths from 320 to 2560: exactly one drawing is shown at each, and the right
+  one, with nothing scrolling sideways.
+
+- What moves it is how far through the steps the reader is, not which step
+  crosses the middle of the window. The middle rule is right when a step is
+  most of a screen; here the five of them are 875px on a 1400px screen, so the
+  middle line is past the last step before the second has been read -- measured
+  at 2560 by 1400, the instrument jumped to the end at the first touch of the
+  wheel and stayed there. Distance through the block is what actually tracks
+  the reading, and it advances evenly now: step two at 360px of scroll, three
+  at 600, four at 840, five at 1200.
+
+  It still runs on nothing. A scroll listener that does its work in an animation
+  frame, no interval, and a reader who asked for less motion is given the whole
+  picture at once instead.
+
 ## 1.30.1, 27 September 2026
 
 - The hero's right hand block is centred in the column it was given. Held to
