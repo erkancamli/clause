@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.32.1, 27 September 2026
+
+- The Rialo page named one thing this protocol uses and left out the two that
+  are most worth reading, which is what happens when a page is written from
+  research into somebody else's site rather than an audit of one's own.
+
+  REX is the first. Rialo reads an ordinary web API from inside the chain, and
+  every validator performs the call itself, so what lands on chain is a set of
+  independent measurements rather than one agreed figure. Reconciling them is
+  left to a separate aggregator whose default rule is not published: no quorum,
+  no median rule, no dispute path. That is ordinary for a young chain and fatal
+  for an insurer, so this protocol writes its own rule into the contract, three
+  of four, median, five per cent dispersion, and the page now says so.
+
+  Latch is the second. Rider holds no model key at all: Rialo's own agent
+  authorisation layer holds it, and what this server has is a scoped token that
+  passes a spend limit, an endpoint allowlist, a method filter and a rate limit
+  before the real credential is touched. Buying needs a permission signed on the
+  buyer's own device and goes through a second latch. That is a load bearing
+  piece of this protocol's safety and it was not mentioned anywhere a reader
+  could see.
+
+- And the em dash is gone from every sentence a reader sees, in the markup and
+  in five of the six dictionaries. Each was a sentence that wanted a comma, a
+  colon or a full stop, so each was rewritten rather than swapped for a hyphen.
+  Russian keeps its own, deliberately: there the dash stands in for the copula
+  the language leaves out, and stripping it would leave a hundred and twenty two
+  sentences ungrammatical.
+
 ## 1.32.0, 27 September 2026
 
 - A page about the chain this protocol runs on. The front page said "Built on

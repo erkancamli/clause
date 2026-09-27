@@ -34,11 +34,17 @@ def test_the_page_is_reachable_and_named() -> None:
 def test_the_methods_named_on_the_page_are_the_ones_the_client_calls() -> None:
     """A page that names three calls is making a claim about the code.
 
+    Only the block that claims to be calls: elsewhere the page sets a quorum,
+    a median and a set of latch filters in the same face, and none of those is
+    a method on the client.
+
     Renaming one in the client and not here would leave the page telling a
     reader something that stopped being true, which is worse than telling them
     nothing.
     """
-    shown = set(re.findall(r'<code class="mono">(\w+)</code>', VIEW))
+    at = VIEW.index('id="rialo-rpc"')
+    block = VIEW[at : VIEW.index("</div>\n      <p", at)]
+    shown = set(re.findall(r'<code class="mono">(\w+)</code>', block))
     assert shown, "the page names no calls at all"
     called = set(re.findall(r'"(get_\w+)": MethodGroup\(', CLIENT))
     assert shown <= called, f"the page names calls the client does not make: {shown - called}"
@@ -91,3 +97,32 @@ def test_every_sentence_on_the_page_can_be_translated() -> None:
         for line in sentences:
             text = " ".join(line.split())
             assert said.get(text), f"{lang} has no words for {text[:44]!r}"
+
+
+def test_the_copy_does_not_write_with_a_dash_where_punctuation_belongs() -> None:
+    """An em dash standing in for a comma, a colon or a full stop.
+
+    It is a tic rather than an error, and a reader who notices it stops reading
+    the sentence and starts reading the writer. Every one of them on this site
+    was a sentence that wanted ordinary punctuation, so they were rewritten
+    rather than swapped for a hyphen.
+
+    Russian is exempt, and deliberately: there the dash is grammar, standing in
+    for the copula that the language leaves out, and removing it would leave
+    122 sentences ungrammatical. The rule is about English prose and the
+    translations that mirrored it, not about a language's own punctuation.
+    """
+    import json
+
+    seen = []
+    for m in re.finditer(r"data-i18n[^>]*>([^<]*—[^<]*)<", PAGE):
+        seen.append(" ".join(m.group(1).split()))
+    for m in re.finditer(r'[tN]\("([^"]*—[^"]*)"', PAGE):
+        seen.append(m.group(1))
+    assert not seen, f"an em dash in the copy a reader sees: {seen[:2]}"
+
+    for lang in ("tr", "de", "fr", "es", "ja"):
+        said = json.loads((ROOT / "site" / "i18n" / f"{lang}.json")
+                          .read_text(encoding="utf-8"))["strings"]
+        bad = [k for k, v in said.items() if "—" in k or "—" in v]
+        assert not bad, f"{lang} still writes with a dash: {bad[:2]}"

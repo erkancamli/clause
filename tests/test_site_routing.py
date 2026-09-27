@@ -25,7 +25,7 @@ LANGS = ["tr", "es", "fr", "de", "ru", "ja"]
 #: The switcher applies the reader's choice the moment it is made, which 3.2.2
 #: permits only where the reader was told it would. This sentence is the
 #: telling (technique G13), so it is not a label anyone may quietly shorten.
-SWITCHER = "Language — choosing one changes the page at once"
+SWITCHER = "Language. Choosing one changes the page at once"
 
 
 def views() -> dict[str, str]:

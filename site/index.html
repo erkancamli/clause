@@ -2218,7 +2218,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     </div>
     <label class="langsel" for="lang"><!-- Choosing an option changes the page there and then, which 3.2.2 allows
            only where the reader was told to expect it. G13 is that telling. -->
-      <span class="sr" data-i18n>Language — choosing one changes the page at once</span>
+      <span class="sr" data-i18n>Language. Choosing one changes the page at once</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9s1.3-6.2 3.9-9Z"/></svg>
       <select id="lang"></select>
     </label>
@@ -2654,8 +2654,73 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <div class="flowline mechline" style="margin-top:26px">
       <div><div class="n">01</div><h3 data-i18n>The condition is written down</h3><p data-i18n>Rialo calls it a predicate: a logical expression that lives on the chain rather than in a service somewhere. Your policy is one.</p></div>
       <div><div class="n">02</div><h3 data-i18n>The chain evaluates it, every block</h3><p data-i18n>In Rialo's own words, continuously evaluated during block execution. Nothing has to remember to check; the checking is what a block is.</p></div>
-      <div><div class="n">03</div><h3 data-i18n>It may watch the world, not only the chain</h3><p data-i18n>Chain state and block height, and also readings attested by the validators themselves — oracle data and calls out to the web. A magnitude is a thing a predicate can see.</p></div>
+      <div><div class="n">03</div><h3 data-i18n>It may watch the world, not only the chain</h3><p data-i18n>Chain state and block height, and also readings attested by the validators themselves: oracle data and calls out to the web. A magnitude is a thing a predicate can see.</p></div>
       <div><div class="n">04</div><h3 data-i18n>When it becomes true, the chain acts</h3><p data-i18n>The transaction is enqueued by the network, in that block or the next. Nobody files anything and nobody approves anything, because there is nobody in the path.</p></div>
+    </div>
+
+    <div class="sec full full-y full-edge">
+      <h2 data-i18n>The web call, and the part Rialo has not written down</h2>
+      <p class="lead" data-i18n>
+        Rialo reads an ordinary web API from inside the chain, through what it calls REX.
+        The shape of that matters more than it sounds: every validator performs the call
+        itself and publishes its own answer, so what lands on the chain is not one agreed
+        figure but a set of independent measurements.
+      </p>
+      <p class="lead" data-i18n>
+        Reconciling them is left to a separate aggregator, and the default one's rule is
+        not published: no stated quorum, no median rule, no dispute path, nothing written
+        about what happens when validators disagree or time out. That gap is ordinary for
+        a young chain and fatal for an insurer, because disagreement is not hypothetical.
+        Two seismic networks routinely publish magnitudes a tenth apart for the same
+        event, and a policy attaching at 5.5 settles differently depending on whether the
+        chain believes 5.49 or 5.51.
+      </p>
+      <p class="lead" data-i18n>
+        So this protocol states its own rule, in the contract, before anything is bought.
+        It is one of the terms you read on the confirm step.
+      </p>
+      <div class="rialo-calls">
+        <div class="rialo-call"><code class="mono">3 of 4</code><span data-i18n>a reading counts only when three quarters of the validators reported. Below that the index is treated as unpublished, which returns the premium rather than paying a number nobody stood behind.</span></div>
+        <div class="rialo-call"><code class="mono">median</code><span data-i18n>the agreed value is the middle report, not the average. One validator reading a corrupted feed moves an average and does not move a middle.</span></div>
+        <div class="rialo-call"><code class="mono">5%</code><span data-i18n>if the reports disagree by more than this share of the median, the reading is refused rather than aggregated. Cover that pays on a figure the network could not agree on is a lottery on which validator was fastest.</span></div>
+      </div>
+      <p class="fine" style="margin-top:14px" data-i18n>
+        Rialo's devnet runs four validators, equally staked, all operated by Rialo itself,
+        and their authority keys are 96 byte BLS12-381 public keys. The demonstration
+        follows that count rather than an imagined one.
+      </p>
+    </div>
+
+    <div class="sec full full-y full-sunk">
+      <h2 data-i18n>The assistant on this site holds no key</h2>
+      <p class="lead" data-i18n>
+        Rider is the only part of Clause that reasons rather than computes, which makes it
+        the part most able to do damage. The obvious build is to give a language model an
+        API key and a careful prompt. A prompt is a request, not a constraint: anything
+        the model reads during a task, including a place name somebody typed, is a chance
+        to persuade it. A key in that position is full authority.
+      </p>
+      <p class="lead" data-i18n>
+        Rialo publishes Latch for exactly this, and Clause uses it. The model key is
+        stored there once and never comes back out. What this server holds is a scoped
+        token, and every call passes a policy pipeline before the real credential is
+        touched. The first filter to refuse stops it.
+      </p>
+      <div class="rialo-calls">
+        <div class="rialo-call"><code class="mono">spend_limit</code><span data-i18n>a daily cap, metered against live spend</span></div>
+        <div class="rialo-call"><code class="mono">endpoint</code><span data-i18n>an allowlist, so the token reaches one endpoint and nothing else the key would open</span></div>
+        <div class="rialo-call"><code class="mono">method</code><span data-i18n>POST only</span></div>
+        <div class="rialo-call"><code class="mono">rate_limit</code><span data-i18n>because a loop is how an agent fails</span></div>
+      </div>
+      <p class="fine" style="margin-top:14px" data-i18n>
+        Latch will also answer whether a call would be allowed without performing it and
+        without touching the credential, so Rider asks before it spends and a person hears
+        that the budget is used up rather than watching something fail. Buying is fenced
+        separately again: it needs a permission signed on the buyer's own device naming
+        the most one policy may cost, the most all of them may, the perils and an end
+        date, and it goes through a second latch whose only upstream is this protocol's
+        purchase endpoint.
+      </p>
     </div>
 
     <div class="sec full full-y full-edge">
@@ -2667,7 +2732,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         came true, and the lineage is how a payout can be walked back to the reading that
         caused it.
       </p>
-      <div class="rialo-calls">
+      <div class="rialo-calls" id="rialo-rpc">
         <div class="rialo-call"><code class="mono">get_subscription</code><span data-i18n>the condition, as the chain holds it</span></div>
         <div class="rialo-call"><code class="mono">get_triggered_transactions</code><span data-i18n>what it has fired, and when</span></div>
         <div class="rialo-call"><code class="mono">get_workflow_lineage</code><span data-i18n>the trail from a payout back to its reading</span></div>
@@ -3343,7 +3408,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <details class="more" style="margin-top:8px"><summary data-i18n>Does the platform charge me anything?</summary><div class="inner"><p data-i18n>No. The price you see is the pool's price plus the issuing company's fee. The platform is paid by the company, out of that fee, and a fee that comes back to you takes the platform's share back with it.</p></div></details>
     <h2 style="font-size:17px;margin:28px 0 10px" data-i18n>After buying</h2>
     <details class="more" style="margin-top:8px"><summary data-i18n>Where is my policy?</summary><div class="inner"><p data-i18n>On My cover, with its terms, its status and its token. The token is locked to your address and cannot be transferred; a cancelled policy's token is burned and leaves the wallet.</p></div></details>
-    <details class="more" style="margin-top:8px"><summary data-i18n>When does my cover start? Can I buy it once the event is coming?</summary><div class="inner"><p data-i18n>No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either — the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.</p></div></details>
+    <details class="more" style="margin-top:8px"><summary data-i18n>When does my cover start? Can I buy it once the event is coming?</summary><div class="inner"><p data-i18n>No, and that is deliberate. Cover starts after a wait: seven days for earthquake, ten for storm and vehicle flood. An event inside the wait pays nothing, and it does not end the policy either, because the cover starts on the day your contract names and runs its full term from there. Drought works differently, because a dry season cannot be waited out: the season a policy measures is the next one to open at its station, and sales for a season close fifteen days before it opens. A flight has no wait, because the cover names one flight; instead it has to be bought at least 24 hours before the scheduled departure. The reason is the same in every case: the price is the chance of an event for someone who does not know one is coming, and a storm is on the news a week before it lands.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How is the reading decided, and what if the source is silent?</summary><div class="inner"><p data-i18n>By the calculation rules, written before anything happens and printed as section 10 of your contract: which source is read and which stands in, what counts as the final figure and when it is frozen, the tests a reading must pass, the chain's attestation rule, and the objection window. The Calculation rules page shows them peril by peril.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>Is my policy on a public chain?</summary><div class="inner"><p data-i18n>The protocol's own chain is the record. Beside it, a public chain (Base Sepolia) is told of each token minted or burned, each settlement, and the root of the whole book on a timer. The Proof page shows what was sent and lets you check your policy's place in the book in your own browser.</p></div></details>
     <details class="more" style="margin-top:8px"><summary data-i18n>How will I know it paid?</summary><div class="inner"><p data-i18n>Settlement happens on chain the moment the reading crosses the trigger; My cover shows the payout and the Proof page shows the reading, the block and the policy it settled. A bank payout, where you chose one, follows within the days the company states.</p></div></details>
@@ -8370,15 +8435,15 @@ function basisRiskSaid(){
   if(first==null)first=pts[0][0];
   var level=rungWords(first);
   if(flow.peril==="drought")
-    return [t("If the season's rainfall comes in above {level}, this pays nothing — even if the harvest fails.",{level:level}),
-            t("If it comes in below {level}, it pays — even if the harvest is fine.",{level:level})];
+    return [t("If the season's rainfall comes in above {level}, this pays nothing, even if the harvest fails.",{level:level}),
+            t("If it comes in below {level}, it pays, even if the harvest is fine.",{level:level})];
   // A flight has nothing to damage, and the generic sentence would have said
   // so anyway. What is lost there is time and what the time cost.
   if(flow.peril==="flight")
-    return [t("If the flight lands less than {level}, this pays nothing — even if the delay cost you a great deal.",{level:level}),
-            t("If it is {level} or worse, it pays — even if the delay cost you nothing.",{level:level})];
-  return [t("If the reading stays below {level}, this pays nothing — even if what you insured is damaged.",{level:level}),
-          t("If the reading reaches {level}, it pays — even if nothing of yours is damaged.",{level:level})];
+    return [t("If the flight lands less than {level}, this pays nothing, even if the delay cost you a great deal.",{level:level}),
+            t("If it is {level} or worse, it pays, even if the delay cost you nothing.",{level:level})];
+  return [t("If the reading stays below {level}, this pays nothing, even if what you insured is damaged.",{level:level}),
+          t("If the reading reaches {level}, it pays, even if nothing of yours is damaged.",{level:level})];
 }
 
 function triggerSaid(){
@@ -11558,7 +11623,7 @@ function qdecides(cov){
        Saying nothing here would let the paragraph below imply a company that
        is not there. */
     body+='<p class="fine">'+esc(t("No company is active in the register yet, so this page has none to name."))+'</p>';
-  body+='<p class="fine">'+esc(t("A company cannot register itself into this. It arrives able to write nothing, and somebody checks its licence number against the regulator's own register before it may carry a single policy — the one step here that is deliberately a person's, because no block can read a regulator's register. Your policy names the company on it."))+'</p>'+
+  body+='<p class="fine">'+esc(t("A company cannot register itself into this. It arrives able to write nothing, and somebody checks its licence number against the regulator's own register before it may carry a single policy. That is the one step here which is deliberately a person's, because no block can read a regulator's register. Your policy names the company on it."))+'</p>'+
     '<p class="fine"><a href="#/rules">'+esc(t("Where cover may be written"))+'</a> · <a href="#/how">'+esc(t("How it works"))+'</a></p>';
   return qband(2,question,lead,body);
 }
