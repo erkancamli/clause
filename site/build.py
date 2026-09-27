@@ -27,7 +27,14 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DIST = HERE / "dist"
-ESBUILD = HERE.parent / "privy-bundle" / "node_modules" / ".bin" / "esbuild"
+# The bundled binary, or whichever one CLAUSE_ESBUILD names. The minifier is
+# not the Privy bundle's property, and hardcoding a sibling project's
+# node_modules meant the build could only be asked whether it minifies
+# correctly on a machine where that bundle had been installed: the build host
+# has it, the runner that gates the deployment did not, and so the test that
+# asks failed there for three releases while the page it checks was fine.
+ESBUILD = Path(os.environ.get("CLAUSE_ESBUILD")
+               or HERE.parent / "privy-bundle" / "node_modules" / ".bin" / "esbuild")
 OBFUSCATOR = HERE.parent / "privy-bundle" / "node_modules" / ".bin" / "javascript-obfuscator"
 NOTICE = ("/* Clause, clause.insure. Copyright (c) 2026 Erkan Çamlı. All rights reserved. "
           "Unauthorised copying, redistribution or reuse is prohibited. */")
@@ -56,8 +63,9 @@ def minify(code: str, loader: str) -> str:
         raise SystemExit(
             f"esbuild not found at {ESBUILD}. The page would be published "
             f"unminified, which is a third again its size. Install it with "
-            f"`npm install` in privy-bundle, or set "
-            f"CLAUSE_BUILD_ALLOW_UNMINIFIED=1 if you meant to.")
+            f"`npm install` in privy-bundle, point CLAUSE_ESBUILD at a binary "
+            f"you already have, or set CLAUSE_BUILD_ALLOW_UNMINIFIED=1 if you "
+            f"meant to.")
     done = subprocess.run(
         [str(ESBUILD), f"--loader={loader}", "--minify", "--target=es2017", "--charset=utf8", "--legal-comments=none"],
         input=code.encode("utf-8"), capture_output=True,

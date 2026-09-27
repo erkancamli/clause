@@ -21,6 +21,22 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # One test asks the minifier directly whether the palette survives being
+      # published, and there is no way to ask it without the binary. Three
+      # releases were held back here because the runner had no esbuild: the
+      # version installed is the one the bundle's lock file pins, so the answer
+      # is the same answer the build host would give. Skipping it instead --
+      # CLAUSE_BUILD_ALLOW_UNMINIFIED -- would make the test pass by comparing
+      # the stylesheet with itself, so that is never the way out.
+      - name: the minifier the build tests ask
+        run: |
+          set -euo pipefail
+          npm install -g "esbuild@$(node -p 'require("./privy-bundle/package-lock.json").packages["node_modules/esbuild"].version')"
+          echo "CLAUSE_ESBUILD=$(command -v esbuild)" >> "$GITHUB_ENV"
+          esbuild --version
       - run: pip install -r requirements.txt
       - run: python -m pytest -q -p no:cacheprovider
 

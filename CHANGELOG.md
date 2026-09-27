@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.25.2, 27 September 2026
+
+- Three releases were tested and none of them was deployed. The run that gates
+  the deployment has failed on every push since 1.23.1, so 1.23.1, 1.24.0 and
+  1.25.0 reached nobody: the filter on the proof register and the end of the
+  invented arrivals were both sitting behind a red tick. The page they describe
+  was correct the whole time.
+
+  What failed is the test 1.23.1 added to ask the minifier directly whether the
+  palette survives being published. Asking it requires esbuild; esbuild lives in
+  the Privy bundle's `node_modules`; the runner installs Python and nothing
+  else. So the check ran on the machine it was written on and nowhere it was
+  relied upon, which is not a check. The runner now installs esbuild at the
+  version the bundle's lock file pins, read from the lock file rather than
+  written out a second time, and `CLAUSE_ESBUILD` lets the build use a binary it
+  did not install itself — the minifier is not the Privy bundle's property, and
+  that coupling is the whole of why this happened.
+
+  The sharper half is that the test could have passed without asking anything.
+  `CLAUSE_BUILD_ALLOW_UNMINIFIED=1` makes `minify` hand back the stylesheet it
+  was given, and then every assertion in it compares the source with itself and
+  goes green — which is exactly what whoever met it failing without the tooling
+  would have reached for, and it would have looked like a fix. It now checks
+  that minification happened before it checks what survived it, and a third test
+  holds the runner to installing the binary rather than skipping the step.
+
 ## 1.25.1, 27 September 2026
 
 - One old policy was answering for the whole book. `GET /api/policies` came

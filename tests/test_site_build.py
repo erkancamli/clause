@@ -157,7 +157,16 @@ def test_the_palette_reaches_the_published_page_intact(build) -> None:
     source = palettes(style)
     assert len(source) == 3, f"expected one dark and two light blocks, found {len(source)}"
 
-    minified = palettes(build.minify(style, "css"))
+    published = build.minify(style, "css")
+    # A minifier that was skipped hands back the stylesheet it was given, and
+    # then every assertion below compares the source with itself and passes.
+    # That is how this test gets "fixed" by whoever meets it failing on a
+    # machine without the tooling: CLAUSE_BUILD_ALLOW_UNMINIFIED=1 turns it
+    # green while it checks nothing. It has to have run to have answered.
+    assert len(published) < len(style) and published != style, (
+        "the minifier did not run, so this test compared the source with itself")
+
+    minified = palettes(published)
     assert len(minified) == len(source), (
         f"minification published {len(minified)} palettes where the source has {len(source)}")
 
@@ -190,3 +199,39 @@ def test_the_two_light_palettes_are_the_same_palette(build) -> None:
     differing = {k for k in set(first) | set(second)
                  if first.get(k, "").strip().lower() != second.get(k, "").strip().lower()}
     assert not differing, f"the two light palettes disagree about {sorted(differing)}"
+
+
+def test_the_runner_that_gates_the_deployment_can_run_the_minifier() -> None:
+    """The test above can only be asked where esbuild is.
+
+    It was asked nowhere that mattered. The binary lives in the Privy bundle's
+    node_modules, the deployment's own runner installs Python and nothing else,
+    and so the test failed there on every push for three releases -- 1.23.1,
+    1.24.0 and 1.25.0 never reached the server -- while the page it checks was
+    correct the whole time. A check that cannot run where it is relied upon is
+    not a check, and the way out that suggests itself is the worse one:
+    CLAUSE_BUILD_ALLOW_UNMINIFIED makes minify hand back what it was given, so
+    the palette test would compare the stylesheet with itself and pass.
+    """
+    import re
+    from pathlib import Path
+
+    workflow = (Path(__file__).resolve().parent.parent
+                / ".github" / "workflows" / "deploy.yml").read_text(encoding="utf-8")
+    job = workflow[workflow.index("  test:"):workflow.index("  deploy:")]
+
+    assert "setup-node" in job, "the runner has no node, so it can have no esbuild"
+    assert "npm install -g" in job and "esbuild@" in job, "esbuild is not installed"
+    assert "CLAUSE_ESBUILD=" in job, "the build would still look only in privy-bundle"
+    assert "pytest" in job, "this is not the job that runs the tests"
+    # And the version is read from the lock file rather than written out again,
+    # because a second copy of a version is a version that drifts.
+    assert "package-lock.json" in job, "the version is pinned in two places"
+
+    # And never the other way out, in any of its forms: an env: entry, an
+    # inline assignment, an export. What the job does, not what it says about
+    # itself -- the comment explaining why the variable is not used names the
+    # variable, and prose is not a setting.
+    doing = "\n".join(l for l in job.splitlines() if not l.lstrip().startswith("#"))
+    assert not re.search(r"CLAUSE_BUILD_ALLOW_UNMINIFIED\s*[:=]", doing), (
+        "the runner skips minification, so the palette test passes without asking")
