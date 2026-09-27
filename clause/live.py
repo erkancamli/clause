@@ -68,6 +68,13 @@ AIRLABS_DELAYS = "https://airlabs.co/api/v9/delays?delay=45&type=departures"
 # Below this many events in a day, a country's band is filled from the week.
 QUIET_DAY = 3
 FAA_STATUS = "https://nasstatus.faa.gov/api/airport-status-information"
+# What the chain this protocol runs on has published. There is no feed to
+# subscribe to: the docs are behind a sign in, the blog serves nothing to a
+# fetcher, and /blog/rss.xml answers with the home page. What there is, is the
+# home page itself, which carries every piece of writing as a card. So that is
+# what is read, once every few hours, which is a polite rate for a page that
+# changes a few times a month.
+RIALO_HOME = "https://www.rialo.io/"
 USER_AGENT = "Clause/0.1 (+https://clause.insure)"
 MAX_BYTES = 4_000_000          # the day feed is a few hundred kilobytes
 QUAKE_LIMIT = 40
@@ -340,6 +347,84 @@ _ICAO_TWO = {
 _ICAO_ONE = {"K": "US", "C": "CA", "Y": "AU", "Z": "CN", "U": "RU"}
 
 
+# Rialo's own writing
+# ---------------------------------------------------------------------------
+# Two shapes on one page. The research is in cards that carry a number, a
+# month, a title and an opening line; the shorter notes are in a list that
+# carries a full date and a title. Both are read, because both are the chain
+# saying what it has built, and a protocol that names a chain on its front
+# page owes its readers a way to see what that chain is actually doing.
+
+
+def _plain(html: str) -> str:
+    """Tags out, entities in, whitespace folded."""
+    text = re.sub(r"<[^>]+>", " ", html)
+    for entity, char in (("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
+                         ("&quot;", '"'), ("&#39;", "'"), ("&nbsp;", " ")):
+        text = text.replace(entity, char)
+    return " ".join(text.split())
+
+
+def _absolute(href: str) -> str:
+    if href.startswith("http"):
+        return href
+    return RIALO_HOME.rstrip("/") + "/" + href.lstrip("/")
+
+
+def parse_rialo(raw: bytes) -> list[dict[str, Any]]:
+    """What Rialo has published, from its own front page.
+
+    A card whose title or link cannot be read is skipped rather than shown
+    half empty; a page that changed shape produces a short list or an empty
+    one, and an empty one reads as "the source did not answer" upstream,
+    which is the truth.
+    """
+    html = raw.decode("utf-8", "replace")
+    out: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for card in re.findall(r"<article class=\"docs-card[^\"]*\">(.*?)</article>", html, re.S):
+        link = re.search(r'href="([^"]*?/posts/[^"]+)"', card)
+        title = re.search(r'<h3 class="card-title">(.*?)</h3>', card, re.S)
+        if not link or not title:
+            continue
+        url = _absolute(link.group(1))
+        if url in seen:
+            continue
+        seen.add(url)
+        when = re.search(r'<span class="card-date">(.*?)</span>', card, re.S)
+        number = re.search(r'<span class="card-label">(.*?)</span>', card, re.S)
+        summary = re.search(r'<p class="card-description">(.*?)</p>', card, re.S)
+        out.append({
+            "kind": "research",
+            "number": _plain(number.group(1)) if number else "",
+            "when": _plain(when.group(1)) if when else "",
+            "title": _plain(title.group(1)),
+            "summary": _plain(summary.group(1)) if summary else "",
+            "url": url,
+        })
+
+    for entry in re.findall(r'<a href="([^"]+)" class="blog-entry">(.*?)</a>', html, re.S):
+        href, body = entry
+        title = re.search(r'<h3 class="entry-title">(.*?)</h3>', body, re.S)
+        if not title:
+            continue
+        url = _absolute(href)
+        if url in seen:
+            continue
+        seen.add(url)
+        when = re.search(r'<time class="entry-date">(.*?)</time>', body, re.S)
+        out.append({
+            "kind": "note",
+            "number": "",
+            "when": _plain(when.group(1)) if when else "",
+            "title": _plain(title.group(1)),
+            "summary": "",
+            "url": url,
+        })
+    return out
+
+
 def icao_country(code: str) -> str | None:
     code = (code or "").strip().upper()
     if len(code) != 4 or not code.isalnum():
@@ -515,6 +600,17 @@ def aeroapi_feed(key: str, **kw: Any) -> Feed:
         source="FlightAware", coverage="airports with delays, worldwide", **kw,
     )
 
+
+def rialo_feed(**kw: Any) -> Feed:
+    """What the chain has published, read from its own front page.
+
+    Six hours, not a minute: this is writing, not weather.
+    """
+    return Feed(
+        name="rialo", url=RIALO_HOME, parse=parse_rialo, interval=6 * 3600.0,
+        source="rialo.io", coverage="every piece of writing on Rialo's front page",
+        **kw,
+    )
 
 def flight_feed(**kw: Any) -> Feed:
     return Feed(

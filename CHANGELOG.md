@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.32.0, 27 September 2026
+
+- A page about the chain this protocol runs on. The front page said "Built on
+  Rialo" and nothing else, which tells a reader a logo rather than a fact, and
+  the fact is more interesting than the badge: what this protocol is made of is
+  the chain's headline feature, and a parametric policy is the shape that
+  feature was made for. A predicate lives on the chain and is evaluated during
+  block execution; when it becomes true the network enqueues the transaction
+  itself. That is a policy, exactly.
+
+  The page names the three calls the client actually makes -- get_subscription,
+  get_triggered_transactions, get_workflow_lineage -- and a test holds those
+  names against the client, so renaming one there cannot leave the page saying
+  something that stopped being true. It gives Rialo's published figures as
+  Rialo's claim rather than as our measurement, and it says what this protocol
+  does not use: native privacy, threshold cryptography, consistency levels.
+
+- And what Rialo has published, read rather than remembered. There is no feed
+  to subscribe to -- the documentation is behind a sign in, the blog answers a
+  fetcher with nothing, /blog/rss.xml answers with HTML and there is no
+  sitemap -- so the protocol reads Rialo's own front page every few hours and
+  the page shows what it found, with the time it last looked. Seventeen pieces
+  today. A list frozen into the markup would be wrong by next month, and a test
+  holds that none of it is.
+
 ## 1.31.5, 27 September 2026
 
 - A reader insured a flat, went back to the first question, chose a flight
