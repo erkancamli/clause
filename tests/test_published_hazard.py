@@ -228,3 +228,44 @@ def test_the_fit_is_made_where_the_policy_lives(published) -> None:
     assert with_noise["shift"] == without["shift"]
     assert with_noise["worst_ratio"] == without["worst_ratio"]
     assert sh.FIT_BAND == (5.0, 10.0)
+
+
+def test_an_options_value_is_not_a_country(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """``--limit 250`` asks for 250 places, not for a country called 250.
+
+    The model file is pointed somewhere else first. A test that runs the build
+    writes whatever the build returns, and this one returns nothing; the first
+    version of it emptied the shipped model of a country.
+    """
+    import io
+    from contextlib import redirect_stderr
+
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+
+    def never(*args, **kwargs):
+        raise AssertionError("a refused command line fetched something")
+
+    monkeypatch.setattr(pub, "build", never)
+
+    # A bad option is refused before any country runs, so nothing is fetched.
+    # The stub above is what says so: reading the arguments in two passes made
+    # "--nope" an empty list of countries, which meant every country.
+    for argv in (["--nope"], ["--limit"]):
+        said = io.StringIO()
+        with redirect_stderr(said):
+            assert pub.main(argv) == 2, argv
+        assert said.getvalue().strip()
+
+    asked: list[tuple[str, int | None]] = []
+
+    def watch(code: str, *, limit=None, keep=None, save=None):
+        asked.append((code, limit))
+        return pub._record(code, [], [])
+
+    monkeypatch.setattr(pub, "build", watch)
+    assert pub.main(["JP", "--limit", "250"]) == 0
+    assert asked == [("JP", 250)]
+    # And with no country named, every country with a source wired.
+    asked.clear()
+    assert pub.main([]) == 0
+    assert [code for code, _ in asked] == list(pub.SOURCES)
