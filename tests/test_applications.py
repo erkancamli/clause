@@ -58,8 +58,12 @@ def balance(client, device, address):
 def test_an_application_holds_the_premium_and_says_what_will_be_checked(client) -> None:
     device, address = applicant(client)
     before = balance(client, device, address)
+    # The same subject the application carries, year and all. Without the year
+    # the quote is for a different building -- the oldest one, which is what an
+    # unsaid year is priced as -- so the lock would not be a lock on this cover.
     reply = client.post("/api/quote", json={"peril": "earthquake",
-        "subject": {"location": "IST-KADIKOY", "radius_km": 50}, "limit": 50_000, "term_days": 365}).json()
+        "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
+        "limit": 50_000, "term_days": 365}).json()
     made = apply(client, device, address, quote_id=reply["lock"]["id"],
                  max_premium=reply["lock"]["premium"])
     assert made.status_code == 200, made.text

@@ -15,7 +15,7 @@ from clause.protocol import desk
 from test_api_security import Device, buy_body, buy_terms, session_for
 from test_commerce import RIDER_KEY, TOKEN, register, rider_buy, sign_mandate
 
-KADIKOY = {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "İstanbul, Kadıköy"}
+KADIKOY = {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "place": "İstanbul, Kadıköy", "built": 2005}
 
 
 def buy_quake(client, device, address, limit):

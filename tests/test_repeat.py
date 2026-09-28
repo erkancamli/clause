@@ -84,7 +84,7 @@ def test_nothing_is_kept_for_a_request_with_no_nonce() -> None:
 # ---------------------------------------------------------------------------
 
 
-WHERE = {"location": "IST-KADIKOY", "radius_km": 50}
+WHERE = {"location": "IST-KADIKOY", "radius_km": 50, "built": 2010}
 HOME = {"kind": "home", "building": "flat", "area_m2": 120, "built": 2010}
 ADDRESS = {"street": "Atakent Mah 223 Cadde", "number": "A2", "flat": "49",
            "postcode": "34307", "city": "Istanbul"}

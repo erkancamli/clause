@@ -8,7 +8,7 @@ from clause.perils import EARTHQUAKE
 from clause.perils import shaking as sh
 from clause.pricing.simulation import Exposure, WorldDraws, settle
 
-KADIKOY = {"latitude": 40.99, "longitude": 29.03, "radius_km": 50.0, "index": "shaking"}
+KADIKOY = {"latitude": 40.99, "longitude": 29.03, "radius_km": 50.0, "index": "shaking", "built": 2021}
 TOKYO = {"latitude": 35.68, "longitude": 139.69, "radius_km": 50.0, "index": "shaking"}
 ANKARA = {"latitude": 39.93, "longitude": 32.86, "radius_km": 50.0, "index": "shaking"}
 

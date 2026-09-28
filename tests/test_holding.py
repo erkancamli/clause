@@ -152,7 +152,7 @@ def test_a_key_for_one_purpose_does_not_verify_another_purpose() -> None:
 
 
 HOME = {"kind": "home", "building": "flat", "area_m2": 120, "built": 2010}
-PLACE = {"location": "IST-KADIKOY", "radius_km": 50}
+PLACE = {"location": "IST-KADIKOY", "radius_km": 50, "built": 2010}
 
 
 def a_service(directory):

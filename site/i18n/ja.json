@@ -1000,6 +1000,7 @@
     "square metres": "平方メートル",
     "that description does not fit this cover": "その記述はこの補償に当てはまりません",
     "the field's area must be the area the cover is written on": "畑の面積は、補償の引受対象となる面積でなければなりません",
+    "the year the building was built must be the year the cover is priced on": "建物の建築年は、補償の保険料が算出される年と一致していなければなりません",
     "the place where the car is kept, read at {station}": "車の保管場所（{station}で測定）",
     "the rainfall record for the place": "その場所の降水記録",
     "there is no rebuild cost schedule for this country yet": "この国の再建費用表はまだありません",

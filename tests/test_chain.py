@@ -88,7 +88,7 @@ def start_cover(chain: Chain, policy) -> None:
 
 def test_buying_a_policy_arms_a_predicate() -> None:
     pool, chain = built()
-    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 100_000, 365)
+    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50, "built": 2021}, 100_000, 365)
 
     assert len(chain.armed) == 1
     armed = next(iter(chain.armed.values()))
@@ -113,7 +113,7 @@ def test_only_policies_reading_a_moved_signal_are_evaluated() -> None:
 
 def test_an_attested_reading_wakes_exactly_its_own_policies() -> None:
     pool, chain = built()
-    quake = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 100_000, 365)
+    quake = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50, "built": 2021}, 100_000, 365)
     other = write(pool, chain, "earthquake", {"location": "IZM-KONAK", "radius_km": 50}, 100_000, 365)
 
     chain.attest(quake.data_reference, "max_magnitude", 7.2)
@@ -151,7 +151,7 @@ def test_attesting_an_unknown_source_returns_nothing() -> None:
 
 def test_a_trigger_pays_the_band_the_structure_specifies() -> None:
     pool, chain = built()
-    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 200_000, 365)
+    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50, "built": 2021}, 200_000, 365)
 
     chain.attest(KADIKOY, "max_magnitude", 5.8)
     through_window(chain)
@@ -165,7 +165,7 @@ def test_one_event_settles_every_policy_inside_its_circle() -> None:
     """Correlation, as the capital model prices it, actually happening."""
     pool, chain = built()
     policies = [
-        write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 100_000, 365)
+        write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50, "built": 2021}, 100_000, 365)
         for _ in range(3)
     ]
 
@@ -186,7 +186,7 @@ def test_settlement_runs_when_the_confirmation_window_closes() -> None:
     """Not in the block the reading landed any more: the first figure waits a
     stated window for revisions, and the payment runs in the block it ends."""
     pool, chain = built()
-    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 100_000, 365)
+    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50, "built": 2021}, 100_000, 365)
 
     chain.attest(KADIKOY, "max_magnitude", 7.2)
     chain.produce_block()
@@ -207,7 +207,7 @@ def test_a_trigger_the_sources_withdraw_does_not_pay() -> None:
     """A magnitude revised below the trigger inside the window sends the policy
     back to waiting instead of paying on a figure nobody stands behind."""
     pool, chain = built()
-    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50}, 100_000, 365)
+    policy = write(pool, chain, "earthquake", {"location": "IST-KADIKOY", "radius_km": 50, "built": 2021}, 100_000, 365)
     chain.attest(KADIKOY, "max_magnitude", 5.6)
     chain.produce_block()
     assert pool.policies[policy.policy_id].metadata.get("provisional")
@@ -330,7 +330,7 @@ def test_blocks_are_retained_within_a_bound() -> None:
 @pytest.mark.parametrize(
     "peril, subject, term, level, runs",
     [
-        ("earthquake", {"location": "IST-KADIKOY", "radius_km": 50.0}, 365, 5.5, 70),
+        ("earthquake", {"location": "IST-KADIKOY", "radius_km": 50.0, "built": 2021}, 365, 5.5, 70),
         # None: the trigger level comes from the converted curve. Fewer runs,
         # because a drought policy has a season to wait for before its own
         # season starts, and the band below widens to match on its own.

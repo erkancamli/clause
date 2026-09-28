@@ -1000,6 +1000,7 @@
     "square metres": "metros cuadrados",
     "that description does not fit this cover": "esa descripción no corresponde a esta cobertura",
     "the field's area must be the area the cover is written on": "la superficie del campo debe ser la superficie sobre la que se suscribe la cobertura",
+    "the year the building was built must be the year the cover is priced on": "el año de construcción del edificio debe ser el año sobre el que se tarifica la cobertura",
     "the place where the car is kept, read at {station}": "el lugar donde se guarda el auto, leído en {station}",
     "the rainfall record for the place": "el registro de lluvias del lugar",
     "there is no rebuild cost schedule for this country yet": "todavía no hay una tabla de costos de reconstrucción para este país",

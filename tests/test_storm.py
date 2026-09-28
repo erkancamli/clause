@@ -159,7 +159,11 @@ def test_a_storm_policy_settles_on_the_wind_reading_and_the_price_holds_in_the_b
         device = Device()
         address = client.post("/api/auth/register", json={"public_key": device.public}).json()["address"]
         interest = {"what": "a house in Çanakkale", "country": "TR", "inside_trigger_area": True,
-                    "value_at_risk": 300_000, "size": {"kind": "home", "building": "house", "area_m2": 140}}
+                    # A 2021 house: 140 m² at the Turkish rebuild rate carries the
+                    # 60,000 this test buys. At 2005 the age ceiling holds it to
+                    # 57,352 and the buy is refused for the right reason, which is
+                    # another test's subject, not this one's.
+                    "value_at_risk": 300_000, "size": {"kind": "home", "building": "house", "area_m2": 140, "built": 2021}}
         terms = buy_terms(peril="storm", subject=subject, limit=60_000.0, value_at_risk=300_000.0,
                           size=interest["size"])
         challenge = client.post("/api/auth/challenge", json={"address": address, "purpose": "buy", "terms": terms}).json()
@@ -199,7 +203,7 @@ def test_a_home_against_storm_is_applied_for_with_its_address(wind) -> None:
         address = client.post("/api/auth/register", json={"public_key": device.public}).json()["address"]
         subject = {**KONYA, "place": "Konya"}
         interest = {"what": "a house in Konya", "country": "TR", "inside_trigger_area": True,
-                    "value_at_risk": 200_000, "size": {"kind": "home", "building": "house", "area_m2": 120}}
+                    "value_at_risk": 200_000, "size": {"kind": "home", "building": "house", "area_m2": 120, "built": 2005}}
         terms = buy_terms(peril="storm", subject=subject, limit=40_000.0, value_at_risk=200_000.0, size=interest["size"])
         def signed(extra_terms: dict | None = None, **overrides):
             # Every signature is spent by the call it authorises, refused or not.

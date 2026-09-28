@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.38.0, 28 September 2026
+
+- Three answers were cheaper to withhold than to give.
+
+  Found by asking the protocol the same question twice, once with the answer
+  and once without it. A home described with no year built was valued at the
+  full rebuild cost of a new building: 110 m² in Istanbul came to 57,041 with
+  no year against 31,372 said as 1968, eighty two per cent more cover for
+  saying less, because the ceiling factor that scales rebuild cost down for an
+  old building was never applied. A vehicle with no model year lost its age
+  cap altogether: a 2005 car declared at 240,000 is held to 50,000 when the
+  year is said and carried the whole 240,000 when it was not, which is the one
+  thing that cap is written to prevent. Both are refused now. Every home has a
+  year and every car has a model year, and the page has always asked for both,
+  so nobody who could answer was being helped by the silence.
+
+- And the same shape in the price. An earthquake subject with no year was
+  priced as a building of the current code, the cheapest of the four bands:
+  706.29 against 770.98 for the same cover on a pre 1976 building. So the
+  first figure a buyer saw was one no honest answer could improve on, and
+  every honest answer made it dearer.
+
+  A subject with no year cannot be refused the way a valuation can, because
+  that is the price bar before the buyer has described anything. It is priced
+  as the oldest building instead: the first figure is the dearest the building
+  could be, and answering only brings it down. The page's own model, which
+  fills the bar while a quote is in flight, takes the same floor from the same
+  schedule, so the two cannot drift.
+
+- The size says what a building can carry and the subject says what it is
+  priced on, and nothing held the two together. A buyer could describe a 1968
+  building, take the lower ceiling that comes with it, and leave the year out
+  of the subject to be priced as though it met the current code: the low price
+  and the high cover at once. A field's area has been cross checked against
+  the cover it is written on for as long as drought has existed; the year now
+  gets the same check.
+
 ## 1.37.0, 28 September 2026
 
 - Two airports chosen one at a time do not name an airline, and the flight

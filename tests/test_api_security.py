@@ -97,13 +97,13 @@ def statements(client, address, *claims):
 def buy_body(address, nonce, signature, client=None, **overrides):
     body = {
         "peril": "earthquake",
-        "subject": {"location": "IST-KADIKOY", "radius_km": 50},
+        "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
         "limit": 50_000, "term_days": 365,
         "holder": address, "nonce": nonce, "signature": signature,
         "interest": {
             "what": "a flat in Kadikoy", "country": "TR",
             "inside_trigger_area": True, "value_at_risk": 90_000,
-            "size": {"kind": "home", "building": "flat", "area_m2": 150},
+            "size": {"kind": "home", "building": "flat", "area_m2": 150, "built": 2005},
         },
         "settlement": "fiat",
     }
@@ -118,9 +118,9 @@ def buy_body(address, nonce, signature, client=None, **overrides):
 def buy_terms(**overrides):
     terms = {
         "peril": "earthquake", "limit": 50_000.0, "term_days": 365.0,
-        "subject": {"location": "IST-KADIKOY", "radius_km": 50.0},
+        "subject": {"location": "IST-KADIKOY", "radius_km": 50.0, "built": 2005},
         "country": "TR", "value_at_risk": 90_000.0,
-        "size": {"kind": "home", "building": "flat", "area_m2": 150},
+        "size": {"kind": "home", "building": "flat", "area_m2": 150, "built": 2005},
     }
     terms.update(overrides)
     return terms
@@ -311,7 +311,7 @@ def test_an_absurd_term_or_limit_is_refused(client) -> None:
     ):
         reply = client.post("/api/quote", json={
             "peril": "earthquake",
-            "subject": {"location": "IST-KADIKOY", "radius_km": 50},
+            "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
             **body,
         })
         assert reply.status_code == 422
@@ -669,10 +669,10 @@ def test_the_token_hash_changes_with_the_terms() -> None:
     from clause.chain.world import terms_fingerprint
     from clause.protocol.policy import build_policy
 
-    a = build_policy(peril_key="earthquake", subject={"location": "IST-KADIKOY", "radius_km": 50},
+    a = build_policy(peril_key="earthquake", subject={"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
                      limit=50_000, term_days=365, holder="0xa", premium=1000, expected_loss=500,
                      risk_load=300, expense_load=200, marginal_capital=5000, now=1_800_000_000)
-    b = build_policy(peril_key="earthquake", subject={"location": "IST-KADIKOY", "radius_km": 50},
+    b = build_policy(peril_key="earthquake", subject={"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
                      limit=60_000, term_days=365, holder="0xa", premium=1000, expected_loss=500,
                      risk_load=300, expense_load=200, marginal_capital=5000, now=1_800_000_000)
     assert terms_fingerprint(a) != terms_fingerprint(b)
@@ -680,7 +680,7 @@ def test_the_token_hash_changes_with_the_terms() -> None:
 
 def test_a_quoted_price_holds_for_ten_minutes_even_if_the_book_moves(client, buyer) -> None:
     device, address = buyer
-    body = {"peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50},
+    body = {"peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
             "limit": 50_000, "term_days": 365}
     quoted = client.post("/api/quote", json=body).json()
     lock = quoted["lock"]
@@ -706,7 +706,7 @@ def test_a_quoted_price_holds_for_ten_minutes_even_if_the_book_moves(client, buy
 def test_a_price_lock_only_fits_the_cover_it_was_given_for(client, buyer) -> None:
     device, address = buyer
     lock = client.post("/api/quote", json={"peril": "earthquake",
-        "subject": {"location": "IST-KADIKOY", "radius_km": 50},
+        "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
         "limit": 10_000, "term_days": 365}).json()["lock"]
     ch = client.post("/api/auth/challenge", json={"address": address, "purpose": "buy",
                                                   "terms": buy_terms()}).json()
@@ -774,3 +774,28 @@ def test_one_old_policy_does_not_take_the_whole_book_down(client) -> None:
     rows = again.json()["items"]
     old = [r for r in rows if r["policy_id"] == victim.policy_id]
     assert old and "IST" in old[0]["subject_text"] and "LHR" in old[0]["subject_text"]
+
+
+def test_the_year_priced_on_must_be_the_year_described(client, buyer) -> None:
+    """The size and the subject each carry the year, and nothing joined them.
+
+    So a buyer could describe a 1968 building, accept the lower ceiling that
+    comes with it, and leave the year out of the subject to be priced as
+    though it met the current code: the low price and the high cover at once.
+    A field's area has been cross checked against the cover it is written on
+    for as long as drought has existed; this is the same check for the figure
+    that decides an earthquake price.
+    """
+    device, address = buyer
+    size = {"kind": "home", "building": "flat", "area_m2": 150, "built": 1968}
+    subject = {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005}
+    terms = buy_terms(size=size, subject=subject)
+    challenge = client.post("/api/auth/challenge", json={
+        "address": address, "purpose": "buy", "terms": terms}).json()
+    body = buy_body(address, challenge["nonce"], device.sign(challenge["message"]), client=client)
+    body["interest"]["size"] = size
+    body["subject"] = subject
+
+    reply = client.post("/api/policies", json=body)
+    assert reply.status_code == 422, reply.text
+    assert "the year the building was built" in reply.text

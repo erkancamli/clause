@@ -32,15 +32,15 @@ def test_a_bigger_field_carries_more_cover() -> None:
 
 
 def test_a_home_is_valued_by_floor_area_and_country() -> None:
-    istanbul = value_of({"kind": "home", "building": "flat", "area_m2": 100}, country="TR")
-    tokyo = value_of({"kind": "home", "building": "flat", "area_m2": 100}, country="JP")
+    istanbul = value_of({"kind": "home", "building": "flat", "area_m2": 100, "built": 2005}, country="TR")
+    tokyo = value_of({"kind": "home", "building": "flat", "area_m2": 100, "built": 2005}, country="JP")
     assert tokyo.value > istanbul.value > 0
     assert "100 m²" in istanbul.basis
 
 
 @pytest.mark.parametrize("size", [
-    {"kind": "home", "building": "castle", "area_m2": 100},
-    {"kind": "home", "building": "flat", "area_m2": 5},
+    {"kind": "home", "building": "castle", "area_m2": 100, "built": 2005},
+    {"kind": "home", "building": "flat", "area_m2": 5, "built": 2005},
     {"kind": "field", "crop": "wheat", "area_ha": 0},
     {"kind": "field", "crop": "gold", "area_ha": 1},
     {"kind": "boat"},
@@ -52,7 +52,7 @@ def test_a_description_that_gives_no_value_is_refused(size) -> None:
 
 def test_no_schedule_means_no_home_cover() -> None:
     with pytest.raises(ValuationError, match="no rebuild cost schedule"):
-        value_of({"kind": "home", "building": "flat", "area_m2": 100}, country="FR")
+        value_of({"kind": "home", "building": "flat", "area_m2": 100, "built": 2005}, country="FR")
 
 
 # ---------------------------------------------------------------- the traps
@@ -205,7 +205,7 @@ def test_a_building_type_nobody_publishes_says_what_stood_in_for_it() -> None:
 def test_the_protocol_refuses_cover_above_what_the_size_supports(client, buyer) -> None:
     """The buyer claims a large value but describes a small flat: the size wins."""
     device, address = buyer
-    size = {"kind": "home", "building": "flat", "area_m2": 40.0}
+    size = {"kind": "home", "building": "flat", "area_m2": 40.0, "built": 2005}
     ceiling = value_of(size, country="TR").value
     terms = buy_terms(limit=50_000.0, value_at_risk=90_000.0, size=size)
     challenge = client.post("/api/auth/challenge", json={
