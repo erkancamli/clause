@@ -63,6 +63,8 @@ from ..protocol.carrier import (
     Appetite,
     Carrier,
     CarrierError,
+    priced_by,
+    most_it_will_write,
     Licence,
     Reach,
     Registry,
@@ -1554,6 +1556,30 @@ def create_app(
 
     # -- quoting and buying -----------------------------------------------
 
+
+    def cheapest_for(ruling: Any, quoted: Any, *, chosen: str | None = None) -> str | None:
+        """The company a buyer who named none should be put on.
+
+        It used to be the one with the smallest fronting fee, which was the
+        same thing as the cheapest while every company charged the pool's
+        premium. They price the risk themselves now, so the smallest fee can
+        sit on top of the dearest price: measured on one Istanbul flat, the
+        lowest fee was 6,132.39 and the lowest total 3,793.19, and the default
+        was landing every buyer on the first.
+        """
+        if chosen:
+            return chosen
+        placement = getattr(ruling, "placement", None)
+        offers_ = getattr(placement, "offers", ()) if placement else ()
+        if not offers_:
+            return getattr(ruling, "carrier_id", None)
+        best_ = placement.best_for(
+            expected_loss=float(getattr(quoted, "expected_loss", 0.0)),
+            marginal_capital=float(getattr(quoted, "marginal_capital", 0.0)),
+            term_days=float(getattr(quoted, "term_days", 365.0)),
+        )
+        return best_.carrier.carrier_id if best_ else getattr(ruling, "carrier_id", None)
+
     def property_of(peril: str, subject: dict[str, Any], address: dict[str, str] | None,
                     interest: Any, size: dict[str, Any] | None):
         """The key for what this cover is written on, or None if it names no
@@ -1883,16 +1909,45 @@ def create_app(
             if max_premium is not None else None
         )
 
+        # Whose paper this is going on, and therefore whose price. A company
+        # that has not said what its capital must earn prices at the pool's own
+        # figures, which is what every policy written before this was asked for
+        # was priced at.
+        # One company, named once, and used for the price, the fee, the
+        # contract and the record. It was the ruling's own choice, which is the
+        # lowest fronting fee; that is no longer the cheapest, and the contract
+        # the buyer read named the cheapest. Two names for one policy is how a
+        # buyer ends up holding a contract that is not the one they accepted.
+        priced_with = locked_quote or (promised(quote_id, peril, subject, limit, term_days)
+                                       if quote_id else None)
+        if priced_with is None:
+            try:
+                priced_with = pool.quote(peril_key=peril, subject=subject,
+                                         limit=limit, term_days=term_days)
+            except (ValueError, KeyError):
+                priced_with = None
+        on_paper = cheapest_for(ruling, priced_with) if priced_with is not None else ruling.carrier_id
+        writer = registry.carriers.get(on_paper) if on_paper else None
+        writer_capital = writer.cost_of_capital if writer is not None else None
+        writer_expenses = writer.expense_ratio if writer is not None else None
+
         def work():
             with money:
                 locked_ = locked_quote or promised(quote_id, peril, subject, limit, term_days)
+                # The price the buyer chose was this company's, so the money
+                # put aside has to be this company's too. Checking the pool's
+                # figure instead let a wallet through that could not cover the
+                # cheaper paper, and stopped one that could.
+                if locked_ is not None and writer is not None:
+                    locked_ = locked_.priced_at(cost_of_capital=writer_capital,
+                                                expense_ratio=writer_expenses)
                 # Premium and fee are two debits; both must be affordable before
                 # either is taken, or a buyer who can pay the premium alone
                 # would be left with a policy the pool holds and no chain
                 # subscription.
                 if wallets is not None and locked_ is not None:
                     expected = locked_.premium if paid_now is None else min(locked_.premium, paid_now)
-                    fee_expected = fronting_fee_of(ruling.carrier_id, locked_.premium) if ruling.carrier_id else 0.0
+                    fee_expected = fronting_fee_of(on_paper, locked_.premium) if on_paper else 0.0
                     if fee_now is not None:
                         fee_expected = min(fee_expected, fee_now)
                     if wallets.require(payer or holder).balance + 1e-9 < expected + fee_expected:
@@ -1903,6 +1958,7 @@ def create_app(
                     peril_key=peril, subject=subject, limit=limit,
                     term_days=term_days, holder=holder, max_premium=ceiling,
                     payer=payer, locked=locked_, paid_now=paid_now,
+                    cost_of_capital=writer_capital, expense_ratio=writer_expenses,
                 )
                 policy_.metadata["compliance"] = ruling.to_dict()
                 policy_.metadata["interest"] = {
@@ -1944,10 +2000,10 @@ def create_app(
                     ),
                 }
                 try:
-                    if ruling.carrier_id:
-                        policy_.metadata["carrier"] = ruling.carrier_id
-                        registry.record(ruling.carrier_id, limit)
-                        charge_fee(policy_, ruling.carrier_id, payer or holder, amount=fee_now)
+                    if on_paper:
+                        policy_.metadata["carrier"] = on_paper
+                        registry.record(on_paper, limit)
+                        charge_fee(policy_, on_paper, payer or holder, amount=fee_now)
                     if satisfied:
                         policy_.metadata["eligibility"]["vouched"] = sorted(satisfied)
                     for key_, value_ in (metadata or {}).items():
@@ -1961,7 +2017,7 @@ def create_app(
                     # Nothing half done: the premium goes back and the policy
                     # is closed, so the book never holds cover nobody can see.
                     pool.cancel(policy_, note="not issued: the fee or the chain registration failed", now=None)
-                    if ruling.carrier_id:
+                    if on_paper:
                         registry.reconcile(pool.policies.values())
                     raise
             return policy_, armed_
@@ -2142,6 +2198,15 @@ def create_app(
             )
             carrier_id = ruling.carrier_id
             basis = info["valuation"].basis if info["valuation"] else ""
+            # The contract names a price, so it is this company's price. The
+            # hash covers it, which is how a contract read at one figure and
+            # applied for at another is caught: the application was refused
+            # with "the contract has changed since you read it", and it had.
+            carrier_id = cheapest_for(ruling, quoted, chosen=request.carrier_id)
+            issuing = registry.carriers.get(carrier_id) if carrier_id else None
+            if issuing is not None:
+                quoted = quoted.priced_at(cost_of_capital=issuing.cost_of_capital,
+                                          expense_ratio=issuing.expense_ratio)
         except (HTTPException, Refused):
             if size:
                 try:
@@ -2194,9 +2259,17 @@ def create_app(
         placement = ruling.placement
         rows = []
         fastest = min((o.carrier.fiat_payout_days for o in placement.offers), default=None) if placement else None
+        # One simulation, many prices. The expected loss and the capital this
+        # policy ties up are facts about the risk; what each company charges
+        # for them is its own, so each row is priced here rather than copied
+        # from the pool's figure.
+        keenest = None
         for offer in (placement.offers if placement else ()):
             c = offer.carrier
-            fee = round(answer["premium"] * c.fronting_fee, 2)
+            said = priced_by(c, expected_loss=answer["expected_loss"],
+                             marginal_capital=answer["marginal_capital"],
+                             term_days=answer["term_days"])
+            fee = said["fee"]
             plus, minus = [], []
             if c.fronting_fee == 0:
                 plus.append("no fee of its own on top of the premium")
@@ -2221,8 +2294,17 @@ def create_app(
             rows.append({
                 "carrier_id": c.carrier_id, "name": c.name, "domicile": c.domicile,
                 "authority": offer.licence.authority, "specimen": c.specimen,
-                "fronting_fee": c.fronting_fee, "fee": fee, "premium": round(answer["premium"], 2),
-                "total": round(answer["premium"] + fee, 2), "settlement": sorted(assets),
+                "fronting_fee": c.fronting_fee, "fee": fee, "premium": said["premium"],
+                "total": said["total"], "settlement": sorted(assets),
+                # What the price is made of, because a buyer comparing two
+                # companies is owed the reason they differ.
+                "expected_loss": said["expected_loss"], "risk_load": said["risk_load"],
+                "expense_load": said["expense_load"],
+                "cost_of_capital": c.cost_of_capital, "expense_ratio": c.expense_ratio,
+                # And the largest single policy it would write, because a
+                # keener price on a smaller line is a different offer rather
+                # than a better one.
+                "max_limit": most_it_will_write(c),
                 "fiat_payout_days": c.fiat_payout_days, "extra_cooling_off_days": c.extra_cooling_off_days,
                 "headroom": round(c.headroom(), 2), "plus": plus, "minus": minus,
                 "fastest": fastest is not None and c.fiat_payout_days == fastest,
@@ -3848,6 +3930,15 @@ def create_app(
         with money:
             quoted = promised(quote_id, peril, subject, limit, term_days) \
                 or pool.quote(peril_key=peril, subject=subject, limit=limit, term_days=term_days)
+            # Priced by the company whose paper it is going on, the same as the
+            # policy it becomes. Holding the pool's figure instead put one
+            # amount aside and charged another when the insurer said yes, and
+            # the application is a promise of a price as much as of cover.
+            writes = cheapest_for(ruling, quoted)
+            writing = registry.carriers.get(writes) if writes else None
+            if writing is not None:
+                quoted = quoted.priced_at(cost_of_capital=writing.cost_of_capital,
+                                          expense_ratio=writing.expense_ratio)
             if max_premium is not None and quoted.premium > float(max_premium) + 0.01:
                 raise PriceMoved(
                     f"the price moved while you were deciding: {quoted.premium:,.2f} "
@@ -3857,12 +3948,16 @@ def create_app(
             if not allowed:
                 raise PoolError("; ".join(reasons))
             peril_ = get_peril(peril)
-            fee = fronting_fee_of(ruling.carrier_id, quoted.premium)
+            # The company the price was struck with, all the way through. Using
+            # the ruling's own choice here while pricing with another wrote a
+            # contract for one company at another's price, and the hash over it
+            # told the buyer their contract had changed when nothing had.
+            fee = fronting_fee_of(writes, quoted.premium)
             # The contract the buyer accepted has to be the one that would
             # be issued: same terms, same price, same company.
             text, digest_, plan = contract_for(
                 peril_key=peril, subject=subject, limit=limit, term_days=term_days,
-                premium=round(quoted.premium, 2), carrier_id=ruling.carrier_id, holder="",
+                premium=round(quoted.premium, 2), carrier_id=writes, holder="",
                 country=interest.country.upper(), instalments=instalments,
                 address=address, value_basis=info["valuation"].basis if info["valuation"] else "")
             if not instruction_id:
@@ -3877,7 +3972,7 @@ def create_app(
                 holder=holder, peril=peril, subject=subject, limit=limit,
                 term_days=term_days, declared=interest.model_dump(), size=size,
                 value_at_risk=info["value_at_risk"], settlement=settlement,
-                premium=round(quoted.premium, 2), fee=fee, carrier_id=ruling.carrier_id,
+                premium=round(quoted.premium, 2), fee=fee, carrier_id=writes,
                 checks=checks_,
                 subject_text=peril_.describe_subject(peril_.validate_subject(subject)),
                 contract=text, contract_hash=digest_, address=address, plan=plan,

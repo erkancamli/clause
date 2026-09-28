@@ -1609,6 +1609,9 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
 .pay-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 16px;background:var(--panel);font-size:14.5px}
 .pay-row .amt{font-family:var(--mono);color:var(--settled);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pay-row.none .amt{color:var(--ink-3)}
+/* How often that level happens here, under the words rather than beside them:
+   it is the reason for the step, not a second column of the offer. */
+.pay-row .often{display:block;margin-top:2px;color:var(--ink-3)}
 
 .pricebar{position:sticky;bottom:0;z-index:50;margin-top:24px;box-shadow:0 -14px 34px -20px rgba(12,17,22,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   background:color-mix(in srgb,var(--panel) 96%,transparent);backdrop-filter:blur(14px);
@@ -4963,7 +4966,20 @@ function api(path, options){
   }).then(function(reply){
     clearTimeout(timer);
     if (options.raw && reply.ok) return reply.blob();
-    return reply.text().then(function(text){
+    // Reading the body can fail on its own, after the headers arrived: a
+    // connection cut part way through leaves a rejection with no status and
+    // no payload, and that fell through every branch of the buy banner to the
+    // one sentence that names no reason. The request was sent and may have
+    // been acted on, so it is marked unanswered like any other silence, which
+    // is also what makes the page ask the same question again.
+    return reply.text().then(null, function(cut){
+      var error = new Error("the answer was cut off while it was being read");
+      error.status = reply.status;
+      error.kind = "answer cut off after http " + reply.status
+                 + " (" + ((cut && cut.name) || "network") + ")";
+      error.unanswered = true;
+      throw error;
+    }).then(function(text){
       var payload = null;
       try { payload = text ? JSON.parse(text) : null; } catch (e) { payload = {detail:text}; }
       if (!reply.ok) {
@@ -6735,6 +6751,13 @@ function centreMap(){
 function chosenOffer(){
   return (flow.offers||[]).filter(function(o){return o.carrier_id===flow.carrier;})[0]||null;
 }
+/* The offer the price is struck on: the one chosen, or the one they would get
+   if they chose nothing, which is the first because the list arrives sorted by
+   what it costs. Companies price the same risk differently, so there is no
+   such thing as the price until one of them is named. */
+function offerForPrice(){
+  return chosenOffer()||(flow.offers||[])[0]||null;
+}
 /* The companies that are licensed for this cover and still did not appear.
    A list that has quietly shrunk from five names to one reads exactly like a
    country with one insurer in it, and the difference matters to someone
@@ -7557,10 +7580,18 @@ function priced(){
   // The protocol's price stands only for the cover it priced: move the
   // slider or the pin and the page's own model answers until the protocol does.
   if(!q||flow.quotedFor!==quoteKey())return quote();
-  return {el:q.expected_loss, riskLoad:q.risk_load, expenses:q.expense_load,
-          premium:q.premium, trigger:q.trigger_probability,
+  // The company that issues it prices it. The expected loss and the capital
+  // the cover ties up are the protocol's measurement of the risk and the same
+  // whoever writes it; what is charged for them is the company's own, and it
+  // is what the buyer chose from the list. Reading the pool's figure here
+  // instead put one price on the screen and sent a different one to be paid.
+  var mine=offerForPrice();
+  return {el:q.expected_loss, riskLoad:mine?mine.risk_load:q.risk_load,
+          expenses:mine?mine.expense_load:q.expense_load,
+          premium:mine?mine.premium:q.premium, trigger:q.trigger_probability,
           capital:q.marginal_capital, basis:q.risk_basis, fromProtocol:true};
 }
+
 
 function refreshQuote(){
   // Asked once on arrival at the confirm step. The local figure is already on
@@ -7684,15 +7715,15 @@ function plainSentence(){
 function payRows(){
   var c=structure(),l=flow.limit,rows=[];
   if(flow.peril==="quake"&&shakingIndex()){
-    rows.push([t("Shaking below intensity VI"),0]);
-    rows.push([t("Intensity VI: strong, light damage"),shareAt(c,6)*l]);
-    rows.push([t("Intensity VII: very strong, damage to ordinary buildings"),shareAt(c,7)*l]);
-    rows.push([t("Intensity VIII or more: severe"),l]);
+    rows.push([t("Shaking below intensity VI"),0,null]);
+    rows.push([t("Intensity VI: strong, light damage"),shareAt(c,6)*l,6]);
+    rows.push([t("Intensity VII: very strong, damage to ordinary buildings"),shareAt(c,7)*l,7]);
+    rows.push([t("Intensity VIII or more: severe"),l,8]);
   } else if(flow.peril==="quake"){
-    rows.push([t("Nothing above magnitude 5.5 happens"),0]);
-    rows.push([t("A magnitude 5.5 to 6.5"),shareAt(c,5.5)*l]);
-    rows.push([t("A magnitude 6.5 to 7.0"),shareAt(c,6.5)*l]);
-    rows.push([t("A magnitude 7.0 or more"),l]);
+    rows.push([t("Nothing above magnitude 5.5 happens"),0,null]);
+    rows.push([t("A magnitude 5.5 to 6.5"),shareAt(c,5.5)*l,5.5]);
+    rows.push([t("A magnitude 6.5 to 7.0"),shareAt(c,6.5)*l,6.5]);
+    rows.push([t("A magnitude 7.0 or more"),l,7.0]);
   } else if(flow.peril==="car"){
     var cp=c.pts;
     rows.push([t("Less than {mm} mm in a day",{mm:f1.format(cp[0][0])}),0]);
@@ -7718,8 +7749,22 @@ function payRows(){
     rows.push([t("More than four hours late"),shareAt(c,240)*l]);
     rows.push([t("Cancelled"),l]);
   }
+  // How often the level in each row happens at this place, from the same
+  // exceedance curve the price is made of. It is the answer to the question
+  // the ladder raises and never answered: why this much at this level. The
+  // table that said it was folded inside "show how this price was worked
+  // out", closed, which is the one place a buyer deciding will not look.
+  var exc=null;
+  try{ exc=exceedance(); }catch(err){ exc=null; }
   return rows.map(function(r){
-    return '<div class="pay-row'+(r[1]?"":" none")+'"><span>'+esc(r[0])+'</span><span class="amt">'+
+    var often="";
+    if(exc&&r[2]!=null){
+      var chance=exc(r[2]);
+      if(chance>0&&chance<1)
+        often='<span class="fine often">'+esc(t("about 1 in {n} years here",
+          {n:f0.format(Math.round(1/chance))}))+'</span>';
+    }
+    return '<div class="pay-row'+(r[1]?"":" none")+'"><span>'+esc(r[0])+often+'</span><span class="amt">'+
       (r[1]?money(r[1])+" USDC":esc(t("nothing")))+'</span></div>';
   }).join("");
 }
@@ -10078,9 +10123,14 @@ function showBuyError(error){
   // The technical cause, small and last. It is not for the buyer to
   // understand; it is so that the answer to "it does not work" is one line
   // instead of a week.
-  if(error&&error.kind)
+  // Always something, because a banner with no reason under it is what a
+  // buyer sends a screenshot of, and the screenshot is then all anybody has.
+  // Errors raised outside api() carry no kind of their own, so their own name
+  // stands in rather than nothing at all.
+  var why=(error&&error.kind)||(error&&(error.name||error.message))||"";
+  if(why)
     html+='<span class="fine" style="display:block;margin-top:8px;opacity:.8">'+
-      esc(t("Reason: {kind}",{kind:error.kind}))+'</span>';
+      esc(t("Reason: {kind}",{kind:String(why).slice(0,120)}))+'</span>';
   var box=$("compliance-box");
   box.hidden=false; box.className="verdict no";
   // Two answers mean "we do not know yet", and both must read that way: being

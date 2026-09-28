@@ -141,12 +141,20 @@ def test_a_contract_that_could_not_be_prepared_says_so() -> None:
 
 def test_only_a_failure_that_carried_no_answer_may_be_asked_again() -> None:
     """A refusal is an answer and must be shown, not retried. The flag that
-    tells the two apart is set in one place, on the branch where nothing came
-    back at all, and the retry is guarded by it."""
+    tells the two apart is set where nothing usable came back, and the retry
+    is guarded by it.
+
+    Two places set it, because there are two silences. The request can fail to
+    arrive, and the answer can be cut off part way through being read: the
+    second leaves a rejection with no status and no payload, which fell through
+    every branch of the buy banner to the one sentence that names no reason.
+    Both may be asked again, because in both the protocol may have acted and
+    the same question is the only safe one to put twice.
+    """
     assert "reason.unanswered = true;" in PAGE
-    # Set only where no reply arrived: inside the rejection handler, under the
-    # same condition as the kind, and never on an http status.
-    assert PAGE.count("unanswered = true") == 1
+    assert "error.unanswered = true;" in PAGE
+    # And no more than those two: a reply with a status is a decision.
+    assert PAGE.count("unanswered = true") == 2
     # In the rejection handler, before it rethrows.
     handler = PAGE[PAGE.index('reason.kind = (reason.name === "AbortError")'):]
     assert handler.index("reason.unanswered = true;") < handler.index("throw reason;")
@@ -154,6 +162,9 @@ def test_only_a_failure_that_carried_no_answer_may_be_asked_again() -> None:
     # buyer must read, not a question to put again.
     refused = PAGE[PAGE.index('error.kind = "http " + reply.status;'):]
     assert "unanswered" not in refused[:refused.index("throw error;")]
+    # The cut off answer is the other silence, and it names why it is one.
+    cut = PAGE[PAGE.index('error.kind = "answer cut off after http "'):]
+    assert cut.index("error.unanswered = true;") < cut.index("throw error;")
 
 
 def test_the_purchase_asks_again_once_and_sends_the_same_request() -> None:

@@ -24,7 +24,7 @@ from __future__ import annotations
 import json
 import threading
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Sequence
 
 from ..perils import PayoutCurve, Peril, get_peril
@@ -94,6 +94,21 @@ class Quote:
         """What share of the premium is expected to be paid back out."""
         return self.expected_loss / self.premium if self.premium else 0.0
 
+    def priced_at(self, *, cost_of_capital: float, expense_ratio: float) -> "Quote":
+        """The same risk, priced by a company with its own numbers.
+
+        Nothing about the risk changes: the expected loss, the trigger
+        probability and the capital this policy ties up are all still the
+        pool's measurement of it. Only the two loads move, because only they
+        were ever the writer's to choose.
+        """
+        risk_load, expense_load, premium = loads_for(
+            expected_loss=self.expected_loss, marginal_capital=self.marginal_capital,
+            term_days=self.term_days, cost_of_capital=cost_of_capital,
+            expense_ratio=expense_ratio,
+        )
+        return replace(self, risk_load=risk_load, expense_load=expense_load, premium=premium)
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "peril": self.peril_key,
@@ -115,6 +130,32 @@ class Quote:
             "diversification_ratio": round(self.diversification_ratio, 4),
             "notes": list(self.notes),
         }
+
+
+
+def loads_for(*, expected_loss: float, marginal_capital: float, term_days: float,
+              cost_of_capital: float, expense_ratio: float) -> tuple[float, float, float]:
+    """The two loads and the premium, for one view of what the risk costs.
+
+    The expected loss and the capital a policy ties up are facts about the
+    risk: the model measures the first and the simulation the second, and both
+    are the same whoever writes the cover. What must be earned on that capital,
+    and what it costs to run the business that holds it, belong to whoever is
+    writing. Here once, so an offer, a price lock and the policy that is
+    finally bound cannot answer differently.
+    """
+    # Both inputs are money and reach this from two places: a Quote's own
+    # floats, and the same Quote after to_dict has rounded it for the wire.
+    # Rounding here makes the two agree, which they did not: an offer computed
+    # one price and the contract another a cent away, the hash over the
+    # contract noticed, and the buyer was told the contract had changed when
+    # nothing about it had.
+    loss = round(float(expected_loss), 2)
+    capital = round(float(marginal_capital), 2)
+    years = float(term_days) / 365.25
+    risk_load = round(capital * float(cost_of_capital) * years, 2)
+    expense_load = round(loss * float(expense_ratio), 2)
+    return risk_load, expense_load, round(loss + risk_load + expense_load, 2)
 
 
 @dataclass(frozen=True, slots=True)

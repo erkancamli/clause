@@ -12,6 +12,8 @@ from __future__ import annotations
 import os
 import tempfile
 
+from dataclasses import replace
+
 import pytest
 
 from clause.api import holding
@@ -202,7 +204,16 @@ def test_a_price_promised_before_a_restart_is_still_the_price_after_it() -> None
             # since moved away from. Signed with the key the first service used,
             # which the store kept and the second one will put back: that key is
             # the only thing the two processes share.
-            was = a_quote(premium=round(live["premium"] * 0.8, 2))
+            # Four fifths of the risk, not four fifths of the premium: the
+            # promise holds the measurement, and the price is worked out from
+            # it by whoever writes the cover. Discounting only the premium
+            # field left the risk at this helper's defaults, and the lock came
+            # out dearer than the moving book it was meant to beat.
+            was = replace(
+                a_quote(premium=round(live["premium"] * 0.8, 2)),
+                expected_loss=round(live["expected_loss"] * 0.8, 2),
+                marginal_capital=round(live["marginal_capital"] * 0.8, 2),
+            )
             key = app.state.auth.derived("price-lock/v1")
             # Over the subject as the route reads it, not as the reply prints
             # it: the reply adds the place name for the screen, and hashing that
@@ -218,20 +229,34 @@ def test_a_price_promised_before_a_restart_is_still_the_price_after_it() -> None
             fresh, Client = a_service(directory)
             with Client(fresh) as client:
                 device, me = joins(client)
+                # What the promise holds is the risk: the expected loss and the
+                # capital the cover ties up. The price on top of it is the
+                # issuing company's, and companies do not price alike, so the
+                # test agrees to a figure well above any of them and then asks
+                # what it was actually charged.
                 body = body_for(client, me, device, quote_id=lock["id"])
-                # The price the buyer read, and no more.
-                body["max_premium"] = lock["premium"]
+                body["max_premium"] = live["premium"] * 5
                 answer = client.post("/api/applications", json=body)
                 assert answer.status_code == 200, answer.text
-                assert answer.json()["application"]["premium"] == pytest.approx(
-                    lock["premium"], abs=0.01), (
-                    "the promised price must be the price after a restart")
+                promised_price = answer.json()["application"]["premium"]
 
-                # And the same purchase without the promise is refused, which is
-                # what the buyer used to get.
+                # The same purchase without the promise, against the book as it
+                # now stands. This is what the buyer would have paid, and the
+                # promise is worth the difference.
                 plain = body_for(client, me, device)
-                plain["max_premium"] = lock["premium"]
-                assert client.post("/api/applications", json=plain).status_code == 409
+                plain["max_premium"] = live["premium"] * 5
+                other = client.post("/api/applications", json=plain)
+                assert other.status_code == 200, other.text
+                live_price = other.json()["application"]["premium"]
+
+                assert promised_price < live_price, (
+                    "the promise bought nothing: the price after the restart is "
+                    "the one the book has moved to")
+                # The promise was written at four fifths of the risk, so the
+                # price it holds is about four fifths of the live one whoever
+                # ends up writing it.
+                assert promised_price / live_price == pytest.approx(0.8, rel=0.1), (
+                    f"promised {promised_price:,.2f} against {live_price:,.2f}")
         finally:
             if before is None:
                 os.environ.pop("CLAUSE_STATE_DIR", None)

@@ -75,7 +75,13 @@ def test_the_capacity_checks_see_the_book_the_quote_saw() -> None:
 
 def test_the_contract_is_written_on_the_price_the_page_was_given() -> None:
     """The confirm step's calls, in the order the page now makes them: offers,
-    the quote, then the contract carrying the quote's lock."""
+    the quote, then the contract carrying the quote's lock.
+
+    The price the page is given is an offer's, not the pool's. Companies price
+    the same risk themselves, so the quote is the floor under a price rather
+    than a price anybody charges, and the contract names the company that
+    would issue the cover and what that company asks for it.
+    """
     app = create_app(trials=800, seed=6, run_chain=False, seed_book=True, settings=Settings(faucet=True))
     subject = {**KADIKOY, "place": "Kadıköy"}
     body = {"peril": "earthquake", "subject": subject, "limit": 50_000, "term_days": 365}
@@ -84,11 +90,14 @@ def test_the_contract_is_written_on_the_price_the_page_was_given() -> None:
         assert offers.status_code == 200, offers.text
         quoted = client.post("/api/quote", json=body)
         assert quoted.status_code == 200, quoted.text
+        # The pool's own arithmetic, which every company starts from.
         assert quoted.json()["premium"] == offers.json()["premium"]
+        cheapest = offers.json()["offers"][0]
         interest = {"what": "a flat", "country": "TR", "inside_trigger_area": True, "value_at_risk": 90_000,
                     "size": {"kind": "home", "building": "flat", "area_m2": 150, "built": 1998}, "professional": False}
         contract = client.post("/api/contract", json={**body, "interest": interest, "settlement": "fiat",
                                                        "instalments": 1, "quote_id": quoted.json()["lock"]["id"]})
         assert contract.status_code == 200, contract.text
-        assert contract.json()["premium"] == quoted.json()["premium"]
-        assert f'{quoted.json()["premium"]:,.2f}' in contract.json()["text"]
+        assert contract.json()["premium"] == cheapest["premium"], (
+            "the contract is written on a price no company was offering")
+        assert f'{cheapest["premium"]:,.2f}' in contract.json()["text"]

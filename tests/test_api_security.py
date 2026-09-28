@@ -679,12 +679,27 @@ def test_the_token_hash_changes_with_the_terms() -> None:
 
 
 def test_a_quoted_price_holds_for_ten_minutes_even_if_the_book_moves(client, buyer) -> None:
+    """The lock holds the risk. The price on it is the company's.
+
+    A quote measures a risk: what it is expected to cost and how much capital
+    it ties up on top of the book already written. Both move as the book moves,
+    and the lock is a promise that they will not, for ten minutes. What the
+    buyer pays is that measurement priced by whoever issues the policy, and
+    companies do not price it alike, so the figure agreed to is taken from the
+    offer rather than from the pool's own arithmetic.
+    """
     device, address = buyer
     body = {"peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
             "limit": 50_000, "term_days": 365}
     quoted = client.post("/api/quote", json=body).json()
     lock = quoted["lock"]
     assert lock["seconds"] == 600 and lock["premium"] == round(quoted["premium"], 2)
+
+    # What a company would actually charge for it, which is what a buyer is
+    # shown and therefore what they agree to.
+    offers = client.post("/api/offers?country=TR&professional=false", json=body).json()["offers"]
+    assert offers, "nobody offered"
+    mine = offers[0]
 
     # Someone else buys Istanbul cover first, so the same cover now costs more.
     other = Device()
@@ -694,13 +709,15 @@ def test_a_quoted_price_holds_for_ten_minutes_even_if_the_book_moves(client, buy
     client.post("/api/policies", json=buy_body(other_address, ch["nonce"], other.sign(ch["message"]),
                                                client=client))
 
+    terms = buy_terms(carrier_id=mine["carrier_id"])
     ch = client.post("/api/auth/challenge", json={"address": address, "purpose": "buy",
-                                                  "terms": buy_terms()}).json()
+                                                  "terms": terms}).json()
     reply = client.post("/api/policies", json=buy_body(
         address, ch["nonce"], device.sign(ch["message"]), client=client,
-        max_premium=lock["premium"], quote_id=lock["id"]))
+        carrier_id=mine["carrier_id"], max_premium=mine["premium"], quote_id=lock["id"]))
     assert reply.status_code == 200, reply.text
-    assert abs(reply.json()["policy"]["premium"] - quoted["premium"]) < 0.01
+    # The book moved and the price did not, because the lock held the risk.
+    assert abs(reply.json()["policy"]["premium"] - mine["premium"]) < 0.01
 
 
 def test_a_price_lock_only_fits_the_cover_it_was_given_for(client, buyer) -> None:

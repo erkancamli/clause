@@ -1,5 +1,101 @@
 # Changelog
 
+## 1.41.0, 28 September 2026
+
+- One company, named once, all the way through.
+
+  Making companies price for themselves turned up three places that had each
+  been choosing one on their own: the contract named the company with the
+  smallest fronting fee, the application held a price computed for another,
+  and the policy was written for a third. While every company charged the same
+  premium that was invisible. It is not invisible now, and the first thing it
+  did was tell a buyer their contract had changed when nothing about it had.
+
+  The default is the cheapest by what the buyer pays, which is no longer the
+  same as the smallest fee: on one Istanbul flat the lowest fee sat on a price
+  of 6,132.39 and the lowest total was 3,793.19, so the buyer who named no
+  company was being put on the dearest paper by a rule written when there was
+  only one price.
+
+- The Continue banner that says nothing always says something now.
+
+  Reading a reply's body can fail on its own, after the headers have arrived,
+  and a connection cut part way through left a rejection with no status and no
+  payload. That fell through every branch of the buy banner to the one
+  sentence that names no reason, with no technical line under it, which is
+  exactly the screenshot a buyer sends when they cannot buy. It is named now,
+  it is marked as a silence rather than a refusal so the page asks the same
+  question again, and any error that reaches that banner without a kind of its
+  own carries its name instead of nothing.
+
+- Why this much at this level, said where the ladder is read.
+
+  The payout steps carried amounts and no reason. The page knew the reason all
+  along: how often the level in each row happens at this place, from the same
+  exceedance curve the price is made of. It was in a table folded inside "show
+  how this price was worked out", closed, which is the one place a buyer
+  deciding will not look. Each step says it now.
+
+
+- Nine companies quoted one price to the penny, and it was the pool's.
+
+  The offers endpoint said so in its own words: the pool's premium is the same
+  whoever issues it, the risk is the risk. What differed between nine
+  companies was the fee each added on top, two per cent to six. Measured live
+  on a Kadıköy flat, all nine read 2,633.21 and the totals spanned seven per
+  cent, so a market of nine looked like one price with nine names.
+
+  A price has three parts and only one of them is the risk. The expected loss
+  is the model's answer and every company reads the same one; no insurer
+  disputes an exceedance curve, they dispute what to charge for it. What the
+  capital a policy ties up must earn, and what it costs to run the business
+  holding it, were a single figure inside the pricing engine. They belong to
+  whoever is writing, and they are the company's now: a large, well
+  capitalised one needs less return on the capital and costs more to run; a
+  small lean one is the other way round.
+
+  Five Turkish companies on the same earthquake now read 4,134.58 to 6,255.05,
+  a spread of fifty one per cent, and the largest single policy each will
+  write runs from 150,000 to 500,000. A keener price on a smaller line is a
+  different offer rather than a better one, so the offer carries both.
+
+  One simulation, many prices: the expected loss and the capital a policy ties
+  up are facts about the risk and are measured once. The arithmetic that turns
+  them into a price is in one function, so an offer, a price lock and the
+  policy finally bound cannot answer differently. What the buyer is shown is
+  what the buyer is charged, and there is a test that buys to prove it.
+
+- The price lock holds the risk, not the money. It always did; it was only
+  invisible while every company charged the same. A quote measures what a
+  cover is expected to cost and how much capital it ties up, and promises that
+  those will not move for ten minutes. What is paid is that measurement priced
+  by whoever issues the policy.
+
+- The United States is modelled, and does not pass.
+
+  The models were always built from the USGS global catalogue -- Gardner and
+  Knopoff declustering, an Aki and Utsu b value, rates since 1973 because that
+  is when the global record became complete at magnitude five. Nothing in the
+  method is particular to a country. The United States had no model because no
+  one had added it to the list of regions, not because the data was missing.
+
+  It is on the list now, the lower forty eight, and it was built. Three of the
+  four tests pass: 279 mainshocks in the fitted years against the thirty
+  required, 106 observed against 115 forecast, and a positive information gain
+  on where they landed. The fourth is the one that tests the figure a premium
+  is made of, and it fails: around 296 American cities, in circles of fifty
+  kilometres, the model expected 27.5 events of magnitude 5.5 or more in the
+  test years and 10 happened. Publishing it would have overcharged a buyer in
+  an American city by about two and a half times.
+
+  So the card says that, with the numbers, exactly as Greece, Italy, Indonesia
+  and the Philippines do. Alaska and Hawaii are not in the box and the file
+  says why: one box cannot hold the Aleutians, which cross the antimeridian,
+  and stretching it over the Pacific would sweep the whole rim's seismicity
+  into the rate for California. The country's national network is USGS itself,
+  so it has three independent publishers rather than four, and the source list
+  no longer counts the same body twice.
+
 ## 1.40.0, 28 September 2026
 
 - The one thing a flight buyer still had to confirm was that their flight is

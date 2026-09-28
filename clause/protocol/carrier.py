@@ -75,6 +75,10 @@ from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, Iterable
 
+# The pool's own figures, and what a company that states neither is priced at,
+# so nothing moves for a company registered before either was asked for.
+from ..pricing.engine import COST_OF_CAPITAL, EXPENSE_RATIO, loads_for
+
 # A licence within this many days of expiry still binds, but the carrier is
 # told. Cover written on the last day of a licence is cover that outlives it.
 RENEWAL_WARNING_DAYS = 60
@@ -261,6 +265,20 @@ class Carrier:
     # The share of premium the carrier takes for putting its paper in front. The
     # rest reaches the pool that carries the risk.
     fronting_fee: float = 0.0
+    # What this company charges for the risk itself, which is the part of a
+    # price that is genuinely its own.
+    #
+    # A price has three parts: the expected loss, what the capital it ties up
+    # must earn, and what it costs to run. Only the first is the model's answer
+    # and every company reads the same one -- no insurer disputes an exceedance
+    # curve, they dispute what to charge for it. The other two are the
+    # company's own numbers, and they were a single figure held by the pricing
+    # engine, so nine companies quoted one price to the penny and differed only
+    # in the fee on top. A well capitalised company with a thin cost base
+    # offers a keener price; a company that will write a bigger line usually
+    # wants more for it. Both are said here.
+    cost_of_capital: float = COST_OF_CAPITAL
+    expense_ratio: float = EXPENSE_RATIO
     # What this company offers beyond the protocol's own terms, shown to a
     # buyer choosing between companies: days of cooling off beyond the law,
     # and how many days a fiat payout takes to reach a bank.
@@ -304,6 +322,13 @@ class Carrier:
             raise CarrierError("a company with no capacity cannot write")
         if not 0.0 <= self.fronting_fee < 0.5:
             raise CarrierError("a fronting fee between zero and half the premium")
+        # Bounded, because these set the price a buyer pays. A company that
+        # wanted nothing for its capital would be pricing below the risk, and
+        # one that wanted half of it a year is not a market participant.
+        if not 0.0 < self.cost_of_capital <= 0.5:
+            raise CarrierError("a cost of capital above zero and no more than half a year's return")
+        if not 0.0 <= self.expense_ratio <= 0.5:
+            raise CarrierError("an expense ratio between zero and half the expected loss")
         if self.role is Role.CARRIER and not self.licences:
             raise CarrierError("a carrier holds at least one licence")
 
@@ -353,6 +378,8 @@ class Carrier:
             "in_force": round(self.in_force, 2),
             "headroom": round(self.headroom(), 2),
             "fronting_fee": self.fronting_fee,
+            "cost_of_capital": self.cost_of_capital,
+            "expense_ratio": self.expense_ratio,
             "extra_cooling_off_days": self.extra_cooling_off_days,
             "fiat_payout_days": self.fiat_payout_days,
             "fees_earned": round(self.fees_earned, 2),
@@ -420,13 +447,19 @@ class Placement:
     # could we. Now the list is short by name and by reason.
     held_back: tuple[tuple[str, str], ...] = ()
 
-    @property
-    def best(self) -> Offer | None:
+    def best_for(self, *, expected_loss: float = 0.0, marginal_capital: float = 0.0,
+                 term_days: float = 365.0) -> Offer | None:
         """The buyer's choice, or the cheapest paper with room for it.
 
-        Cheapest rather than largest, because the fronting fee is money out of
-        the buyer's premium and the pool carries the risk either way. Ties break
-        on headroom, so a busy carrier is not filled before a quiet one.
+        Cheapest by what the buyer pays, which used to be the same as the
+        lowest fronting fee and no longer is: companies price the risk
+        themselves now, so the one that adds the smallest fee can still be
+        dearer than one that adds a larger fee to a keener price. Given the
+        risk's own two numbers this compares the totals; without them it falls
+        back to the fee, which is all there is to go on.
+
+        Ties break on headroom, so a busy carrier is not filled before a quiet
+        one.
         """
         if not self.offers:
             return None
@@ -435,7 +468,18 @@ class Placement:
                 if offer.carrier.carrier_id == self.chosen:
                     return offer
             return None
+        if expected_loss > 0 or marginal_capital > 0:
+            def costs(o: Offer) -> tuple[float, float]:
+                said = priced_by(o.carrier, expected_loss=expected_loss,
+                                 marginal_capital=marginal_capital, term_days=term_days)
+                return (said["total"], -o.headroom)
+            return min(self.offers, key=costs)
         return min(self.offers, key=lambda o: (o.fronting_fee, -o.headroom))
+
+    @property
+    def best(self) -> Offer | None:
+        """The choice with nothing known about the risk. See best_for."""
+        return self.best_for()
 
     def to_dict(self) -> dict[str, Any]:
         best = self.best
@@ -786,6 +830,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=8_000_000,
         fronting_fee=0.06,
+        cost_of_capital=0.1,
+        expense_ratio=0.11,
         fiat_payout_days=1.0,
         extra_cooling_off_days=16.0,
     ))
@@ -808,6 +854,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         ),
         capacity=6_000_000,
         fronting_fee=0.075,
+        cost_of_capital=0.13,
+        expense_ratio=0.09,
         fiat_payout_days=5.0,
     ))
 
@@ -836,6 +884,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         ),
         capacity=7_000_000,
         fronting_fee=0.068,
+        cost_of_capital=0.12,
+        expense_ratio=0.08,
         fiat_payout_days=3.0,
         extra_cooling_off_days=7.0,
     ))
@@ -860,6 +910,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=150_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=4_000_000,
         fronting_fee=0.02,
+        cost_of_capital=0.18,
+        expense_ratio=0.04,
         fiat_payout_days=7.0,
     ))
 
@@ -877,6 +929,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=9_000_000,
         fronting_fee=0.09,
+        cost_of_capital=0.09,
+        expense_ratio=0.14,
         fiat_payout_days=1.0,
         extra_cooling_off_days=30.0,
     ))
@@ -895,6 +949,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=250_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=5_000_000,
         fronting_fee=0.045,
+        cost_of_capital=0.14,
+        expense_ratio=0.07,
         fiat_payout_days=2.0,
         extra_cooling_off_days=3.0,
     ))
@@ -929,6 +985,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=1_000_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=12_000_000,
         fronting_fee=0.045,
+        cost_of_capital=0.1,
+        expense_ratio=0.1,
     ))
 
     # And a second across the same three, for the reason the third Turkish one
@@ -965,6 +1023,8 @@ def specimen_registry(*, now: float | None = None) -> Registry:
         appetite=Appetite(max_limit=750_000, max_term_days=400, perils=EVERY_PERIL),
         capacity=9_000_000,
         fronting_fee=0.052,
+        cost_of_capital=0.115,
+        expense_ratio=0.095,
         fiat_payout_days=2.0,
         extra_cooling_off_days=14.0,
     ))
@@ -1215,3 +1275,45 @@ def retire_world_specimens(registry: "Registry", *, now: float | None = None) ->
 # the name used anywhere new: "opening" suggested these were the companies a
 # deployment opens with, and they are not companies at all.
 opening_registry = specimen_registry
+
+
+def priced_by(carrier: Carrier, *, expected_loss: float, marginal_capital: float,
+              term_days: float) -> dict[str, float]:
+    """One company's price for a risk the model has already measured.
+
+    The simulation runs once. What it produces is the expected loss and the
+    capital this policy ties up on top of the book already written, and both
+    are facts about the risk rather than about whoever writes it. What each
+    company then charges for them is its own: the return its capital must
+    earn, and what it costs to run.
+
+    So nine companies share one Monte Carlo and quote nine prices. Before this
+    they shared the price as well, to the penny, and differed only in the fee
+    they added afterwards, which made a market of nine look like a monopoly
+    with nine names.
+    """
+    risk_load, expense_load, premium = loads_for(
+        expected_loss=expected_loss, marginal_capital=marginal_capital,
+        term_days=term_days, cost_of_capital=carrier.cost_of_capital,
+        expense_ratio=carrier.expense_ratio,
+    )
+    fee = premium * carrier.fronting_fee
+    return {
+        "expected_loss": round(float(expected_loss), 2),
+        "risk_load": round(risk_load, 2),
+        "expense_load": round(expense_load, 2),
+        "premium": round(premium, 2),
+        "fee": round(fee, 2),
+        "total": round(premium + fee, 2),
+    }
+
+
+def most_it_will_write(carrier: Carrier) -> float:
+    """The largest single policy this company would put its name to now.
+
+    Two limits, and the smaller binds: what its underwriters will take on one
+    risk, and what is left of the book it said it would carry. A buyer
+    comparing companies is comparing this as much as the price, because a
+    keener price on a smaller line is a different offer, not a better one.
+    """
+    return round(max(0.0, min(carrier.appetite.max_limit, carrier.headroom())), 2)
