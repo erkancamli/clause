@@ -1,0 +1,1026 @@
+{
+ "code": "TR",
+ "name": "Türkiye",
+ "kind": "season_rainfall",
+ "version": "2026.1",
+ "built": "2026-09-28",
+ "index": "rainfall across the season, NASA POWER PRECTOTCORR (MERRA-2)",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_on": "the most recent 30 seasons",
+  "fixed_test": {
+   "passed": false,
+   "fitted_until": 2010,
+   "tested_from": 2011,
+   "seasons": 870,
+   "below_the_1_in_5": 80,
+   "expected": 174.0,
+   "dispersion": 12.67,
+   "probability_at_or_below": 0.008
+  },
+  "in_sample": {
+   "seasons": 1740,
+   "below_the_1_in_5": 359,
+   "expected": 348.0,
+   "passed": true
+  },
+  "short_record": [],
+  "changes_after_first_run": "The test fixed before the first run -- fit 1981 to 2010, test 2011 onward -- failed, and in the direction that costs the buyer rather than the pool: 80 of 870 seasons fell below the fitted 1 in 5 year low where 174 were expected. The same gamma describes the seasons it was fitted on (359 of 1740 against 348), so the distribution is not what failed. What changed is the rain: across these stations a season since 2011 has averaged about a tenth above its own long run mean, against about a tenth below in the 1980s. The published normals are therefore fitted on the most recent 30 seasons and not on the whole record, the same change the extremes build made for the same reason. A price from the old window would have been roughly twice what the measured seasons support."
+ },
+ "stations": [
+  {
+   "code": "TR-EDIRNE",
+   "name": "Edirne",
+   "latitude": 41.68,
+   "longitude": 26.56,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 189.5,
+   "variability": 0.249,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 123.8,
+   "wettest_mm": 342.0
+  },
+  {
+   "code": "TR-KIRKLARELI",
+   "name": "Kırklareli",
+   "latitude": 41.74,
+   "longitude": 27.22,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 167.4,
+   "variability": 0.316,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 93.0,
+   "wettest_mm": 328.7
+  },
+  {
+   "code": "TR-TEKIRDAG",
+   "name": "Tekirdağ",
+   "latitude": 40.98,
+   "longitude": 27.51,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 153.5,
+   "variability": 0.352,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 73.1,
+   "wettest_mm": 303.9
+  },
+  {
+   "code": "TR-BALIKESIR",
+   "name": "Balıkesir",
+   "latitude": 39.65,
+   "longitude": 27.89,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 133.7,
+   "variability": 0.365,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 57.9,
+   "wettest_mm": 273.0
+  },
+  {
+   "code": "TR-BURSA",
+   "name": "Bursa",
+   "latitude": 40.19,
+   "longitude": 29.06,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 162.9,
+   "variability": 0.35,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 73.3,
+   "wettest_mm": 306.5
+  },
+  {
+   "code": "TR-CANAKKALE",
+   "name": "Çanakkale",
+   "latitude": 40.15,
+   "longitude": 26.41,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 122.6,
+   "variability": 0.384,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 55.2,
+   "wettest_mm": 222.3
+  },
+  {
+   "code": "TR-SAKARYA",
+   "name": "Sakarya",
+   "latitude": 40.78,
+   "longitude": 30.4,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 236.6,
+   "variability": 0.395,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 86.9,
+   "wettest_mm": 438.4
+  },
+  {
+   "code": "TR-IZMIR",
+   "name": "İzmir",
+   "latitude": 38.42,
+   "longitude": 27.14,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 94.4,
+   "variability": 0.401,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 31.8,
+   "wettest_mm": 170.5
+  },
+  {
+   "code": "TR-MANISA",
+   "name": "Manisa",
+   "latitude": 38.62,
+   "longitude": 27.43,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 107.2,
+   "variability": 0.383,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 38.5,
+   "wettest_mm": 192.6
+  },
+  {
+   "code": "TR-AYDIN",
+   "name": "Aydın",
+   "latitude": 37.85,
+   "longitude": 27.84,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 127.5,
+   "variability": 0.371,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 42.3,
+   "wettest_mm": 255.2
+  },
+  {
+   "code": "TR-DENIZLI",
+   "name": "Denizli",
+   "latitude": 37.78,
+   "longitude": 29.09,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 162.8,
+   "variability": 0.279,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 75.4,
+   "wettest_mm": 308.7
+  },
+  {
+   "code": "TR-MUGLA",
+   "name": "Muğla",
+   "latitude": 37.22,
+   "longitude": 28.36,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 97.8,
+   "variability": 0.417,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 18.5,
+   "wettest_mm": 193.0
+  },
+  {
+   "code": "TR-USAK",
+   "name": "Uşak",
+   "latitude": 38.68,
+   "longitude": 29.41,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 163.1,
+   "variability": 0.288,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 80.5,
+   "wettest_mm": 309.4
+  },
+  {
+   "code": "TR-AFYON",
+   "name": "Afyonkarahisar",
+   "latitude": 38.76,
+   "longitude": 30.54,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 168.5,
+   "variability": 0.324,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 66.1,
+   "wettest_mm": 351.2
+  },
+  {
+   "code": "TR-KUTAHYA",
+   "name": "Kütahya",
+   "latitude": 39.42,
+   "longitude": 29.99,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 167.4,
+   "variability": 0.302,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 66.6,
+   "wettest_mm": 278.1
+  },
+  {
+   "code": "TR-ADANA",
+   "name": "Çukurova",
+   "latitude": 37.0,
+   "longitude": 35.33,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 191.3,
+   "variability": 0.273,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 66.1,
+   "wettest_mm": 289.2
+  },
+  {
+   "code": "TR-MERSIN",
+   "name": "Mersin",
+   "latitude": 36.81,
+   "longitude": 34.64,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 138.1,
+   "variability": 0.314,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 51.9,
+   "wettest_mm": 238.1
+  },
+  {
+   "code": "TR-HATAY",
+   "name": "Hatay",
+   "latitude": 36.2,
+   "longitude": 36.16,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 149.8,
+   "variability": 0.293,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 45.3,
+   "wettest_mm": 248.4
+  },
+  {
+   "code": "TR-ANTALYA",
+   "name": "Antalya",
+   "latitude": 36.9,
+   "longitude": 30.69,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 191.1,
+   "variability": 0.41,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 59.2,
+   "wettest_mm": 454.0
+  },
+  {
+   "code": "TR-ISPARTA",
+   "name": "Isparta",
+   "latitude": 37.77,
+   "longitude": 30.55,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 163.3,
+   "variability": 0.251,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 75.2,
+   "wettest_mm": 281.4
+  },
+  {
+   "code": "TR-BURDUR",
+   "name": "Burdur",
+   "latitude": 37.72,
+   "longitude": 30.29,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 149.4,
+   "variability": 0.264,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 58.5,
+   "wettest_mm": 269.4
+  },
+  {
+   "code": "TR-KMARAS",
+   "name": "Kahramanmaraş",
+   "latitude": 37.58,
+   "longitude": 36.93,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 159.2,
+   "variability": 0.344,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 68.9,
+   "wettest_mm": 280.5
+  },
+  {
+   "code": "TR-OSMANIYE",
+   "name": "Osmaniye",
+   "latitude": 37.07,
+   "longitude": 36.25,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 186.0,
+   "variability": 0.282,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 72.0,
+   "wettest_mm": 306.9
+  },
+  {
+   "code": "TR-KONYA",
+   "name": "Konya Plain",
+   "latitude": 37.87,
+   "longitude": 32.48,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 114.6,
+   "variability": 0.347,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 52.1,
+   "wettest_mm": 218.6
+  },
+  {
+   "code": "TR-ANKARA",
+   "name": "Ankara",
+   "latitude": 39.93,
+   "longitude": 32.86,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 164.1,
+   "variability": 0.295,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 88.0,
+   "wettest_mm": 248.1
+  },
+  {
+   "code": "TR-ESKISEHIR",
+   "name": "Eskişehir",
+   "latitude": 39.78,
+   "longitude": 30.52,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 177.9,
+   "variability": 0.341,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 80.5,
+   "wettest_mm": 292.3
+  },
+  {
+   "code": "TR-KAYSERI",
+   "name": "Kayseri",
+   "latitude": 38.73,
+   "longitude": 35.49,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 137.8,
+   "variability": 0.275,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 85.4,
+   "wettest_mm": 275.1
+  },
+  {
+   "code": "TR-SIVAS",
+   "name": "Sivas",
+   "latitude": 39.75,
+   "longitude": 37.02,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 175.3,
+   "variability": 0.243,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 113.3,
+   "wettest_mm": 308.9
+  },
+  {
+   "code": "TR-YOZGAT",
+   "name": "Yozgat",
+   "latitude": 39.82,
+   "longitude": 34.81,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 185.1,
+   "variability": 0.244,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 94.3,
+   "wettest_mm": 258.2
+  },
+  {
+   "code": "TR-AKSARAY",
+   "name": "Aksaray",
+   "latitude": 38.37,
+   "longitude": 34.03,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 122.9,
+   "variability": 0.284,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 60.2,
+   "wettest_mm": 206.4
+  },
+  {
+   "code": "TR-NIGDE",
+   "name": "Niğde",
+   "latitude": 37.97,
+   "longitude": 34.68,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 118.3,
+   "variability": 0.248,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 67.2,
+   "wettest_mm": 176.7
+  },
+  {
+   "code": "TR-NEVSEHIR",
+   "name": "Nevşehir",
+   "latitude": 38.62,
+   "longitude": 34.71,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 136.5,
+   "variability": 0.259,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 87.6,
+   "wettest_mm": 233.3
+  },
+  {
+   "code": "TR-KIRSEHIR",
+   "name": "Kırşehir",
+   "latitude": 39.15,
+   "longitude": 34.16,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 139.8,
+   "variability": 0.258,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 58.2,
+   "wettest_mm": 217.7
+  },
+  {
+   "code": "TR-KARAMAN",
+   "name": "Karaman",
+   "latitude": 37.18,
+   "longitude": 33.22,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 88.9,
+   "variability": 0.457,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 32.3,
+   "wettest_mm": 189.3
+  },
+  {
+   "code": "TR-CANKIRI",
+   "name": "Çankırı",
+   "latitude": 40.6,
+   "longitude": 33.62,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 194.1,
+   "variability": 0.253,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 108.1,
+   "wettest_mm": 274.4
+  },
+  {
+   "code": "TR-SANLIURFA",
+   "name": "Şanlıurfa",
+   "latitude": 37.16,
+   "longitude": 38.79,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 120.4,
+   "variability": 0.464,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 41.9,
+   "wettest_mm": 262.3
+  },
+  {
+   "code": "TR-DIYARBAKIR",
+   "name": "Diyarbakır",
+   "latitude": 37.91,
+   "longitude": 40.24,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 186.6,
+   "variability": 0.346,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 67.0,
+   "wettest_mm": 304.9
+  },
+  {
+   "code": "TR-GAZIANTEP",
+   "name": "Gaziantep",
+   "latitude": 37.07,
+   "longitude": 37.38,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 139.5,
+   "variability": 0.388,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 52.8,
+   "wettest_mm": 248.4
+  },
+  {
+   "code": "TR-MARDIN",
+   "name": "Mardin",
+   "latitude": 37.31,
+   "longitude": 40.74,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 147.9,
+   "variability": 0.377,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 53.5,
+   "wettest_mm": 273.1
+  },
+  {
+   "code": "TR-ADIYAMAN",
+   "name": "Adıyaman",
+   "latitude": 37.76,
+   "longitude": 38.28,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 151.3,
+   "variability": 0.373,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 60.8,
+   "wettest_mm": 324.6
+  },
+  {
+   "code": "TR-BATMAN",
+   "name": "Batman",
+   "latitude": 37.88,
+   "longitude": 41.13,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 203.7,
+   "variability": 0.302,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 99.8,
+   "wettest_mm": 331.3
+  },
+  {
+   "code": "TR-SIIRT",
+   "name": "Siirt",
+   "latitude": 37.93,
+   "longitude": 41.94,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 211.9,
+   "variability": 0.284,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 105.3,
+   "wettest_mm": 326.2
+  },
+  {
+   "code": "TR-KILIS",
+   "name": "Kilis",
+   "latitude": 36.72,
+   "longitude": 37.12,
+   "opens": [
+    3,
+    1
+   ],
+   "window_days": 140,
+   "normal_mm": 149.6,
+   "variability": 0.314,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 57.3,
+   "wettest_mm": 252.9
+  },
+  {
+   "code": "TR-MALATYA",
+   "name": "Eastern Anatolia",
+   "latitude": 38.36,
+   "longitude": 38.31,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 105.4,
+   "variability": 0.335,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 25.2,
+   "wettest_mm": 175.0
+  },
+  {
+   "code": "TR-ELAZIG",
+   "name": "Elazığ",
+   "latitude": 38.68,
+   "longitude": 39.22,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 126.0,
+   "variability": 0.358,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 20.7,
+   "wettest_mm": 227.7
+  },
+  {
+   "code": "TR-ERZURUM",
+   "name": "Erzurum",
+   "latitude": 39.9,
+   "longitude": 41.27,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 224.3,
+   "variability": 0.27,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 118.3,
+   "wettest_mm": 361.6
+  },
+  {
+   "code": "TR-VAN",
+   "name": "Van",
+   "latitude": 38.49,
+   "longitude": 43.38,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 132.0,
+   "variability": 0.304,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 39.3,
+   "wettest_mm": 242.6
+  },
+  {
+   "code": "TR-MUS",
+   "name": "Muş",
+   "latitude": 38.73,
+   "longitude": 41.49,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 156.6,
+   "variability": 0.385,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 25.9,
+   "wettest_mm": 327.3
+  },
+  {
+   "code": "TR-AGRI",
+   "name": "Ağrı",
+   "latitude": 39.72,
+   "longitude": 43.05,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 173.4,
+   "variability": 0.289,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 74.5,
+   "wettest_mm": 264.6
+  },
+  {
+   "code": "TR-SAMSUN",
+   "name": "Samsun",
+   "latitude": 41.29,
+   "longitude": 36.33,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 169.2,
+   "variability": 0.325,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 93.3,
+   "wettest_mm": 339.2
+  },
+  {
+   "code": "TR-TOKAT",
+   "name": "Tokat",
+   "latitude": 40.31,
+   "longitude": 36.55,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 190.9,
+   "variability": 0.23,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 111.6,
+   "wettest_mm": 322.3
+  },
+  {
+   "code": "TR-CORUM",
+   "name": "Çorum",
+   "latitude": 40.55,
+   "longitude": 34.95,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 196.9,
+   "variability": 0.253,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 94.5,
+   "wettest_mm": 274.4
+  },
+  {
+   "code": "TR-AMASYA",
+   "name": "Amasya",
+   "latitude": 40.65,
+   "longitude": 35.83,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 189.0,
+   "variability": 0.248,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 92.8,
+   "wettest_mm": 295.3
+  },
+  {
+   "code": "TR-ORDU",
+   "name": "Ordu",
+   "latitude": 40.98,
+   "longitude": 37.88,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 304.1,
+   "variability": 0.255,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 192.1,
+   "wettest_mm": 525.1
+  },
+  {
+   "code": "TR-TRABZON",
+   "name": "Trabzon",
+   "latitude": 41.0,
+   "longitude": 39.72,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 250.2,
+   "variability": 0.215,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 142.5,
+   "wettest_mm": 385.4
+  },
+  {
+   "code": "TR-DUZCE",
+   "name": "Düzce",
+   "latitude": 40.84,
+   "longitude": 31.16,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 260.0,
+   "variability": 0.353,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 96.0,
+   "wettest_mm": 461.0
+  },
+  {
+   "code": "TR-BOLU",
+   "name": "Bolu",
+   "latitude": 40.74,
+   "longitude": 31.61,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 221.0,
+   "variability": 0.293,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 90.0,
+   "wettest_mm": 339.8
+  },
+  {
+   "code": "TR-KASTAMONU",
+   "name": "Kastamonu",
+   "latitude": 41.39,
+   "longitude": 33.78,
+   "opens": [
+    4,
+    1
+   ],
+   "window_days": 150,
+   "normal_mm": 235.4,
+   "variability": 0.28,
+   "record_years": 45,
+   "fit_years": 30,
+   "driest_mm": 122.7,
+   "wettest_mm": 371.3
+  }
+ ]
+}

@@ -16,6 +16,12 @@ numbers per station and season pin it down:
 From those, shape = 1 / variability squared and scale = normal / shape, which
 is the standard method of moments fit.
 
+Both are measured, by ``clause.hazard.season_build``, from the same daily
+rainfall record the policy settles on. They used to be typed into this file
+under a comment saying a live deployment would read them from the national
+meteorological service, and the cover was on sale meanwhile. A season the build
+has not measured is not offered.
+
 Because the policy pays when the index falls, its exceedance function is a
 lower tail probability, and the curve runs downwards. Everything else, pricing
 included, is unchanged, which is the point of keeping the structure and the
@@ -25,7 +31,11 @@ model separate.
 from __future__ import annotations
 
 import datetime as dt
-from dataclasses import dataclass
+import json
+from collections.abc import Iterator, Mapping
+from dataclasses import dataclass, replace
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, Callable
 
 from ..mathx import gamma_cdf
@@ -97,9 +107,13 @@ class Station:
         return self.normal_mm / self.shape
 
 
-# Stations the demo offers. A live deployment reads these from the national
-# meteorological service; the figures below are the shape of that input.
-STATIONS: dict[str, Station] = {
+# The seasons this product offers: which station, which window, and where.
+# The two numbers each season is priced on -- the normal and the variability --
+# are NOT set here. They are measured from the daily record by
+# ``clause.hazard.season_build`` and read back below, because a premium
+# computed from a typed-in mean is a number with no claim on anybody's money.
+# The figures left here are what the build starts from and what it overwrites.
+_DEFINED: dict[str, Station] = {
     "TR-EDIRNE": Station(
         "TR-EDIRNE", "Edirne", "Thrace", 41.68, 26.56,
         (4, 1), 150, 186.0, 0.34,
@@ -335,6 +349,56 @@ STATIONS: dict[str, Station] = {
 }
 
 
+# -- the measured normals ----------------------------------------------------
+
+MEASURED = Path(__file__).resolve().parents[1] / "hazard" / "models" / "season_TR.json"
+
+
+@lru_cache(maxsize=1)
+def measured() -> dict[str, Any]:
+    """What the seasonal build wrote: one normal and one variability per station."""
+    if not MEASURED.exists():
+        return {"validation": {"passed": False}, "stations": []}
+    return json.loads(MEASURED.read_text(encoding="utf-8"))
+
+
+@lru_cache(maxsize=1)
+def _stations() -> dict[str, Station]:
+    """The seasons on offer: those whose two numbers have been measured.
+
+    A season the build has not measured is not offered. That is the same rule
+    the earthquake models are sold under, and it is the only rule that keeps a
+    price and a measurement the same object.
+    """
+    doc = measured()
+    if not doc.get("validation", {}).get("passed"):
+        return {}
+    out: dict[str, Station] = {}
+    for row in doc.get("stations", []):
+        defined = _DEFINED.get(row["code"])
+        if defined is None:
+            continue
+        out[row["code"]] = replace(defined, normal_mm=float(row["normal_mm"]),
+                                   variability=float(row["variability"]))
+    return out
+
+
+class _Stations(Mapping[str, Station]):
+    """The station table, read from the model file the first time it is asked."""
+
+    def __getitem__(self, code: str) -> Station:
+        return _stations()[code]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(_stations())
+
+    def __len__(self) -> int:
+        return len(_stations())
+
+
+STATIONS: Mapping[str, Station] = _Stations()
+
+
 class Drought(Peril):
     key = "drought"
     name = "Drought, on seasonal rainfall"
@@ -362,7 +426,10 @@ class Drought(Peril):
 
     # Only where there is a station with a fitted season. Derived rather than
     # declared, so adding a station in another country opens that country.
-    territory = frozenset(station.country for station in STATIONS.values())
+    @property
+    def territory(self) -> frozenset[str]:  # type: ignore[override]
+        """Where this cover is written: the countries whose seasons are measured."""
+        return frozenset(station.country for station in STATIONS.values())
 
     def risk_country(self, subject: dict[str, Any]) -> str | None:
         station = STATIONS.get(str(subject.get("station", "")).upper().strip())

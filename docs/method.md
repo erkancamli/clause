@@ -101,6 +101,71 @@ For a 50 km circle around Kadıköy over one year the model gives:
 The M7 figure is the one to check against published work, and it now sits in
 the right neighbourhood.
 
+#### Where a country has already done this work
+
+Everything above is a model of ours: a catalogue since 1973, a magnitude
+frequency law, and, for shaking at the address, a global intensity equation
+with no site term. It is a defensible way to price a country nobody has
+modelled and the wrong way to price one somebody has.
+
+Japan publishes a national probabilistic hazard model through NIED's J-SHIS,
+and the United States through the USGS National Seismic Hazard Model. Both
+publish the same object at a point: ground motion against the annual frequency
+of exceeding it. `clause.hazard.published` fetches those curves offline, the
+same way the catalogue build fetches the catalogue, and converts velocity to
+intensity with the relation ShakeMap itself uses in the other direction
+(Worden, Gerstenberger, Rhoades and Wald, 2012, as its own implementation
+carries it).
+
+The difference between their curve and ours at an address is then read off as
+one number: how many intensity units harder the ground there shakes than a
+global equation with no site term expects. That number is carried by every
+event, so the events keep their magnitudes, their distances and the neighbours
+they shake at the same moment, and only the ground under the address changes.
+Reading the published curve directly would give the same annual rates and lose
+the events, and the capital model settles neighbours together by event.
+
+At Osaka the term is +1.22 intensity units, and it is worth stating what that
+was hiding. Before it, this model said the ground under Osaka reaches intensity
+VIII about once in 1,035 years. Japan's own model says once in 101. After the
+term we say once in 160, and the three stronger levels J-SHIS publishes are
+matched within 30%. A single number cannot follow a curve of a different shape,
+so the worst disagreement left over is published with the term rather than
+averaged away.
+
+The term is bounded at 1.5 intensity units, it is fitted only on the part of
+the published curve the product actually prices (intensity V to X), and the
+worst disagreement it leaves is published with it.
+
+That bound and that residual are the honest part. Across all 1,295 Japanese
+places the median term is +0.47 and the median residual a factor of 1.8, which
+is inside the spread of the intensity conversion itself; a tenth of them sit at
+the bound. Tokyo is the check that the method is not simply adding hazard
+everywhere: its term is +0.00, because a catalogue since 1973 sees Tokyo's
+seismicity perfectly well, and Sendai's is +0.02. The large terms land where a
+short catalogue is blind: Osaka +1.22 and Fukuoka +1.08, over the Nankai
+interface and Kyushu's slow inland faults.
+
+The United States fits worse, and the reason is worth naming rather than
+burying. USGS publishes twenty points per curve against J-SHIS's four, over a
+much wider range, and across them our curve has the wrong *shape* and not just
+the wrong level: the median residual is a factor of 4.2. New York is the clean
+example. At intensity VI the two models agree almost exactly, once in about
+1,600 years each, and at intensity VIII they differ six fold. One number cannot
+follow a curve of a different slope. The term still moves the price towards the
+published figure and is still better than no term, but it is an approximation,
+the quote says by how much, and the proper fix is a mapping with a slope rather
+than a single shift.
+
+What it covers. Every Japanese place this product offers except four, and 80
+of the largest places in the United States, each within 60 km. The American
+figure is low because the USGS service refused most of the build's requests on
+the day it ran, not because it covers less; the build keeps what it got and
+skips it next time, so further passes fill in rather than start again. A hazard curve is drawn
+for a place and not a plot, and the national grids behind these figures are
+coarser than that anyway. An address no published curve reaches is priced by our
+own model as before, and the quote says so by naming no publisher.
+
 ### Drought
 
 The index is cumulative rainfall at a named station across a growing season.
@@ -112,6 +177,35 @@ this form. Two numbers per station and season pin it down by method of moments:
 ```
 shape = 1 / cv^2          scale = normal / shape
 ```
+
+Those two numbers used to be typed into the source, under a comment saying so.
+`clause.hazard.season_build` measures them instead, from the same NASA POWER
+daily record (PRECTOTCORR, MERRA-2, from 1981) that the car and storm covers
+already settle on, by totalling each station's own window year by year. A
+season the build has not measured is not offered.
+
+The typed figures were about right on average and wrong station by station.
+The median normal moved by 1%, and the largest moved by 67%. The variability
+was the expensive one: a median of 0.39 typed against 0.303 measured, and a
+higher variability is a fatter dry tail and a higher premium. Across the 58
+stations the typed numbers implied a season below 60% of normal a median of
+1.8 times as often as the record does, up to 4.5 times at one station and down
+to 0.54 at another. Every drought premium was wrong by about that much, in
+both directions.
+
+The test fixed before the first run, fit on 1981 to 2010 and test on 2011
+onward, **failed**: 80 of 870 test seasons fell below the fitted one in five
+year low where 174 were expected. It is recorded as a failure in the model
+file, because it is one.
+
+What failed was not the distribution. The same gamma describes the seasons it
+was fitted on, 359 of 1740 against 348 expected, and its 20th percentile sits
+within 5% of the empirical one. What changed is the rain: across these
+stations a season since 2011 has averaged about a tenth above its own long run
+mean, against about a tenth below in the 1980s. The published normals are
+therefore fitted on the most recent 30 seasons, the same change the extremes
+build made for the same reason, and a price from the old window would have
+been roughly twice what the measured seasons support.
 
 The policy pays as the total falls, so the exceedance function is a lower tail
 probability and the curve runs downward. The default structure attaches at 80%
@@ -320,14 +414,29 @@ The **methods** are real: the distributions, the capital standard, the marginal
 allocation, the layer decomposition, the copula, the characteristic earthquake
 term.
 
-The **parameters** are illustrative. Station normals, route statistics and zone
-seismicity are plausible figures of the right shape, not a hazard assessment. A
-live deployment fits them from the national seismic catalogue, the
-meteorological service's published normals, and the regulator's on time
-performance filings. The code is structured so that is a data change and
-nothing else.
+Some **parameters** are measured and some are not, and the difference is worth
+naming rather than covering with one sentence.
 
-Nothing here should be used to price real risk without that work.
+Measured, from a public record, by a build in this repository that writes down
+its own test and whether it passed:
+
+- earthquake rates, from the catalogue since 1973, for eleven countries
+- shaking at an address in Japan and the United States, from those countries'
+  own published national hazard models
+- the largest day of rain and the largest day of wind at Türkiye's 81
+  provincial centres, from NASA POWER
+- seasonal rainfall normals and variability at the 58 drought stations, from
+  the same record
+
+Not measured, and illustrative:
+
+- route statistics for flight delay: plausible figures of the right shape, not
+  an on time performance filing
+- the extremes and seasonal models outside Türkiye, which do not exist yet:
+  the covers are not offered there
+
+Nothing in the second list should be used to price real risk without that work,
+and the code is structured so it is a data change and nothing else.
 
 ## 9. The sum insured, and the four numbers every country publishes
 

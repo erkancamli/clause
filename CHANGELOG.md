@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.42.0, 28 September 2026
+
+- Where a country publishes its own earthquake hazard, that is the figure.
+
+  A buyer in Osaka was told the ground under their address reaches intensity
+  VIII about once in 1,035 years. Japan's own national model, NIED's J-SHIS,
+  says once in 101. Everything behind our figure was ours: a catalogue since
+  1973, which has not seen the Nankai megathrust, and a global shaking equation
+  with no site term, which cannot know the basin Osaka stands in.
+
+  `clause.hazard.published` now fetches the curves Japan and the United States
+  publish, offline, the same way the catalogue build fetches the catalogue, and
+  converts ground velocity to intensity with the relation ShakeMap itself uses
+  in the other direction. The gap between their curve and ours at an address is
+  carried as one number, a site term in intensity units, so the events keep
+  their magnitudes and distances and the neighbours they shake at the same
+  moment, and only the ground under the address changes. At Osaka that number
+  is 1.22 and the answer becomes once in 160 years, with the three stronger
+  levels J-SHIS publishes matched inside 30%.
+
+  What one number cannot follow is published with it rather than averaged away.
+  The quote now names whose model priced it and by what factor ours follows
+  theirs: 1.6 at Osaka, 1.9 at Tokyo, 4.6 in New York. That last one is not a
+  detail. Across the United States the median is 4.2, because USGS publishes
+  twenty points per curve where Japan publishes four and our curve has the wrong
+  shape against them rather than only the wrong level. A single shift cannot
+  follow a slope. It still moves the price the right way and it is still better
+  than no term, and the honest thing is that the buyer reads the factor.
+
+  Coverage: 1,295 Japanese places and 80 American ones. The American number is
+  low because the USGS service refused most of the build's requests on the day
+  it ran. The build keeps what it got, names what it missed, and writes the
+  file in one step so a reader never catches it half written, so further passes
+  fill the gap instead of starting again. An address no curve reaches is priced
+  as it was, and names no publisher.
+
+  This also corrects an earlier answer that pointed the wrong way. Our
+  intensities were compared against J-SHIS's Japanese intensities by eye, the
+  conclusion was that this model overstated the hazard, and it had to be
+  withdrawn: the whole comparison turned on a scale conversion that neither
+  side could settle. Taking the publisher's own curve removes the argument
+  rather than winning it.
+
+- The drought stations had never been measured.
+
+  Drought cover is priced on two numbers per station, the normal seasonal
+  rainfall and how much it varies. They were typed into the source, under a
+  comment that said a live deployment would read them from the meteorological
+  service. The cover was on sale.
+
+  `clause.hazard.season_build` measures them from the same NASA POWER daily
+  record the car and storm covers already settle on, by totalling each station's
+  own window year by year since 1981. A season the build has not measured is no
+  longer offered.
+
+  The normals were about right on average and wrong one by one: the median moved
+  1%, the largest 67%. The variability was the expensive one, a median of 0.39
+  typed against 0.303 measured, and a higher variability is a fatter dry tail
+  and a higher premium. Across the 58 stations the typed figures implied a
+  season below 60% of normal a median of 1.8 times as often as the record does,
+  4.5 times at one station and 0.54 at another.
+
+  The test fixed before the first run failed, and it is written down as a
+  failure: 80 of 870 test seasons fell below the fitted one in five year low
+  where 174 were expected. The distribution is not what failed, since the same
+  gamma describes the seasons it was fitted on. The rain changed. A season since
+  2011 has averaged about a tenth above its station's long run mean against
+  about a tenth below in the 1980s, so the published normals are fitted on the
+  most recent 30 seasons and a price from the old window would have been about
+  twice what the measured seasons support.
+
+- What is measured and what is not, said one by one.
+
+  The method note and the site both carried a single sentence putting station
+  normals, route statistics and zone seismicity in the same illustrative box.
+  Three of those four are measured now. The list says which, names the build
+  that measured each, and leaves flight route statistics where they belong.
+
 ## 1.41.0, 28 September 2026
 
 - One company, named once, all the way through.

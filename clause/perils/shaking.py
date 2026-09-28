@@ -27,8 +27,16 @@ intensity prediction equation with its scatter:
             - 0.209 ln(R / 50)   for R > 50 km
       with a standard deviation of about 0.7 intensity units.
 
-Depth is taken as 10 km. The equation is global; a national one would do
-better in each country, and replacing it changes nothing else here.
+Depth is taken as 10 km. The equation is global, and a global equation has no
+site term: it cannot know the ground under the house.
+
+Where a country publishes its own probabilistic hazard model, that model does
+know, and it is the figure its own regulator prices against. Japan's J-SHIS and
+the United States Geological Survey both publish a hazard curve at a point, and
+``clause.hazard.published`` fetches them offline. Where one covers the address,
+the difference between it and ours is read off as a site term in intensity
+units and carried by every event. The events stay as they were; the ground under
+the address becomes theirs.
 """
 
 from __future__ import annotations
@@ -100,9 +108,115 @@ def density(subject: dict[str, Any], part: str = "all") -> tuple[tuple[float, fl
     return _site(round(float(subject["latitude"]), 4), round(float(subject["longitude"]), 4), part)
 
 
+def raw_rate_at_least(subject: dict[str, Any], level: float, part: str = "all") -> float:
+    """Annual rate of shaking at or above a level, from our rates and the IPE alone."""
+    return sum(r * p_at_least(level, m, d) for m, d, r in density(subject, part))
+
+
+# ---------------------------------------------------------------------------
+# What the national model says about this address
+# ---------------------------------------------------------------------------
+#
+# The equation above is global and has no site term: it knows the magnitude and
+# the distance and nothing about the ground the house stands on, the basin under
+# it, or the fault that a catalogue since 1973 has not yet seen rupture. Where a
+# country publishes its own probabilistic hazard model, that model knows all
+# three, and it is the figure its own regulator prices against.
+#
+# So where a published curve covers the address, the difference between it and
+# ours is read off as one number: how many intensity units harder the ground
+# there shakes than a global equation with no site term expects. That number is
+# then carried by every event, which keeps the events themselves -- their
+# magnitudes, their distances, the neighbours they shake at the same moment --
+# exactly as they were. Only the ground under the address changes.
+#
+# The alternative, reading the published curve directly and discarding ours,
+# would give the same annual rates and lose the events, and the capital model
+# settles neighbours together by event. One number keeps both.
+
+#: How far the site term may move an address, in intensity units. Beyond this
+#: the two models disagree about more than the ground, and saying so is better
+#: than papering over it with an unbounded correction.
+SHIFT_LIMIT = 1.5
+
+#: The intensities the fit is made on. A published curve runs from shaking
+#: nobody insures against up to shaking off the end of the scale, and a least
+#: squares fit over the whole of it is decided by the parts no policy attaches
+#: to: New York's term, fitted over everything its curve carries, left a
+#: sixteen fold disagreement in the band that is actually priced. This is the
+#: band the product quotes, one level either side.
+FIT_BAND = (5.0, 10.0)
+
+
+@lru_cache(maxsize=512)
+def _shift(latitude: float, longitude: float) -> tuple[Any, ...] | None:
+    """The site term at an address, and how well one number fits their curve."""
+    from ..hazard import published as pub
+
+    near = pub.nearest(latitude, longitude)
+    if near is None:
+        return None
+    subject = {"latitude": latitude, "longitude": longitude}
+    # Their points, in the band that is priced, and only the ones our own model
+    # can reach at all: a level so strong that our rate underflows to zero at
+    # every shift is not evidence about the ground, and letting it into a least
+    # squares fit in log rate throws the whole fit away.
+    theirs = [(level, rate) for level, rate in near["curve"]
+              if rate > 0 and FIT_BAND[0] <= level <= FIT_BAND[1]
+              and raw_rate_at_least(subject, level - SHIFT_LIMIT) > 0]
+    if len(theirs) < 2:
+        return None
+
+    def cost(shift: float) -> float:
+        total = 0.0
+        for level, rate in theirs:
+            ours = raw_rate_at_least(subject, level - shift)
+            if ours <= 0.0:
+                return float("inf")
+            total += (math.log(ours) - math.log(rate)) ** 2
+        return total
+
+    best, best_cost = 0.0, cost(0.0)
+    for step, span in ((0.1, SHIFT_LIMIT), (0.01, 0.1)):
+        low, high = best - span, best + span
+        x = max(-SHIFT_LIMIT, low)
+        while x <= min(SHIFT_LIMIT, high) + 1e-9:
+            here = cost(x)
+            if here < best_cost:
+                best, best_cost = x, here
+            x += step
+    best = round(best, 3)
+    clipped = abs(abs(best) - SHIFT_LIMIT) < 1e-9
+    # One number cannot follow a curve of a different shape, and pretending it
+    # did would be the sort of thing this whole exercise is against. The worst
+    # disagreement left over is carried out with the term.
+    worst = 1.0
+    for level, rate in theirs:
+        ours = raw_rate_at_least(subject, level - best)
+        ratio = ours / rate if rate > 0 else 1.0
+        worst = max(worst, ratio, 1.0 / ratio if ratio > 0 else 1.0)
+    return (best, near["name"], near["distance_km"], near["publisher"],
+            clipped, round(worst, 2))
+
+
+def site_term(subject: dict[str, Any]) -> dict[str, Any] | None:
+    """The published model's correction at this address, in a form worth reading."""
+    found = _shift(round(float(subject["latitude"]), 4), round(float(subject["longitude"]), 4))
+    if found is None:
+        return None
+    shift, name, km, publisher, clipped, worst = found
+    return {"shift": shift, "place": name, "distance_km": km,
+            "publisher": publisher, "at_the_limit": clipped, "worst_ratio": worst}
+
+
+def shift_at(subject: dict[str, Any]) -> float:
+    found = _shift(round(float(subject["latitude"]), 4), round(float(subject["longitude"]), 4))
+    return found[0] if found is not None else 0.0
+
+
 def rate_at_least(subject: dict[str, Any], level: float, part: str = "all") -> float:
     """Annual rate of shaking at or above a level at the address."""
-    return sum(r * p_at_least(level, m, d) for m, d, r in density(subject, part))
+    return raw_rate_at_least(subject, level - shift_at(subject), part)
 
 
 def exceedance(subject: dict[str, Any], term_days: float) -> Callable[[float], float]:
@@ -149,6 +263,7 @@ def draw(rng: Any, subject: dict[str, Any], part: str = "all",
         part, magnitude_below)
     if total <= 0:
         return []
+    shift = shift_at(subject)
     count = _poisson(rng, total)
     out = []
     last = len(events) - 1
@@ -157,7 +272,7 @@ def draw(rng: Any, subject: dict[str, Any], part: str = "all",
         # a walk down the table found, at the cost of a binary search.
         i = min(bisect_left(cumulative, rng.random() * total), last)
         m, d = events[i]
-        out.append(mmi(m, d) + rng.gauss(0.0, IPE_SIGMA))
+        out.append(mmi(m, d) + shift + rng.gauss(0.0, IPE_SIGMA))
     return out
 
 
