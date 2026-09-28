@@ -115,3 +115,24 @@ def test_a_reading_measure_is_written_in_characters_and_not_in_zeroes() -> None:
     # And prose that had no measure at all is named in the shared rule.
     for selector in (".sec > p,", "form > p.fine", ".pullrow > p"):
         assert selector in page, f"{selector} lost its measure"
+
+
+def test_the_map_frame_clips_the_tiles_it_draws() -> None:
+    """A tiled map draws past its own frame on purpose.
+
+    Walking the purchase at 390px reported the tiles overflowing the phone.
+    That was the instrument, not the page: it asked each element whether its
+    right edge passed the viewport's, and a tile's does. Measured properly,
+    the page does not scroll sideways at 390px -- scrollWidth is 390 and
+    scrollX stays 0 -- because .where-map is the first ancestor of a tile with
+    an overflow that is not visible, and it cuts them off at its own edge.
+
+    So the one property holding that is worth naming. Take overflow:hidden off
+    .where-map and a buyer on a phone can scroll the whole page sideways into
+    empty map.
+    """
+    rule = re.search(r"\.where-map\{([^}]*)\}", PAGE)
+    assert rule, "the map has no frame of its own"
+    assert "overflow:hidden" in rule.group(1), (
+        "the map frame no longer clips its tiles; the phone will scroll sideways"
+    )
