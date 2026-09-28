@@ -54,6 +54,7 @@ from enum import Enum
 from typing import Any, Iterable, Sequence
 
 from ..pricing import Exposure, PricingEngine, Quote, capital_from_losses
+from ..pricing.engine import COST_OF_CAPITAL, EXPENSE_RATIO
 from .policy import Policy, PolicyStatus
 
 # No single modelled catastrophe may take more than this share of pool capital.
@@ -716,6 +717,11 @@ class Pool:
         locked: Quote | None = None,
         paid_now: float | None = None,
         simulated: bool = False,
+        # The company issuing the policy prices the risk the model measured.
+        # Without these the pool's own figures are used, which is what every
+        # policy written before companies had their own was priced at.
+        cost_of_capital: float | None = None,
+        expense_ratio: float | None = None,
     ) -> Policy:
         """Price, check and bind a policy, taking the premium into the pool.
 
@@ -747,6 +753,19 @@ class Pool:
                 peril_key=peril_key, subject=subject, limit=limit,
                 term_days=term_days, curve=curve,
             )
+            # The company's own price for it. The expected loss and the capital
+            # this policy ties up are the pool's arithmetic and the same
+            # whoever writes the cover; what is charged for them is the
+            # company's, and it is the figure the buyer was shown on the offer
+            # they chose. Applied here too, or the screen and the charge would
+            # be two different numbers.
+            if cost_of_capital is not None or expense_ratio is not None:
+                quoted = quoted.priced_at(
+                    cost_of_capital=(cost_of_capital if cost_of_capital is not None
+                                     else COST_OF_CAPITAL),
+                    expense_ratio=(expense_ratio if expense_ratio is not None
+                                   else EXPENSE_RATIO),
+                )
             # Quotes are shown in cents. Comparing the agreed figure, rounded to
             # a cent, with a premium carried to many places refused every
             # purchase whose price happened to round down, so the comparison

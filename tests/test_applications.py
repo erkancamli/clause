@@ -61,18 +61,24 @@ def test_an_application_holds_the_premium_and_says_what_will_be_checked(client) 
     # The same subject the application carries, year and all. Without the year
     # the quote is for a different building -- the oldest one, which is what an
     # unsaid year is priced as -- so the lock would not be a lock on this cover.
-    reply = client.post("/api/quote", json={"peril": "earthquake",
-        "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
-        "limit": 50_000, "term_days": 365}).json()
+    body = {"peril": "earthquake",
+            "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
+            "limit": 50_000, "term_days": 365}
+    reply = client.post("/api/quote", json=body).json()
+    # And the figure agreed to is a company's, not the pool's: companies price
+    # the same risk differently, so the pool's arithmetic is the floor under a
+    # price rather than a price anybody charges.
+    offered = client.post("/api/offers?country=TR&professional=false", json=body).json()["offers"]
+    assert offered, "nobody offered"
     made = apply(client, device, address, quote_id=reply["lock"]["id"],
-                 max_premium=reply["lock"]["premium"])
+                 max_premium=offered[0]["premium"])
     assert made.status_code == 200, made.text
     app = made.json()["application"]
     assert app["status"] == "pending"
     assert set(app["checks"]) == {"sanctions_clear", "identity_basic", "ownership"}
     assert "Specimen Sokak" in client.get(f"/api/applications/{app['app_id']}/contract",
         headers={"authorization": f"Bearer {session_for(client, device, address)}"}).text
-    assert app["premium"] == pytest.approx(reply["lock"]["premium"], abs=0.01)
+    assert app["premium"] == pytest.approx(offered[0]["premium"], abs=0.01)
     # The premium and the issuing company's fee are both held.
     assert app["total"] >= app["premium"]
     assert balance(client, device, address) == pytest.approx(before - app["total"], abs=0.01)

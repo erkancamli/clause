@@ -41,7 +41,18 @@ class Region:
 
     @property
     def sources(self) -> tuple[Source, ...]:
-        return (USGS, EMSC, GFZ, self.national)
+        """Who reports magnitudes here, each publisher once.
+
+        Most countries have four: three global networks and their own. The
+        United States has three, because the body that runs its national
+        network is the one that publishes the global catalogue. Counting it
+        twice would make a country look better watched than it is.
+        """
+        seen: list[Source] = []
+        for source in (USGS, EMSC, GFZ, self.national):
+            if all(source.url != kept.url for kept in seen):
+                seen.append(source)
+        return tuple(seen)
 
     def contains(self, latitude: float, longitude: float) -> bool:
         return self.south <= latitude <= self.north and self.west <= longitude <= self.east
@@ -68,4 +79,18 @@ REGIONS: dict[str, Region] = {r.code: r for r in (
            Source("GeoNet", "https://www.geonet.org.nz/", "national")),
     Region("TW", "Taiwan", 21.5, 25.5, 119.5, 122.5,
            Source("Central Weather Administration", "https://www.cwa.gov.tw/", "national")),
+    # The lower forty eight. Alaska and Hawaii are not in this box and are not
+    # covered by this model: one box cannot hold the Aleutians, which cross the
+    # antimeridian, and stretching it over the Pacific would sweep the whole
+    # rim's seismicity into the rate for California.
+    #
+    # The national network here is the same body that publishes the global
+    # catalogue, so this country has three independent voices rather than four.
+    # That is still enough for a rule that needs three of four to agree, and it
+    # is said rather than hidden behind a list that looks one longer than it is.
+    # Its national network is USGS itself, named once rather than twice under a
+    # second title: the Advanced National Seismic System is the same body that
+    # publishes the global catalogue, and listing it again would make the
+    # country look better watched than it is.
+    Region("US", "United States", 24.0, 50.0, -125.5, -66.0, USGS),
 )}
