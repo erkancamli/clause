@@ -265,11 +265,25 @@ def _write(doc: dict[str, Any]) -> None:
 
 
 def main(argv: list[str]) -> int:
-    wanted = [a.upper() for a in argv if not a.startswith("-")] or list(SOURCES)
-    limit = None
-    for i, arg in enumerate(argv):
-        if arg == "--limit" and i + 1 < len(argv):
-            limit = int(argv[i + 1])
+    # An option's value is not a country. Reading the arguments in one pass,
+    # rather than picking out the ones without a dash and separately hunting
+    # for --limit, is what stops "--limit 250" asking for a country called 250.
+    wanted: list[str] = []
+    limit: int | None = None
+    rest = list(argv)
+    while rest:
+        arg = rest.pop(0)
+        if arg == "--limit":
+            if not rest:
+                print("--limit wants a number after it", file=sys.stderr)
+                return 2
+            limit = int(rest.pop(0))
+        elif arg.startswith("-"):
+            print(f"no such option: {arg}", file=sys.stderr)
+            return 2
+        else:
+            wanted.append(arg.upper())
+    wanted = wanted or list(SOURCES)
     have = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
     for code in wanted:
         if code not in SOURCES:
