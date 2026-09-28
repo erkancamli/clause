@@ -18,4 +18,27 @@
 #
 # namespaces="git" keeps a key that may sign commits from also standing for a
 # key that may sign anything else.
+# Two addresses, one key. Commits are written under the account that owns
+# this repository, whose address is the GitHub noreply one; the gmail
+# address is kept because every commit before that was written under it,
+# and dropping it here would make all of them read as unverifiable.
+#
+# The address matters as much as the key: git checks a signature against
+# the principal on the left, and GitHub checks it against the account the
+# commit email belongs to.
+#
+# GitHub will not show these commits as verified, and cannot be made to.
+# The key is the one this environment signs with, it is already registered
+# somewhere on GitHub -- adding it to an account is refused with "key is
+# already in use" -- and it is not registered against either of the
+# accounts these commits are attributed to, so GitHub answers unknown_key.
+# There is no way around it from inside the container: there is no ssh
+# tooling here at all, and signing goes through the environment's own
+# binary rather than a key anybody here can choose.
+#
+# It matters less than it looks. Work reaches the default branch by a
+# squash merge, and GitHub writes and signs that commit itself, so every
+# commit on main is verified. What is unverified is the intermediate
+# commits on a branch, which the squash folds away.
+107792368+erkancamli@users.noreply.github.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKy87HxSEheG8vEPhSs9u2KZCtVErAQfpmprtUJCZ2w7
 erkancamli@gmail.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKy87HxSEheG8vEPhSs9u2KZCtVErAQfpmprtUJCZ2w7
