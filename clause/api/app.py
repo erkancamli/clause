@@ -5596,6 +5596,113 @@ def create_app(
         feed = await run_in_threadpool(rialo_now.read)
         return {**feed, "available": True}
 
+    @app.get("/api/ask")
+    async def ask_the_sources(
+        http: Request,
+        kind: str = Query(..., max_length=16),
+        latitude: float | None = Query(None, ge=-90, le=90),
+        longitude: float | None = Query(None, ge=-180, le=180),
+        place: str | None = Query(None, max_length=64),
+        airport: str | None = Query(None, max_length=4),
+        threshold: float = Query(...),
+        radius_km: float = Query(100.0),
+    ) -> dict[str, Any]:
+        """Answer one question about the world from what a source published.
+
+        The protocol settles policies by pointing a condition at a primary
+        source and reading what it says. Until this existed the only way to
+        watch that happen was to buy cover and wait for the weather, so this
+        does the same reading with nothing staked on the answer and hands back
+        everything needed to go and check it: which source, which record, what
+        it said, and the three separate times involved.
+
+        No money is staked here and none is paid. A question with money on it
+        is a wager, and what separates this protocol's cover from a wager is
+        that the buyer has something actually at risk; the contract refuses
+        cover where they do not. So the half worth having is here -- the
+        answer points at a primary source rather than at an opinion -- and the
+        stake is not.
+
+        Reads the same cached feeds the live bands read, so asking costs the
+        sources nothing beyond what the site already fetches.
+        """
+        from ..protocol import ask as asking
+
+        guard(http, "ask", limit=30, window=60.0)
+        now = time.time()
+        try:
+            if kind == "quake":
+                if latitude is None or longitude is None:
+                    raise asking.BadQuestion("give a latitude and a longitude")
+                # The week, which holds the day. Somebody asking whether an
+                # earthquake happened near them does not mean in the last
+                # twenty four hours, and the day feed answering silently for
+                # the week's question is how a "no" gets believed too far.
+                read = await run_in_threadpool(quakes_week.read)
+                window = "week"
+                if not read.get("fetched_at"):
+                    read, window = await run_in_threadpool(quakes_now.read), "day"
+                answer = asking.quake(
+                    read["items"], latitude=latitude, longitude=longitude,
+                    radius_km=radius_km, magnitude=threshold, place=place or "",
+                    window=window,
+                    retrieved_at=float(read.get("fetched_at") or 0.0), now=now)
+            elif kind in ("wind", "rain"):
+                if not place:
+                    raise asking.BadQuestion("name a place the source publishes")
+                feed = weather_feeds.get("TR")
+                if feed is None:
+                    from ..live import weather_feed
+                    feed = weather_feed("TR", **live_kw)
+                    if feed is None:
+                        raise asking.BadQuestion("this source is not reachable from here")
+                    weather_feeds["TR"] = feed
+                reply = await run_in_threadpool(feed.read)
+                answer = asking.weather(
+                    reply["items"], place=place, measure=kind, threshold=threshold,
+                    retrieved_at=float(reply.get("fetched_at") or 0.0), now=now)
+            elif kind == "delays":
+                if not airport:
+                    raise asking.BadQuestion("name an airport by its code")
+                source = flights_world if flights_world is not None else flights_now
+                reply = await run_in_threadpool(source.read)
+                answer = asking.delays(
+                    reply["items"], airport=airport, count=threshold,
+                    retrieved_at=float(reply.get("fetched_at") or 0.0), now=now)
+            else:
+                raise asking.BadQuestion("this protocol cannot answer that kind of question")
+        except asking.BadQuestion as error:
+            raise Refused(422, str(error)) from error
+        return {**answer.as_dict(), "asked_at": now}
+
+    @app.get("/api/ask/shapes")
+    async def ask_shapes(http: Request) -> dict[str, Any]:
+        """What can be asked, and about which places, so a page can draw the form.
+
+        The places come from the source rather than from a list in the page: a
+        place the weather feed stops publishing disappears from the form by
+        itself, instead of sitting there refusing every question asked of it.
+        """
+        from ..protocol import ask as asking
+
+        guard(http, "live", limit=60, window=60.0)
+        places: list[str] = []
+        feed = weather_feeds.get("TR")
+        if feed is None:
+            from ..live import weather_feed
+            feed = weather_feed("TR", **live_kw)
+            if feed is not None:
+                weather_feeds["TR"] = feed
+        if feed is not None:
+            reply = await run_in_threadpool(feed.read)
+            places = [str(i.get("place", "")) for i in reply["items"] if i.get("place")]
+        airports: list[str] = []
+        source = flights_world if flights_world is not None else flights_now
+        if source is not None:
+            reply = await run_in_threadpool(source.read)
+            airports = [str(i.get("airport", "")) for i in reply["items"] if i.get("airport")]
+        return {"shapes": asking.answerable(), "places": places, "airports": airports}
+
     # -- the public chain beside this one -----------------------------------
 
     @app.get("/api/anchor")

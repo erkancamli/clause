@@ -1,5 +1,60 @@
 # Changelog
 
+## 1.35.0, 28 September 2026
+
+- Ask a source. The protocol settles policies by pointing a condition at a
+  primary source and reading what it says, and until now the only way to watch
+  that happen was to buy cover and wait for the weather. Now anybody can write
+  down a question, and the same reading happens with nothing on it: an
+  earthquake inside a radius, today's wind or rain at a place, an airport's
+  late departures. Back comes the figure, the record it was read from, the
+  line it was compared against and the three clocks -- when the world did the
+  thing, when the source first said so, when we asked. Confusing those three
+  is how a question gets answered against the wrong one.
+
+  It reads the same cached feeds the live bands read, so asking costs the
+  sources nothing beyond what the site already fetches.
+
+- **It is not a prediction market and will not become one.** That was the
+  obvious thing to build here and it is the one thing this must not be: what
+  separates insurance from a wager is that the buyer has something actually at
+  risk, and this protocol's own contract refuses cover to anyone who does not.
+  A question with money on it has nothing behind it at all. The useful half of
+  a prediction market is here -- the answer is settled by reading a primary
+  source rather than by counting opinions, which is the same thing that makes
+  a parametric policy work -- and the stake is not. Two tests hold it there,
+  one over the protocol module and one over the page's script, and both had to
+  learn that a name is written in camelCase before they caught a "stakeTotal".
+
+- The question says how far back it looked. Asked at the epicentre of a real
+  M5.3 and told no, because the feed being read covered one day and the event
+  was four days old, and nothing in the answer said so. It reads the week now,
+  which holds the day, and the window is part of the question: "no earthquake
+  near you" is not a fact about the place, it is a fact about the last few
+  days of it, and the source only ever knew the latter.
+
+- Two smaller things the sources taught, rather than the design:
+
+  The form offers only what can be answered, and the places come from the
+  source rather than from a list, so a place the weather feed stops publishing
+  disappears from the form instead of sitting there refusing. It listed a
+  "flight" shape for one afternoon after the flight question became a question
+  about an airport's departures; that feed reports airports with late
+  departures and carries a few flight numbers under each, so it cannot say
+  whether one named flight left on time, and a chip that refuses every
+  question is worse than one never drawn.
+
+  A figure the source did not publish is refused rather than answered as zero.
+  A place with no gust figure is not a place where the wind did not blow, and
+  saying no there would be wrong in exactly the direction that costs somebody
+  a payout.
+
+- Both of this page's state-carrying classes were built by pasting strings
+  together, and the guard written in 1.33.0 found nothing wearing either of
+  them, which is the point: a class attribute assembled at runtime cannot be
+  read back by anything. The verdict rides an attribute now and the field
+  classes are written out whole.
+
 ## 1.34.0, 27 September 2026
 
 - The rulebook is readable in six languages. It was not, and the page around
