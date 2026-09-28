@@ -89,3 +89,30 @@ def test_every_peril_can_still_be_started() -> None:
     """
     picks = set(re.findall(r'data-peril="(\w+)"', PAGE))
     assert {"quake", "storm", "car", "drought", "flight"} <= picks, picks
+
+
+def test_a_refused_reading_is_not_a_reading_still_coming() -> None:
+    """The button told a buyer to wait for something that had already arrived.
+
+    Storm and vehicle cover are written only within 60 km of a Turkish
+    provincial centre. Outside it the protocol answers 400 with a sentence
+    saying exactly that, the page prints the sentence under the map, and the
+    Continue button said "Still reading the place" -- at four seconds, at
+    twelve, at thirty, and for as long as anybody cared to watch. Measured in
+    a browser with the protocol's own refusal served back to the page.
+
+    One sentence covered two states, and only one of them ends by itself. The
+    refusal is a state of its own now and the button names the way out of it.
+    """
+    # The button's words are decided here; setNextLabel only paints them.
+    body = _function("whatIsMissing")
+    refused = body.index("Choose another place")
+    waiting = body.index("Still reading the place")
+    assert refused < waiting, (
+        "the button still offers to wait before it notices the reading was refused")
+
+    # All three readings, because all three can come back refused: the grid
+    # outside Türkiye, the wind record, the rainfall record.
+    said = body[:waiting]
+    for flag in ("gridError", "stormError", "vehicleError"):
+        assert flag in said, f"a refused {flag} still reads as a reading in flight"
