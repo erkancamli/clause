@@ -292,18 +292,56 @@ def refusals() -> dict[str, str]:
     them had no translation in any language, so the one moment a person is
     told no was the one moment the page dropped into English.
 
-    Only what actually reaches a browser is collected. Internal ``ValueError``
-    text does not: ``safe_detail`` logs it and answers with the fallback.
+    Only what actually reaches a browser is collected, and that is wider than
+    it looked. Most internal ``ValueError`` text does not reach one, because
+    ``safe_detail`` logs it and answers with the fallback. But a peril reading
+    what the buyer typed raises ``ValueError`` and the API forwards it word
+    for word -- ``raise HTTPException(400, str(error))`` -- and the same goes
+    for the valuation's ``ValuationError``, which becomes a 422 carrying its
+    own sentence. Sixteen of those were reaching every reader in English,
+    among them the one a buyer meets by choosing a place outside the band:
+    "storm cover is written only within 60 km of a Türkiye provincial centre".
+
+    So the two kinds are collected together: whatever is raised while the
+    protocol is reading a subject or valuing what is at risk, and whatever
+    ``Refused`` is given anywhere.
     """
     import ast
 
     root = Path(__file__).resolve().parent.parent / "clause"
     found: dict[str, str] = {}
+    # The functions whose refusals the API hands on unchanged: a peril reading
+    # a subject, and the valuation working out what a description supports.
+    reading = {"validate_subject", "value_of", "rate_for", "harvest_for"}
+
+    def forwarded(tree) -> list[tuple[str, int]]:
+        out = []
+        for fn in ast.walk(tree):
+            if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if fn.name not in reading:
+                continue
+            for node in ast.walk(fn):
+                if not isinstance(node, ast.Raise) or not isinstance(node.exc, ast.Call):
+                    continue
+                f = node.exc.func
+                raised = (f.id if isinstance(f, ast.Name)
+                          else f.attr if isinstance(f, ast.Attribute) else None)
+                if raised not in ("ValueError", "ValuationError"):
+                    continue
+                for arg in node.exc.args:
+                    if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                        out.append((" ".join(arg.value.split()), node.lineno))
+        return out
+
     for path in sorted(root.rglob("*.py")):
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:  # pragma: no cover - a file we cannot parse is not a message
             continue
+        for text, line in forwarded(tree):
+            if len(text) > 4 and re.search(r"[a-z]{3}", text):
+                found.setdefault(text, f"{path.name}:{line}")
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
@@ -530,3 +568,25 @@ def test_nothing_is_present_but_untranslated(lang: str) -> None:
         and not _a_name(english)
     ]
     assert not forgotten, f"{lang} repeats the English for: {forgotten[:8]}"
+
+
+@pytest.mark.parametrize("lang", LANGS)
+def test_no_sentence_is_translated_twice_in_one_dictionary(lang) -> None:
+    """A second entry for the same sentence is a translation nobody can see.
+
+    json.loads keeps whichever came last and says nothing, so the two can
+    disagree for as long as anybody likes and the file still parses. Adding
+    thirteen refusals to these dictionaries put three sentences in twice, and
+    the screen showed the other one: found by reading a refusal in a browser
+    and not recognising the wording.
+    """
+    seen: collections.Counter[str] = collections.Counter()
+
+    def count(pairs):
+        seen.update(key for key, _ in pairs)
+        return dict(pairs)
+
+    json.loads((SITE / "i18n" / f"{lang}.json").read_text(encoding="utf-8"),
+               object_pairs_hook=count)
+    twice = sorted(key for key, n in seen.items() if n > 1)
+    assert not twice, twice[:5]

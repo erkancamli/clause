@@ -8034,6 +8034,15 @@ function whatIsMissing(){
     }
     if(!flow.subject)return {say:t("Choose a place"),at:"place"};
     if(!flightReady())return {say:t("Enter the flight number and date"),at:"flight-no"};
+    // A reading that came back refused is not a reading still coming. The
+    // protocol says why -- "storm cover is written only within 60 km of a
+    // Türkiye provincial centre, where the wind model is tested" -- and the
+    // page prints that under the map. The button, which is where a buyer
+    // looks to know what to do next, went on saying the place was still being
+    // read, and never stopped, because one sentence covered both the wait and
+    // the refusal. Only the wait ends on its own.
+    if(flow.gridError||flow.stormError||flow.vehicleError)
+      return {say:t("Choose another place"),at:"place"};
     if(!quakeReady()||!stormReady()||!carReady())return {say:t("Still reading the place"),at:""};
     return null;
   }

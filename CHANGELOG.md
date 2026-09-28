@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.39.0, 28 September 2026
+
+- The Continue button told a buyer to wait for something that had already
+  arrived.
+
+  Storm and vehicle cover are written only within 60 km of a Turkish
+  provincial centre, where the wind and rainfall models are tested. Outside
+  that the protocol answers 400 with a sentence saying exactly so, and the
+  page prints it under the map. The button went on saying "Still reading the
+  place" -- at four seconds, at twelve, at thirty, and for as long as anybody
+  cared to watch, because one sentence covered the wait and the refusal alike
+  and only the wait ends by itself. A refusal is a state of its own now and
+  the button names the way out of it.
+
+- That refusal was also reaching every non-English reader in English, and it
+  was not alone.
+
+  The guard that holds a refusal to having a translation reads Refused(...)
+  calls, and said in its own words that internal ValueError text does not
+  reach a browser because it is logged and replaced by a fallback. That is
+  true almost everywhere and false exactly where it matters: a peril reading
+  what the buyer typed raises ValueError and the API forwards it word for
+  word, and the valuation's ValuationError becomes a 422 carrying its own
+  sentence. Sixteen sentences sat in that gap, thirteen of them with no entry
+  in any language: the two 60 km ones, every complaint a flight subject can
+  raise, and four about what a home or a field can be valued as.
+
+  They are translated, and the guard reads them now, so the next one fails a
+  test instead of shipping.
+
+- The three that already had a translation took a second one when these were
+  added, so the same key sat in the dictionary twice. json.loads keeps
+  whichever came last and says nothing about the other, which is a coin toss
+  dressed up as a dictionary. The duplicates are gone, the wording the site
+  was reviewed against stayed, and a test now refuses a dictionary that holds
+  one sentence twice.
+
+  Found by reading a refusal in a browser and not recognising the wording.
+
 ## 1.38.0, 28 September 2026
 
 - Three answers were cheaper to withhold than to give.
