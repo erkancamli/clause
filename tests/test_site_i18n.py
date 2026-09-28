@@ -411,6 +411,65 @@ def test_a_rule_keeps_its_figures_and_its_sources_in_translation(lang) -> None:
     assert not wrong, wrong[:6]
 
 
+def test_a_sentence_the_protocol_sends_is_never_printed_raw() -> None:
+    """Having a translation is not the same as using it.
+
+    The attestation rule -- three of four validators, the median, five per
+    cent -- is in every dictionary, and the Proof page printed it with esc()
+    instead of ts() for as long as that band existed. A Turkish reader got the
+    heading in Turkish and the rule under it in English, on the one page whose
+    whole job is to be worth trusting. The guard written the release before
+    could not see it: that one holds that a sentence *has* a translation, and
+    this one is about whether the page bothers to ask for it.
+
+    So this follows the value. It finds what the page stores a prose field of
+    the protocol's into, follows that through the hands it passes, and
+    requires every esc() of it to translate first.
+
+    A hop is an alias and nothing else -- a name given a member access,
+    optionally guarded, optionally defaulted to empty. Written loosely, as
+    "the field name appearing anywhere in an assignment", it collected
+    "class", "textContent" and "id" within three rounds and then demanded that
+    tsHtml translate the English original it exists to show.
+    """
+    html = (SITE / "index.html").read_text(encoding="utf-8")
+    script = "".join(re.findall(r"<script\b[^>]*>(.*?)</script>", html, re.S))
+
+    #: Fields of an API reply that carry a sentence rather than a name, a
+    #: number or an address. "attestation" is left out on purpose: the
+    #: purchase flow calls a sanctions statement by that name, and that is an
+    #: object, not a sentence.
+    prose = ("aggregation_rule", "successor", "archive", "final_data",
+             "on_missing_data", "waiting", "primary")
+    alias = (r'(?:var\s+)?(\w+)\s*=\s*(?:[\w.$]+\s*&&\s*)*[\w.$]*\.(?:{})'
+             r'\s*(?:\|\|\s*(?:""|\'\'|\{{\}}|\[\]|null))?\s*[;,)}}]')
+
+    carriers = set(prose)
+    for _ in range(4):
+        found = set(re.findall(alias.format("|".join(map(re.escape, sorted(carriers)))), script))
+        if found <= carriers:
+            break
+        carriers |= found
+    carriers -= set(prose)    # the fields themselves are read, never printed
+    assert carriers, "nothing is being followed; this test proves nothing"
+
+    raw = []
+    for call in re.finditer(r"\besc\(([^()]*(?:\([^()]*\)[^()]*)*)\)", script):
+        inside = call.group(1)
+        if "ts(" in inside or "tsHtml(" in inside:
+            continue
+        # A name, not the same word inside a sentence: "the rule written into
+        # the policy" is English being shown, not a variable called rule.
+        code = re.sub(r'"(?:[^"\\]|\\.)*"', '""', inside)
+        code = re.sub(r"'(?:[^'\\]|\\.)*'", "''", code)
+        for name in carriers:
+            if re.search(rf"(?<![\w.]){re.escape(name)}\b", code):
+                raw.append(f"esc({inside.strip()[:56]})")
+    assert not raw, (
+        "the protocol's own sentence is printed without translating it: " + repr(raw[:4])
+    )
+
+
 def table_sentences() -> dict[str, list[str]]:
     """English the page translates through a variable rather than a literal.
 

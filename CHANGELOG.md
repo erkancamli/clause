@@ -1,5 +1,60 @@
 # Changelog
 
+## 1.36.0, 28 September 2026
+
+- The Proof page printed the protocol's own settlement rule in English to
+  every reader, and had for as long as that band existed. Three of four
+  validators, the median, five per cent: the sentence that decides whether a
+  policy pays. It has a translation in all six languages and the page never
+  asked for it -- esc() where the line above it used t() -- so a Turkish
+  reader got the heading in Turkish and the rule under it in English, on the
+  one page whose whole job is to be worth trusting.
+
+  The guard written a release ago could not see this. That one holds that a
+  sentence *has* a translation; this is about whether the page bothers to use
+  it. The new one follows the value: it finds what the page stores a prose
+  field of the protocol's into, follows it through the hands it passes, and
+  requires every esc() of it to translate first.
+
+- Half the site was reading past a comfortable line length, and the cause was
+  a unit.
+
+  CSS ch is the width of the digit zero. In this face that is 1.364 times the
+  average character of a sentence, measured in a browser rather than assumed,
+  so every max-width written in ch was holding a line about a third longer
+  than its number said: 62ch meant eighty five characters and not sixty two.
+  Measured properly -- a paragraph's own length divided by the lines it
+  actually took -- the privacy page ran at 105 characters to a line, the
+  questions page at 102, Rialo at 95, and for insurers had one at 145.
+
+  There is one token for it now, and it is applied to the prose that had a
+  loose measure and to the prose that had none at all: a plain paragraph in a
+  section, the line beside a pull quote, the small print under a form field.
+  Every tab now sits inside the band at both its median and its worst line:
+
+  | tab | before | after |
+  |---|---|---|
+  | privacy | 105 / 136 | 73 / 82 |
+  | questions | 102 / 129 | 73 / 87 |
+  | Rialo | 95 / 121 | 73 / 90 |
+  | for insurers | 91 / 145 | 83 / 88 |
+  | proof | 85 / 131 | 75 / 81 |
+  | the pool | 90 / 106 | 71 / 82 |
+
+- Two of my own instruments were wrong, and both had to be fixed before the
+  page could be. The first counted a character as the average lowercase
+  letter, which is not what a line of prose is made of; the second guessed
+  that a paragraph's last line is half full, which is a swing of thirty
+  characters on a two line paragraph and invented a 106 character line on the
+  pool page that was really 79. It takes paragraphs of three lines or more
+  now, where the guess is small enough not to decide the answer.
+
+- The verdict banner on the Proof page was exempted from the reading measure
+  in 1.32.3 on the grounds that a single line has no next line for an eye to
+  find. True, and it was two sentences and twenty three words across 154
+  characters, which is not a banner. The first half of that rule was applied
+  without measuring the second.
+
 ## 1.35.0, 28 September 2026
 
 - Ask a source. The protocol settles policies by pointing a condition at a

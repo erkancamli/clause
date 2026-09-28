@@ -124,6 +124,19 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --r:12px; --r-sm:8px;
+  /* How long a line of running prose may be, said once.
+
+     Not in CSS ch, which is the width of the digit zero: in this face that is
+     1.364 times the average character of a sentence, measured rather than
+     assumed. So every max-width written in ch was holding a line a third
+     longer than the number said, and 62ch meant eighty five characters and
+     not sixty two. Half the site read past the top of the band that way, and
+     the privacy page at a hundred and five characters to a line was the worst
+     of it.
+
+     55ch is about seventy five characters, which is inside the band at every
+     size the site sets type in, because ch scales with the font. */
+  --measure:55ch;
   --gutter:clamp(16px,4vw,40px); --max:1240px; --mark-invert:1;
 }
 @media (prefers-color-scheme:light){ :root:not([data-theme="dark"]){
@@ -702,7 +715,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
   display:inline-flex;align-items:center;justify-content:center;flex:none;
   background:var(--panel)}
 .qhead h2{font-size:clamp(19px,2.6vw,23px);line-height:1.25;letter-spacing:-.01em;margin:0}
-.qlead{font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:62ch;margin:-4px 0 0}
+.qlead{font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:var(--measure);margin:-4px 0 0}
 .qbody{display:grid;gap:14px}
 /* The counter hangs in the margin on a desk, where there is a margin to hang
    it in. On a phone that indent costs the sentence beside it a tenth of the
@@ -718,7 +731,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
   padding:11px 14px;background:var(--panel);font-family:var(--mono);font-size:12px}
 .vrow .key{color:var(--ink-3);font-size:10.5px}
 .vrow .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+/* A banner is exempt from the reading measure only while it is one line an
+   eye can take in. This one held two sentences and twenty three words across
+   154 characters, which is not a banner; it is a paragraph that had been
+   told not to wrap. Left alone in 1.32.3 on the first half of that rule
+   without measuring the second. */
 .verdict{padding:14px 16px;border-radius:var(--r);font-size:14px;line-height:1.5}
+.verdict > p{max-width:var(--measure)}
 .verdict.agreed{background:var(--settled-wash);box-shadow:inset 3px 0 0 var(--settled)}
 .verdict.disputed{background:var(--signal-wash);box-shadow:inset 3px 0 0 var(--signal)}
 .verdict.no_quorum{background:var(--hold-wash);box-shadow:inset 3px 0 0 var(--hold)}
@@ -1404,7 +1423,7 @@ h1 span{color:var(--signal-ink)}
   #view-cover > .wrap > .done{grid-column:1;grid-row:3;max-width:none}
   /* The words keep their measure even though the column grew. */
   #view-cover > .wrap > .q > h2,
-  #view-cover > .wrap > .q > .hint{max-width:56ch}
+  #view-cover > .wrap > .q > .hint{max-width:var(--measure)}
   #view-cover > .wrap > .runrail{display:grid;grid-column:2;grid-row:3;
     position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 35px)}
   /* A hidden rail still holds its track open. The confirm step is the one
@@ -1510,7 +1529,7 @@ h1 span{color:var(--signal-ink)}
     height:clamp(420px,58vh,600px);margin:0}
 }
 .q h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15}
-.q > p.hint{margin-top:10px;color:var(--ink-2);max-width:56ch}
+.q > p.hint{margin-top:10px;color:var(--ink-2);max-width:var(--measure)}
 .q-body{margin-top:24px;display:grid;gap:12px}
 
 .opt.off{opacity:.55;cursor:not-allowed}
@@ -1611,7 +1630,7 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
 .pricebar .grow{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
 
 details.more{margin-top:16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
-details.more summary{padding:14px 18px;cursor:pointer;font-size:14px;color:var(--ink-2);list-style:none;
+details.more summary{padding:14px 18px;cursor:pointer;font-size:14px;color:var(--ink-2);list-style:none;max-width:var(--measure);
   display:flex;align-items:center;gap:9px}
 details.more summary::-webkit-details-marker{display:none}
 details.more summary::before{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;
@@ -1670,8 +1689,8 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .answer > .vd{font-family:var(--display);font-size:clamp(26px,4vw,34px);line-height:1;
   letter-spacing:-.02em}
 .answer[data-yes="1"] > .vd{color:var(--settled)}
-.answer > .q{margin-top:9px;font-size:16px;color:var(--ink-2);max-width:62ch}
-.answer .warn{color:var(--hold);max-width:62ch;margin-top:10px}
+.answer > .q{margin-top:9px;font-size:16px;color:var(--ink-2);max-width:var(--measure)}
+.answer .warn{color:var(--hold);max-width:var(--measure);margin-top:10px}
 .answer .kvs{margin-top:16px}
 /* Three clocks, and confusing them is how a question gets answered against
    the wrong one, so they are set side by side to be compared. */
@@ -1692,7 +1711,7 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .kvs.rulebook{grid-template-columns:minmax(0,1fr);gap:0}
 .kvs.rulebook .kv{padding:12px 0;border-top:1px solid var(--edge)}
 .kvs.rulebook .kv:first-child{border-top:0;padding-top:0}
-.kvs.rulebook .v{max-width:72ch}
+.kvs.rulebook .v{max-width:var(--measure)}
 @media (min-width:820px){
   /* Label beside its paragraph, which is how a specification is read. */
   .kvs.rulebook .kv{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr);
@@ -1715,7 +1734,7 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .common{border:1px solid var(--edge);border-left:2px solid var(--signal);border-radius:12px;
   background:var(--sunk);padding:20px 22px}
 .common > h2{font-size:15px;letter-spacing:-.01em}
-.common > p.fine{margin:4px 0 14px;max-width:72ch}
+.common > p.fine{margin:4px 0 14px;max-width:var(--measure)}
 
 /* The numbers that govern a claim, which were buried mid-sentence: how long
    until the figure is final, how long before the protocol gives up, how long
@@ -1738,7 +1757,7 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
    run of a hundred and twenty seven characters. */
 .perilhead{padding-bottom:13px;margin-bottom:4px;border-bottom:1px solid var(--edge)}
 .perilhead h2{font-size:19px;letter-spacing:-.015em}
-.perilhead .u{margin-top:6px;max-width:72ch;font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.perilhead .u{margin-top:6px;max-width:var(--measure);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
 .perilhead .u b{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-3);font-weight:400;margin-right:9px}
 
@@ -1880,7 +1899,7 @@ tr:last-child td{border-bottom:0}
 
 .sec{display:grid;gap:12px;margin-top:28px}
 .sec > h2{font-size:clamp(22px,3.2vw,30px)}
-.sec > p.lead{color:var(--ink-2);max-width:60ch}
+.sec > p.lead{color:var(--ink-2);max-width:var(--measure)}
 /* Small print that runs wider than the prose above it reads as a rag,
    and it is the least important text on the page. Same measure.
 
@@ -1893,10 +1912,17 @@ tr:last-child td{border-bottom:0}
    chip, a cell in a table or a caption in a band is not prose and keeps
    whatever width it sits in. */
 .sec > p.fine,
+.sec > p,
 .qbody > p, .qbody > .panel > p,
 .more .inner > p,
 .sec > .panel > p,
-#coverage-out > p{max-width:76ch}
+/* Prose that had no measure at all rather than a loose one: a plain
+   paragraph in a section, the line a pull quote sits beside, the small print
+   under a form field, and the text a disclosure opens onto. Measured before
+   being named: 136, 121, 145 and 112 characters to a line. */
+.pullrow > p, .pullrow > p.lead,
+.field > p.fine, form > p.fine,
+#coverage-out > p{max-width:var(--measure)}
 
 footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-3);font-size:13px;margin-top:auto}
 /* The Ask Rider button is fixed to the bottom right corner, so whenever
@@ -2830,7 +2856,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <section class="view" id="view-rialo">
   <div class="wrap pad">
     <h1 style="font-size:clamp(28px,4.4vw,42px);max-width:22ch;text-align:left" data-i18n>A policy is a condition, and the chain is what watches it.</h1>
-    <p class="lead" style="margin-top:14px;max-width:62ch" data-i18n>
+    <p class="lead" style="margin-top:14px;max-width:var(--measure)" data-i18n>
       Most chains can only be pushed. Something outside has to notice that the world
       changed and send a transaction saying so, which is why ordinary automation is a
       tower of bots and keepers. Rialo can be pulled: a condition is written onto the
@@ -3423,7 +3449,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <section class="view" id="view-how">
   <div class="wrap pad">
     <h1 style="font-size:clamp(28px,4.4vw,42px);max-width:20ch;text-align:left" data-i18n>Nobody decides whether you get paid.</h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:60ch" data-i18n>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Ordinary insurance pays after a person agrees that it should. This pays when a
       measurement crosses a number that was written into your policy the day you bought it.
     </p>
@@ -3555,7 +3581,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <section class="view" id="view-pool">
   <div class="wrap pad">
     <h1 style="font-size:clamp(28px,4.4vw,42px);max-width:22ch;text-align:left" data-i18n>Someone has to be able to pay.</h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:60ch" data-i18n>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Behind every policy is a pool of capital and a rule that stops it writing more than it
       can stand behind. This is that side of the protocol.
     </p>
@@ -3668,7 +3694,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <section class="view" id="view-profile">
   <div class="wrap pad">
     <h1 style="font-size:clamp(28px,4.4vw,40px);max-width:20ch;text-align:left" data-i18n>My profile.</h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Your things, written down once: a home with its address and year built, a car
       with its model year, a field with its crop. When you ask for cover, they fill
       the form; with two cars, you pick which. Wallets and an X account you link are
@@ -3681,7 +3707,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 <section class="view" id="view-mine">
   <div class="wrap pad">
     <h1 style="font-size:clamp(28px,4.4vw,40px);max-width:20ch;text-align:left" data-i18n>What you hold.</h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Assembled the way the chain would: what is armed, and what has settled. You
       can read the same thing yourself without this page, which is the point of
       it being here rather than in our files.
@@ -3737,7 +3763,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   <div class="wrap pad">
     <div class="label" data-i18n>Ask a source</div>
     <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px;max-width:24ch" data-i18n>Point a question at a source and see what comes back</h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>This is what a policy does, without the policy. Write down a question the protocol can answer, and it reads the same sources a settlement reads and hands back the figure, the record it came from and the three clocks involved. Nothing is staked on the answer and nothing is paid on it.</p>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>This is what a policy does, without the policy. Write down a question the protocol can answer, and it reads the same sources a settlement reads and hands back the figure, the record it came from and the three clocks involved. Nothing is staked on the answer and nothing is paid on it.</p>
 
     <div class="askform" id="ask-form">
       <div class="askrow" role="group" aria-label="What to ask about" data-i18n-aria>
@@ -3757,7 +3783,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 
     <div class="sec" style="margin-top:34px">
       <h2 style="font-size:19px" data-i18n>Why this is not a prediction market</h2>
-      <p class="fine" style="max-width:72ch;margin-top:8px" data-i18n>The useful half of one is here: the answer is settled by reading a primary source rather than by counting opinions, which is the same thing that makes a parametric policy work. The other half is not. What separates insurance from a wager is that the buyer has something actually at risk, and this protocol refuses cover to anyone who does not; a question with money on it has nothing behind it at all. So there is no stake here, no pool and no score, and there will not be.</p>
+      <p class="fine" style="max-width:var(--measure);margin-top:8px" data-i18n>The useful half of one is here: the answer is settled by reading a primary source rather than by counting opinions, which is the same thing that makes a parametric policy work. The other half is not. What separates insurance from a wager is that the buyer has something actually at risk, and this protocol refuses cover to anyone who does not; a question with money on it has nothing behind it at all. So there is no stake here, no pool and no score, and there will not be.</p>
     </div>
   </div>
 </section>
@@ -3766,7 +3792,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   <div class="wrap pad">
     <div class="label" data-i18n>Calculation rules</div>
     <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px;max-width:26ch" data-i18n>How a reading becomes the number the policy settles on</h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>Written down before anything happens, peril by peril: which source is read and which stands in when it is silent, what counts as the final figure and when it is frozen, the tests a reading must pass, how long you have to object, and what happens if a publisher goes away. The same text is section 10 of every contract.</p>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>Written down before anything happens, peril by peril: which source is read and which stands in when it is silent, what counts as the final figure and when it is frozen, the tests a reading must pass, how long you have to object, and what happens if a publisher goes away. The same text is section 10 of every contract.</p>
 
     <!-- The page's own title asks how a reading becomes a number, and the
          answer is a sequence of six stations with three places where it stops.
@@ -3857,7 +3883,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   <div class="wrap pad">
     <div class="label" data-i18n>For insurers</div>
     <h1 style="font-size:clamp(26px,4vw,36px);text-align:left;margin-top:12px" data-i18n>Your company</h1>
-    <p style="margin-top:10px;color:var(--ink-2);max-width:62ch" data-i18n>
+    <p style="margin-top:10px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Where a registered insurer or reinsurer sees its review status and the cover
       written on its paper. Buyers appear by a shortened address only.
     </p>
@@ -3870,7 +3896,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   <div class="wrap pad">
     <div class="label" data-i18n>Operator</div>
     <h1 id="review" style="font-size:clamp(26px,4vw,36px);text-align:left;margin-top:12px" data-i18n>Reviewing registrations</h1>
-    <p style="margin-top:10px;color:var(--ink-2);max-width:62ch;font-size:14.5px" data-i18n>
+    <p style="margin-top:10px;color:var(--ink-2);max-width:var(--measure);font-size:14.5px" data-i18n>
       For whoever operates this deployment. Registering is open to any company
       and grants nothing; letting one issue policies to people is a decision a
       person takes, after taking the licence number to the regulator's own
@@ -3911,13 +3937,13 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <h1 style="font-size:clamp(26px,4vw,38px);max-width:26ch;text-align:left;margin-top:12px" data-i18n>
       Your licence, our balance sheet.
     </h1>
-    <p style="margin-top:14px;color:var(--ink-2);max-width:64ch" data-i18n>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Clause does not sell insurance. It prices risk, holds the capital that
       stands behind it, and settles automatically from a reading the validators
       agree on. What it cannot do is issue a policy to a person in your country,
       because that takes a licence, and a licence is yours.
     </p>
-    <p style="margin-top:12px;color:var(--ink-2);max-width:64ch" data-i18n>
+    <p style="margin-top:12px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       So a country on the map below is there because a company registered for it.
       There is no list of countries anywhere in this protocol. Register, have
       your licence checked, and your country appears the same day.
@@ -3926,14 +3952,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     <div id="coverage-out" style="margin-top:30px"></div>
 
     <h2 style="font-size:23px;margin-top:44px" data-i18n>The companies behind the cover</h2>
-    <p style="margin-top:10px;color:var(--ink-2);max-width:60ch;font-size:14.5px" data-i18n>
+    <p style="margin-top:10px;color:var(--ink-2);max-width:var(--measure);font-size:14.5px" data-i18n>
       Public, because a buyer is entitled to know whose paper their policy is on
       before they buy it rather than after something goes wrong.
     </p>
     <div id="carriers-out" style="margin-top:18px"></div>
 
     <h2 style="font-size:23px;margin-top:44px" data-i18n>Register a company</h2>
-    <p style="margin-top:10px;color:var(--ink-2);max-width:60ch;font-size:14.5px" data-i18n>
+    <p style="margin-top:10px;color:var(--ink-2);max-width:var(--measure);font-size:14.5px" data-i18n>
       This records a statement and grants nothing. Nothing in this protocol can read
       a regulator's register from inside a block, so a person checks every
       licence number against the authority's own register before the company can
@@ -4049,7 +4075,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
     </form>
 
     <h2 style="font-size:23px;margin-top:48px" id="partners" data-i18n>Sell this cover inside your own product</h2>
-    <p style="margin-top:10px;color:var(--ink-2);max-width:62ch;font-size:14.5px" data-i18n>
+    <p style="margin-top:10px;color:var(--ink-2);max-width:var(--measure);font-size:14.5px" data-i18n>
       A travel site adding flight delay cover at checkout, an estate agent offering earthquake cover with a
       lease, a cooperative covering its members' fields. A partner binds cover through the API, pays the
       premium from its own address and keeps a commission; the cover and every payout belong to the customer.
@@ -4103,14 +4129,14 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
          one policy. Both are written into the markup so both are translated;
          the renderer shows one and hides the other, and the heading above
          holds for either. -->
-    <p id="proof-intro-book" style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
+    <p id="proof-intro-book" style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       Whether an insurer is worth trusting comes down to three things: whether
       there is money to pay you, who decides that it pays, and whether it has
       paid anybody else. Each is answered below out of what the protocol
       stores, and where it could not be asked the page says so instead of
       filling the space. Any one policy's own record is an id away.
     </p>
-    <p id="proof-intro-one" hidden style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>
+    <p id="proof-intro-one" hidden style="margin-top:14px;color:var(--ink-2);max-width:var(--measure)" data-i18n>
       In ordinary insurance why a policy paid, or did not, sits in the insurer's
       own file and you are asked to accept it. Here it is assembled from what the
       chain stored: the subscription, every round of validator reports on the
@@ -12358,7 +12384,12 @@ function qdecides(cov){
   if(rule)
     body+='<div class="panel" style="padding:18px 20px">'+
       '<div class="label">'+esc(t("The reading, by the rule written into the policy"))+'</div>'+
-      '<p style="margin-top:8px;font-size:14.5px;line-height:1.6">'+esc(rule)+'</p>'+
+      /* The protocol's own sentence, and it decides settlement, so it is
+         translated and the binding English stays one click away. Printed raw
+         here for as long as this band has existed: a Turkish reader got this
+         heading in Turkish and the rule under it in English, on the one page
+         whose whole job is to be worth trusting. */
+      '<p style="margin-top:8px;font-size:14.5px;line-height:1.6">'+tsHtml(rule)+'</p>'+
       '<p class="fine" style="margin-top:9px">'+esc(t("Refused, not guessed. When the sources disagree by more than the tolerance, that round writes nothing and the next one is taken."))+'</p></div>';
   else
     body+='<p class="fine">'+esc(t("This page could not reach the protocol, so it cannot show you the rule it aggregates by."))+'</p>';
