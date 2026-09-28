@@ -1634,6 +1634,54 @@ details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
 .ans .v{overflow-wrap:anywhere}
 .ans .v small{color:var(--ink-3)}
 @media (max-width:520px){.ans{grid-template-columns:1fr auto}.ans .k{grid-column:1/-1}}
+/* == scoped styles for #view-ask, begin ==
+   The open resolver's form and the answer it draws. A question here is four
+   fields and a verb, so it is laid out as a sentence a person reads across
+   rather than as a form they work down. */
+.askform{margin-top:26px;border:1px solid var(--edge);border-radius:14px;
+  background:var(--panel);padding:18px 20px}
+.askrow{display:flex;flex-wrap:wrap;gap:8px}
+.askrow .chip{cursor:pointer;font:inherit;font-size:13px;min-height:34px;
+  padding:6px 13px;background:var(--panel);color:var(--ink-2)}
+.askrow .chip:hover{border-color:var(--art-line);color:var(--ink)}
+.askrow .chip.on{border-color:var(--signal);background:var(--signal-wash);color:var(--ink)}
+.askfields{display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:16px;align-items:flex-end}
+.fld{display:grid;gap:5px;min-width:0}
+.fld.wide{flex:3 1 220px;max-width:34rem}
+.fld.num{flex:0 1 165px}
+.fld > span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3)}
+.fld .in{display:flex;align-items:center;gap:9px;min-width:0}
+.fld input,.fld select{font:inherit;font-size:15px;min-height:40px;padding:8px 11px;
+  border:1px solid var(--edge);border-radius:9px;background:var(--sunk);color:var(--ink);
+  width:100%;min-width:0}
+.fld input:focus,.fld select:focus{border-color:var(--signal);outline:none}
+.fld select:disabled{color:var(--ink-3)}
+.fld i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  white-space:nowrap}
+.askgo{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;margin-top:16px}
+
+/* The answer. The verdict first, because that is what was asked; the figure
+   it was decided on right under it, because a verdict with no figure beside
+   it is an opinion wearing a number's clothes. */
+.answer{border:1px solid var(--edge);border-left:3px solid var(--ink-3);border-radius:14px;
+  background:var(--panel);padding:20px 22px}
+.answer[data-yes="1"]{border-left-color:var(--settled)}
+.answer > .vd{font-family:var(--display);font-size:clamp(26px,4vw,34px);line-height:1;
+  letter-spacing:-.02em}
+.answer[data-yes="1"] > .vd{color:var(--settled)}
+.answer > .q{margin-top:9px;font-size:16px;color:var(--ink-2);max-width:62ch}
+.answer .warn{color:var(--hold);max-width:62ch;margin-top:10px}
+.answer .kvs{margin-top:16px}
+/* Three clocks, and confusing them is how a question gets answered against
+   the wrong one, so they are set side by side to be compared. */
+.clocks{display:grid;gap:10px;margin-top:16px;padding-top:14px;
+  border-top:1px solid var(--edge)}
+.clocks .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.clocks > div{font-size:13.5px;color:var(--ink-2)}
+@media (min-width:760px){.clocks{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+/* == scoped styles, end == */
 /* == scoped styles for #view-rules, begin ==
    The rulebook's values are paragraphs, not figures. The shared key and value
    grid fits as many 150px columns as it can, which is right for a name beside
@@ -2339,6 +2387,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
       <a href="#/proof" data-route="/proof" data-i18n>Proof</a>
       <a href="#/insurers" data-route="/insurers" data-for="company" data-i18n>For insurers</a>
       <a href="#/how" data-route="/how" data-i18n>How it works</a>
+      <a href="#/ask" data-route="/ask" data-i18n>Ask a source</a>
       <a href="#/rialo" data-route="/rialo" data-i18n>Rialo</a>
       <a href="#/pool" data-route="/pool" data-for="capital" data-i18n>The pool</a>
     </nav>
@@ -3684,6 +3733,35 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   </div>
 </section>
 <!-- ============================== RULES ============================== -->
+<section class="view" id="view-ask">
+  <div class="wrap pad">
+    <div class="label" data-i18n>Ask a source</div>
+    <h1 style="font-size:clamp(26px,4vw,38px);text-align:left;margin-top:12px;max-width:24ch" data-i18n>Point a question at a source and see what comes back</h1>
+    <p style="margin-top:14px;color:var(--ink-2);max-width:62ch" data-i18n>This is what a policy does, without the policy. Write down a question the protocol can answer, and it reads the same sources a settlement reads and hands back the figure, the record it came from and the three clocks involved. Nothing is staked on the answer and nothing is paid on it.</p>
+
+    <div class="askform" id="ask-form">
+      <div class="askrow" role="group" aria-label="What to ask about" data-i18n-aria>
+        <button type="button" class="chip on" data-kind="quake" data-i18n>Earthquake</button>
+        <button type="button" class="chip" data-kind="wind" data-i18n>Wind</button>
+        <button type="button" class="chip" data-kind="rain" data-i18n>Rain</button>
+        <button type="button" class="chip" data-kind="delays" data-i18n>Flight delays</button>
+      </div>
+      <div id="ask-fields" class="askfields"></div>
+      <div class="askgo">
+        <button type="button" class="btn-primary" id="ask-run" data-i18n>Ask</button>
+        <p class="fine" id="ask-source" style="margin:0"></p>
+      </div>
+    </div>
+
+    <div id="ask-out" style="margin-top:20px"></div>
+
+    <div class="sec" style="margin-top:34px">
+      <h2 style="font-size:19px" data-i18n>Why this is not a prediction market</h2>
+      <p class="fine" style="max-width:72ch;margin-top:8px" data-i18n>The useful half of one is here: the answer is settled by reading a primary source rather than by counting opinions, which is the same thing that makes a parametric policy work. The other half is not. What separates insurance from a wager is that the buyer has something actually at risk, and this protocol refuses cover to anyone who does not; a question with money on it has nothing behind it at all. So there is no stake here, no pool and no score, and there will not be.</p>
+    </div>
+  </div>
+</section>
+
 <section class="view" id="view-rules">
   <div class="wrap pad">
     <div class="label" data-i18n>Calculation rules</div>
@@ -5257,7 +5335,7 @@ function privySignIn(){
 var VIEWS={"/":"view-home","/cover":"view-cover","/mine":"view-mine","/profile":"view-profile",
            "/how":"view-how","/pool":"view-pool","/proof":"view-proof","/rialo":"view-rialo",
            "/insurers":"view-insurers","/privacy":"view-privacy","/faq":"view-faq","/rules":"view-rules",
-           "/company":"view-company","/admin":"view-admin"};
+           "/company":"view-company","/admin":"view-admin","/ask":"view-ask"};
 function currentRoute(){return (location.hash||"#/").replace(/^#/,"")||"/";}
 function show(route, moved){
   // A proof link carries the policy it is about: #/proof/CLS-XXXX
@@ -5273,6 +5351,7 @@ function show(route, moved){
     if (location.hash !== stepHash(step)) settle(stepHash(step));
   }
   if (route === "/rules") renderRules();
+  if (route === "/ask") renderAskForm();
   if(!VIEWS[route])route="/";
   // Which screen, if any, the stylesheet showed before this script was read.
   var already=document.documentElement.getAttribute("data-first");
@@ -11809,6 +11888,199 @@ function renderAnchorFor(id,box){
 
 /* The rulebook, read from the protocol so the page and the contract never
    differ: the same words, peril by peril. */
+/* Pointing a question at a source and showing what came back.
+
+   The protocol settles policies this way and the only way to watch it was to
+   buy cover and wait for the weather. Here the same reading happens with
+   nothing staked on the answer, which is the half of a prediction market
+   worth having; the stake is the half this will not have, because what makes
+   cover insurance rather than a bet is that the buyer has something at risk.
+
+   The form is drawn from what the protocol says it can answer, not from a
+   list here, so a question shape it stops answering stops being offered. */
+var ASK={kind:"quake",shapes:[],places:[],airports:[],point:null,busy:false};
+
+function askShape(kind){
+  for(var i=0;i<ASK.shapes.length;i++)if(ASK.shapes[i].kind===kind)return ASK.shapes[i];
+  return null;
+}
+
+function renderAskForm(){
+  var form=$("ask-form"); if(!form)return;
+  if(!ASK.shapes.length){
+    api("/api/ask/shapes",{timeout:15000}).then(function(r){
+      ASK.shapes=r.shapes||[]; ASK.places=r.places||[]; ASK.airports=r.airports||[];
+      drawAskFields();
+    },function(){ drawAskFields(); });
+  }
+  drawAskFields();
+}
+
+/* One field: its label, the box, and the unit beside the box rather than
+   under it. A number field is given the width of a number; left to share the
+   row equally, a two digit answer sat in a 560px box, which is the same empty
+   frame this site has drawn around a drawing before. */
+function fld(open,label,input,unit){
+  return open+'<span>'+esc(label)+'</span><span class="in">'+input+
+         (unit?'<i>'+esc(unit)+'</i>':'')+'</span></label>';
+}
+/* Given whole rather than pasted together from a size, so the class attribute
+   is written in the source exactly as it reaches the page. A class built by
+   concatenation cannot be read back by anything, including the guard that
+   holds this page's styles to this page. */
+var FLD_WIDE='<label class="fld wide">', FLD_NUM='<label class="fld num">';
+
+function drawAskFields(){
+  var box=$("ask-fields"), note=$("ask-source"); if(!box)return;
+  var shape=askShape(ASK.kind), unit=shape?shape.unit:"";
+  var line=shape&&shape.defaults?shape.defaults.threshold:0;
+  var rows=[];
+
+  function chooser(id,options,empty){
+    return options.length
+      ? '<select id="'+id+'">'+options.map(function(o){ return '<option>'+esc(o)+'</option>'; }).join("")+'</select>'
+      : '<select id="'+id+'" disabled><option value="">'+esc(empty)+'</option></select>';
+  }
+
+  if(ASK.kind==="quake"){
+    rows.push(fld(FLD_WIDE,t("Place"),
+      '<input id="ask-place" type="text" autocomplete="off" placeholder="'+esc(t("a town or an address"))+'" value="'+esc(ASK.placeText||"")+'">',""));
+    rows.push(fld(FLD_NUM,t("At least"),
+      '<input id="ask-line" type="number" step="0.1" min="0" max="10" value="'+esc(String(line))+'">',"Mw"));
+    rows.push(fld(FLD_NUM,t("Within"),
+      '<input id="ask-radius" type="number" step="10" min="1" max="1000" value="'+esc(String((shape&&shape.defaults.radius_km)||300))+'">',"km"));
+  }else if(ASK.kind==="wind"||ASK.kind==="rain"){
+    rows.push(fld(FLD_WIDE,t("Place"),chooser("ask-place",ASK.places,t("the source is not answering")),""));
+    rows.push(fld(FLD_NUM,t("Reaches"),
+      '<input id="ask-line" type="number" step="1" min="0" value="'+esc(String(line))+'">',unit));
+  }else{
+    rows.push(fld(FLD_WIDE,t("Airport"),chooser("ask-place",ASK.airports,t("no airport is reporting a delay right now")),""));
+    rows.push(fld(FLD_NUM,t("At least"),
+      '<input id="ask-line" type="number" step="1" min="1" max="500" value="'+esc(String(line))+'">',t("flights")));
+  }
+  box.innerHTML=rows.join("");
+  if(note)note.textContent=shape?t("Read from {source}",{source:shape.source}):"";
+  Array.prototype.forEach.call(form_chips(),function(b){
+    var on=b.getAttribute("data-kind")===ASK.kind;
+    b.classList.toggle("on",on);
+    b.setAttribute("aria-pressed",on?"true":"false");
+  });
+}
+
+function form_chips(){ var f=$("ask-form"); return f?f.querySelectorAll(".askrow .chip"):[]; }
+
+/* Wired once, on the form rather than on each button, because the buttons are
+   redrawn every time the question changes. */
+(function(){
+  var form=$("ask-form"); if(!form)return;
+  form.addEventListener("click",function(e){
+    var chip=e.target.closest?e.target.closest(".askrow .chip"):null;
+    if(chip&&chip.getAttribute("data-kind")){
+      ASK.kind=chip.getAttribute("data-kind");
+      var out=$("ask-out"); if(out)out.innerHTML="";
+      drawAskFields();
+      return;
+    }
+    if(e.target.id==="ask-run")runAsk();
+  });
+  form.addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&e.target.tagName==="INPUT"){ e.preventDefault(); runAsk(); }
+  });
+})();
+
+/* A place typed as text has to become a point before the source can be asked
+   about it, because a seismic catalogue knows coordinates and not town names. */
+function askPoint(text){
+  if(ASK.point&&ASK.point.text===text)return Promise.resolve(ASK.point);
+  return api("/api/geocode?q="+encodeURIComponent(text),{timeout:12000}).then(function(r){
+    var first=(r.places||[])[0];
+    if(!first)throw new Error("nowhere");
+    ASK.point={text:text,name:first.name,latitude:first.latitude,longitude:first.longitude};
+    return ASK.point;
+  });
+}
+
+function runAsk(){
+  var out=$("ask-out"); if(!out||ASK.busy)return;
+  var line=parseFloat(($("ask-line")||{}).value);
+  if(!isFinite(line)){ askFailed(t("Write down the line the question turns on.")); return; }
+  var field=$("ask-place"), said=field?String(field.value||"").trim():"";
+  if(!said){ askFailed(t("Say where to ask about.")); return; }
+
+  ASK.busy=true;
+  out.innerHTML='<div class="panel" style="padding:20px">'+esc(t("Asking the source…"))+'</div>';
+  var ready;
+  if(ASK.kind==="quake"){
+    ASK.placeText=said;
+    ready=askPoint(said).then(function(p){
+      var radius=parseFloat(($("ask-radius")||{}).value)||300;
+      return "kind=quake&latitude="+encodeURIComponent(p.latitude)+
+             "&longitude="+encodeURIComponent(p.longitude)+
+             "&place="+encodeURIComponent(p.name)+
+             "&threshold="+encodeURIComponent(line)+"&radius_km="+encodeURIComponent(radius);
+    });
+  }else if(ASK.kind==="delays"){
+    ready=Promise.resolve("kind=delays&airport="+encodeURIComponent(said)+"&threshold="+encodeURIComponent(line));
+  }else{
+    ready=Promise.resolve("kind="+ASK.kind+"&place="+encodeURIComponent(said)+"&threshold="+encodeURIComponent(line));
+  }
+  ready.then(function(query){ return api("/api/ask?"+query,{timeout:20000}); })
+    .then(function(a){ ASK.busy=false; drawAnswer(a); },
+          function(err){ ASK.busy=false; askFailed(readableAskError(err)); });
+}
+
+function readableAskError(err){
+  /* The protocol's refusals are written to be read, so they are shown as they
+     came rather than replaced with something vaguer. A 422 here is the
+     protocol saying the question cannot be answered as asked, which is the
+     most useful thing a reader can be told; anything else is a failure to
+     reach it, which is a different sentence. */
+  var said=err&&err.payload&&err.payload.detail;
+  if(said)return ts(String(said));
+  if(err&&err.message==="nowhere")return t("Nowhere by that name was found.");
+  return t("The source did not answer.");
+}
+
+function askFailed(text){
+  var out=$("ask-out"); if(!out)return;
+  out.innerHTML='<div class="panel" style="padding:20px"><p class="fine" style="margin:0">'+esc(text)+'</p></div>';
+}
+
+function drawAnswer(a){
+  var out=$("ask-out"); if(!out)return;
+  var yes=!!a.verdict, d=a.detail||{};
+  var figure=(a.reading===null||a.reading===undefined)
+    ? t("nothing the source published met it")
+    : f2.format(a.reading)+" "+a.unit;
+  var rows=[];
+  function row(k,v){ if(v!==""&&v!==null&&v!==undefined)rows.push('<div class="kv"><div class="k">'+esc(k)+'</div><div class="v">'+v+'</div></div>'); }
+
+  row(t("Source"),esc(a.source)+(a.url?' · <a href="'+esc(a.url)+'" target="_blank" rel="noopener noreferrer">'+esc(t("the record"))+'</a>':''));
+  row(t("What it said"),esc(figure));
+  row(t("The line asked about"),esc(f2.format(a.threshold)+" "+a.unit));
+  if(d.event)row(t("The event"),esc(d.event)+(d.distance_km!=null?' · '+esc(t("{n} km away",{n:f0.format(d.distance_km)})):""));
+  if(d.worst_minutes!=null)row(t("Worst delay there"),esc(t("{n} minutes",{n:f0.format(d.worst_minutes)})));
+  if(d.events_in_radius!=null)row(t("Records inside the circle"),esc(f0.format(d.events_in_radius)));
+
+  var clocks=[];
+  if(a.measured_at)clocks.push('<div><div class="k">'+esc(t("When the world did it"))+'</div><div>'+esc(docWhen(a.measured_at))+'</div></div>');
+  if(a.retrieved_at)clocks.push('<div><div class="k">'+esc(t("When the source was read"))+'</div><div>'+esc(docWhen(a.retrieved_at))+'</div></div>');
+  if(a.asked_at)clocks.push('<div><div class="k">'+esc(t("When you asked"))+'</div><div>'+esc(docWhen(a.asked_at))+'</div></div>');
+
+  /* The class is written whole rather than pasted together, and the verdict
+     rides an attribute. A class attribute built by concatenation cannot be
+     read back by anything: the guard against a page's styles reaching another
+     screen looks for the class being worn, and found nothing wearing this. */
+  out.innerHTML='<div class="answer" data-yes="'+(yes?"1":"0")+'">'+
+    '<div class="vd">'+esc(yes?t("Yes"):t("No"))+'</div>'+
+    '<p class="q">'+esc(ts(a.question))+'</p>'+
+    (a.stale?'<p class="fine warn">'+esc(t("This source has not answered for a while, so this is what it last said rather than what it says now."))+'</p>':'')+
+    '<div class="kvs rulebook">'+rows.join("")+'</div>'+
+    (clocks.length?'<div class="clocks">'+clocks.join("")+'</div>':'')+
+    '<p class="fine" style="margin-top:14px">'+esc(t("Nothing was staked on this answer and nothing was paid on it. It is a reading, not a settlement."))+'</p>'+
+    '</div>';
+}
+
 /* The rulebook, read rather than remembered.
 
    Five of its eleven rows carry the same text for every peril: how a reading
