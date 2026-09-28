@@ -399,9 +399,14 @@ def test_settle_index_uses_the_converted_curve_for_drought() -> None:
         premium=1, expected_loss=1, risk_load=0,
         expense_load=0, marginal_capital=0,
     )
-    # Konya's normal is 118 mm, so forty percent of normal is about 47 mm.
-    assert settle_index(policy, 47.2) == pytest.approx(100_000, rel=1e-3)
-    assert settle_index(policy, 200.0) == 0.0
+    # The curve attaches at a share of the station's own measured normal, so the
+    # millimetres it settles on follow the measurement rather than a figure
+    # written into this test and left behind when the record was measured.
+    from clause.perils.weather import STATIONS
+
+    normal = STATIONS["TR-KONYA"].normal_mm
+    assert settle_index(policy, 0.4 * normal) == pytest.approx(100_000, rel=1e-3)
+    assert settle_index(policy, 2.0 * normal) == 0.0
 
 
 # ---------------------------------------------------------------------------

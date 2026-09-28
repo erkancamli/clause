@@ -37,3 +37,6 @@ RELEASE-*.md
 
 # The accessibility engine, fetched from npm when the audit first runs.
 .axe/
+
+# A model file part way through being written. The build renames it into place.
+clause/hazard/models/*.json.part

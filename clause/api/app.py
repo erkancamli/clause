@@ -1446,6 +1446,9 @@ def create_app(
             "annual_probability": [round(probability(x), 6) for x in sh.LEVELS],
             "equation": "Allen, Wald and Worden (2012), global, sigma 0.7",
         }
+        term = sh.site_term(subject)
+        if term is not None:
+            shaking["published"] = term
         rows = EARTHQUAKE.hazard_table(subject)
         reply: dict[str, Any] = {
             "subject": subject,

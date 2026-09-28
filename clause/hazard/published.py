@@ -1,0 +1,381 @@
+"""Hazard curves as the national authorities publish them. Offline only.
+
+    python -m clause.hazard.published JP US
+    python -m clause.hazard.published JP --limit 40
+
+Why this exists
+---------------
+The models in this directory are built from the catalogue since 1973 and
+nothing else: no faults, no subduction interfaces, and a shaking calculation
+of our own on top. That is a defensible way to price a country nobody has
+modelled, and it is the wrong way to price one somebody has. Japan publishes
+a national probabilistic hazard model, so does the United States, and where a
+country does, its own figure is the one that should price the cover.
+
+What is fetched is a hazard curve: ground motion against the annual frequency
+of exceeding it, at a point. That is the same object for every publisher, so
+the runtime reads one shape whatever wrote it.
+
+Honesty about what is still ours
+--------------------------------
+The index this product settles on is intensity, because that is what the
+shaking maps publish after an earthquake. Turning a published ground motion
+into an intensity is one step, and it is a published relation rather than one
+of ours: Worden, Gerstenberger, Rhoades and Wald (2012), for peak ground
+velocity. Before this the chain was our event rates and our intensity
+equation; after it, it is their hazard and one cited conversion.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+import sys
+import time
+import urllib.error
+import urllib.request
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Callable, Iterable
+
+MODELS = Path(__file__).resolve().parent / "models"
+OUT = MODELS / "published.json"
+VERSION = "2026.1"
+AGENT = "clause.insure hazard build (offline); contact via clause.insure"
+
+#: Worden, Gerstenberger, Rhoades and Wald (2012), peak ground velocity to
+#: modified Mercalli intensity: the relation ShakeMap itself uses to draw the
+#: intensity a network reports, with the coefficients its own implementation
+#: carries (shakelib.gmice.wgrw12). Three straight pieces in log velocity.
+PGV_TO_MMI = ((-1.21, 4.62, 2.17), (0.53, 3.78, 1.47), (None, 2.89, 3.16))
+#: The scatter the same paper reports for this direction, in intensity units.
+PGV_TO_MMI_SIGMA = 0.63
+
+
+def mmi_from_pgv(pgv_cm_s: float) -> float:
+    """The relation itself, not clipped to the scale.
+
+    ShakeMap clips its answer to I and X because that is the range of the
+    intensity scale a person reads. Here the answer is an axis to interpolate a
+    hazard curve along, and clipping it puts several of a curve's points at the
+    same intensity with different frequencies, which is not a curve. So the
+    line runs where the coefficients take it, and the reading of it below is
+    what refuses the parts of the curve that mean nothing.
+    """
+    if pgv_cm_s <= 0:
+        return 0.0
+    log = math.log10(pgv_cm_s)
+    for upper, c1, c2 in PGV_TO_MMI:
+        if upper is None or log < upper:
+            return c1 + c2 * log
+    raise AssertionError
+
+
+class Busy(Exception):
+    """The publisher answered, and the answer was that it could not answer."""
+
+
+def _get(url: str, *, timeout: float = 120.0, tries: int = 2) -> Any:
+    """One request, retried briefly, then given up on and come back to later.
+
+    These services answer 200 with a status of error when their own backend is
+    busy, which the first version of this build read as "no curve here" and
+    passed over. A place the publisher covers and the build missed is worse
+    than a build that takes longer: nothing downstream can tell the two apart.
+
+    But sitting on one place through five long backoffs is the wrong shape for
+    a service having a bad afternoon: it turns a refusal rate into a wall. So
+    a place is tried twice, then left for the next pass. ``build`` keeps what
+    it got and skips it next time, so passes converge instead of restarting.
+    """
+    request = urllib.request.Request(url, headers={"User-Agent": AGENT})
+    for attempt in range(tries):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as reply:
+                data = json.loads(reply.read())
+            if isinstance(data, dict) and data.get("status") == "error":
+                raise Busy(str(data.get("response") or "")[:120])
+            return data
+        except (urllib.error.URLError, TimeoutError, Busy):
+            if attempt == tries - 1:
+                raise
+            time.sleep(5 * (attempt + 1))
+    raise AssertionError
+
+
+# -- the United States -------------------------------------------------------
+
+#: The resolved revision, not the `conus-2023` alias. The alias answers with a
+#: 302 whose Location downgrades to http, which no sane client follows, and
+#: naming the revision also puts it in the model file: a hazard curve should
+#: say which revision of the national model drew it.
+USGS = ("https://earthquake.usgs.gov/ws/nshmp/conus-2023.R2/dynamic/hazard/"
+        "{lon}/{lat}/{vs30}")
+
+def usgs_curve(latitude: float, longitude: float, *, vs30: int = 760) -> list[list[float]] | None:
+    """The 2023 national model's curve at a point: PGV against annual rate.
+
+    Soil is left at the reference 760 m/s because the buyer's own site class
+    is not known, and saying so is better than assuming a softer one and
+    quietly pricing every address as though it stood on it.
+    """
+    data = _get(USGS.format(lon=round(longitude, 4), lat=round(latitude, 4), vs30=vs30))
+    for curve in (data.get("response") or {}).get("hazardCurves", []):
+        if (curve.get("imt") or {}).get("value") != "PGV":
+            continue
+        for part in curve.get("data", []):
+            if part.get("component") != "Total":
+                continue
+            values = part.get("values") or {}
+            xs, ys = values.get("xs") or [], values.get("ys") or []
+            # USGS gives PGV in cm/s already for the PGV intensity measure.
+            return [[float(x), float(y)] for x, y in zip(xs, ys) if y > 0]
+    return None
+
+
+# -- Japan -------------------------------------------------------------------
+
+JSHIS = ("https://www.j-shis.bosai.go.jp/map/api/pshm/Y2023/AVR/TTL_MTTL/"
+         "meshinfo.geojson?position={lon},{lat}&epsg=4301")
+#: Surface velocity at four exceedance probabilities in fifty years, which is
+#: how J-SHIS publishes its national model.
+JSHIS_LEVELS = (("T50_P39_SV", 0.39), ("T50_P10_SV", 0.10),
+                ("T50_P05_SV", 0.05), ("T50_P02_SV", 0.02))
+
+def jshis_curve(latitude: float, longitude: float) -> list[list[float]] | None:
+    data = _get(JSHIS.format(lon=round(longitude, 5), lat=round(latitude, 5)))
+    features = data.get("features") or []
+    if not features:
+        return None
+    said = features[0].get("properties") or {}
+    points = []
+    for key, p50 in JSHIS_LEVELS:
+        if key not in said:
+            continue
+        pgv = float(said[key])
+        rate = -math.log(1.0 - p50) / 50.0
+        points.append([pgv, rate])
+    points.sort()
+    return points or None
+
+
+SOURCES: dict[str, dict[str, Any]] = {
+    "US": {"fetch": usgs_curve, "pause": 3.0,
+           "publisher": "USGS National Seismic Hazard Model, CONUS 2023 R2",
+           "reference": "https://earthquake.usgs.gov/ws/nshmp/",
+           "measure": "PGV, cm/s, at a reference site of 760 m/s"},
+    "JP": {"fetch": jshis_curve, "pause": 0.5,
+           "publisher": "NIED J-SHIS, national probabilistic model Y2023",
+           "reference": "https://www.j-shis.bosai.go.jp/",
+           "measure": "PGV, cm/s, at the surface"},
+}
+
+
+def places_of(code: str) -> list[tuple[str, float, float, int]]:
+    """The places this product offers in a country, largest first.
+
+    The same list the interface searches, so what is fetched is what a buyer
+    can actually choose rather than a grid of ocean.
+    """
+    data = json.loads((MODELS / "places.json").read_text(encoding="utf-8"))
+    out = []
+    for row in data.get("places", []):
+        if len(row) < 7 or row[2] != code:
+            continue
+        out.append((str(row[0]), float(row[4]), float(row[5]), int(row[6])))
+    out.sort(key=lambda r: -r[3])
+    return out
+
+
+def build(code: str, *, limit: int | None = None,
+          keep: list[dict[str, Any]] | None = None,
+          save: Callable[[list[dict[str, Any]]], None] | None = None) -> dict[str, Any]:
+    """Fetch a country's published curves, keeping what an earlier run got.
+
+    These are public services with their own load, and asking one for two
+    hundred points takes as long as it takes. A run that is interrupted, or
+    that a publisher's own backend refuses half way through, should cost only
+    the places it did not reach: ``keep`` is the previous run's points, and a
+    place already in it is not asked for again.
+    """
+    source = SOURCES[code]
+    fetch: Callable[..., Any] = source["fetch"]
+    rows: list[dict[str, Any]] = list(keep or [])
+    already = {row["name"] for row in rows}
+    missed: list[str] = []
+    places = places_of(code)
+    if limit:
+        places = places[:limit]
+    wanted = {name for name, *_ in places}
+    rows = [row for row in rows if row["name"] in wanted]
+    for name, latitude, longitude, _people in places:
+        if name in already:
+            continue
+        try:
+            curve = fetch(latitude, longitude)
+        except (urllib.error.URLError, TimeoutError, ValueError, Busy) as error:
+            print(f"  {code} {name}: {type(error).__name__} {error}", file=sys.stderr)
+            missed.append(name)
+            continue
+        if not curve:
+            print(f"  {code} {name}: no curve", file=sys.stderr)
+            missed.append(name)
+            continue
+        rows.append({"name": name, "latitude": round(latitude, 4),
+                     "longitude": round(longitude, 4), "curve": curve})
+        print(f"  {code} {name}: {len(curve)} points", flush=True)
+        if save is not None and len(rows) % 10 == 0:
+            save(rows)
+        time.sleep(source["pause"])
+    return _record(code, rows, missed)
+
+
+def _record(code: str, rows: list[dict[str, Any]], missed: list[str]) -> dict[str, Any]:
+    """A country's model file entry. Every write goes through here.
+
+    A build interrupted half way used to leave a country with nothing but its
+    points, which the runtime read as a model with no publisher. A model file
+    should never hold a state nothing can read, so the partial saves and the
+    final one write the same shape.
+    """
+    source = SOURCES[code]
+    return {
+        "code": code, "version": VERSION, "built": time.strftime("%Y-%m-%d"),
+        "publisher": source["publisher"], "reference": source["reference"],
+        "measure": source["measure"],
+        "conversion": ("Worden, Gerstenberger, Rhoades and Wald (2012), "
+                       "peak ground velocity to modified Mercalli intensity"),
+        # Named, not passed over: a place the publisher covers and this build
+        # could not read is a gap somebody should be able to see.
+        "points": rows, "missed": missed,
+    }
+
+
+def _write(doc: dict[str, Any]) -> None:
+    """Replace the model file in one step.
+
+    A build that saves as it goes rewrites this file while a server, or a test
+    run, is reading it, and a reader that catches it half written sees a model
+    with no publisher or no curves at all. Writing beside it and renaming makes
+    every reader see either the old file or the new one.
+    """
+    beside = OUT.with_suffix(".json.part")
+    beside.write_text(json.dumps(doc, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    beside.replace(OUT)
+
+
+def main(argv: list[str]) -> int:
+    wanted = [a.upper() for a in argv if not a.startswith("-")] or list(SOURCES)
+    limit = None
+    for i, arg in enumerate(argv):
+        if arg == "--limit" and i + 1 < len(argv):
+            limit = int(argv[i + 1])
+    have = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
+    for code in wanted:
+        if code not in SOURCES:
+            print(f"no published model wired for {code}", file=sys.stderr)
+            continue
+        so_far = dict(have.get(code) or {})
+
+        def save(rows: list[dict[str, Any]], _code: str = code,
+                 _missed: list[str] = list(so_far.get("missed") or [])) -> None:
+            have[_code] = _record(_code, rows, _missed)
+            _write(have)
+
+        have[code] = build(code, limit=limit, keep=so_far.get("points"), save=save)
+        _write(have)
+        print(f"{code}: {len(have[code]['points'])} places -> {OUT.name}", flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+
+
+# ---------------------------------------------------------------------------
+# Reading, at runtime
+# ---------------------------------------------------------------------------
+#
+# What the build wrote is ground motion against annual frequency at a list of
+# places. What the runtime wants is intensity against annual frequency at one
+# address. The conversion is Worden 2012 above; the rest is arithmetic.
+
+#: The weakest shaking worth carrying. Below this the curve describes ground
+#: motion nobody insures against and no policy attaches to, and the lowest of
+#: these published points sit where the relation above stops meaning anything.
+LEAST_INTENSITY = 3.0
+
+#: How far a published point may be from an address and still describe it.
+#: A hazard curve is drawn for a place, not a plot, and the national grids
+#: behind these figures are coarser than this anyway.
+NEAR_KM = 60.0
+
+
+@lru_cache(maxsize=1)
+def curves() -> tuple[dict[str, Any], ...]:
+    """Every published point as intensity against annual rate, largest first."""
+    if not OUT.exists():
+        return ()
+    doc = json.loads(OUT.read_text(encoding="utf-8"))
+    out: list[dict[str, Any]] = []
+    for code, country in sorted(doc.items()):
+        for row in country.get("points", []):
+            curve = tuple(sorted((mmi_from_pgv(float(x)), float(y))
+                                 for x, y in row.get("curve", [])
+                                 if float(y) > 0 and mmi_from_pgv(float(x)) >= LEAST_INTENSITY))
+            if len(curve) < 2:
+                continue
+            out.append({
+                "country": code, "name": row["name"],
+                "latitude": float(row["latitude"]), "longitude": float(row["longitude"]),
+                "curve": curve, "publisher": country.get("publisher", ""),
+                "reference": country.get("reference", ""),
+                "measure": country.get("measure", ""),
+                "conversion": country.get("conversion", ""),
+                "version": country.get("version", ""),
+            })
+    return tuple(out)
+
+
+def rate_at(curve: tuple[tuple[float, float], ...], level: float) -> float:
+    """The published annual rate of shaking at or above an intensity.
+
+    Straight between the published points in log rate, and down the last slope
+    beyond the strongest of them, which is where a policy's higher trigger
+    usually sits. Extrapolating a hazard curve is a real assumption, so it is
+    made the one way that cannot invent hazard: the curve's own slope.
+    """
+    if not curve:
+        return 0.0
+    if level <= curve[0][0]:
+        return curve[0][1]
+    for i in range(1, len(curve)):
+        x0, y0 = curve[i - 1]
+        x1, y1 = curve[i]
+        if level <= x1:
+            if x1 <= x0 or y0 <= 0 or y1 <= 0:
+                return y1
+            part = (level - x0) / (x1 - x0)
+            return math.exp(math.log(y0) + part * (math.log(y1) - math.log(y0)))
+    x0, y0 = curve[-2]
+    x1, y1 = curve[-1]
+    if x1 <= x0 or y0 <= 0 or y1 <= 0:
+        return y1
+    slope = (math.log(y1) - math.log(y0)) / (x1 - x0)
+    return math.exp(math.log(y1) + slope * (level - x1))
+
+
+@lru_cache(maxsize=4096)
+def nearest(latitude: float, longitude: float, *, within_km: float = NEAR_KM
+            ) -> dict[str, Any] | None:
+    """The published curve closest to an address, if one is close enough."""
+    from .model import haversine_km
+
+    best, best_km = None, within_km
+    for point in curves():
+        km = haversine_km(latitude, longitude, point["latitude"], point["longitude"])
+        if km <= best_km:
+            best, best_km = point, km
+    if best is None:
+        return None
+    return dict(best, distance_km=round(best_km, 1))
