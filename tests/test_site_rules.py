@@ -137,7 +137,11 @@ def test_the_rulebook_reads_at_a_readable_measure() -> None:
         r"== scoped styles for #view-rules, begin ==(.*?)== scoped styles, end ==", PAGE, re.S)
     assert region, "the page's own styles are not marked as its own"
     assert ".kvs.rulebook{grid-template-columns:minmax(0,1fr)" in region.group(1)
-    assert ".kvs.rulebook .v{max-width:72ch}" in region.group(1)
+    # The site has one definition of a readable line now, and this page uses
+    # it rather than a number of its own. Written as the literal 72ch when
+    # this page was built, which is how it caught the change: a ch is the
+    # width of a zero, so 72 of them held ninety eight characters.
+    assert ".kvs.rulebook .v{max-width:var(--measure)}" in region.group(1)
 
 
 def test_an_anchor_inside_the_page_is_not_read_as_a_route() -> None:
