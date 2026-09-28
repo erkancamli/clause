@@ -9252,7 +9252,23 @@ function renderInterest(){
   // area by construction: nothing to confirm that the address did not.
   if(!interest.what&&flow.peril==="quake"&&flow.place)interest.what=t("A flat in {place}",{place:subjectLabel()});
   if(!interest.what&&flow.peril==="storm"&&flow.place)interest.what=t("A house in {place}",{place:subjectLabel()});
-  if(!interest.insideTouched&&(flow.peril==="quake"||flow.peril==="storm"||flow.peril==="car"))interest.inside=true;
+  // Drought was the one peril with no name offered, so its buyer met an empty
+  // required box where the other four met a filled one. It is named the way
+  // they are: after what it is and where, from the crop already selected and
+  // the place already chosen, and the words stay the buyer's to change.
+  if(!interest.what&&flow.peril==="drought"&&flow.place)
+    interest.what=t("A field of {crop} in {place}",
+                    {crop:cropInSentence(sizeState().crop),place:subjectLabel()});
+  // A flight belongs on that list and was left off it. The area a flight
+  // cover measures is the flight, which is what areaSentence() says in so many
+  // words -- "the flight itself" -- so the buyer was being asked to confirm
+  // that their flight is inside their flight. Measured: it was the only thing
+  // blocking Continue on that step, with every other field already answered.
+  //
+  // Drought is not on the list and should not be. The field can be kilometres
+  // from the station that settles it, the sentence names that distance, and
+  // basis risk lives in it. That one is a buyer's to confirm.
+  if(!interest.insideTouched&&flow.peril!=="drought")interest.inside=true;
   $("what").placeholder = flow.peril==="car" ? t("my car") : flow.peril==="quake" ? t("A flat in {place}",{place:subjectLabel()})
     : flow.peril==="storm" ? t("A house in {place}",{place:subjectLabel()})
     : flow.peril==="drought" ? t("40 hectares of wheat") : t("one flight, and what missing it costs");
@@ -9387,6 +9403,20 @@ function loadValuation(){
     function(){ VALUATION_READ=false; });
 }
 var BUILDING_WORDS={flat:N("A flat"),house:N("A house"),shop:N("A shop or office")};
+/* A crop word written for a dropdown, put back into a sentence.
+
+   The list capitalises them the way a list does, Wheat and Sugar beet, and
+   dropped straight into "A field of {crop} in {place}" that capital is wrong
+   in the middle of a sentence. It is wrong in English, Turkish, Spanish,
+   French and Russian, right in German where every noun carries one, and
+   absent in Japanese, so the languages that lowercase are named rather than
+   assumed. The i of Turkish is why toLocaleLowerCase takes the language. */
+var LOWERCASES_NOUNS={en:true,tr:true,es:true,fr:true,ru:true};
+function cropInSentence(key){
+  var word=t(CROP_WORDS[key]||key);
+  if(!LOWERCASES_NOUNS[LANG])return word;
+  return word.charAt(0).toLocaleLowerCase(LOCALES[LANG]||"en-US")+word.slice(1);
+}
 var CROP_WORDS={wheat:N("Wheat"),barley:N("Barley"),maize:N("Maize"),sunflower:N("Sunflower"),
   cotton:N("Cotton"),chickpea:N("Chickpea"),lentil:N("Lentil"),sugar_beet:N("Sugar beet")};
 /* Which crops can be covered here. A crop is on the list when the country

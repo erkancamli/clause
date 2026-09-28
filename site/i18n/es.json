@@ -1605,6 +1605,7 @@
     "Pays on the wind, before the next front": "Paga según el viento, antes del siguiente frente",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "Una casa en un vendaval, con rachas de viento, un árbol que se dobla y un nivel de viento extremo marcado",
     "A house in {place}": "Una casa en {place}",
+    "A field of {crop} in {place}": "Un campo de {crop} en {place}",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "Si el viento en {place} alcanza <b>{kmh} km/h o más</b> en un día durante el próximo año, recibe <em>{first} USDC</em>, que aumentan hasta <em>{full}</em> con {top} km/h. Paga <b>{premium} USDC</b> ahora, y nada más, nunca.",
     "Less than {kmh} km/h in a day": "Menos de {kmh} km/h en un día",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "Se lee de NASA POWER en {station}, a {km} km, y se contrasta con el servicio nacional y ERA5. La cifra es la hora más fuerte del día sobre la zona, inferior a una racha en una estación. El granizo, los rayos, la nieve y las inundaciones no están cubiertos.",

@@ -1605,6 +1605,7 @@
     "Pays on the wind, before the next front": "Rüzgâra göre öder, bir sonraki cephe gelmeden",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "Fırtınada bir ev; rüzgâr çizgileri, eğilen bir ağaç ve işaretli aşırı rüzgâr seviyesi",
     "A house in {place}": "{place} içinde bir ev",
+    "A field of {crop} in {place}": "{place} içinde bir {crop} tarlası",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "Önümüzdeki bir yıl içinde {place} konumunda rüzgâr tek bir günde <b>{kmh} km/sa veya daha fazlasına</b> ulaşırsa <em>{first} USDC</em> alırsınız; bu tutar {top} km/sa'te <em>{full}</em> seviyesine çıkar. Şimdi <b>{premium} USDC</b> ödersiniz, başka hiçbir zaman hiçbir şey ödemezsiniz.",
     "Less than {kmh} km/h in a day": "Bir günde {kmh} km/sa'ten az",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "{km} km uzaktaki {station} için NASA POWER'dan okunur; ulusal servis ve ERA5 ile karşılaştırılır. Değer, bölge üzerinde günün en kuvvetli saatidir ve bir istasyondaki rüzgâr hamlesinden düşüktür. Dolu, yıldırım, kar ve sel kapsam dışıdır.",
