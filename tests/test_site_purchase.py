@@ -116,3 +116,39 @@ def test_a_refused_reading_is_not_a_reading_still_coming() -> None:
     said = body[:waiting]
     for flag in ("gridError", "stormError", "vehicleError"):
         assert flag in said, f"a refused {flag} still reads as a reading in flight"
+
+
+def test_a_flight_is_inside_the_flight_by_construction() -> None:
+    """The one confirmation on that step was a tautology.
+
+    "It is inside the area measured" is a real question for a home, a car or a
+    field, and the page answers it for three of the five perils by
+    construction: the place the buyer chose is where the home stands. For a
+    flight the area measured is the flight -- areaSentence() says so in those
+    words, "the flight itself" -- so the buyer was asked to confirm that their
+    flight is inside their flight. Measured at 390px: every other field on the
+    step arrived answered, and this was the only thing blocking Continue.
+
+    Drought is the one that still asks, and should. The field can be
+    kilometres from the station that settles it, the sentence names that
+    distance, and basis risk lives in it.
+    """
+    body = _function("renderInterest")
+    line = next(l for l in body.splitlines() if "insideTouched" in l and "inside=true" in l)
+    assert '"drought"' in line, "the field is no longer the one peril that has to be confirmed"
+    for peril in ('"quake"', '"storm"', '"car"', '"flight"'):
+        assert peril not in line, f"{peril} is named again instead of being covered by construction"
+
+
+def test_every_peril_offers_a_name_for_the_thing_at_risk() -> None:
+    """Four came with one and drought came with an empty required box.
+
+    A flat in Kadıköy, a house, my car, one flight and what missing it costs:
+    every peril but drought filled that field, so its buyer met a blank where
+    the others met something to read and correct. It is named after the crop
+    already selected and the place already chosen, like the rest.
+    """
+    body = _function("renderInterest")
+    for peril in ("quake", "storm", "car", "flight", "drought"):
+        assert re.search(rf'!interest\.what&&flow\.peril==="{peril}"', body), (
+            f"{peril} offers no name for what is at risk")

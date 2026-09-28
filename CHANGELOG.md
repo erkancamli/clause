@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.40.0, 28 September 2026
+
+- The one thing a flight buyer still had to confirm was that their flight is
+  inside their flight.
+
+  "It is inside the area measured" is a real question for a home, a car or a
+  field, and the page already answers it by construction for three of the
+  five perils: the place the buyer chose is where the home stands. For a
+  flight the area measured is the flight -- the page says so in those words,
+  "the flight itself" -- so the tick box asked nothing. Measured at 390px it
+  was the only thing left blocking Continue on that step, with every other
+  field already answered.
+
+  Drought still asks, and should. The field can be kilometres from the
+  station that settles it, the sentence on screen names that distance, and
+  basis risk lives in it.
+
+- Drought was also the one peril that offered no name for the thing at risk.
+  A flat in Kadıköy, a house, my car, one flight and what missing it costs:
+  four perils filled that box and the fifth left it empty and required. It is
+  named after the crop already chosen and the place already chosen, like the
+  rest, and the words stay the buyer's to change.
+
+  The crop words are written for a dropdown, Wheat and Sugar beet, and a
+  capital in the middle of a sentence is wrong in English, Turkish, Spanish,
+  French and Russian, right in German where every noun carries one, and
+  absent in Japanese. So the languages that lowercase are named rather than
+  assumed, and the lowercasing is done in the language, because of the
+  Turkish i.
+
+- Not done, and worth writing down because the research said to do it: the
+  address block cannot move off that step. It is not the issuing company's
+  paperwork, it is the property's identity. property_of() keys on it and
+  may_write() uses that key to stop one flat carrying more cover than it is
+  worth; the key needs street and city at the least, and the flat number is
+  what takes it from a building down to a home. Moving it would take away the
+  thing that separates insurance from a wager. What could be deferred, the
+  documents and the sign-in, already is.
+
 ## 1.39.0, 28 September 2026
 
 - The Continue button told a buyer to wait for something that had already

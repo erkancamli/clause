@@ -1605,6 +1605,7 @@
     "Pays on the wind, before the next front": "風の記録で支払い、次の前線が来る前に",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "強風の中の家。風の筋、しなる木、極端な風の水準の印",
     "A house in {place}": "{place}の一軒家",
+    "A field of {crop} in {place}": "{place}の{crop}畑",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "今後1年以内に{place}で1日の風が<b>{kmh} km/h以上</b>に達した場合、<em>{first} USDC</em>を受け取り、{top} km/hでは<em>{full}</em>まで増えます。お支払いいただくのは今の<b>{premium} USDC</b>だけで、それ以外は一切ありません。",
     "Less than {kmh} km/h in a day": "1日{kmh} km/h未満",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "{km} km離れた{station}のNASA POWERから読み取り、国の気象機関とERA5で照合します。値はその日に地域全体で最も強かった1時間の風速で、観測所の突風より低くなります。雹、落雷、雪、洪水は補償されません。",

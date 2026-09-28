@@ -1605,6 +1605,7 @@
     "Pays on the wind, before the next front": "Выплата по ветру, до прихода следующего фронта",
     "A house in a gale, with wind streaks, a bending tree and a marked extreme wind level": "Дом в бурю: полосы ветра, гнущееся дерево и отмеченный уровень экстремального ветра",
     "A house in {place}": "Дом в {place}",
+    "A field of {crop} in {place}": "Поле, {crop}: {place}",
     "If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.": "Если в {place} ветер за один день в ближайший год достигнет <b>{kmh} км/ч и выше</b>, вы получите <em>{first} USDC</em>, а при {top} км/ч — <em>{full}</em>. Вы платите <b>{premium} USDC</b> сейчас и больше никогда ничего.",
     "Less than {kmh} km/h in a day": "Менее {kmh} км/ч за день",
     "Read from NASA POWER at {station}, {km} km away, and checked against the national service and ERA5. The figure is the day's strongest hour over the area, lower than a gust at a station. Hail, lightning, snow and flood are not covered.": "Считывается из NASA POWER для станции {station}, в {km} км, и сверяется с данными национальной службы и ERA5. Значение — самый сильный час дня по площади, ниже порыва на станции. Град, молния, снег и наводнение не покрываются.",
