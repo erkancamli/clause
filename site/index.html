@@ -7761,7 +7761,7 @@ function payRows(){
     if(exc&&r[2]!=null){
       var chance=exc(r[2]);
       if(chance>0&&chance<1)
-        often='<span class="fine often">'+esc(t("about 1 in {n} years here",
+        often='<span class="fine often">'+esc(t("about 1 in {n} years in the recorded earthquakes since 1973",
           {n:f0.format(Math.round(1/chance))}))+'</span>';
     }
     return '<div class="pay-row'+(r[1]?"":" none")+'"><span>'+esc(r[0])+often+'</span><span class="amt">'+
@@ -9295,6 +9295,10 @@ function renderInterest(){
   // A home is named after its place; the buyer can change the words. And
   // the place the buyer chose is where the home stands, so it is inside the
   // area by construction: nothing to confirm that the address did not.
+  // Named after the place, and renamed when the place moves. Only the words
+  // the page put there: anything the buyer wrote is theirs and is left alone.
+  if(!interest.whatTouched&&flow.place&&(flow.peril==="quake"||flow.peril==="storm"||flow.peril==="drought"))
+    interest.what="";
   if(!interest.what&&flow.peril==="quake"&&flow.place)interest.what=t("A flat in {place}",{place:subjectLabel()});
   if(!interest.what&&flow.peril==="storm"&&flow.place)interest.what=t("A house in {place}",{place:subjectLabel()});
   // Drought was the one peril with no name offered, so its buyer met an empty
@@ -9660,6 +9664,12 @@ function coverPresets(){
 
 $("what").addEventListener("input",function(e){
   flow.interest.what=e.target.value.slice(0,80);
+  // Their words now, so nothing offers over them again. Until they write, the
+  // name follows the place: a buyer who looked at Mexico City and then chose
+  // Osaka was carrying "a flat in Mexico City" into the declaration of what is
+  // at risk, because the name was written once and never looked at the place
+  // again.
+  flow.interest.whatTouched=true;
   setNextLabel();
 });
 $("value").addEventListener("input",function(e){
