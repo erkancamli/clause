@@ -7205,7 +7205,19 @@ function optHtml(value,title,sub,lead,attr){
 }
 function flightDefaults(){
   if(!flow.flightDate){ var d=new Date(Date.now()+14*86400000); flow.flightDate=d.toISOString().slice(0,10); }
-  if(!flow.flightNumber&&flow.subject)flow.flightNumber=flow.subject.split("-")[0]+"1979";
+  // A route key names its airline first and the two ends after it, TK-IST-LHR.
+  // Two airports chosen one at a time do not: that subject is SAW-ESB, and
+  // taking the first part either way put an airport code where an airline code
+  // goes. The box was filled with SAW1979, which no flight number can be, so
+  // the page asked for a flight number over a field that already looked
+  // answered and said nothing about what was wrong with it.
+  //
+  // Where the airline is not known it is left blank, and the placeholder shows
+  // the shape of the thing to type.
+  if(!flow.flightNumber&&flow.subject){
+    var named=String(flow.subject).split("-");
+    if(named.length===3&&/^[A-Za-z]{2}$/.test(named[0]))flow.flightNumber=named[0]+"1979";
+  }
   // The scheduled departure, in the clock of the airport the flight leaves
   // from, which is how a ticket writes it. Cover has to be bought a day before
   // that moment, and a date on its own cannot say when the moment is.
@@ -7551,6 +7563,12 @@ function refreshQuote(){
   flow.quoted=null;
   var atConfirm=flow.step===CONFIRM_STEP, done=atConfirm?renderPrice:updatePriceBar;
   if(!link.live){done();return;}
+  // Nor until the subject is whole. A flight without its number is refused
+  // every time -- the protocol answers "that cover cannot be priced" -- and
+  // asking anyway spends a call to be told what this page already knows: the
+  // same four checks the Continue button reads to say what is missing. The
+  // page's own figure is on screen either way, so nothing waits on this.
+  if(!flightReady()||!quakeReady()||!stormReady()||!carReady()){done();return;}
   var seq=++flow.seq, key=quoteKey();
   flow.pricing=true;
   api("/api/offers?country="+encodeURIComponent(flow.interest.country||"")+"&professional="+(flow.interest.professional?"true":"false"),{method:"POST",timeout:25000,body:{

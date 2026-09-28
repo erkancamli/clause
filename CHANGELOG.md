@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.37.0, 28 September 2026
+
+- Two airports chosen one at a time do not name an airline, and the flight
+  cover filled the flight number box as though they did.
+
+  A route key names its airline first and the two ends after it, TK-IST-LHR.
+  Choosing the ends separately makes the subject SAW-ESB, and the page took
+  the first part either way: the box came out SAW1979, which no flight number
+  can be. The Continue button then asked for a flight number over a field
+  that already looked answered, and said nothing about what was wrong with
+  it. A buyer picking their own two airports could not get past the second
+  step. The number is only offered now where the subject really names an
+  airline, and where it does not the box is left empty with the shape of the
+  thing to type in its placeholder.
+
+- The protocol was asked three times for a price it always refuses.
+
+  A flight without its number came back "that cover cannot be priced" every
+  time -- the right answer to the wrong question, because the page already
+  knew the subject was incomplete. The same four checks are what its Continue
+  button reads to say what is missing. It consults them before it asks now,
+  and the page's own figure stays on the screen until there is a whole
+  subject to send.
+
+  Both were found by driving the purchase in a browser rather than reading
+  it: all five perils, answered step by step through their own controls, with
+  the Continue button as the instrument, since a blocked one names what it is
+  waiting for.
+
+- The same walk reported the map tiles overflowing the phone at 390px. That
+  was the instrument and not the page: it asked each element whether its
+  right edge passed the viewport's, and a tile's does, because a tiled map
+  draws past its own frame on purpose. Measured properly the page does not
+  scroll sideways -- scrollWidth is 390 and scrollX stays 0 -- because the
+  map's frame clips them. Nothing to fix, so what holds it is named instead:
+  take overflow:hidden off that frame and the phone scrolls into empty map.
+
 ## 1.36.0, 28 September 2026
 
 - The Proof page printed the protocol's own settlement rule in English to
