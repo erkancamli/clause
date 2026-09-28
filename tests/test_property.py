@@ -202,7 +202,7 @@ def test_the_book_is_read_by_identifier_and_never_by_address() -> None:
 ADDRESS = {"street": "Atakent Mah 223 Cadde", "number": "A2", "flat": "49",
            "postcode": "34307", "city": "Istanbul"}
 HOME = {"kind": "home", "building": "flat", "area_m2": 120, "built": 2010}
-WHERE = {"location": "IST-KADIKOY", "radius_km": 50}
+WHERE = {"location": "IST-KADIKOY", "radius_km": 50, "built": 2010}
 
 
 def buy(client, device, address, *, limit=50_000, at=ADDRESS, peril="earthquake", risk=60_000):

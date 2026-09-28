@@ -171,7 +171,13 @@ def test_a_tokyo_quote_comes_from_the_japanese_model(client) -> None:
     })
     assert reply.status_code == 200, reply.text
     body = reply.json()
-    modelled = EARTHQUAKE.exceedance(EARTHQUAKE.validate_subject(dict(TOKYO)), 365)(5.5)
+    # At the magnitude this subject's own curve starts paying at, which is no
+    # longer 5.5: a subject that does not say what year the building went up
+    # is priced as the oldest one rather than the newest, so the first step
+    # sits lower.
+    subject = EARTHQUAKE.validate_subject(dict(TOKYO))
+    starts_at = EARTHQUAKE.curve_for(subject).attachment
+    modelled = EARTHQUAKE.exceedance(subject, 365)(starts_at)
     assert abs(body["trigger_probability"] - modelled) < 0.02
     assert body["expected_loss"] > 0
 

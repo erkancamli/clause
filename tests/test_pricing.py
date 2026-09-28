@@ -195,7 +195,12 @@ def test_expected_loss_matches_the_perils_own_model(engine: PricingEngine) -> No
     quote = engine.quote(
         peril_key="earthquake", subject=subject, limit=100_000, term_days=365,
     )
-    share = EARTHQUAKE.default_curve().expected_share(
+    # The curve for this subject, not the default one. They used to be the
+    # same thing here, because a subject with no year built was priced as a
+    # building of the current code and that is where the default curve sits.
+    # An unsaid year is the oldest building now, so the curve it is priced on
+    # is the shifted one and the test has to ask for that.
+    share = EARTHQUAKE.curve_for(EARTHQUAKE.validate_subject(subject)).expected_share(
         EARTHQUAKE.exceedance(EARTHQUAKE.validate_subject(subject), 365)
     )
     assert quote.expected_loss == pytest.approx(100_000 * share, rel=1e-12)

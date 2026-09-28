@@ -1773,6 +1773,17 @@ def create_app(
                 float(subject.get("hectares", 0)) - valuation.size["area_ha"]
             ) > 1e-6:
                 raise Refused(422, "the field's area must be the area the cover is written on")
+            # The same check a field already had, for the figure that decides
+            # an earthquake price. The size says what the building can carry
+            # and the subject says what it is priced on, and nothing held the
+            # two together: a buyer could describe a 1968 building, take the
+            # lower ceiling that comes with it, and leave the year out of the
+            # subject to be priced as though it met the current code.
+            if peril == "earthquake" and int(subject.get("built") or 0) != int(
+                valuation.size["built"]
+            ):
+                raise Refused(422, "the year the building was built must be the year "
+                                   "the cover is priced on")
             value_at_risk = min(value_at_risk, valuation.value)
         try:
             interest = Interest(

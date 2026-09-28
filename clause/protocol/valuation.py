@@ -798,10 +798,15 @@ def value_of(size: dict[str, Any], *, country: str | None = None,
         building = str(size.get("building", "flat"))
         area = _number(size, "area_m2", AREA_M2, "the floor area in square metres")
         rate, how = rate_for(code, building, region=region or size.get("region"), now=now)
-        built = int(_number(size, "built", BUILT, "the year it was built")) if "built" in size else None
+        # The year is not optional, because leaving it out was the cheapest
+        # answer available. A home described without one was valued at the
+        # full rebuild cost of a new building: 110 m² in Istanbul came to
+        # 57,041 with no year and 31,372 said as 1968, eighty two per cent
+        # more cover for saying less. Every home has a year, the page has
+        # always asked for it, and a rating factor a caller can omit is a
+        # discount for silence.
+        built = int(_number(size, "built", BUILT, "the year it was built"))
         out = {"kind": "home", "building": building, "area_m2": area, "country": code}
-        if built is None:
-            return Valuation(area * rate, f"{area:g} m² x {rate:,.0f} per m² to rebuild", out, how)
         ceiling, hazard = home_age_factors(built, code)
         out["built"] = built
         out["hazard_factor"] = hazard
@@ -821,9 +826,12 @@ def value_of(size: dict[str, Any], *, country: str | None = None,
         # A car's value is its market value, which the buyer knows and a size
         # cannot tell; stated, and bounded.
         value = _number(size, "value", VEHICLE, "the vehicle's value")
-        if "model_year" not in size:
-            return Valuation(value, "the vehicle's market value, as stated",
-                             {"kind": "vehicle", "value": value})
+        # And the model year for the same reason, more sharply: the cap above
+        # exists so that a stated value cannot buy new car cover for an old
+        # one, and omitting the year removed the cap altogether. A 2005 car
+        # declared at 240,000 is held to 50,000 when the year is said and
+        # carried the whole 240,000 when it was not, which is the one thing
+        # the cap is written to prevent.
         year = int(_number(size, "model_year", MODEL_YEAR, "the model year"))
         cap = VEHICLE_NEW_CAP * vehicle_age_factor(year)
         return Valuation(min(value, cap),

@@ -169,9 +169,9 @@ def test_a_moratorium_refuses_new_cover_on_the_fault_and_nothing_else() -> None:
         public = client.get("/api/policy").json()
         assert public["moratoria"][0]["place"]["radius_km"] == 120
         # Ankara is outside the circle.
-        reply = buy(client, device, address, subject={"location": "ANK-CANKAYA", "radius_km": 25},
+        reply = buy(client, device, address, subject={"location": "ANK-CANKAYA", "radius_km": 25, "built": 2005},
                     interest={"what": "a flat in Ankara", "country": "TR", "inside_trigger_area": True,
-                              "value_at_risk": 90_000, "size": {"kind": "home", "building": "flat", "area_m2": 150}})
+                              "value_at_risk": 90_000, "size": {"kind": "home", "building": "flat", "area_m2": 150, "built": 2005}})
         assert reply.status_code == 200, reply.text
         assert client.post("/api/operator/policy/pause", headers=OP, json={
             "peril": "hail", "reason": "no such peril"}).status_code == 422

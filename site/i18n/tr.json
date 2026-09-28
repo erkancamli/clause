@@ -1000,6 +1000,7 @@
     "square metres": "metrekare",
     "that description does not fit this cover": "bu tanım bu teminata uymuyor",
     "the field's area must be the area the cover is written on": "tarlanın alanı, teminatın üzerine düzenlendiği alan olmalıdır",
+    "the year the building was built must be the year the cover is priced on": "binanın yapım yılı, teminatın üzerinden fiyatlandığı yıl olmalıdır",
     "the place where the car is kept, read at {station}": "arabanın bulunduğu yer, {station} konumunda okunur",
     "the rainfall record for the place": "yerin yağış kaydı",
     "there is no rebuild cost schedule for this country yet": "bu ülke için henüz bir yeniden inşa maliyeti tablosu yok",

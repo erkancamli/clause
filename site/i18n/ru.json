@@ -1000,6 +1000,7 @@
     "square metres": "квадратные метры",
     "that description does not fit this cover": "это описание не подходит для данного покрытия",
     "the field's area must be the area the cover is written on": "площадь поля должна совпадать с площадью, на которую оформлено покрытие",
+    "the year the building was built must be the year the cover is priced on": "год постройки здания должен совпадать с годом, по которому рассчитана цена покрытия",
     "the place where the car is kept, read at {station}": "место хранения автомобиля, данные считываются на станции {station}",
     "the rainfall record for the place": "история осадков для этого места",
     "there is no rebuild cost schedule for this country yet": "для этой страны пока нет таблицы стоимости восстановления",

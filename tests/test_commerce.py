@@ -130,10 +130,10 @@ def test_a_partner_cannot_sell_what_it_was_not_admitted_for(client) -> None:
     key = {"x-clause-key": made["api_key"]}
     _, customer = register(client)
     reply = client.post("/api/partner/v1/policies", headers=key, json={
-        "peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50},
+        "peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
         "limit": 5_000, "term_days": 365, "external_ref": "SPECIMEN-4",
         "interest": {"what": "a flat", "country": "TR", "inside_trigger_area": True,
-                     "value_at_risk": 50_000, "size": {"kind": "home", "building": "flat", "area_m2": 90}},
+                     "value_at_risk": 50_000, "size": {"kind": "home", "building": "flat", "area_m2": 90, "built": 2005}},
         "beneficiary": {"address": customer}})
     assert reply.status_code == 403
 
@@ -143,10 +143,10 @@ def test_a_partners_screening_does_not_stand_in_for_an_identity_check(client) ->
     key = {"x-clause-key": made["api_key"]}
     _, customer = register(client)
     reply = client.post("/api/partner/v1/policies", headers=key, json={
-        "peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50},
+        "peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
         "limit": 40_000, "term_days": 365, "external_ref": "SPECIMEN-5",
         "interest": {"what": "a flat", "country": "TR", "inside_trigger_area": True,
-                     "value_at_risk": 60_000, "size": {"kind": "home", "building": "flat", "area_m2": 120}},
+                     "value_at_risk": 60_000, "size": {"kind": "home", "building": "flat", "area_m2": 120, "built": 2005}},
         "beneficiary": {"address": customer}})
     assert reply.status_code == 451
     assert "sanctions clear" in str(reply.json()) or "identity" in str(reply.json())
@@ -229,7 +229,7 @@ def test_rider_buys_only_through_the_latch_key_and_inside_the_mandate(client) ->
     # Outside them: refused, whatever the model asked for.
     assert rider_buy(client, token, limit=5_000).status_code == 403
     assert rider_buy(client, token, peril="earthquake",
-                     subject={"location": "IST-KADIKOY", "radius_km": 50}).status_code == 403
+                     subject={"location": "IST-KADIKOY", "radius_km": 50, "built": 2005}).status_code == 403
     assert rider_buy(client, "rm_forged").status_code == 403
 
 
@@ -400,7 +400,7 @@ def test_a_partner_policy_refund_goes_back_to_the_partner_net_of_commission() ->
         wallets.connect(who, fund=False)
         wallets.credit(who, amount, "seed", kind="faucet")
     pool.deposit("lp", 5_000_000)
-    policy = pool.write(peril_key="earthquake", subject={"location": "IST-KADIKOY", "radius_km": 50},
+    policy = pool.write(peril_key="earthquake", subject={"location": "IST-KADIKOY", "radius_km": 50, "built": 2005},
                         limit=5_000, term_days=365, holder="customer", payer="partner")
     paid = pool.pay_commission(policy, "partner", 0.1 * policy.premium)
     assert wallets.require("partner").balance == pytest.approx(10_000 - policy.premium + paid)

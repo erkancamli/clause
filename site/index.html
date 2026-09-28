@@ -7440,7 +7440,13 @@ function nearestStation(at){
 function structure(){
   if(flow.peril==="quake"){
     var z=flow.size&&flow.size.kind==="home"&&flow.size.valid?flow.size:null;
-    var d=z&&z.builtYear?homeAge(z.builtYear,riskCountry()).shift:0;
+    // No year yet means the price bar before the building has been described,
+    // and the protocol prices that as the oldest building rather than the
+    // newest. The page's own figure has to say the same thing, or the bar
+    // would fall when the protocol answered and rise again when the buyer
+    // typed a year.
+    var year=z&&z.builtYear?z.builtYear:(VALUATION.built||[1900])[0];
+    var d=homeAge(year,riskCountry()).shift;
     var base=shakingIndex()?CURVES.shake:CURVES.quake, k=shakingIndex()?1:.4;
     return {shape:base.shape, pts:base.pts.map(function(p){ return [Math.round((p[0]-d*k)*100)/100, p[1]]; })};
   }

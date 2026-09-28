@@ -32,7 +32,7 @@ def test_the_rulebook_is_in_the_contract_and_on_the_api() -> None:
             "peril": "earthquake", "subject": {"location": "IST-KADIKOY", "radius_km": 50}, "limit": 20_000,
             "term_days": 365, "holder": "", "settlement": "fiat",
             "interest": {"what": "a flat", "country": "TR", "inside_trigger_area": True, "value_at_risk": 90_000,
-                         "size": {"kind": "home", "building": "flat", "area_m2": 100}}})
+                         "size": {"kind": "home", "building": "flat", "area_m2": 100, "built": 2005}}})
         assert preview.status_code == 200, preview.text
         text = preview.json()["text"]
         assert "10. How the reading is determined (calculation rules)" in text

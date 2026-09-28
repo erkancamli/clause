@@ -334,12 +334,26 @@ class Earthquake(Peril):
         From the hazard factor the valuation gives a building's age: a factor
         of 2 (Türkiye, before the 1975 code) is three quarters of an intensity
         unit, since damage ratios roughly double per unit of intensity."""
+        from ..protocol.valuation import BUILT, home_age_factors
+        # A normalised subject always carries its coordinates; one that has not
+        # been through normalise may not, and the country's own age table needs
+        # them. Without them the generic table decides, which is what a subject
+        # outside Türkiye gets anyway.
+        lat, lon = subject.get("latitude"), subject.get("longitude")
+        country = ("TR" if lat is not None and lon is not None
+                   and self.in_turkey(float(lat), float(lon)) else "")
+        # A subject with no year is the price bar before the buyer has said
+        # anything about the building, so it has to be priced somehow. It used
+        # to be priced as a building of the current code, which is the cheapest
+        # band there is: in Türkiye 706.29 against 770.98 for the same cover on
+        # a pre 1976 building, so the estimate shown first was one no honest
+        # answer could improve on, and every honest answer made it dearer.
+        #
+        # An unknown year is the oldest year instead. The first figure is then
+        # the dearest the building could be, and answering only ever brings it
+        # down.
         built = subject.get("built")
-        if built is None:
-            return 0.0
-        from ..protocol.valuation import home_age_factors
-        country = "TR" if self.in_turkey(float(subject["latitude"]), float(subject["longitude"])) else ""
-        _, hazard = home_age_factors(int(built), country)
+        _, hazard = home_age_factors(int(built) if built is not None else BUILT[0], country)
         return round(min(0.75, max(0.0, (hazard - 1.0) * 0.75)), 2)
 
     def site(self, subject: dict[str, Any]) -> Site:
