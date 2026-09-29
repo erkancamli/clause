@@ -56396,1020 +56396,7 @@
   "code": "US",
   "conversion": "Worden, Gerstenberger, Rhoades and Wald (2012), peak ground velocity to modified Mercalli intensity",
   "measure": "PGV, cm/s, at a reference site of 760 m/s",
-  "missed": [
-   "Palm Bay",
-   "Fargo",
-   "Clearwater",
-   "Independence",
-   "Billings",
-   "Ann Arbor",
-   "El Monte",
-   "Harlem",
-   "Westminster",
-   "Round Rock",
-   "Wilmington",
-   "East Harlem",
-   "Arvada",
-   "Beaumont",
-   "Provo",
-   "Carlsbad",
-   "Odessa",
-   "Downey",
-   "Elmhurst",
-   "Costa Mesa",
-   "Miami Gardens",
-   "North Peoria",
-   "Fairfield",
-   "Lansing",
-   "Bushwick",
-   "Gravesend",
-   "Elgin",
-   "West Jordan",
-   "Inglewood",
-   "Tuscaloosa",
-   "Richardson",
-   "Lowell",
-   "East Independence",
-   "Gresham",
-   "Antioch",
-   "Cambridge",
-   "High Point",
-   "Manchester",
-   "Temecula",
-   "Murrieta",
-   "Centennial",
-   "Pueblo",
-   "Pearland",
-   "Waterbury",
-   "Greeley",
-   "West Covina",
-   "Enterprise",
-   "North Charleston",
-   "Everett",
-   "College Station",
-   "Pompano Beach",
-   "South Fulton",
-   "Norwalk",
-   "Boulder",
-   "Broken Arrow",
-   "Daly City",
-   "Sandy Springs",
-   "Burbank",
-   "Green Bay",
-   "Santa Maria",
-   "Universal City",
-   "Wichita Falls",
-   "Lakeland",
-   "Clovis",
-   "Lewisville",
-   "Tyler",
-   "El Cajon",
-   "San Mateo",
-   "Brandon",
-   "Rialto",
-   "Davenport",
-   "Edison",
-   "Hillsboro",
-   "Las Cruces",
-   "South Bend",
-   "Albany",
-   "New Bedford",
-   "Vista",
-   "Davie",
-   "Chinatown",
-   "Renton",
-   "Roanoke",
-   "San Angelo",
-   "Kenosha",
-   "Clinton Township",
-   "Erie",
-   "Portsmouth Heights",
-   "Richmond Hill",
-   "Alief",
-   "Spring Hill",
-   "Compton",
-   "League City",
-   "Flint",
-   "Allen",
-   "Dorchester",
-   "Mission Viejo",
-   "Vacaville",
-   "Ventura",
-   "Highlands Ranch",
-   "Lawton",
-   "Beaverton",
-   "South Gate",
-   "Portsmouth",
-   "Sparks",
-   "Yuma",
-   "Brockton",
-   "Dearborn",
-   "Federal Way",
-   "Lee's Summit",
-   "Asheville",
-   "Spokane Valley",
-   "Fordham",
-   "Livonia",
-   "Roswell",
-   "Lawrence",
-   "The Woodlands",
-   "West Albany",
-   "Yakima",
-   "Quincy",
-   "Indio",
-   "Rio Rancho",
-   "Enchanted Hills",
-   "Santa Fe",
-   "Sandy",
-   "Whittier",
-   "Canarsie",
-   "Kirkland",
-   "Menifee",
-   "Newport Beach",
-   "Tracy",
-   "Citrus Heights",
-   "Bend",
-   "Canton",
-   "Lehigh Acres",
-   "Greenburgh",
-   "Bloomington",
-   "West Town",
-   "Germantown",
-   "Clifton",
-   "Duluth",
-   "Champaign",
-   "Near North Side",
-   "Chino",
-   "Ogden",
-   "Redwood City",
-   "Bellingham",
-   "O'Fallon",
-   "Hoover",
-   "Melbourne",
-   "Danbury",
-   "East Norwalk",
-   "Edinburg",
-   "Sunrise",
-   "Bloomington",
-   "Cicero",
-   "Hemet",
-   "San Pedro",
-   "Ahwatukee Foothills",
-   "Johns Creek",
-   "Mission",
-   "Troy",
-   "Buena Park",
-   "Mid-City",
-   "Palm Coast",
-   "Sioux City",
-   "Lake Forest",
-   "Merced",
-   "Longview",
-   "Bryan",
-   "Westland",
-   "Warwick",
-   "Farmington Hills",
-   "San Tan Valley",
-   "Mount Pleasant",
-   "Cranston",
-   "Largo",
-   "Homestead",
-   "South Suffolk",
-   "Avondale",
-   "Tustin",
-   "Mountain View",
-   "Napa",
-   "Somerville",
-   "Kendall",
-   "Lawrence",
-   "Parma",
-   "New Rochelle",
-   "Lynchburg",
-   "Medford",
-   "Deerfield Beach",
-   "Sylmar",
-   "Pleasanton",
-   "Belmont Cragin",
-   "Brooklyn Park",
-   "Goodyear",
-   "Kennewick",
-   "Alameda",
-   "Town 'n' Country",
-   "Bellflower",
-   "Chino Hills",
-   "Bloomington",
-   "Alafaya",
-   "Springdale",
-   "Racine",
-   "Hammond",
-   "Milpitas",
-   "Gary",
-   "Scranton",
-   "Baldwin Park",
-   "Auburn",
-   "Fishers",
-   "Saint Joseph",
-   "Pharr",
-   "Upland",
-   "Folsom",
-   "Baytown",
-   "San Ramon",
-   "Camden",
-   "Lake Charles",
-   "Kalamazoo",
-   "Brick",
-   "Arlington Heights",
-   "Plymouth",
-   "South Ozone Park",
-   "Doral",
-   "Waterford",
-   "Evanston",
-   "Manteca",
-   "Wyoming",
-   "Loveland",
-   "Cheektowaga",
-   "Kings Bridge",
-   "Bismarck",
-   "Perris",
-   "Bethlehem",
-   "Albany",
-   "Schaumburg",
-   "Gastonia",
-   "Union City",
-   "Bolingbrook",
-   "Iowa City",
-   "Layton",
-   "Missouri City",
-   "Appleton",
-   "Shelby",
-   "Fort Myers",
-   "Boynton Beach",
-   "Jonesboro",
-   "South Lawndale",
-   "Logan Square",
-   "Rapid City",
-   "Warner Robins",
-   "Rochester Hills",
-   "Decatur",
-   "Southfield",
-   "Saint George",
-   "New Britain",
-   "Daytona Beach",
-   "Franklin",
-   "Turlock",
-   "Temple",
-   "West Ridge",
-   "Apple Valley",
-   "Lynwood",
-   "Waukesha",
-   "Canton",
-   "Gulfport",
-   "Pawtucket",
-   "Lauderhill",
-   "Rock Hill",
-   "Silver Spring",
-   "West Gulfport",
-   "Flower Mound",
-   "Centreville",
-   "Passaic",
-   "Riverview",
-   "Redlands",
-   "Missoula",
-   "Rancho Cordova",
-   "Wilmington",
-   "New Braunfels",
-   "Cherry Hill",
-   "Flagstaff",
-   "Muncie",
-   "Mira Mesa",
-   "Woodland Hills",
-   "Weston",
-   "Frederick",
-   "Pasco",
-   "Pittsburg",
-   "Ridgewood",
-   "Palatine",
-   "North Richland Hills",
-   "Union City",
-   "Kissimmee",
-   "Walnut Creek",
-   "Cordova",
-   "Mount Vernon",
-   "Conroe",
-   "Dothan",
-   "Northridge",
-   "Waterloo",
-   "Maple Grove",
-   "Framingham",
-   "Redondo Beach",
-   "Bossier City",
-   "Yorba Linda",
-   "Woodbury",
-   "Eau Claire",
-   "Waldorf",
-   "Forest Hills",
-   "Davis",
-   "Glen Burnie",
-   "Camarillo",
-   "Victoria",
-   "Gaithersburg",
-   "South San Francisco",
-   "Kenner",
-   "Jackson Heights",
-   "Rockville",
-   "Lincoln Park",
-   "Yuba City",
-   "Palo Alto",
-   "Casas Adobes",
-   "Marysville",
-   "South Jordan",
-   "Oshkosh",
-   "North Little Rock",
-   "Bayside",
-   "Bayonne",
-   "Eagan",
-   "Delray Beach",
-   "Johnson City",
-   "Dale City",
-   "Cedar Park",
-   "Parkchester",
-   "Atascocita",
-   "Saint Cloud",
-   "Ellicott City",
-   "Laguna Niguel",
-   "Saint Charles",
-   "Harlingen",
-   "San Clemente",
-   "West Lynchburg",
-   "Middletown",
-   "Framingham Center",
-   "Schenectady",
-   "Cheyenne",
-   "Broomfield",
-   "Ames",
-   "Park Slope",
-   "Shawnee",
-   "Reseda",
-   "Conway",
-   "East Orange",
-   "Portage Park",
-   "Skokie",
-   "West Bloomfield Township",
-   "Tamarac",
-   "Youngstown",
-   "Lodi",
-   "North Hollywood",
-   "Greenville",
-   "Celina",
-   "Mansfield",
-   "Santa Cruz",
-   "Pico Rivera",
-   "Madera",
-   "Janesville",
-   "West Des Moines",
-   "Montebello",
-   "Georgetown",
-   "Alpharetta",
-   "Lorain",
-   "Bowling Green",
-   "Flatlands",
-   "Dundalk",
-   "Eden Prairie",
-   "North Bergen",
-   "Florence-Graham",
-   "Waltham",
-   "West Hartford",
-   "Rogers",
-   "Carol City",
-   "Encinitas",
-   "East Village",
-   "Haverhill",
-   "Jupiter",
-   "Council Bluffs",
-   "Wellington",
-   "West Coon Rapids",
-   "North Miami",
-   "Hamilton",
-   "North Port",
-   "Tulare",
-   "Coon Rapids",
-   "Millcreek",
-   "La Habra",
-   "Blaine",
-   "Auburn",
-   "Lake Elsinore",
-   "Carmichael",
-   "Burnsville",
-   "Monterey Park",
-   "Castro Valley",
-   "Irvington",
-   "Rocklin",
-   "Utica",
-   "Malden",
-   "National City",
-   "Financial District",
-   "Bethesda",
-   "Terre Haute",
-   "San Marcos",
-   "Brentwood",
-   "Lakeville",
-   "West Allis",
-   "San Rafael",
-   "Noblesville",
-   "Marietta",
-   "Fairfield",
-   "Owensboro",
-   "Eastvale",
-   "Royal Oak",
-   "Brentwood",
-   "Dubuque",
-   "Brookline",
-   "Novi",
-   "Des Plaines",
-   "Carson City",
-   "Orland Park",
-   "Bartlett",
-   "Woodland",
-   "Lehi",
-   "White Plains",
-   "Arcadia",
-   "Reston",
-   "Ocala",
-   "Clay",
-   "Central City",
-   "South Vineland",
-   "Sanford",
-   "Bowie",
-   "Kokomo",
-   "Wayne",
-   "Santee",
-   "Dublin",
-   "Palm Harbor",
-   "Medford",
-   "Midwest City",
-   "Center City",
-   "Margate",
-   "South Whittier",
-   "Tinley Park",
-   "Pflugerville",
-   "New Brunswick",
-   "Grand Forks",
-   "Fountain Valley",
-   "North Hills",
-   "Diamond Bar",
-   "Taunton",
-   "Oak Lawn",
-   "Union",
-   "Ankeny",
-   "Chicopee",
-   "Irving Park",
-   "Berwyn",
-   "Kendale Lakes",
-   "Smyrna",
-   "Dearborn Heights",
-   "Porterville",
-   "Piscataway",
-   "Hendersonville",
-   "Morningside Heights",
-   "Rocky Mount",
-   "Corvallis",
-   "Olympia",
-   "Valdosta",
-   "Hanford",
-   "Castle Rock",
-   "Greenwood",
-   "Chicago Lawn",
-   "Hempstead",
-   "Novato",
-   "Kettering",
-   "Shoreline",
-   "Decatur",
-   "Paramount",
-   "Port Arthur",
-   "Abington",
-   "Anderson",
-   "Tamiami",
-   "Towson",
-   "North Chicopee",
-   "Uptown",
-   "Sarasota",
-   "Cypress Hills",
-   "West Haven",
-   "Rosemead",
-   "Perth Amboy",
-   "Sherman Oaks",
-   "Southaven",
-   "Saint Peters",
-   "Downtown DC",
-   "Harrisonburg",
-   "Peabody",
-   "Placentia",
-   "Lenexa",
-   "DeSoto",
-   "Burlington",
-   "South Hill",
-   "Elkhart",
-   "La Crosse",
-   "Oak Park",
-   "Florissant",
-   "Sammamish",
-   "Wakefield",
-   "Albany",
-   "Hoffman Estates",
-   "Albany Park",
-   "Methuen",
-   "Glendora",
-   "Wilmington",
-   "Queens Village",
-   "Brookhaven",
-   "Levittown",
-   "Palm Desert",
-   "Joplin",
-   "Enid",
-   "Bonita Springs",
-   "Irondequoit",
-   "Caldwell",
-   "Minnetonka",
-   "Pinellas Park",
-   "Battle Creek",
-   "Casa Grande",
-   "South Shore",
-   "Mott Haven",
-   "The Villages",
-   "Grand Island",
-   "Grapevine",
-   "Stratford",
-   "Kentwood",
-   "City of Milford (balance)",
-   "Tigard",
-   "East Hartford",
-   "Apple Valley",
-   "Plainfield",
-   "Leesburg",
-   "Parsippany",
-   "Coral Gables",
-   "The Trails of Frisco",
-   "The Hammocks",
-   "Buckeye",
-   "Flagami",
-   "Catalina Foothills",
-   "North La Crosse",
-   "Burien",
-   "Havertown",
-   "Logan",
-   "South Peabody",
-   "Aliso Viejo",
-   "Harrisburg",
-   "Galveston",
-   "Poway",
-   "Edina",
-   "Minnetonka Mills",
-   "Stonecrest",
-   "Cerritos",
-   "Redford",
-   "Troy",
-   "Sunnyside",
-   "Wharton",
-   "Whitman",
-   "Downers Grove",
-   "Azusa",
-   "Wilson",
-   "Monroe",
-   "Parker",
-   "La Mirada",
-   "Minot",
-   "Aloha",
-   "Saginaw",
-   "Bedford",
-   "Rancho Santa Margarita",
-   "Murray",
-   "Cuyahoga Falls",
-   "Coeur d'Alene",
-   "Bloomfield",
-   "Rowland Heights",
-   "Covina",
-   "Stillwater",
-   "Niagara Falls",
-   "Collierville",
-   "Oxford Circle",
-   "Summerville",
-   "South Bel Air",
-   "Sheboygan",
-   "Middletown",
-   "Aspen Hill",
-   "Dunwoody",
-   "Huntington",
-   "Maricopa",
-   "Roswell",
-   "Cedar Hill",
-   "East Brunswick",
-   "East Lansing",
-   "Apopka",
-   "Maspeth",
-   "Wheaton",
-   "Mishawaka",
-   "Portage",
-   "West Orange",
-   "McLean",
-   "Ceres",
-   "Chesterfield",
-   "Barnstable",
-   "Salina",
-   "Lawrence",
-   "Bel Air South",
-   "Euclid",
-   "Texas City",
-   "Wauwatosa",
-   "Vermont Square",
-   "Florin",
-   "Twin Falls",
-   "Glenview",
-   "East Providence",
-   "Palm Springs",
-   "San Luis Obispo",
-   "Mission District",
-   "Country Club",
-   "Gwynn Oak",
-   "Winnetka",
-   "Jeffersonville",
-   "San Jacinto",
-   "Mentor",
-   "Mansfield",
-   "Hattiesburg",
-   "Draper",
-   "Middletown",
-   "Wylie",
-   "Laguna",
-   "Smyrna",
-   "Charlottesville",
-   "Lacey",
-   "Littleton",
-   "Beavercreek",
-   "Kannapolis",
-   "Everett",
-   "Binghamton",
-   "Brighton",
-   "Elmhurst",
-   "Hell's Kitchen",
-   "Auburn Gresham",
-   "City of Sammamish",
-   "Antelope",
-   "Keller",
-   "Biloxi",
-   "Apex",
-   "West Lafayette",
-   "Cutler Bay",
-   "Titusville",
-   "Altoona",
-   "Oro Valley",
-   "Saint Louis Park",
-   "Enfield",
-   "Dublin",
-   "Tuckahoe",
-   "Potomac",
-   "Cleveland Heights",
-   "Sayreville",
-   "Hackensack",
-   "Pine Bluff",
-   "West Seneca",
-   "Strongsville",
-   "Coachella",
-   "Penn Hills",
-   "Encino",
-   "Bentonville",
-   "Fort Pierce",
-   "Bridgewater",
-   "Danville",
-   "Oakland Park",
-   "Attleboro",
-   "Severn",
-   "Blacksburg",
-   "Haltom City",
-   "Brighton Park",
-   "Lompoc",
-   "Wesley Chapel",
-   "Urbandale",
-   "York",
-   "North Miami Beach",
-   "El Centro",
-   "Rego Park",
-   "North Brunswick",
-   "Echo Park",
-   "North Bethesda",
-   "Beaumont",
-   "Lombard",
-   "Bountiful",
-   "North Lauderdale",
-   "Burleson",
-   "Ocoee",
-   "Ashburn",
-   "Southington",
-   "Augusta",
-   "Bozeman",
-   "Sierra Vista",
-   "Freeport",
-   "Pittsfield",
-   "West Babylon",
-   "DeKalb",
-   "San Bruno",
-   "Altamonte Springs",
-   "Bell Gardens",
-   "Schertz",
-   "East Boston",
-   "Morgan Hill",
-   "Bothell",
-   "Fond du Lac",
-   "Sicklerville",
-   "Sayreville Junction",
-   "Farmington",
-   "La Jolla",
-   "Altadena",
-   "Fairfield",
-   "Ashburn",
-   "Rancho Palos Verdes",
-   "North Highlands",
-   "Moline",
-   "East Concord",
-   "Jefferson City",
-   "Henrietta",
-   "Rockwall",
-   "Plainfield",
-   "Burlington",
-   "Rohnert Park",
-   "Urbana",
-   "Southglenn",
-   "Prescott Valley",
-   "State College",
-   "Kearny",
-   "El Dorado Hills",
-   "Danville",
-   "Belleville",
-   "Linden",
-   "Moorhead",
-   "Woodside",
-   "Brea",
-   "Riverton",
-   "Prescott",
-   "Mount Laurel",
-   "The Colony",
-   "Manassas",
-   "Brentwood",
-   "Westfield",
-   "Hutchinson",
-   "Leominster",
-   "Catonsville",
-   "Hicksville",
-   "Bartlett",
-   "Buffalo Grove",
-   "Woonsocket",
-   "West Hills",
-   "Edmonds",
-   "Marana",
-   "Shelton",
-   "Cedar Falls",
-   "Chatsworth",
-   "Gage Park",
-   "Beverly",
-   "University",
-   "Coppell",
-   "Findlay",
-   "Campbell",
-   "Lake Ridge",
-   "Burke",
-   "Mankato",
-   "Annandale",
-   "Covington",
-   "New City",
-   "Morris Heights",
-   "Peachtree Corners",
-   "Puyallup",
-   "Woburn",
-   "Bremerton",
-   "Hallandale Beach",
-   "Clovis",
-   "Weslaco",
-   "Cape Girardeau",
-   "Bullhead City",
-   "North Fort Myers",
-   "Dover",
-   "Chelsea",
-   "Grove City",
-   "Princeton",
-   "Essex",
-   "Atlantic City",
-   "Pacifica",
-   "Germantown",
-   "Northglenn",
-   "Far Rockaway",
-   "Olney",
-   "Kensington",
-   "Coram",
-   "Wausau",
-   "Hurst",
-   "Stanton",
-   "Friendswood",
-   "The Acreage",
-   "West Oak Lane",
-   "Montclair",
-   "Rock Island",
-   "Whitney",
-   "Oviedo",
-   "Carpentersville",
-   "Manhattan Valley",
-   "Lake Oswego",
-   "Muskogee",
-   "Hobbs",
-   "Muskegon",
-   "Westerville",
-   "Little Elm",
-   "Hanover Park",
-   "Hillsborough",
-   "Channelview",
-   "Panama City",
-   "Florence",
-   "Wake Forest",
-   "Huber Heights",
-   "Martinez",
-   "East Meadow",
-   "Hanover",
-   "Wheeling",
-   "Apache Junction",
-   "Pleasant Grove",
-   "Brookfield",
-   "Columbia Heights",
-   "Delaware",
-   "Roy",
-   "Valley Stream",
-   "Spanish Fork",
-   "Keizer",
-   "Woodlawn",
-   "Lima",
-   "Spartanburg",
-   "Hermitage",
-   "Park Ridge",
-   "Fenway/Kenmore",
-   "Winter Haven",
-   "Aventura",
-   "Severna Park",
-   "Royal Palm Beach",
-   "Brighton",
-   "Phenix City",
-   "Milton",
-   "Sun City",
-   "Lake Worth Beach",
-   "Kew Gardens Hills",
-   "Jamaica Plain",
-   "Monrovia",
-   "Hollister",
-   "Los Banos",
-   "Sewell",
-   "Plant City",
-   "Greenfield",
-   "Marion",
-   "Braintree",
-   "Newnan",
-   "Texarkana",
-   "Addison",
-   "Reynoldsburg",
-   "South Jordan Heights",
-   "Odenton",
-   "Mableton",
-   "Hilton Head",
-   "Grants Pass",
-   "Indian Trail",
-   "Calumet City",
-   "Lincoln Park",
-   "Lynnwood",
-   "Whitestone",
-   "Beloit",
-   "Belleville",
-   "Longview",
-   "South Miami Heights",
-   "Portage",
-   "Westfield",
-   "New Albany",
-   "Clifton Park",
-   "Fort Lee",
-   "Brighton",
-   "Bartlesville",
-   "Ewing",
-   "San Juan",
-   "Woodhaven",
-   "Mission Bend",
-   "San Juan Capistrano",
-   "Pahrump",
-   "Saint Charles",
-   "Temple City",
-   "Marion",
-   "Mechanicsville",
-   "Lufkin",
-   "Pennsauken",
-   "Rome",
-   "Mattapan",
-   "Claremont",
-   "Franklin",
-   "West Hollywood",
-   "Richfield",
-   "Bell",
-   "Lewiston",
-   "Dunedin",
-   "Kendall West",
-   "Del Rio",
-   "Oakville",
-   "Commack",
-   "Menomonee Falls",
-   "Moorpark",
-   "Gadsden",
-   "Issaquah",
-   "Spring Hill",
-   "Trumbull",
-   "Olive Branch",
-   "Mooresville",
-   "West Torrington",
-   "Willowbrook",
-   "Leavenworth",
-   "Clinton",
-   "Cottage Grove",
-   "Wildwood",
-   "Richmond West",
-   "Mount Pleasant",
-   "Oregon City",
-   "Goldsboro",
-   "Manhattan Beach",
-   "Parkland",
-   "Martinez",
-   "East Florence",
-   "Kyle",
-   "Kearns",
-   "Linton Hall",
-   "Tupelo",
-   "Hot Springs",
-   "Wildomar",
-   "Wentzville",
-   "Valrico",
-   "Coventry",
-   "Rosenberg",
-   "Bettendorf",
-   "East Point",
-   "Prattville",
-   "Ponte Vedra Beach",
-   "Boardman",
-   "Cooper City",
-   "Oxon Hill-Glassmanor",
-   "Egypt Lake-Leto",
-   "North Lawndale",
-   "Oak Creek",
-   "Peachtree City",
-   "Merrillville",
-   "Saint Cloud",
-   "La Porte",
-   "University City",
-   "Upper Arlington",
-   "Torrington",
-   "Beverly Hills",
-   "Inver Grove Heights",
-   "Cumberland",
-   "Bayview-Hunters Point",
-   "Pleasant Hill",
-   "Stow",
-   "Lauderdale Lakes",
-   "La Vergne",
-   "Winter Springs",
-   "Merritt Island",
-   "Greenpoint",
-   "West Little River",
-   "Brunswick",
-   "San Dimas",
-   "Monroe",
-   "North Center",
-   "Queen Creek",
-   "Gahanna",
-   "Leawood",
-   "Owasso",
-   "Derry Village",
-   "Central Islip",
-   "Norristown",
-   "Lower West Side",
-   "Dyker Heights",
-   "Cottonwood Heights",
-   "Gallatin",
-   "Houma",
-   "Rubidoux",
-   "Collinwood",
-   "Glendale Heights",
-   "Butte",
-   "Dana Point",
-   "Benton",
-   "Vestavia Hills",
-   "La Presa",
-   "Oakton",
-   "Chester",
-   "Mount Vernon",
-   "Studio City",
-   "Salisbury",
-   "Riviera Beach",
-   "Orangevale"
-  ],
+  "missed": [],
   "points": [
    {
     "curve": [
@@ -95250,6 +94237,886 @@
     "longitude": -157.7989,
     "model": "Hawaii 2021 R1",
     "name": "Kaneohe"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.01021394
+     ],
+     [
+      0.355,
+      0.0073195903
+     ],
+     [
+      0.532,
+      0.0052202564
+     ],
+     [
+      0.798,
+      0.0036769723
+     ],
+     [
+      1.19,
+      0.0025420736
+     ],
+     [
+      1.8,
+      0.0016666603
+     ],
+     [
+      2.69,
+      0.0010501803
+     ],
+     [
+      4.04,
+      0.00061731501
+     ],
+     [
+      6.06,
+      0.00033679265
+     ],
+     [
+      9.09,
+      0.00016776794
+     ],
+     [
+      13.6,
+      7.5460032e-05
+     ],
+     [
+      20.5,
+      2.9533509e-05
+     ],
+     [
+      30.7,
+      1.0331315e-05
+     ],
+     [
+      46.0,
+      3.2484102e-06
+     ],
+     [
+      69.0,
+      9.7100317e-07
+     ],
+     [
+      103.0,
+      3.0155105e-07
+     ],
+     [
+      155.0,
+      9.448998e-08
+     ],
+     [
+      233.0,
+      2.7374401e-08
+     ],
+     [
+      349.0,
+      6.7527418e-09
+     ],
+     [
+      525.0,
+      1.2899241e-09
+     ]
+    ],
+    "latitude": 28.0345,
+    "longitude": -80.5887,
+    "model": "CONUS 2023 R2",
+    "name": "Palm Bay"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.0049991291
+     ],
+     [
+      0.355,
+      0.0033022796
+     ],
+     [
+      0.532,
+      0.0021080933
+     ],
+     [
+      0.798,
+      0.0012974211
+     ],
+     [
+      1.19,
+      0.00077537532
+     ],
+     [
+      1.8,
+      0.00043731076
+     ],
+     [
+      2.69,
+      0.00024102176
+     ],
+     [
+      4.04,
+      0.00012654837
+     ],
+     [
+      6.06,
+      6.3801288e-05
+     ],
+     [
+      9.09,
+      3.0792009e-05
+     ],
+     [
+      13.6,
+      1.4282383e-05
+     ],
+     [
+      20.5,
+      6.2308571e-06
+     ],
+     [
+      30.7,
+      2.618973e-06
+     ],
+     [
+      46.0,
+      1.0370937e-06
+     ],
+     [
+      69.0,
+      3.8091399e-07
+     ],
+     [
+      103.0,
+      1.2943938e-07
+     ],
+     [
+      155.0,
+      3.8351938e-08
+     ],
+     [
+      233.0,
+      9.8604948e-09
+     ],
+     [
+      349.0,
+      2.1440903e-09
+     ],
+     [
+      525.0,
+      3.6210889e-10
+     ]
+    ],
+    "latitude": 46.8772,
+    "longitude": -96.7898,
+    "model": "CONUS 2023 R2",
+    "name": "Fargo"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.011248342
+     ],
+     [
+      0.355,
+      0.0079595231
+     ],
+     [
+      0.532,
+      0.0055818167
+     ],
+     [
+      0.798,
+      0.0038494554
+     ],
+     [
+      1.19,
+      0.0025987705
+     ],
+     [
+      1.8,
+      0.0016604489
+     ],
+     [
+      2.69,
+      0.0010206882
+     ],
+     [
+      4.04,
+      0.00058552989
+     ],
+     [
+      6.06,
+      0.00031197347
+     ],
+     [
+      9.09,
+      0.00015194126
+     ],
+     [
+      13.6,
+      6.7013123e-05
+     ],
+     [
+      20.5,
+      2.5876355e-05
+     ],
+     [
+      30.7,
+      9.0543947e-06
+     ],
+     [
+      46.0,
+      2.9126133e-06
+     ],
+     [
+      69.0,
+      9.1194543e-07
+     ],
+     [
+      103.0,
+      2.9670211e-07
+     ],
+     [
+      155.0,
+      9.4817298e-08
+     ],
+     [
+      233.0,
+      2.7516941e-08
+     ],
+     [
+      349.0,
+      6.8226765e-09
+     ],
+     [
+      525.0,
+      1.3133681e-09
+     ]
+    ],
+    "latitude": 27.9658,
+    "longitude": -82.8001,
+    "model": "CONUS 2023 R2",
+    "name": "Clearwater"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.032759621
+     ],
+     [
+      0.355,
+      0.022412799
+     ],
+     [
+      0.532,
+      0.015222159
+     ],
+     [
+      0.798,
+      0.01029561
+     ],
+     [
+      1.19,
+      0.0070073155
+     ],
+     [
+      1.8,
+      0.0047043838
+     ],
+     [
+      2.69,
+      0.0031640455
+     ],
+     [
+      4.04,
+      0.0020692616
+     ],
+     [
+      6.06,
+      0.0013111517
+     ],
+     [
+      9.09,
+      0.00079320254
+     ],
+     [
+      13.6,
+      0.00044960688
+     ],
+     [
+      20.5,
+      0.0002279341
+     ],
+     [
+      30.7,
+      0.00010129866
+     ],
+     [
+      46.0,
+      3.7027507e-05
+     ],
+     [
+      69.0,
+      1.0551628e-05
+     ],
+     [
+      103.0,
+      2.2607448e-06
+     ],
+     [
+      155.0,
+      3.2009155e-07
+     ],
+     [
+      233.0,
+      3.1241731e-08
+     ],
+     [
+      349.0,
+      4.6958483e-09
+     ],
+     [
+      525.0,
+      8.0059379e-10
+     ]
+    ],
+    "latitude": 39.0911,
+    "longitude": -94.4155,
+    "model": "CONUS 2023 R2",
+    "name": "Independence"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.077714886
+     ],
+     [
+      0.355,
+      0.050597597
+     ],
+     [
+      0.532,
+      0.031318252
+     ],
+     [
+      0.798,
+      0.018206807
+     ],
+     [
+      1.19,
+      0.0099536441
+     ],
+     [
+      1.8,
+      0.0049383124
+     ],
+     [
+      2.69,
+      0.0023258679
+     ],
+     [
+      4.04,
+      0.0010158294
+     ],
+     [
+      6.06,
+      0.00042478902
+     ],
+     [
+      9.09,
+      0.00017593112
+     ],
+     [
+      13.6,
+      7.4758172e-05
+     ],
+     [
+      20.5,
+      3.1518015e-05
+     ],
+     [
+      30.7,
+      1.2901619e-05
+     ],
+     [
+      46.0,
+      4.7784574e-06
+     ],
+     [
+      69.0,
+      1.5412672e-06
+     ],
+     [
+      103.0,
+      4.3467899e-07
+     ],
+     [
+      155.0,
+      1.035778e-07
+     ],
+     [
+      233.0,
+      2.2221432e-08
+     ],
+     [
+      349.0,
+      4.4695638e-09
+     ],
+     [
+      525.0,
+      7.6075835e-10
+     ]
+    ],
+    "latitude": 45.7833,
+    "longitude": -108.5007,
+    "model": "CONUS 2023 R2",
+    "name": "Billings"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.033013064
+     ],
+     [
+      0.355,
+      0.022559095
+     ],
+     [
+      0.532,
+      0.015191268
+     ],
+     [
+      0.798,
+      0.010082436
+     ],
+     [
+      1.19,
+      0.0066305457
+     ],
+     [
+      1.8,
+      0.0042072356
+     ],
+     [
+      2.69,
+      0.0026379557
+     ],
+     [
+      4.04,
+      0.0015926664
+     ],
+     [
+      6.06,
+      0.00092028691
+     ],
+     [
+      9.09,
+      0.00049881126
+     ],
+     [
+      13.6,
+      0.00024866016
+     ],
+     [
+      20.5,
+      0.00010792013
+     ],
+     [
+      30.7,
+      4.0392025e-05
+     ],
+     [
+      46.0,
+      1.2621184e-05
+     ],
+     [
+      69.0,
+      3.3472524e-06
+     ],
+     [
+      103.0,
+      8.2916715e-07
+     ],
+     [
+      155.0,
+      2.0833528e-07
+     ],
+     [
+      233.0,
+      5.3303448e-08
+     ],
+     [
+      349.0,
+      1.1833365e-08
+     ],
+     [
+      525.0,
+      2.0299942e-09
+     ]
+    ],
+    "latitude": 42.2776,
+    "longitude": -83.7409,
+    "model": "CONUS 2023 R2",
+    "name": "Ann Arbor"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.83930171
+     ],
+     [
+      0.355,
+      0.64825781
+     ],
+     [
+      0.532,
+      0.48649117
+     ],
+     [
+      0.798,
+      0.35494458
+     ],
+     [
+      1.19,
+      0.25268385
+     ],
+     [
+      1.8,
+      0.17132584
+     ],
+     [
+      2.69,
+      0.11243077
+     ],
+     [
+      4.04,
+      0.069791784
+     ],
+     [
+      6.06,
+      0.041303285
+     ],
+     [
+      9.09,
+      0.023414838
+     ],
+     [
+      13.6,
+      0.012750363
+     ],
+     [
+      20.5,
+      0.0064658487
+     ],
+     [
+      30.7,
+      0.0030451211
+     ],
+     [
+      46.0,
+      0.0012718808
+     ],
+     [
+      69.0,
+      0.00045101997
+     ],
+     [
+      103.0,
+      0.00013292042
+     ],
+     [
+      155.0,
+      2.9816183e-05
+     ],
+     [
+      233.0,
+      4.8484415e-06
+     ],
+     [
+      349.0,
+      5.3090189e-07
+     ],
+     [
+      525.0,
+      2.8096995e-08
+     ]
+    ],
+    "latitude": 34.0686,
+    "longitude": -118.0276,
+    "model": "CONUS 2023 R2",
+    "name": "El Monte"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.04075713
+     ],
+     [
+      0.355,
+      0.029013357
+     ],
+     [
+      0.532,
+      0.020120751
+     ],
+     [
+      0.798,
+      0.013545421
+     ],
+     [
+      1.19,
+      0.0088916688
+     ],
+     [
+      1.8,
+      0.0055543442
+     ],
+     [
+      2.69,
+      0.0033964177
+     ],
+     [
+      4.04,
+      0.0019912821
+     ],
+     [
+      6.06,
+      0.001127005
+     ],
+     [
+      9.09,
+      0.00061388725
+     ],
+     [
+      13.6,
+      0.00032263469
+     ],
+     [
+      20.5,
+      0.00016043763
+     ],
+     [
+      30.7,
+      7.6918574e-05
+     ],
+     [
+      46.0,
+      3.4803978e-05
+     ],
+     [
+      69.0,
+      1.4611443e-05
+     ],
+     [
+      103.0,
+      5.6535713e-06
+     ],
+     [
+      155.0,
+      1.9001896e-06
+     ],
+     [
+      233.0,
+      5.4787264e-07
+     ],
+     [
+      349.0,
+      1.3113585e-07
+     ],
+     [
+      525.0,
+      2.3754219e-08
+     ]
+    ],
+    "latitude": 40.8079,
+    "longitude": -73.9454,
+    "model": "CONUS 2023 R2",
+    "name": "Harlem"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.015491407
+     ],
+     [
+      0.355,
+      0.011051398
+     ],
+     [
+      0.532,
+      0.0078302966
+     ],
+     [
+      0.798,
+      0.0054868815
+     ],
+     [
+      1.19,
+      0.0037982671
+     ],
+     [
+      1.8,
+      0.0025292807
+     ],
+     [
+      2.69,
+      0.0016535768
+     ],
+     [
+      4.04,
+      0.0010332001
+     ],
+     [
+      6.06,
+      0.00060753638
+     ],
+     [
+      9.09,
+      0.00032618548
+     ],
+     [
+      13.6,
+      0.0001561458
+     ],
+     [
+      20.5,
+      6.3083983e-05
+     ],
+     [
+      30.7,
+      2.1394175e-05
+     ],
+     [
+      46.0,
+      5.8347231e-06
+     ],
+     [
+      69.0,
+      1.2571824e-06
+     ],
+     [
+      103.0,
+      2.2857323e-07
+     ],
+     [
+      155.0,
+      4.0576693e-08
+     ],
+     [
+      233.0,
+      9.3844606e-09
+     ],
+     [
+      349.0,
+      1.9553746e-09
+     ],
+     [
+      525.0,
+      3.2252977e-10
+     ]
+    ],
+    "latitude": 30.5083,
+    "longitude": -97.6789,
+    "model": "CONUS 2023 R2",
+    "name": "Round Rock"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.026706492
+     ],
+     [
+      0.355,
+      0.018431868
+     ],
+     [
+      0.532,
+      0.012618916
+     ],
+     [
+      0.798,
+      0.0086082708
+     ],
+     [
+      1.19,
+      0.0059059624
+     ],
+     [
+      1.8,
+      0.0039892015
+     ],
+     [
+      2.69,
+      0.0026916376
+     ],
+     [
+      4.04,
+      0.0017535312
+     ],
+     [
+      6.06,
+      0.0010869812
+     ],
+     [
+      9.09,
+      0.000626756
+     ],
+     [
+      13.6,
+      0.00033019166
+     ],
+     [
+      20.5,
+      0.00015241829
+     ],
+     [
+      30.7,
+      6.1721987e-05
+     ],
+     [
+      46.0,
+      2.1119812e-05
+     ],
+     [
+      69.0,
+      5.9559934e-06
+     ],
+     [
+      103.0,
+      1.3967462e-06
+     ],
+     [
+      155.0,
+      2.6718341e-07
+     ],
+     [
+      233.0,
+      4.8557228e-08
+     ],
+     [
+      349.0,
+      9.881219e-09
+     ],
+     [
+      525.0,
+      1.7649453e-09
+     ]
+    ],
+    "latitude": 34.2356,
+    "longitude": -77.946,
+    "model": "CONUS 2023 R2",
+    "name": "Wilmington"
    }
   ],
   "publisher": "USGS National Seismic Hazard Model",
