@@ -26,7 +26,14 @@
 
   Honolulu prices. Its ladder reads once in 854 years at intensity VI, once in
   3,405 at VII, once in 17,543 at VIII, which sits between New York and Los
-  Angeles, and a year of 100,000 in cover comes to 444.90.
+  Angeles, and a year of 100,000 in cover comes to 59.34 on the live book.
+
+  That figure was first written here as 444.90, which is what the same policy
+  costs as the only policy in an empty book: it carries the whole capital
+  requirement on its own. Against a book of a hundred thousand others it adds
+  far less, and the protocol charges what it adds. The two numbers are the
+  standalone and marginal capital of 1.44.4, eight times apart at this address,
+  and the live one is the one a buyer pays.
 
   Anchorage does not, and the existing guard is what stops it. Our own
   catalogue has no Alaskan events at all and answers with the global
