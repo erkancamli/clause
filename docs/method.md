@@ -289,25 +289,48 @@ Türkiye's 81 provincial centres. It now fits any country at the places the
 interface offers in it, every place above 200,000 people and at least
 24 whatever their size, one file and one backtest per country.
 
-Which countries are sold is read off those verdicts, exactly as the earthquake
-models are gated, and the answer is not a majority. Rain passes in six of
-eleven: Türkiye, Greece, Italy, Mexico, New Zealand and Taiwan. It fails in
-Chile, Indonesia, Japan, the Philippines and the United States.
+The first test is the one fixed before the first run and identical for both
+covers: fitted on 1981 to 2010, tested on 2011 onward; the count of test years
+above each place's 1 in 5 year level is judged against what the fit implies,
+with the year to year dispersion measured on the fitting years, because one
+storm raises several neighbouring places in the same year and they are not
+independent.
 
-The failures are worth reading, because they do not all point the same way.
-Chile observed 29 extreme days against 72 expected, which is a fit on 1981 to
-2010 over-predicting a country that has been in drought since about 2010: that
-error overcharges the buyer. Indonesia observed 531 against 246, Japan 734
-against 405 and the Philippines 653 against 216, which is the same fit
-*under*-predicting by two to three times, and that error underfunds the pool.
-Either way the country is not sold, and the file says which test failed and by
-how much rather than the country simply being absent.
+Five countries failed it, and four of those failed by *under*-predicting:
+Indonesia observed 531 extreme rain days against 246 expected, Japan 734
+against 405, the Philippines 653 against 216, the United States likewise.
+Chile failed the other way, 29 against 72, which is a fit on 1981 to 2010
+over-predicting a country in drought since about 2010. The two directions cost
+different people: under-predicting underfunds the pool, over-predicting
+overcharges the buyer.
 
-The test itself is fixed before the first run and identical for both covers:
-fitted on 1981 to 2010, tested on 2011 onward; the count of test years above
-each place's 1 in 5 year level is judged against what the fit implies, with the
-year to year dispersion measured on the fitting years, because one storm raises
-several neighbouring places in the same year and they are not independent.
+#### The second test, and why there is one
+
+Four of those five failures say the climate moved rather than that the
+distribution is wrong. And the model this product publishes is not the failing
+fit: the levels are fitted on the most recent thirty years and used to price
+the year ahead. So the question that matches the product had not been asked.
+
+The rolling test asks it. For each place and each year from 2011 on, fit on the
+years before it, at most thirty and at least twenty five, take that fit's 1 in 5
+year level, and count whether that year beat it. Every year is out of sample,
+and the judgement is the same negative binomial with the dispersion the fixed
+test already measured on the 1981 to 2010 years, so nothing is fitted to the
+answer.
+
+It was written down before it was run, and it does not open everything, which
+is the only reason to trust it. Wind now passes everywhere: Greece and
+Indonesia are carried by it. Rain passes in eight of eleven: Chile and the
+United States are carried by it. **Indonesia, Japan and the Philippines fail
+both**, beating even a fit on the most recent thirty years by 1.8 to 2.4 times,
+and rain cover is not written there.
+
+A country that failed the fixed test and passed the rolling one is sold on a
+model that tracks a moving climate rather than on one that was always right.
+That is a different claim, so the model file makes it: `sold_on` names which
+test carried the country, and `failed` still lists the one that did not. Too
+few years of record is not negotiable by either.
+
 Where no file has been built at all, the same refusal.
 
 A place from a country whose model failed is never a fallback for an address

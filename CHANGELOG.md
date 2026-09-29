@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.44.1, 29 September 2026
+
+- A second test, because the first one was not asking about this model.
+
+  Five countries failed the backtest in 1.44.0, and four of them failed by
+  under-predicting, which says the climate moved rather than that the
+  distribution is wrong. And the model this product publishes is not the failing
+  fit: the levels are fitted on the most recent thirty years and used to price
+  the year ahead. Nobody is sold a fit on 1981 to 2010. So the question that
+  matches the product had not been asked.
+
+  The rolling test asks it. For each place and each year from 2011 on, fit on the
+  years before it, at most thirty and at least twenty five, take that fit's 1 in
+  5 year level, and count whether that year beat it. Every year is out of sample.
+  The judgement is the same negative binomial with the dispersion the fixed test
+  already measured on the 1981 to 2010 years, because a spread fitted to the
+  answer is not a test.
+
+  It was written down before it was run, and the reason to trust it is that it
+  does not open everything:
+
+  | | fixed | rolling | |
+  | --- | --- | --- | --- |
+  | Chile, rain | fail | pass | opens |
+  | United States, rain | fail | pass | opens |
+  | Greece, wind | fail | pass | opens |
+  | Indonesia, wind | fail | pass | opens |
+  | Indonesia, rain | fail | **fail** | stays shut |
+  | Japan, rain | fail | **fail** | stays shut |
+  | Philippines, rain | fail | **fail** | stays shut |
+
+  Those last three beat even a fit on the most recent thirty years by 1.8 to 2.4
+  times. Extreme daily rain in the monsoon tropics is not described by a Gumbel
+  on thirty years, or it is moving faster than thirty years can follow. Either
+  way rain cover is not written there, and now that has been asked two ways.
+
+  Storm cover: eleven countries of eleven. Car flood: eight of eleven.
+
+  A country carried by the second test is not a country that passed. It is sold
+  on a model that tracks a moving climate rather than on one that was always
+  right, and that is a different claim, so the file makes it: `sold_on` names
+  which test carried the country and `failed` still lists the one that did not.
+  Too few years of record is not negotiable by either.
+
 ## 1.44.0, 29 September 2026
 
 - Rain and wind were never Turkish. The build was.

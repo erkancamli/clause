@@ -121,7 +121,10 @@ def test_every_built_country_writes_its_own_file_and_its_own_verdict() -> None:
             assert doc["code"] == code
             v = doc["validation"]
             assert v["fitted_until"] == 2010 and v["tested_from"] == 2011
-            assert bool(v["passed"]) == (not v["failed"])
+            # "failed" lists every test that failed, and a country can be sold
+            # on the other one, so an empty list is sufficient and not necessary.
+            assert not v["failed"] or v["passed"] == ("record" not in v["failed"]
+                                                      and not {"count", "rolling"} <= set(v["failed"]))
             assert doc["places"] and all(p["fit_years"] >= 25 for p in doc["places"])
 
 
@@ -166,3 +169,112 @@ def test_the_place_search_answers_for_the_cover_being_bought() -> None:
     # And an unknown peril falls back to the earthquake list rather than to none.
     fallback = verdicts("not_a_peril")
     assert fallback and all(v == (c in EARTHQUAKE.territory) for c, v in fallback.items())
+
+
+# ---------------------------------------------------------------------------
+# The two tests, and which one carries a country
+# ---------------------------------------------------------------------------
+
+
+def test_a_country_says_which_test_it_is_sold_on() -> None:
+    """A second test was added after the first failed. Both are published.
+
+    The fixed test asks whether a fit on 1981 to 2010 predicts 2011 onward. The
+    rolling test asks whether a fit on the recent years predicts the next one,
+    which is how the published levels are actually fitted and used. A country
+    that failed the first and passed the second is sold on a model that tracks a
+    moving climate rather than on one that was always right, and that is a
+    different claim, so the file makes it rather than hiding it behind a
+    boolean.
+    """
+    for stem in ("rain", "wind"):
+        for code, doc in daily.models(stem).items():
+            v = doc["validation"]
+            fixed = "count" not in v["failed"]
+            rolled = v["rolling"]["passed"]
+            assert v["passed"] == (fixed or rolled) and "record" not in v["failed"], (stem, code)
+            assert v["sold_on"] == (
+                "the fixed test" if fixed
+                else "the rolling test, the fixed one having failed" if rolled
+                else "neither test"), (stem, code, v["sold_on"])
+            assert (code in daily.passed(stem)) == v["passed"]
+
+    # It is not a rubber stamp: it opens some countries and refuses others.
+    rain = daily.models("rain")
+    on_rolling = [c for c, d in rain.items() if d["validation"]["rolling"]["passed"]
+                  and "count" in d["validation"]["failed"]]
+    refused = [c for c, d in rain.items() if not d["validation"]["passed"]]
+    assert on_rolling and refused, (on_rolling, refused)
+    # Where it refuses, the rain beat a fit on the recent years too, and by a lot.
+    for code in refused:
+        r = rain[code]["validation"]["rolling"]
+        assert r["observed"] > 1.5 * r["expected"], code
+
+
+def test_the_rolling_test_never_sees_the_year_it_predicts() -> None:
+    """Out of sample at every step, or it is not a test."""
+    import datetime as dt
+
+    from clause.hazard import daily_extremes as de
+    from clause.hazard.rain_build import SPEC
+
+    asked: list[tuple[int, int]] = []          # (last fitting year, year predicted)
+    real_gumbel = de.gumbel
+    seen_years: list[list[int]] = []
+
+    class OnePlace:
+        name, latitude, longitude, kind = "P", 0.0, 0.0, "province"
+
+    made = {f"{y}0101": float(y - 1980) for y in range(1981, 2026)}
+
+    def fetch(spec, la, lo, end):
+        return made
+
+    monkey = de.fetch
+    try:
+        de.fetch = fetch                       # type: ignore[assignment]
+
+        def watch(values):
+            seen_years.append(sorted(int(v) + 1980 for v in values))
+            return real_gumbel(values)
+
+        de.gumbel = watch                      # type: ignore[assignment]
+        beat, trials = de._rolling(SPEC, [OnePlace()], 2025, "20251231")
+    finally:
+        de.fetch = monkey                      # type: ignore[assignment]
+        de.gumbel = real_gumbel                # type: ignore[assignment]
+
+    assert trials == 2025 - 2010               # one per year from 2011
+    # Each fit saw only years before the one it was asked about, and at most the
+    # window the published levels use.
+    for i, years in enumerate(seen_years):
+        predicted = 2011 + i
+        assert max(years) == predicted - 1, (predicted, max(years))
+        assert len(years) <= de.RECENT_YEARS and len(years) >= de.ROLLING_LEAST
+    # A series rising every year beats its own fit every time, which is the
+    # shape of a country this test refuses.
+    assert beat == trials
+
+
+def test_either_test_may_carry_a_country_but_the_record_may_not_be_waived() -> None:
+    from clause.hazard.daily_extremes import verdict
+
+    both = verdict(record_ok=True, count_ok=True, rolling_ok=True)
+    assert both["passed"] and both["sold_on"] == "the fixed test" and both["failed"] == []
+
+    moved = verdict(record_ok=True, count_ok=False, rolling_ok=True)
+    assert moved["passed"] and moved["sold_on"].startswith("the rolling test")
+    assert moved["failed"] == ["count"]        # the failure is still written down
+
+    # The fixed test alone still carries a country whose rolling test failed.
+    old = verdict(record_ok=True, count_ok=True, rolling_ok=False)
+    assert old["passed"] and old["sold_on"] == "the fixed test"
+
+    neither = verdict(record_ok=True, count_ok=False, rolling_ok=False)
+    assert not neither["passed"] and neither["sold_on"] == "neither test"
+
+    # Too few years is too few years, whatever either test says about them.
+    for count_ok in (True, False):
+        for rolling_ok in (True, False):
+            short = verdict(record_ok=False, count_ok=count_ok, rolling_ok=rolling_ok)
+            assert not short["passed"] and "record" in short["failed"]

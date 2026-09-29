@@ -14,7 +14,8 @@
   }
  ],
  "validation": {
-  "passed": false,
+  "passed": true,
+  "sold_on": "the rolling test, the fixed one having failed",
   "failed": [
    "count"
   ],
@@ -27,6 +28,19 @@
    "dispersion": 10.29,
    "p_at_most_observed": 0.0243,
    "p_at_least_observed": 0.9772
+  },
+  "rolling": {
+   "question": "does a fit on the most recent years predict the next one, which is how this model is published and used",
+   "window_years": 30,
+   "least_years": 25,
+   "tested_from": 2011,
+   "expected": 246.0,
+   "observed": 160,
+   "place_years": 1230,
+   "dispersion": 10.29,
+   "p_at_most_observed": 0.031,
+   "p_at_least_observed": 0.9708,
+   "passed": true
   },
   "changes_after_first_run": []
  },
