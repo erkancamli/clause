@@ -56,6 +56,37 @@ REINSURANCE_MULTIPLE = 3.0
 # Protocol running costs, as a share of expected loss.
 EXPENSE_RATIO = 0.08
 
+# The most diversification credit a policy can be given: it is charged for at
+# least this share of the capital it would need standing alone, however well it
+# sits against the book today.
+#
+# Without it a policy that never appears in the book's tail is charged nothing
+# at all, because that is what a marginal reading of the tail says and the
+# reading is correct. It is the pricing rule built on it that is not. The book
+# here is concentrated in Türkiye, so a New York policy of 100,000 measured a
+# marginal capital of exactly zero and was sold for its expected loss plus
+# expenses: 13.79 against an expected loss of 12.77, which is a bet with an
+# eight per cent margin rather than an insurance price.
+#
+# Two things follow from that and neither is acceptable. The hundred thousandth
+# New York policy is priced against a book that does not contain the other
+# ninety nine thousand, so a concentration can be built for nothing one policy
+# at a time. And the charge is not proportional to the cover: a million of
+# cover in one policy measured 8,845 of capital and cost 1,198.55, while the
+# same million split into ten policies measured zero and cost 137.90. The same
+# risk, split ten ways, for a ninth of the price.
+#
+# Standalone capital is proportional to the limit -- 1,141.71 at 100,000 and
+# 11,417.08 at a million, exactly ten times -- so a floor written against it
+# cannot be arbitraged by splitting.
+#
+# A twentieth is a conservative floor rather than a charge: capital models
+# rarely grant more than half to two thirds of diversification credit, and this
+# grants ninety five per cent. It binds only where the measured marginal is
+# near zero, which is where the rule was broken; every price that had a real
+# marginal charge is untouched by it.
+LEAST_OF_STANDALONE = 0.05
+
 # Trials behind every capital figure. Large enough that the half percent tail
 # holds a hundred draws, which is what makes a marginal charge meaningful.
 DEFAULT_TRIALS = 20_000
@@ -373,7 +404,29 @@ class PricingEngine:
         after = capital_from_losses(after_losses, self.trials)
         alone = capital_from_losses(candidate_losses, self.trials)
 
-        marginal = max(0.0, after.solvency_capital - before.solvency_capital)
+        measured = max(0.0, after.solvency_capital - before.solvency_capital)
+        # The capital this policy would need standing alone, which the floor is
+        # written against, so it has to be a number the simulation can actually
+        # produce. For a rare risk it cannot. New York pays about once in three
+        # thousand seven hundred years; in twenty thousand trials that is five
+        # events, and in a third of runs at four thousand trials it is none at
+        # all -- a standalone requirement of exactly zero, and a floor of five
+        # per cent of nothing.
+        #
+        # It does not have to be simulated. Below the solvency tail the answer
+        # is exact: if the policy pays at all less often than one time in two
+        # hundred, then every outcome in which it pays is inside the worst half
+        # per cent, the tail average is the expected loss divided by that half
+        # per cent, and the capital is 199 times the expected loss. No draws,
+        # no noise, and the same number every time it is asked.
+        tail = 1.0 - SOLVENCY_LEVEL
+        standalone = (expected_loss * (1.0 / tail - 1.0) if trigger <= tail
+                      else alone.solvency_capital)
+        # What the book says this policy adds, and what it is charged for. They
+        # differ only where the first is below the floor above, which is where
+        # a marginal reading stops being a price.
+        floor = LEAST_OF_STANDALONE * standalone
+        marginal = max(measured, floor)
 
         term_years = term_days / 365.25
         capital_cost = marginal * self.cost_of_capital * term_years
@@ -397,11 +450,11 @@ class PricingEngine:
         expense_load = expected_loss * self.expense_ratio
         premium = expected_loss + risk_load + expense_load
 
-        ratio = (
-            marginal / alone.solvency_capital
-            if alone.solvency_capital > 0
-            else 0.0
-        )
+        # The verdict is about the risk, so it reads the measured marginal: a
+        # policy the book absorbs entirely is still one the book absorbs
+        # entirely, and saying otherwise because of the floor would hide the
+        # very thing the floor exists for.
+        ratio = measured / standalone if standalone > 0 else 0.0
 
         return Quote(
             peril_key=peril_key,
@@ -414,7 +467,7 @@ class PricingEngine:
             trigger_probability=trigger,
             expected_share=expected_share,
             marginal_capital=marginal,
-            standalone_capital=alone.solvency_capital,
+            standalone_capital=standalone,
             risk_basis=basis,
             capital_cost=capital_cost,
             diversification=_verdict(ratio),
@@ -424,6 +477,7 @@ class PricingEngine:
                 subject=subject,
                 book=book,
                 marginal=marginal,
+                measured=measured,
                 ratio=ratio,
                 before=before,
             ) + ([
@@ -442,6 +496,7 @@ class PricingEngine:
         subject: dict[str, Any],
         book: Sequence[Exposure],
         marginal: float,
+        measured: float,
         ratio: float,
         before: CapitalPosition,
     ) -> list[str]:
@@ -489,17 +544,30 @@ class PricingEngine:
                 "This is the first policy in the book, so its risk load carries the "
                 "whole capital requirement. It falls as the book diversifies."
             )
+        elif measured <= 0:
+            notes.append(
+                "This policy adds no measurable capital requirement at the solvency "
+                "standard: its losses land where the book already has room. It is "
+                f"charged for {LEAST_OF_STANDALONE:.0%} of what it would need standing "
+                "alone all the same, because the book it diversifies against is "
+                "today's book: priced at nothing, the same risk could be written "
+                "again and again, each time against a book that does not hold the "
+                "others."
+            )
+        elif ratio < 0.35 and marginal > measured:
+            notes.append(
+                f"Written alone this risk would need roughly {1 / ratio:.1f} times the "
+                "capital the book says it adds here. Most of that saving is passed on, "
+                f"but not all of it: the charge is held at {LEAST_OF_STANDALONE:.0%} of "
+                "the standalone requirement, because today's diversification is not a "
+                "promise about tomorrow's book."
+            )
         elif ratio < 0.35 and marginal > 0:
             notes.append(
                 "Written alone this risk would need roughly "
                 f"{1 / ratio:.1f} times the capital it needs here. The rest is "
                 "carried by the book's existing diversification, and the buyer keeps "
                 "the saving."
-            )
-        elif marginal <= 0:
-            notes.append(
-                "This policy adds no measurable capital requirement at the solvency "
-                "standard: its losses land where the book already has room."
             )
 
         if before.solvency_capital > 0 and marginal > 0:

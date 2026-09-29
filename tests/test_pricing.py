@@ -404,3 +404,126 @@ def test_the_quote_does_not_claim_a_distance_it_never_priced(engine: PricingEngi
                                   "hectares": 50}))
     assert f"{correlation:.2f}" in said
     assert correlation < 0.2, "at this separation the index barely follows the field"
+
+
+# ---------------------------------------------------------------------------
+# The floor under the marginal charge
+# ---------------------------------------------------------------------------
+
+
+def _new_york(limit: float = 100_000.0) -> dict:
+    return EARTHQUAKE.validate_subject(
+        {"latitude": 40.7128, "longitude": -74.0060, "radius_km": 50, "index": "shaking"})
+
+
+def _istanbul_book(engine: PricingEngine, count: int = 40) -> list[Exposure]:
+    """A book concentrated where the live one is, so its tail is Turkish."""
+    here = [(41.02, 28.95), (40.99, 29.03), (41.05, 29.00), (40.97, 29.09)]
+    out = []
+    for i in range(count):
+        latitude, longitude = here[i % len(here)]
+        subject = EARTHQUAKE.validate_subject(
+            {"latitude": latitude, "longitude": longitude, "radius_km": 50,
+             "index": "shaking"})
+        out.append(Exposure(policy_id=f"tr-{i}", peril_key="earthquake", subject=subject,
+                            curve=EARTHQUAKE.curve_for(subject), limit=100_000.0,
+                            term_days=365.0))
+    return out
+
+
+def test_a_risk_the_book_never_feels_is_still_charged_for(engine: PricingEngine) -> None:
+    """Marginal pricing says zero, and zero is not a price.
+
+    The book is concentrated in Türkiye, so its worst half per cent is Turkish
+    earthquakes and a New York policy is never in it. The marginal reading of
+    that is exactly zero, and it is correct: this policy adds nothing to the
+    tail of this book. What followed from it was not. The policy was sold for
+    its expected loss plus expenses -- 13.79 against an expected loss of 12.77
+    on the live book, ninety three per cent of the premium expected to be paid
+    straight back out -- which is a bet with an eight per cent margin rather
+    than an insurance price.
+
+    A policy is charged for at least a twentieth of what it would need standing
+    alone, however well it sits against today's book, because today's book is
+    not tomorrow's: at nothing, the same risk can be written again and again,
+    each time against a book that does not hold the others.
+    """
+    book = _istanbul_book(engine)
+    quote = engine.quote(peril_key="earthquake", subject=_new_york(),
+                         limit=100_000.0, term_days=365.0, book=book)
+
+    assert quote.diversification == "absorbed", quote.diversification
+    assert quote.diversification_ratio == 0.0
+    assert quote.risk_load > 0.0, "a risk the book absorbs is written for nothing"
+    assert quote.marginal_capital == pytest.approx(
+        0.05 * quote.standalone_capital, rel=1e-6)
+    # And the premium keeps something back for the risk rather than handing it
+    # all over as expected loss.
+    assert quote.expected_loss / quote.premium < 0.6
+
+
+def test_the_same_cover_costs_the_same_split_or_whole(engine: PricingEngine) -> None:
+    """Ten policies of a hundred thousand, or one of a million.
+
+    On the live book a million of New York cover in one policy measured 8,845
+    of capital and cost 1,198.55, while the same million split into ten
+    policies measured zero and cost 137.90: the same risk, split ten ways, for
+    a ninth of the price. Anyone wanting a million simply bought ten.
+
+    Standalone capital is proportional to the limit, so a floor written against
+    it cannot be arbitraged by splitting.
+    """
+    book = _istanbul_book(engine)
+    one = engine.quote(peril_key="earthquake", subject=_new_york(),
+                       limit=1_000_000.0, term_days=365.0, book=book)
+    ten = engine.quote(peril_key="earthquake", subject=_new_york(),
+                       limit=100_000.0, term_days=365.0, book=book)
+    assert one.premium == pytest.approx(ten.premium * 10, rel=1e-6), (one.premium, ten.premium)
+
+
+def test_a_rare_risk_knows_its_own_capital_without_drawing_for_it() -> None:
+    """The floor rests on standalone capital, so that has to be a real number.
+
+    New York pays about once in three thousand seven hundred years. In twenty
+    thousand trials that is five events; in four thousand it is one, and in a
+    third of such runs it is none at all -- a standalone requirement of exactly
+    zero, and a floor of five per cent of nothing.
+
+    It does not have to be drawn for. Below the solvency tail the answer is
+    exact: if a policy pays less often than one time in two hundred, every
+    outcome in which it pays is inside the worst half per cent, so the tail
+    average is the expected loss divided by that half per cent and the capital
+    is 199 times the expected loss. The same number however many trials are
+    run, which is what this checks.
+    """
+    book_seed = 99
+    quotes = []
+    for trials in (2_000, 8_000):
+        engine = PricingEngine(trials=trials, seed=book_seed)
+        quotes.append(engine.quote(peril_key="earthquake", subject=_new_york(),
+                                   limit=100_000.0, term_days=365.0,
+                                   book=_istanbul_book(engine)))
+    first, second = quotes
+    assert first.trigger_probability <= 1 - SOLVENCY_LEVEL
+    for quote in quotes:
+        assert quote.standalone_capital == pytest.approx(
+            quote.expected_loss * (1 / (1 - SOLVENCY_LEVEL) - 1), rel=1e-9)
+    # Same at both trial counts, where a drawn figure would not be.
+    assert first.standalone_capital == pytest.approx(second.standalone_capital, rel=0.02)
+    assert first.risk_load > 0 and second.risk_load > 0
+
+
+def test_the_floor_leaves_a_real_marginal_charge_alone(engine: PricingEngine) -> None:
+    """It binds where the reading broke, and nowhere else.
+
+    A policy in the book's own peak zone adds capital the tail can see, many
+    times the floor, so the floor is not what sets its price and this change
+    does not touch it.
+    """
+    book = _istanbul_book(engine)
+    subject = EARTHQUAKE.validate_subject(
+        {"latitude": 40.99, "longitude": 29.03, "radius_km": 50, "index": "shaking"})
+    quote = engine.quote(peril_key="earthquake", subject=subject,
+                         limit=100_000.0, term_days=365.0, book=book)
+    assert quote.marginal_capital > 0.05 * quote.standalone_capital * 5
+    assert quote.diversification_ratio > 0.35
