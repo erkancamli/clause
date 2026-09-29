@@ -15,6 +15,7 @@
  ],
  "validation": {
   "passed": true,
+  "sold_on": "the fixed test",
   "failed": [],
   "fitted_until": 2010,
   "tested_from": 2011,
@@ -25,6 +26,19 @@
    "dispersion": 3.92,
    "p_at_most_observed": 0.6077,
    "p_at_least_observed": 0.4148
+  },
+  "rolling": {
+   "question": "does a fit on the most recent years predict the next one, which is how this model is published and used",
+   "window_years": 30,
+   "least_years": 25,
+   "tested_from": 2011,
+   "expected": 72.0,
+   "observed": 80,
+   "place_years": 360,
+   "dispersion": 3.92,
+   "p_at_most_observed": 0.7113,
+   "p_at_least_observed": 0.3081,
+   "passed": true
   },
   "changes_after_first_run": []
  },

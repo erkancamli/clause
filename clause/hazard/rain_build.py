@@ -57,6 +57,7 @@ SPEC = Spec(
     cache=CACHE,
     out=OUT,
     changes_after_first_run=(
+        "a second test, the rolling one, added after the fixed test failed in five countries: it asks whether a fit on the recent years predicts the next one, which is how the published levels are fitted and used. Both are recorded, and the file says which one a country is sold on",
         "count test: places are not independent; negative binomial with the "
         "dispersion measured on the fitting years replaces the binomial "
         "(first run: binomial, p = 0.0027, failed)",

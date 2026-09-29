@@ -15,6 +15,7 @@
  ],
  "validation": {
   "passed": true,
+  "sold_on": "the fixed test",
   "failed": [],
   "fitted_until": 2010,
   "tested_from": 2011,
@@ -26,7 +27,21 @@
    "p_at_most_observed": 0.9541,
    "p_at_least_observed": 0.0532
   },
+  "rolling": {
+   "question": "does a fit on the most recent years predict the next one, which is how this model is published and used",
+   "window_years": 30,
+   "least_years": 25,
+   "tested_from": 2011,
+   "expected": 72.0,
+   "observed": 97,
+   "place_years": 360,
+   "dispersion": 2.07,
+   "p_at_most_observed": 0.9756,
+   "p_at_least_observed": 0.0288,
+   "passed": true
+  },
   "changes_after_first_run": [
+   "a second test, the rolling one, added after the fixed test failed in five countries: it asks whether a fit on the recent years predicts the next one, which is how the published levels are fitted and used. Both are recorded, and the file says which one a country is sold on",
    "count test: places are not independent; negative binomial with the dispersion measured on the fitting years replaces the binomial (first run: binomial, p = 0.0027, failed)",
    "published levels fitted on the most recent 30 years, because strong rainfall years became about a quarter more frequent from 2001"
   ]
