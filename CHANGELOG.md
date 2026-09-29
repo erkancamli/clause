@@ -1,5 +1,82 @@
 # Changelog
 
+## 1.44.4, 29 September 2026
+
+- The price on the screen is the price that will be charged, from the first
+  moment there is one.
+
+  It was not. A buyer saw 4,003 USDC, captioned "before the company's fee", and
+  two seconds later saw 6,827, captioned "all in". Seventy per cent apart. Both
+  captions were true and neither helps someone who reads the first figure and
+  presses Continue.
+
+  The page had a model of its own so it could answer the slider instantly, and
+  the first figure was that model. It could not agree with the protocol, for
+  two reasons that are worth naming:
+
+  The page capped its risk load at twice the expected loss, taking the lesser
+  of the cost of capital and a reinsurer's price at three times expected loss.
+  Every catastrophe took the second branch, so every premium came out at 3.08
+  times expected loss whatever the hazard. The protocol stopped doing that some
+  time ago, and for a plain reason: no treaty exists, nothing here cedes
+  anything, so there is no cheaper branch to take. This page went on taking it.
+
+  And the capital is not the same capital. The page can only compute what one
+  policy needs standing on its own; the protocol charges what the policy *adds*
+  to the book it is joining. For one address in Kadıköy, 100,000 of cover for a
+  year, the protocol answers today with a standalone capital of 80,792.88 and a
+  marginal capital of 67,729.04, and the second is the one in the price. A
+  browser cannot compute it, because it does not have the book, and it moves as
+  the book moves.
+
+  So the bar and the summary rail now show an em dash and "working out your
+  price" until the protocol has answered for this exact selection *and* the
+  company's fee is in, and then show one figure, once. The captions that
+  existed to excuse a provisional figure went with it.
+
+  The cap is gone from the page's model too, so the one place it is still shown
+  -- not connected, where the banner at the top says everything below is
+  computed in the browser and nothing here is real -- is the same mathematics
+  as the protocol rather than a capped version of it.
+
+- The step a buyer signs on is drawn from the protocol's answer or not drawn.
+
+  Fixing the bar was not enough, because arriving at the confirm step threw the
+  protocol's answer away and asked for a fresh one. For as long as that round
+  trip took, the last screen before the money moves drew its sentence, its cost
+  breakdown, its payout table and its summary row from the browser's model: the
+  figure that had just been kept off the bar for being the wrong one, printed
+  four times over.
+
+  The answer already in hand is kept now while a replacement is asked for --
+  priced() checks that an answer belongs to what is on the screen before it
+  uses it, so keeping it cannot show anything stale -- and where there is no
+  answer for this exact policy, the panel is not drawn at all. It says it is
+  working out the price, the Continue button says the same, and the whole panel
+  appears at once when the answer lands.
+
+- A bar that stood down does not count back from the old price.
+
+  The figure animates into place, counting from whatever the bar said last,
+  which it keeps in a data attribute. With the bar now standing down to an em
+  dash between selections, that attribute held the price of a policy nobody is
+  buying any more, so the new figure arrived by sweeping down from it: 1,283 to
+  517 over four hundred milliseconds, measured in a browser walking the flow
+  against a local protocol. To anyone glancing at the bar that is the price
+  changing while they watch. Standing down forgets the figure now as well as
+  erasing it, and the same walk shows one step: em dash, then 517.26.
+
+- The quote is filed under the company it was struck with, so it is not stale
+  on arrival.
+
+  The cache key was taken before the offers came back, which meant it carried
+  no company. The offers then named one, the key moved, and the answer that
+  arrived a moment later did not match the question any more. Nothing was wrong
+  with the number; it simply did not count, so the page asked again and the
+  buyer waited through two round trips for one figure. The key is now taken
+  once the company is known, and a refusal from the previous attempt is cleared
+  when a new one starts rather than left to caption the next price.
+
 ## 1.44.3, 29 September 2026
 
 - The ceiling now says what it leaves out.

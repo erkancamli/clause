@@ -70,8 +70,8 @@ def test_nothing_is_priced_until_there_is_something_to_price() -> None:
     subject was incomplete, because the same four checks are what its Continue
     button reads to say what is missing.
 
-    Nothing waits on this. The page's own figure is already on the screen, and
-    the protocol replaces it when there is a whole subject to send.
+    Nothing waits on this either way: there is no figure on the screen until
+    the protocol answers, so a call it is certain to refuse buys nothing.
     """
     body = _function("refreshQuote")
     guard = body.index("flightReady()")
@@ -152,3 +152,153 @@ def test_every_peril_offers_a_name_for_the_thing_at_risk() -> None:
     for peril in ("quake", "storm", "car", "flight", "drought"):
         assert re.search(rf'!interest\.what&&flow\.peril==="{peril}"', body), (
             f"{peril} offers no name for what is at risk")
+
+
+def test_no_figure_appears_before_the_figure_that_will_be_charged() -> None:
+    """The price shown first was not the price, and it moved by seventy per cent.
+
+    This page can price a policy in a millisecond, and for a while it showed
+    that while the protocol worked: 4,003 USDC captioned "before the company's
+    fee", then 6,827 two seconds later. Both were honest about what they were.
+    Neither helps a buyer who reads the first one and taps Continue.
+
+    The gap is not a rounding of the same sum. The page charges one policy for
+    the capital it needs standing alone; the protocol charges it for the
+    capital it adds to a book of a hundred thousand others, which is a
+    different and much smaller number, and then the company's fee goes on top.
+    Measured at one address in Kadikoy the two agreed on the total to within
+    seven per cent by coincidence and disagreed on every part of it by three
+    times over.
+
+    So the page cannot close the gap by computing harder, because it does not
+    have the book. It waits instead, and says that it is waiting.
+    """
+    for name in ("updatePriceBar", "updateRunRail"):
+        body = _function(name)
+        figure = min(
+            (body.index(call) for call in ("tweenAmount(", "money(total)") if call in body),
+            default=-1,
+        )
+        assert figure > 0, f"{name} puts no price on the screen at all"
+
+        # What the figure waits on, read as the page writes it.
+        settled = re.search(r"var settled\s*=\s*([^;]+);", body)
+        assert settled, f"{name} does not say what a settled price is"
+        rule = settled.group(1).replace(" ", "")
+        assert "&&" in rule, f"{name} settles on one half of the price: {rule}"
+        assert "current" in rule, f"{name} does not wait for the protocol's answer: {rule}"
+        assert "offer" in rule, f"{name} does not wait for the company's fee: {rule}"
+
+        # And it is the quote for this selection, not any quote ever received.
+        assert "flow.quotedFor===quoteKey()" in body[:settled.start()], (
+            f"{name} does not check whose quote it is holding"
+        )
+
+        # Between the rule and the figure, the way out taken while it is unmet.
+        between = body[settled.end():figure]
+        assert re.search(r"if\(!settled\)", between), f"{name} does not act on its own rule"
+        assert "return;" in between, f"{name} falls through to a figure it has not got"
+
+        # Not connected is the exception, and the rule has to name it: there
+        # the browser's own figure is the price by declaration, and the banner
+        # at the top of the page says so.
+        assert "link.live" in rule, f"{name} has nothing to show when nothing is connected: {rule}"
+
+
+def test_the_quote_is_filed_under_the_company_it_was_struck_with() -> None:
+    """A right answer filed under the wrong question is a wrong answer.
+
+    The key was taken before the offers came back, so it carried no company;
+    the offers then named one, the key moved, and the quote that arrived a
+    moment later was already stale against it. Nothing was wrong with the
+    number. It just did not count, so the page asked again and the buyer
+    waited through two round trips to be told the same thing twice, with the
+    bar empty in between.
+    """
+    body = _function("refreshQuote")
+    named = body.index("flow.carrier=flow.offers.length")
+    keyed = body.index("key=quoteKey()")
+    assert named < keyed, "the price is keyed before the company it is struck on is known"
+    assert body.index("flow.quotedFor=key") > keyed
+
+
+def test_no_caption_promises_that_the_figure_will_change() -> None:
+    """The half-price was captioned, and the caption was the giveaway.
+
+    "before the company's fee; the whole price follows in a moment" is a
+    sentence that only exists because a figure is on the screen that is not the
+    figure. There is no such figure now, so there is no such sentence: the only
+    place the page still says "before the company's fee" is where it is not
+    connected at all and has told the reader so in the banner above.
+    """
+    assert "the whole price follows in a moment" not in PAGE
+    assert "A price is a quote until the protocol answers for it" not in PAGE
+    for lang in ("tr", "es", "fr", "de", "ru", "ja"):
+        words = (ROOT / "site" / "i18n" / f"{lang}.json").read_text(encoding="utf-8")
+        assert "the whole price follows in a moment" not in words, lang
+
+
+def test_the_step_a_buyer_signs_on_shows_no_price_of_its_own() -> None:
+    """The bar was fixed and the page under it was not.
+
+    Arriving at the confirm step threw the protocol's answer away and asked
+    for a fresh one, so for as long as that round trip took, the panel a buyer
+    signs on drew its sentence, its breakdown, its payout table and its summary
+    row from the browser's model -- the figure that had just been kept off the
+    bar for being the wrong one, now printed four times over on the last screen
+    before the money moves.
+
+    Two things changed. The answer already in hand is kept while a fresh one is
+    asked for, so in the ordinary walk there is nothing to wait for; and if
+    there is no answer for this exact policy, the panel is not drawn at all.
+    """
+    body = _function("renderPriceBody")
+    handoff = body.index("confirmPricing()")
+    assert "flow.quotedFor===quoteKey()" in body[:handoff], (
+        "the panel does not check whether the answer is this policy's"
+    )
+    assert "return;" in body[handoff:body.index("\n", handoff)], (
+        "the panel goes on drawing after handing off to the waiting state"
+    )
+    # And nothing below the handoff is reached before it.
+    for drawn in ("plainSentence()", "payRows()", "renderContract()"):
+        assert body.index(drawn) > handoff, f"{drawn} is drawn before the check"
+
+    # The answer in hand is no longer discarded at the start of a refresh.
+    asking = _function("refreshQuote")
+    assert "flow.quoted=null" not in asking.replace(" ", ""), (
+        "the protocol's answer is thrown away before a replacement exists"
+    )
+
+    # The summary row obeys the same rule as the bar.
+    answers = _function("renderAnswers")
+    rule = re.search(r"var settled\s*=\s*([^;]+);", answers)
+    assert rule, "the summary has no rule about when it carries a figure"
+    assert "flow.quotedFor===quoteKey()" in rule.group(1), rule.group(1)
+    assert rule.end() < answers.index("var price="), "the rule is settled after it is used"
+
+
+def test_a_bar_that_stood_down_does_not_count_back_from_the_old_price() -> None:
+    """The last thing the animation was still doing on its own.
+
+    tweenAmount counts from whatever the element said last, which it keeps in
+    a data attribute. With the bar standing down to an em dash between
+    selections, that attribute held the price of a policy nobody is buying any
+    more, so the new figure arrived by sweeping down from it: 1,283 to 517 over
+    four hundred milliseconds, measured in a browser walking the flow. To
+    anyone glancing at the bar that is the price changing while they watch,
+    which is the whole thing this bar was just taught not to do.
+
+    Standing down now forgets the figure as well as erasing it.
+    """
+    stand_down = _function("noAmount")
+    assert "dataset.v" in stand_down, "the remembered figure survives standing down"
+    assert "\u2014" in stand_down or "—" in stand_down, "standing down shows nothing in its place"
+
+    # And nowhere writes the em dash without going through it.
+    body = PAGE[PAGE.index("function updatePriceBar("):]
+    body = body[: body.index("\n}\n")]
+    assert 'pb-amt").textContent="—"' not in body, (
+        "the bar blanks the figure without forgetting it"
+    )
+    assert body.count("noAmount(") >= 2, "the bar has ways of blanking that do not forget"
