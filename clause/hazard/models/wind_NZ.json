@@ -1,0 +1,489 @@
+{
+ "code": "NZ",
+ "name": "New Zealand",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 72.0,
+   "observed": 75,
+   "place_years": 360,
+   "dispersion": 3.88,
+   "p_at_most_observed": 0.6079,
+   "p_at_least_observed": 0.4147
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Auckland",
+   "latitude": -36.8485,
+   "longitude": 174.7635,
+   "gumbel": {
+    "mu": 61.147,
+    "beta": 4.74
+   },
+   "levels_kmh": {
+    "2": 62.9,
+    "5": 68.3,
+    "10": 71.8,
+    "25": 76.3,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.1
+  },
+  {
+   "name": "Christchurch",
+   "latitude": -43.5333,
+   "longitude": 172.6333,
+   "gumbel": {
+    "mu": 55.056,
+    "beta": 6.16
+   },
+   "levels_kmh": {
+    "2": 57.3,
+    "5": 64.3,
+    "10": 68.9,
+    "25": 74.8,
+    "50": 79.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.0
+  },
+  {
+   "name": "Wellington",
+   "latitude": -41.2866,
+   "longitude": 174.7756,
+   "gumbel": {
+    "mu": 67.89,
+    "beta": 4.556
+   },
+   "levels_kmh": {
+    "2": 69.6,
+    "5": 74.7,
+    "10": 78.1,
+    "25": 82.5,
+    "50": 85.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.2
+  },
+  {
+   "name": "Manukau City",
+   "latitude": -36.9928,
+   "longitude": 174.8799,
+   "gumbel": {
+    "mu": 61.147,
+    "beta": 4.74
+   },
+   "levels_kmh": {
+    "2": 62.9,
+    "5": 68.3,
+    "10": 71.8,
+    "25": 76.3,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.1
+  },
+  {
+   "name": "North Shore",
+   "latitude": -36.8,
+   "longitude": 174.75,
+   "gumbel": {
+    "mu": 61.147,
+    "beta": 4.74
+   },
+   "levels_kmh": {
+    "2": 62.9,
+    "5": 68.3,
+    "10": 71.8,
+    "25": 76.3,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.1
+  },
+  {
+   "name": "Hamilton",
+   "latitude": -37.7833,
+   "longitude": 175.2833,
+   "gumbel": {
+    "mu": 56.844,
+    "beta": 4.518
+   },
+   "levels_kmh": {
+    "2": 58.5,
+    "5": 63.6,
+    "10": 67.0,
+    "25": 71.3,
+    "50": 74.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.2
+  },
+  {
+   "name": "Tauranga",
+   "latitude": -37.6861,
+   "longitude": 176.1667,
+   "gumbel": {
+    "mu": 57.125,
+    "beta": 3.731
+   },
+   "levels_kmh": {
+    "2": 58.5,
+    "5": 62.7,
+    "10": 65.5,
+    "25": 69.1,
+    "50": 71.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 82.9
+  },
+  {
+   "name": "Dunedin",
+   "latitude": -45.8742,
+   "longitude": 170.5036,
+   "gumbel": {
+    "mu": 67.199,
+    "beta": 7.147
+   },
+   "levels_kmh": {
+    "2": 69.8,
+    "5": 77.9,
+    "10": 83.3,
+    "25": 90.1,
+    "50": 95.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 96.6
+  },
+  {
+   "name": "Lower Hutt",
+   "latitude": -41.2167,
+   "longitude": 174.9167,
+   "gumbel": {
+    "mu": 64.162,
+    "beta": 3.758
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 69.8,
+    "10": 72.6,
+    "25": 76.2,
+    "50": 78.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.0
+  },
+  {
+   "name": "Palmerston North",
+   "latitude": -40.3564,
+   "longitude": 175.6111,
+   "gumbel": {
+    "mu": 59.302,
+    "beta": 3.198
+   },
+   "levels_kmh": {
+    "2": 60.5,
+    "5": 64.1,
+    "10": 66.5,
+    "25": 69.5,
+    "50": 71.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.7
+  },
+  {
+   "name": "New Plymouth",
+   "latitude": -39.0667,
+   "longitude": 174.0833,
+   "gumbel": {
+    "mu": 59.957,
+    "beta": 4.06
+   },
+   "levels_kmh": {
+    "2": 61.4,
+    "5": 66.0,
+    "10": 69.1,
+    "25": 72.9,
+    "50": 75.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.7
+  },
+  {
+   "name": "Hastings",
+   "latitude": -39.6381,
+   "longitude": 176.8492,
+   "gumbel": {
+    "mu": 47.043,
+    "beta": 3.413
+   },
+   "levels_kmh": {
+    "2": 48.3,
+    "5": 52.2,
+    "10": 54.7,
+    "25": 58.0,
+    "50": 60.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.9
+  },
+  {
+   "name": "Napier",
+   "latitude": -39.4926,
+   "longitude": 176.9123,
+   "gumbel": {
+    "mu": 47.043,
+    "beta": 3.413
+   },
+   "levels_kmh": {
+    "2": 48.3,
+    "5": 52.2,
+    "10": 54.7,
+    "25": 58.0,
+    "50": 60.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.9
+  },
+  {
+   "name": "Rotorua",
+   "latitude": -38.1387,
+   "longitude": 176.2452,
+   "gumbel": {
+    "mu": 31.85,
+    "beta": 2.172
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 35.1,
+    "10": 36.7,
+    "25": 38.8,
+    "50": 40.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.9
+  },
+  {
+   "name": "Porirua",
+   "latitude": -41.1333,
+   "longitude": 174.85,
+   "gumbel": {
+    "mu": 64.162,
+    "beta": 3.758
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 69.8,
+    "10": 72.6,
+    "25": 76.2,
+    "50": 78.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.0
+  },
+  {
+   "name": "Invercargill",
+   "latitude": -46.4,
+   "longitude": 168.35,
+   "gumbel": {
+    "mu": 57.606,
+    "beta": 3.836
+   },
+   "levels_kmh": {
+    "2": 59.0,
+    "5": 63.4,
+    "10": 66.2,
+    "25": 69.9,
+    "50": 72.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.3
+  },
+  {
+   "name": "Papatoetoe",
+   "latitude": -36.9682,
+   "longitude": 174.8402,
+   "gumbel": {
+    "mu": 61.147,
+    "beta": 4.74
+   },
+   "levels_kmh": {
+    "2": 62.9,
+    "5": 68.3,
+    "10": 71.8,
+    "25": 76.3,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.1
+  },
+  {
+   "name": "Nelson",
+   "latitude": -41.2708,
+   "longitude": 173.284,
+   "gumbel": {
+    "mu": 28.597,
+    "beta": 2.227
+   },
+   "levels_kmh": {
+    "2": 29.4,
+    "5": 31.9,
+    "10": 33.6,
+    "25": 35.7,
+    "50": 37.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 36.6
+  },
+  {
+   "name": "Whangarei",
+   "latitude": -35.7317,
+   "longitude": 174.3239,
+   "gumbel": {
+    "mu": 67.988,
+    "beta": 5.358
+   },
+   "levels_kmh": {
+    "2": 70.0,
+    "5": 76.0,
+    "10": 80.0,
+    "25": 85.1,
+    "50": 88.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.3
+  },
+  {
+   "name": "Whanganui",
+   "latitude": -39.9333,
+   "longitude": 175.05,
+   "gumbel": {
+    "mu": 61.938,
+    "beta": 3.778
+   },
+   "levels_kmh": {
+    "2": 63.3,
+    "5": 67.6,
+    "10": 70.4,
+    "25": 74.0,
+    "50": 76.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.4
+  },
+  {
+   "name": "Upper Hutt",
+   "latitude": -41.1383,
+   "longitude": 175.0502,
+   "gumbel": {
+    "mu": 64.162,
+    "beta": 3.758
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 69.8,
+    "10": 72.6,
+    "25": 76.2,
+    "50": 78.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.0
+  },
+  {
+   "name": "Manurewa",
+   "latitude": -37.0182,
+   "longitude": 174.8802,
+   "gumbel": {
+    "mu": 61.147,
+    "beta": 4.74
+   },
+   "levels_kmh": {
+    "2": 62.9,
+    "5": 68.3,
+    "10": 71.8,
+    "25": 76.3,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.1
+  },
+  {
+   "name": "Gisborne",
+   "latitude": -38.6533,
+   "longitude": 178.0042,
+   "gumbel": {
+    "mu": 56.949,
+    "beta": 4.443
+   },
+   "levels_kmh": {
+    "2": 58.6,
+    "5": 63.6,
+    "10": 66.9,
+    "25": 71.2,
+    "50": 74.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 80.4
+  },
+  {
+   "name": "Papakura",
+   "latitude": -37.0646,
+   "longitude": 174.9421,
+   "gumbel": {
+    "mu": 61.147,
+    "beta": 4.74
+   },
+   "levels_kmh": {
+    "2": 62.9,
+    "5": 68.3,
+    "10": 71.8,
+    "25": 76.3,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.1
+  }
+ ]
+}

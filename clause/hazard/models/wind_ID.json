@@ -1,0 +1,1593 @@
+{
+ "code": "ID",
+ "name": "Indonesia",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": false,
+  "failed": [
+   "count"
+  ],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 246.0,
+   "observed": 156,
+   "place_years": 1230,
+   "dispersion": 10.29,
+   "p_at_most_observed": 0.0243,
+   "p_at_least_observed": 0.9772
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Jakarta",
+   "latitude": -6.2146,
+   "longitude": 106.8451,
+   "gumbel": {
+    "mu": 30.653,
+    "beta": 2.58
+   },
+   "levels_kmh": {
+    "2": 31.6,
+    "5": 34.5,
+    "10": 36.5,
+    "25": 38.9,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.2
+  },
+  {
+   "name": "Surabaya",
+   "latitude": -7.2492,
+   "longitude": 112.7508,
+   "gumbel": {
+    "mu": 33.214,
+    "beta": 3.068
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 37.8,
+    "10": 40.1,
+    "25": 43.0,
+    "50": 45.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Bekasi",
+   "latitude": -6.2349,
+   "longitude": 106.9896,
+   "gumbel": {
+    "mu": 30.653,
+    "beta": 2.58
+   },
+   "levels_kmh": {
+    "2": 31.6,
+    "5": 34.5,
+    "10": 36.5,
+    "25": 38.9,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.2
+  },
+  {
+   "name": "Bandung",
+   "latitude": -6.9222,
+   "longitude": 107.6069,
+   "gumbel": {
+    "mu": 30.637,
+    "beta": 3.399
+   },
+   "levels_kmh": {
+    "2": 31.9,
+    "5": 35.7,
+    "10": 38.3,
+    "25": 41.5,
+    "50": 43.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.4
+  },
+  {
+   "name": "Medan",
+   "latitude": 3.5833,
+   "longitude": 98.6667,
+   "gumbel": {
+    "mu": 19.078,
+    "beta": 1.349
+   },
+   "levels_kmh": {
+    "2": 19.6,
+    "5": 21.1,
+    "10": 22.1,
+    "25": 23.4,
+    "50": 24.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 27.8
+  },
+  {
+   "name": "Depok",
+   "latitude": -6.4,
+   "longitude": 106.8186,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Tangerang",
+   "latitude": -6.1781,
+   "longitude": 106.63,
+   "gumbel": {
+    "mu": 30.653,
+    "beta": 2.58
+   },
+   "levels_kmh": {
+    "2": 31.6,
+    "5": 34.5,
+    "10": 36.5,
+    "25": 38.9,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.2
+  },
+  {
+   "name": "Palembang",
+   "latitude": -2.9167,
+   "longitude": 104.7458,
+   "gumbel": {
+    "mu": 17.375,
+    "beta": 1.369
+   },
+   "levels_kmh": {
+    "2": 17.9,
+    "5": 19.4,
+    "10": 20.5,
+    "25": 21.8,
+    "50": 22.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 22.8
+  },
+  {
+   "name": "Semarang",
+   "latitude": -6.9931,
+   "longitude": 110.4208,
+   "gumbel": {
+    "mu": 30.211,
+    "beta": 2.654
+   },
+   "levels_kmh": {
+    "2": 31.2,
+    "5": 34.2,
+    "10": 36.2,
+    "25": 38.7,
+    "50": 40.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.9
+  },
+  {
+   "name": "Makassar",
+   "latitude": -5.1486,
+   "longitude": 119.4319,
+   "gumbel": {
+    "mu": 30.975,
+    "beta": 2.929
+   },
+   "levels_kmh": {
+    "2": 32.0,
+    "5": 35.4,
+    "10": 37.6,
+    "25": 40.3,
+    "50": 42.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 38.5
+  },
+  {
+   "name": "South Tangerang",
+   "latitude": -6.2886,
+   "longitude": 106.7179,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Batam",
+   "latitude": 1.1494,
+   "longitude": 104.0249,
+   "gumbel": {
+    "mu": 32.097,
+    "beta": 2.155
+   },
+   "levels_kmh": {
+    "2": 32.9,
+    "5": 35.3,
+    "10": 36.9,
+    "25": 39.0,
+    "50": 40.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.5
+  },
+  {
+   "name": "Jepara",
+   "latitude": -6.5924,
+   "longitude": 110.671,
+   "gumbel": {
+    "mu": 38.664,
+    "beta": 3.174
+   },
+   "levels_kmh": {
+    "2": 39.8,
+    "5": 43.4,
+    "10": 45.8,
+    "25": 48.8,
+    "50": 51.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Pekanbaru",
+   "latitude": 0.5167,
+   "longitude": 101.4417,
+   "gumbel": {
+    "mu": 5.607,
+    "beta": 0.34
+   },
+   "levels_kmh": {
+    "2": 5.7,
+    "5": 6.1,
+    "10": 6.4,
+    "25": 6.7,
+    "50": 6.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 6.9
+  },
+  {
+   "name": "Bandar Lampung",
+   "latitude": -5.4292,
+   "longitude": 105.2611,
+   "gumbel": {
+    "mu": 19.607,
+    "beta": 1.943
+   },
+   "levels_kmh": {
+    "2": 20.3,
+    "5": 22.5,
+    "10": 24.0,
+    "25": 25.8,
+    "50": 27.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 27.8
+  },
+  {
+   "name": "Bogor",
+   "latitude": -6.5944,
+   "longitude": 106.7892,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Padang",
+   "latitude": -0.9492,
+   "longitude": 100.3543,
+   "gumbel": {
+    "mu": 20.172,
+    "beta": 2.087
+   },
+   "levels_kmh": {
+    "2": 20.9,
+    "5": 23.3,
+    "10": 24.9,
+    "25": 26.8,
+    "50": 28.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 25.7
+  },
+  {
+   "name": "Malang",
+   "latitude": -7.9797,
+   "longitude": 112.6304,
+   "gumbel": {
+    "mu": 26.976,
+    "beta": 3.278
+   },
+   "levels_kmh": {
+    "2": 28.2,
+    "5": 31.9,
+    "10": 34.4,
+    "25": 37.5,
+    "50": 39.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.3
+  },
+  {
+   "name": "Samarinda",
+   "latitude": -0.4917,
+   "longitude": 117.1458,
+   "gumbel": {
+    "mu": 5.698,
+    "beta": 0.35
+   },
+   "levels_kmh": {
+    "2": 5.8,
+    "5": 6.2,
+    "10": 6.5,
+    "25": 6.8,
+    "50": 7.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 7.1
+  },
+  {
+   "name": "Tasikmalaya",
+   "latitude": -7.3274,
+   "longitude": 108.2207,
+   "gumbel": {
+    "mu": 28.539,
+    "beta": 3.365
+   },
+   "levels_kmh": {
+    "2": 29.8,
+    "5": 33.6,
+    "10": 36.1,
+    "25": 39.3,
+    "50": 41.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.5
+  },
+  {
+   "name": "Serang",
+   "latitude": -6.1153,
+   "longitude": 106.1542,
+   "gumbel": {
+    "mu": 30.045,
+    "beta": 2.722
+   },
+   "levels_kmh": {
+    "2": 31.0,
+    "5": 34.1,
+    "10": 36.2,
+    "25": 38.8,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.0
+  },
+  {
+   "name": "Balikpapan",
+   "latitude": -1.2675,
+   "longitude": 116.8289,
+   "gumbel": {
+    "mu": 23.173,
+    "beta": 2.483
+   },
+   "levels_kmh": {
+    "2": 24.1,
+    "5": 26.9,
+    "10": 28.8,
+    "25": 31.1,
+    "50": 32.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 38.6
+  },
+  {
+   "name": "Pontianak",
+   "latitude": -0.0319,
+   "longitude": 109.325,
+   "gumbel": {
+    "mu": 11.094,
+    "beta": 1.358
+   },
+   "levels_kmh": {
+    "2": 11.6,
+    "5": 13.1,
+    "10": 14.1,
+    "25": 15.4,
+    "50": 16.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 17.7
+  },
+  {
+   "name": "Situbondo",
+   "latitude": -7.7062,
+   "longitude": 114.0098,
+   "gumbel": {
+    "mu": 33.544,
+    "beta": 4.332
+   },
+   "levels_kmh": {
+    "2": 35.1,
+    "5": 40.0,
+    "10": 43.3,
+    "25": 47.4,
+    "50": 50.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.4
+  },
+  {
+   "name": "Denpasar",
+   "latitude": -8.65,
+   "longitude": 115.2167,
+   "gumbel": {
+    "mu": 17.67,
+    "beta": 2.1
+   },
+   "levels_kmh": {
+    "2": 18.4,
+    "5": 20.8,
+    "10": 22.4,
+    "25": 24.4,
+    "50": 25.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 25.7
+  },
+  {
+   "name": "Banjarmasin",
+   "latitude": -3.3199,
+   "longitude": 114.5907,
+   "gumbel": {
+    "mu": 31.656,
+    "beta": 2.416
+   },
+   "levels_kmh": {
+    "2": 32.5,
+    "5": 35.3,
+    "10": 37.1,
+    "25": 39.4,
+    "50": 41.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.5
+  },
+  {
+   "name": "Jambi City",
+   "latitude": -1.6,
+   "longitude": 103.6167,
+   "gumbel": {
+    "mu": 10.994,
+    "beta": 0.959
+   },
+   "levels_kmh": {
+    "2": 11.3,
+    "5": 12.4,
+    "10": 13.2,
+    "25": 14.1,
+    "50": 14.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 14.5
+  },
+  {
+   "name": "Cimahi",
+   "latitude": -6.8722,
+   "longitude": 107.5425,
+   "gumbel": {
+    "mu": 30.637,
+    "beta": 3.399
+   },
+   "levels_kmh": {
+    "2": 31.9,
+    "5": 35.7,
+    "10": 38.3,
+    "25": 41.5,
+    "50": 43.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.4
+  },
+  {
+   "name": "Surakarta",
+   "latitude": -7.5561,
+   "longitude": 110.8317,
+   "gumbel": {
+    "mu": 26.049,
+    "beta": 2.398
+   },
+   "levels_kmh": {
+    "2": 26.9,
+    "5": 29.6,
+    "10": 31.4,
+    "25": 33.7,
+    "50": 35.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 40.5
+  },
+  {
+   "name": "Kupang",
+   "latitude": -10.1708,
+   "longitude": 123.6069,
+   "gumbel": {
+    "mu": 37.324,
+    "beta": 4.495
+   },
+   "levels_kmh": {
+    "2": 39.0,
+    "5": 44.1,
+    "10": 47.4,
+    "25": 51.7,
+    "50": 54.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.0
+  },
+  {
+   "name": "Cilegon",
+   "latitude": -6.0144,
+   "longitude": 106.0542,
+   "gumbel": {
+    "mu": 30.045,
+    "beta": 2.722
+   },
+   "levels_kmh": {
+    "2": 31.0,
+    "5": 34.1,
+    "10": 36.2,
+    "25": 38.8,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.0
+  },
+  {
+   "name": "Manado",
+   "latitude": 1.4822,
+   "longitude": 124.8489,
+   "gumbel": {
+    "mu": 34.152,
+    "beta": 2.666
+   },
+   "levels_kmh": {
+    "2": 35.1,
+    "5": 38.2,
+    "10": 40.2,
+    "25": 42.7,
+    "50": 44.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.4
+  },
+  {
+   "name": "Mataram",
+   "latitude": -8.5833,
+   "longitude": 116.1167,
+   "gumbel": {
+    "mu": 19.557,
+    "beta": 2.248
+   },
+   "levels_kmh": {
+    "2": 20.4,
+    "5": 22.9,
+    "10": 24.6,
+    "25": 26.7,
+    "50": 28.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 26.6
+  },
+  {
+   "name": "Jayapura",
+   "latitude": -2.5337,
+   "longitude": 140.7181,
+   "gumbel": {
+    "mu": 29.614,
+    "beta": 2.229
+   },
+   "levels_kmh": {
+    "2": 30.4,
+    "5": 33.0,
+    "10": 34.6,
+    "25": 36.7,
+    "50": 38.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 38.7
+  },
+  {
+   "name": "Bengkulu",
+   "latitude": -3.8004,
+   "longitude": 102.2655,
+   "gumbel": {
+    "mu": 26.225,
+    "beta": 2.091
+   },
+   "levels_kmh": {
+    "2": 27.0,
+    "5": 29.4,
+    "10": 30.9,
+    "25": 32.9,
+    "50": 34.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 31.7
+  },
+  {
+   "name": "Palu",
+   "latitude": -0.9083,
+   "longitude": 119.8708,
+   "gumbel": {
+    "mu": 11.102,
+    "beta": 1.077
+   },
+   "levels_kmh": {
+    "2": 11.5,
+    "5": 12.7,
+    "10": 13.5,
+    "25": 14.5,
+    "50": 15.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 16.3
+  },
+  {
+   "name": "Yogyakarta",
+   "latitude": -7.8014,
+   "longitude": 110.3647,
+   "gumbel": {
+    "mu": 30.279,
+    "beta": 2.533
+   },
+   "levels_kmh": {
+    "2": 31.2,
+    "5": 34.1,
+    "10": 36.0,
+    "25": 38.4,
+    "50": 40.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.9
+  },
+  {
+   "name": "Sukabumi",
+   "latitude": -6.9181,
+   "longitude": 106.9267,
+   "gumbel": {
+    "mu": 30.41,
+    "beta": 3.034
+   },
+   "levels_kmh": {
+    "2": 31.5,
+    "5": 35.0,
+    "10": 37.2,
+    "25": 40.1,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.8
+  },
+  {
+   "name": "Cibinong",
+   "latitude": -6.4817,
+   "longitude": 106.8542,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Kendari",
+   "latitude": -3.9778,
+   "longitude": 122.5151,
+   "gumbel": {
+    "mu": 12.664,
+    "beta": 1.379
+   },
+   "levels_kmh": {
+    "2": 13.2,
+    "5": 14.7,
+    "10": 15.8,
+    "25": 17.1,
+    "50": 18.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 20.3
+  },
+  {
+   "name": "Dumai",
+   "latitude": 1.6671,
+   "longitude": 101.4432,
+   "gumbel": {
+    "mu": 6.371,
+    "beta": 0.441
+   },
+   "levels_kmh": {
+    "2": 6.5,
+    "5": 7.0,
+    "10": 7.4,
+    "25": 7.8,
+    "50": 8.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 7.7
+  },
+  {
+   "name": "Ambon",
+   "latitude": -3.6958,
+   "longitude": 128.1833,
+   "gumbel": {
+    "mu": 20.64,
+    "beta": 1.493
+   },
+   "levels_kmh": {
+    "2": 21.2,
+    "5": 22.9,
+    "10": 24.0,
+    "25": 25.4,
+    "50": 26.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 28.1
+  },
+  {
+   "name": "Cirebon",
+   "latitude": -6.7063,
+   "longitude": 108.557,
+   "gumbel": {
+    "mu": 39.846,
+    "beta": 2.981
+   },
+   "levels_kmh": {
+    "2": 40.9,
+    "5": 44.3,
+    "10": 46.6,
+    "25": 49.4,
+    "50": 51.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.1
+  },
+  {
+   "name": "Pekalongan",
+   "latitude": -6.8886,
+   "longitude": 109.6753,
+   "gumbel": {
+    "mu": 29.387,
+    "beta": 2.731
+   },
+   "levels_kmh": {
+    "2": 30.4,
+    "5": 33.5,
+    "10": 35.5,
+    "25": 38.1,
+    "50": 40.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.8
+  },
+  {
+   "name": "Palangkaraya",
+   "latitude": -2.2083,
+   "longitude": 113.9167,
+   "gumbel": {
+    "mu": 5.785,
+    "beta": 0.416
+   },
+   "levels_kmh": {
+    "2": 5.9,
+    "5": 6.4,
+    "10": 6.7,
+    "25": 7.1,
+    "50": 7.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 7.0
+  },
+  {
+   "name": "Percut",
+   "latitude": 3.6253,
+   "longitude": 98.864,
+   "gumbel": {
+    "mu": 19.078,
+    "beta": 1.349
+   },
+   "levels_kmh": {
+    "2": 19.6,
+    "5": 21.1,
+    "10": 22.1,
+    "25": 23.4,
+    "50": 24.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 27.8
+  },
+  {
+   "name": "Karawang",
+   "latitude": -6.3053,
+   "longitude": 107.3197,
+   "gumbel": {
+    "mu": 29.548,
+    "beta": 2.294
+   },
+   "levels_kmh": {
+    "2": 30.4,
+    "5": 33.0,
+    "10": 34.7,
+    "25": 36.9,
+    "50": 38.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.6
+  },
+  {
+   "name": "Kediri",
+   "latitude": -7.8167,
+   "longitude": 112.0167,
+   "gumbel": {
+    "mu": 28.264,
+    "beta": 2.907
+   },
+   "levels_kmh": {
+    "2": 29.3,
+    "5": 32.6,
+    "10": 34.8,
+    "25": 37.6,
+    "50": 39.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.4
+  },
+  {
+   "name": "Jember",
+   "latitude": -8.1721,
+   "longitude": 113.6995,
+   "gumbel": {
+    "mu": 27.085,
+    "beta": 3.366
+   },
+   "levels_kmh": {
+    "2": 28.3,
+    "5": 32.1,
+    "10": 34.7,
+    "25": 37.9,
+    "50": 40.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 51.3
+  },
+  {
+   "name": "Tegal",
+   "latitude": -6.8694,
+   "longitude": 109.1402,
+   "gumbel": {
+    "mu": 29.387,
+    "beta": 2.731
+   },
+   "levels_kmh": {
+    "2": 30.4,
+    "5": 33.5,
+    "10": 35.5,
+    "25": 38.1,
+    "50": 40.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.8
+  },
+  {
+   "name": "Banjarbaru",
+   "latitude": -3.4406,
+   "longitude": 114.8365,
+   "gumbel": {
+    "mu": 17.379,
+    "beta": 1.363
+   },
+   "levels_kmh": {
+    "2": 17.9,
+    "5": 19.4,
+    "10": 20.4,
+    "25": 21.7,
+    "50": 22.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 25.8
+  },
+  {
+   "name": "Cileungsir",
+   "latitude": -6.3947,
+   "longitude": 106.9592,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Binjai",
+   "latitude": 3.6001,
+   "longitude": 98.4854,
+   "gumbel": {
+    "mu": 19.078,
+    "beta": 1.349
+   },
+   "levels_kmh": {
+    "2": 19.6,
+    "5": 21.1,
+    "10": 22.1,
+    "25": 23.4,
+    "50": 24.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 27.8
+  },
+  {
+   "name": "Pematangsiantar",
+   "latitude": 2.9595,
+   "longitude": 99.0687,
+   "gumbel": {
+    "mu": 15.279,
+    "beta": 1.288
+   },
+   "levels_kmh": {
+    "2": 15.8,
+    "5": 17.2,
+    "10": 18.2,
+    "25": 19.4,
+    "50": 20.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 23.2
+  },
+  {
+   "name": "Banda Aceh",
+   "latitude": 5.5417,
+   "longitude": 95.3333,
+   "gumbel": {
+    "mu": 39.504,
+    "beta": 4.042
+   },
+   "levels_kmh": {
+    "2": 41.0,
+    "5": 45.6,
+    "10": 48.6,
+    "25": 52.4,
+    "50": 55.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 70.0
+  },
+  {
+   "name": "Pasarkemis",
+   "latitude": -6.1703,
+   "longitude": 106.5303,
+   "gumbel": {
+    "mu": 30.045,
+    "beta": 2.722
+   },
+   "levels_kmh": {
+    "2": 31.0,
+    "5": 34.1,
+    "10": 36.2,
+    "25": 38.8,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.0
+  },
+  {
+   "name": "Cilacap",
+   "latitude": -7.7264,
+   "longitude": 109.0094,
+   "gumbel": {
+    "mu": 25.761,
+    "beta": 1.701
+   },
+   "levels_kmh": {
+    "2": 26.4,
+    "5": 28.3,
+    "10": 29.6,
+    "25": 31.2,
+    "50": 32.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.4
+  },
+  {
+   "name": "Tarakan",
+   "latitude": 3.3133,
+   "longitude": 117.5915,
+   "gumbel": {
+    "mu": 23.766,
+    "beta": 2.049
+   },
+   "levels_kmh": {
+    "2": 24.5,
+    "5": 26.8,
+    "10": 28.4,
+    "25": 30.3,
+    "50": 31.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 30.2
+  },
+  {
+   "name": "Singkawang",
+   "latitude": 0.9093,
+   "longitude": 108.9846,
+   "gumbel": {
+    "mu": 27.765,
+    "beta": 3.816
+   },
+   "levels_kmh": {
+    "2": 29.2,
+    "5": 33.5,
+    "10": 36.4,
+    "25": 40.0,
+    "50": 42.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.0
+  },
+  {
+   "name": "Padangsidempuan",
+   "latitude": 1.3795,
+   "longitude": 99.2715,
+   "gumbel": {
+    "mu": 13.412,
+    "beta": 1.379
+   },
+   "levels_kmh": {
+    "2": 13.9,
+    "5": 15.5,
+    "10": 16.5,
+    "25": 17.8,
+    "50": 18.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 20.1
+  },
+  {
+   "name": "Probolinggo",
+   "latitude": -7.7543,
+   "longitude": 113.2159,
+   "gumbel": {
+    "mu": 26.694,
+    "beta": 3.41
+   },
+   "levels_kmh": {
+    "2": 27.9,
+    "5": 31.8,
+    "10": 34.4,
+    "25": 37.6,
+    "50": 40.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.1
+  },
+  {
+   "name": "Toli-Toli",
+   "latitude": 1.0402,
+   "longitude": 120.8176,
+   "gumbel": {
+    "mu": 15.28,
+    "beta": 1.375
+   },
+   "levels_kmh": {
+    "2": 15.8,
+    "5": 17.3,
+    "10": 18.4,
+    "25": 19.7,
+    "50": 20.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 21.0
+  },
+  {
+   "name": "Lubuklinggau",
+   "latitude": -3.2945,
+   "longitude": 102.8614,
+   "gumbel": {
+    "mu": 17.157,
+    "beta": 1.319
+   },
+   "levels_kmh": {
+    "2": 17.6,
+    "5": 19.1,
+    "10": 20.1,
+    "25": 21.4,
+    "50": 22.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 21.2
+  },
+  {
+   "name": "Purwokerto",
+   "latitude": -7.4214,
+   "longitude": 109.2344,
+   "gumbel": {
+    "mu": 26.747,
+    "beta": 2.047
+   },
+   "levels_kmh": {
+    "2": 27.5,
+    "5": 29.8,
+    "10": 31.4,
+    "25": 33.3,
+    "50": 34.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.1
+  },
+  {
+   "name": "Tanjung Pinang",
+   "latitude": 0.9167,
+   "longitude": 104.4583,
+   "gumbel": {
+    "mu": 35.597,
+    "beta": 2.881
+   },
+   "levels_kmh": {
+    "2": 36.7,
+    "5": 39.9,
+    "10": 42.1,
+    "25": 44.8,
+    "50": 46.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 47.2
+  },
+  {
+   "name": "Pangkalpinang",
+   "latitude": -2.1291,
+   "longitude": 106.1138,
+   "gumbel": {
+    "mu": 32.597,
+    "beta": 2.085
+   },
+   "levels_kmh": {
+    "2": 33.4,
+    "5": 35.7,
+    "10": 37.3,
+    "25": 39.3,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.1
+  },
+  {
+   "name": "Batu",
+   "latitude": -7.87,
+   "longitude": 112.5283,
+   "gumbel": {
+    "mu": 26.976,
+    "beta": 3.278
+   },
+   "levels_kmh": {
+    "2": 28.2,
+    "5": 31.9,
+    "10": 34.4,
+    "25": 37.5,
+    "50": 39.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.3
+  },
+  {
+   "name": "Bitung",
+   "latitude": 1.4406,
+   "longitude": 125.1282,
+   "gumbel": {
+    "mu": 34.152,
+    "beta": 2.666
+   },
+   "levels_kmh": {
+    "2": 35.1,
+    "5": 38.2,
+    "10": 40.2,
+    "25": 42.7,
+    "50": 44.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.4
+  },
+  {
+   "name": "Klungkung",
+   "latitude": -8.5333,
+   "longitude": 115.4,
+   "gumbel": {
+    "mu": 28.217,
+    "beta": 3.594
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 33.6,
+    "10": 36.3,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 40.0
+  },
+  {
+   "name": "Sorong",
+   "latitude": -0.8796,
+   "longitude": 131.261,
+   "gumbel": {
+    "mu": 36.795,
+    "beta": 3.617
+   },
+   "levels_kmh": {
+    "2": 38.1,
+    "5": 42.2,
+    "10": 44.9,
+    "25": 48.4,
+    "50": 50.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 47.1
+  },
+  {
+   "name": "Citeureup",
+   "latitude": -6.4856,
+   "longitude": 106.8819,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Pasuruan",
+   "latitude": -7.6453,
+   "longitude": 112.9075,
+   "gumbel": {
+    "mu": 29.976,
+    "beta": 2.974
+   },
+   "levels_kmh": {
+    "2": 31.1,
+    "5": 34.4,
+    "10": 36.7,
+    "25": 39.5,
+    "50": 41.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.4
+  },
+  {
+   "name": "Loa Janan",
+   "latitude": -0.5829,
+   "longitude": 117.095,
+   "gumbel": {
+    "mu": 5.698,
+    "beta": 0.35
+   },
+   "levels_kmh": {
+    "2": 5.8,
+    "5": 6.2,
+    "10": 6.5,
+    "25": 6.8,
+    "50": 7.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 7.1
+  },
+  {
+   "name": "Ternate",
+   "latitude": 0.7906,
+   "longitude": 127.3842,
+   "gumbel": {
+    "mu": 34.616,
+    "beta": 3.054
+   },
+   "levels_kmh": {
+    "2": 35.7,
+    "5": 39.2,
+    "10": 41.5,
+    "25": 44.4,
+    "50": 46.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.6
+  },
+  {
+   "name": "Banjar",
+   "latitude": -7.1955,
+   "longitude": 107.4313,
+   "gumbel": {
+    "mu": 30.637,
+    "beta": 3.399
+   },
+   "levels_kmh": {
+    "2": 31.9,
+    "5": 35.7,
+    "10": 38.3,
+    "25": 41.5,
+    "50": 43.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.4
+  },
+  {
+   "name": "Ciputat",
+   "latitude": -6.2375,
+   "longitude": 106.6956,
+   "gumbel": {
+    "mu": 30.653,
+    "beta": 2.58
+   },
+   "levels_kmh": {
+    "2": 31.6,
+    "5": 34.5,
+    "10": 36.5,
+    "25": 38.9,
+    "50": 40.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.2
+  },
+  {
+   "name": "Ciampea",
+   "latitude": -6.5547,
+   "longitude": 106.7008,
+   "gumbel": {
+    "mu": 28.541,
+    "beta": 2.665
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.5,
+    "10": 34.5,
+    "25": 37.1,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Gorontalo",
+   "latitude": 0.5375,
+   "longitude": 123.0625,
+   "gumbel": {
+    "mu": 30.642,
+    "beta": 2.125
+   },
+   "levels_kmh": {
+    "2": 31.4,
+    "5": 33.8,
+    "10": 35.4,
+    "25": 37.4,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 40.7
+  },
+  {
+   "name": "Madiun",
+   "latitude": -7.6298,
+   "longitude": 111.5239,
+   "gumbel": {
+    "mu": 25.593,
+    "beta": 2.535
+   },
+   "levels_kmh": {
+    "2": 26.5,
+    "5": 29.4,
+    "10": 31.3,
+    "25": 33.7,
+    "50": 35.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.9
+  },
+  {
+   "name": "Rengasdengklok",
+   "latitude": -6.1592,
+   "longitude": 107.2981,
+   "gumbel": {
+    "mu": 33.641,
+    "beta": 2.641
+   },
+   "levels_kmh": {
+    "2": 34.6,
+    "5": 37.6,
+    "10": 39.6,
+    "25": 42.1,
+    "50": 43.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.3
+  },
+  {
+   "name": "Lhokseumawe",
+   "latitude": 5.1801,
+   "longitude": 97.1507,
+   "gumbel": {
+    "mu": 16.642,
+    "beta": 2.31
+   },
+   "levels_kmh": {
+    "2": 17.5,
+    "5": 20.1,
+    "10": 21.8,
+    "25": 24.0,
+    "50": 25.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 28.5
+  },
+  {
+   "name": "Sumedang",
+   "latitude": -6.8586,
+   "longitude": 107.9164,
+   "gumbel": {
+    "mu": 26.74,
+    "beta": 3.122
+   },
+   "levels_kmh": {
+    "2": 27.9,
+    "5": 31.4,
+    "10": 33.8,
+    "25": 36.7,
+    "50": 38.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.8
+  }
+ ]
+}

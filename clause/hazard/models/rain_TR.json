@@ -3,8 +3,9 @@
  "name": "Türkiye",
  "kind": "rain_extreme",
  "version": "2026.1",
- "built": "2026-09-19",
+ "built": "2026-09-29",
  "index": "largest daily precipitation, NASA POWER PRECTOTCORR (MERRA-2)",
+ "unit": "mm",
  "sources": [
   {
    "name": "NASA POWER",

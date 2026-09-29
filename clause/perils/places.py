@@ -253,19 +253,25 @@ def _world() -> list[tuple[dict[str, Any], tuple[str, ...], int]]:
     return rows
 
 
-def search_world(query: str, limit: int = 12, country: str | None = None) -> list[dict[str, Any]]:
+def search_world(query: str, limit: int = 12, country: str | None = None,
+                 peril: str | None = None) -> list[dict[str, Any]]:
     """Places anywhere with a model, best match first, then the larger place.
 
     Each result says whether cover can be priced there, so a buyer who types a
     city the protocol has no tested model for is told so at once rather than
-    after choosing it.
+    after choosing it. Whether it can depends on which cover is being bought:
+    the rain model passes in six countries and the wind model in a different
+    set, and answering both with the earthquake list marked the wrong places
+    unavailable in each.
     """
-    from . import EARTHQUAKE
+    from . import EARTHQUAKE, REGISTRY
 
     key = fold(query)
     if not key:
         return []
-    priced = EARTHQUAKE.territory
+    asked = REGISTRY.get(peril or "") if peril else None
+    priced = (asked.territory if asked is not None and asked.territory is not None
+              else EARTHQUAKE.territory)
     hits: list[tuple[tuple[int, int, int], dict[str, Any]]] = []
     for row, keys, population in _world():
         if country and row["country"] != country:

@@ -1,0 +1,492 @@
+{
+ "code": "TW",
+ "name": "Taiwan",
+ "kind": "rain_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily precipitation, NASA POWER PRECTOTCORR (MERRA-2)",
+ "unit": "mm",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 72.0,
+   "observed": 65,
+   "place_years": 360,
+   "dispersion": 11.63,
+   "p_at_most_observed": 0.4594,
+   "p_at_least_observed": 0.5551
+  },
+  "changes_after_first_run": [
+   "count test: places are not independent; negative binomial with the dispersion measured on the fitting years replaces the binomial (first run: binomial, p = 0.0027, failed)",
+   "published levels fitted on the most recent 30 years, because strong rainfall years became about a quarter more frequent from 2001"
+  ]
+ },
+ "places": [
+  {
+   "name": "Taipei",
+   "latitude": 25.0531,
+   "longitude": 121.5264,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "New Taipei City",
+   "latitude": 25.062,
+   "longitude": 121.457,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Taichung",
+   "latitude": 24.1469,
+   "longitude": 120.6839,
+   "gumbel": {
+    "mu": 89.664,
+    "beta": 38.508
+   },
+   "levels_mm": {
+    "2": 103.8,
+    "5": 147.4,
+    "10": 176.3,
+    "25": 212.8,
+    "50": 239.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 234.7
+  },
+  {
+   "name": "Kaohsiung",
+   "latitude": 22.6163,
+   "longitude": 120.3133,
+   "gumbel": {
+    "mu": 96.855,
+    "beta": 29.684
+   },
+   "levels_mm": {
+    "2": 107.7,
+    "5": 141.4,
+    "10": 163.7,
+    "25": 191.8,
+    "50": 212.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 285.8
+  },
+  {
+   "name": "Tainan",
+   "latitude": 22.9908,
+   "longitude": 120.2133,
+   "gumbel": {
+    "mu": 104.992,
+    "beta": 34.692
+   },
+   "levels_mm": {
+    "2": 117.7,
+    "5": 157.0,
+    "10": 183.1,
+    "25": 216.0,
+    "50": 240.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 286.7
+  },
+  {
+   "name": "Banqiao",
+   "latitude": 25.0143,
+   "longitude": 121.4672,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Taoyuan",
+   "latitude": 24.9937,
+   "longitude": 121.297,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Hsinchu",
+   "latitude": 24.8036,
+   "longitude": 120.9686,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Keelung",
+   "latitude": 25.1309,
+   "longitude": 121.7409,
+   "gumbel": {
+    "mu": 79.285,
+    "beta": 40.415
+   },
+   "levels_mm": {
+    "2": 94.1,
+    "5": 139.9,
+    "10": 170.2,
+    "25": 208.6,
+    "50": 237.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 250.0
+  },
+  {
+   "name": "Fengshan",
+   "latitude": 22.6266,
+   "longitude": 120.3613,
+   "gumbel": {
+    "mu": 96.855,
+    "beta": 29.684
+   },
+   "levels_mm": {
+    "2": 107.7,
+    "5": 141.4,
+    "10": 163.7,
+    "25": 191.8,
+    "50": 212.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 285.8
+  },
+  {
+   "name": "Neihu",
+   "latitude": 25.0815,
+   "longitude": 121.5881,
+   "gumbel": {
+    "mu": 79.285,
+    "beta": 40.415
+   },
+   "levels_mm": {
+    "2": 94.1,
+    "5": 139.9,
+    "10": 170.2,
+    "25": 208.6,
+    "50": 237.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 250.0
+  },
+  {
+   "name": "Chiayi City",
+   "latitude": 23.4792,
+   "longitude": 120.4489,
+   "gumbel": {
+    "mu": 97.97,
+    "beta": 34.079
+   },
+   "levels_mm": {
+    "2": 110.5,
+    "5": 149.1,
+    "10": 174.7,
+    "25": 207.0,
+    "50": 230.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 214.9
+  },
+  {
+   "name": "Yongkang",
+   "latitude": 23.0244,
+   "longitude": 120.2556,
+   "gumbel": {
+    "mu": 104.992,
+    "beta": 34.692
+   },
+   "levels_mm": {
+    "2": 117.7,
+    "5": 157.0,
+    "10": 183.1,
+    "25": 216.0,
+    "50": 240.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 286.7
+  },
+  {
+   "name": "Chang-hua",
+   "latitude": 24.0733,
+   "longitude": 120.5628,
+   "gumbel": {
+    "mu": 89.664,
+    "beta": 38.508
+   },
+   "levels_mm": {
+    "2": 103.8,
+    "5": 147.4,
+    "10": 176.3,
+    "25": 212.8,
+    "50": 239.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 234.7
+  },
+  {
+   "name": "Changhua",
+   "latitude": 24.0692,
+   "longitude": 120.5512,
+   "gumbel": {
+    "mu": 89.664,
+    "beta": 38.508
+   },
+   "levels_mm": {
+    "2": 103.8,
+    "5": 147.4,
+    "10": 176.3,
+    "25": 212.8,
+    "50": 239.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 234.7
+  },
+  {
+   "name": "Zhubei",
+   "latitude": 24.8383,
+   "longitude": 121.0078,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Bade",
+   "latitude": 24.9298,
+   "longitude": 121.2837,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Xizhi",
+   "latitude": 25.0662,
+   "longitude": 121.6599,
+   "gumbel": {
+    "mu": 79.285,
+    "beta": 40.415
+   },
+   "levels_mm": {
+    "2": 94.1,
+    "5": 139.9,
+    "10": 170.2,
+    "25": 208.6,
+    "50": 237.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 250.0
+  },
+  {
+   "name": "Danshui",
+   "latitude": 25.172,
+   "longitude": 121.4429,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Shulin",
+   "latitude": 24.9908,
+   "longitude": 121.422,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Yuanlin",
+   "latitude": 23.9567,
+   "longitude": 120.5761,
+   "gumbel": {
+    "mu": 89.664,
+    "beta": 38.508
+   },
+   "levels_mm": {
+    "2": 103.8,
+    "5": 147.4,
+    "10": 176.3,
+    "25": 212.8,
+    "50": 239.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 234.7
+  },
+  {
+   "name": "Sanxia",
+   "latitude": 24.9345,
+   "longitude": 121.3714,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Neili",
+   "latitude": 24.9725,
+   "longitude": 121.2614,
+   "gumbel": {
+    "mu": 79.807,
+    "beta": 40.911
+   },
+   "levels_mm": {
+    "2": 94.8,
+    "5": 141.2,
+    "10": 171.9,
+    "25": 210.7,
+    "50": 239.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 253.0
+  },
+  {
+   "name": "Douliu",
+   "latitude": 23.7094,
+   "longitude": 120.5433,
+   "gumbel": {
+    "mu": 97.97,
+    "beta": 34.079
+   },
+   "levels_mm": {
+    "2": 110.5,
+    "5": 149.1,
+    "10": 174.7,
+    "25": 207.0,
+    "50": 230.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 214.9
+  }
+ ]
+}

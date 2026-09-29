@@ -1,0 +1,2598 @@
+{
+ "code": "JP",
+ "name": "Japan",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 405.0,
+   "observed": 640,
+   "place_years": 2025,
+   "dispersion": 33.2,
+   "p_at_most_observed": 0.9661,
+   "p_at_least_observed": 0.0343
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Tokyo",
+   "latitude": 35.6895,
+   "longitude": 139.6917,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Yokohama",
+   "latitude": 35.4333,
+   "longitude": 139.65,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Osaka",
+   "latitude": 34.6938,
+   "longitude": 135.5011,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Nagoya",
+   "latitude": 35.1815,
+   "longitude": 136.9064,
+   "gumbel": {
+    "mu": 55.218,
+    "beta": 7.165
+   },
+   "levels_kmh": {
+    "2": 57.8,
+    "5": 66.0,
+    "10": 71.3,
+    "25": 78.1,
+    "50": 83.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 82.3
+  },
+  {
+   "name": "Sapporo",
+   "latitude": 43.0667,
+   "longitude": 141.35,
+   "gumbel": {
+    "mu": 46.255,
+    "beta": 5.779
+   },
+   "levels_kmh": {
+    "2": 48.4,
+    "5": 54.9,
+    "10": 59.3,
+    "25": 64.7,
+    "50": 68.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.0
+  },
+  {
+   "name": "Fukuoka",
+   "latitude": 33.6,
+   "longitude": 130.4167,
+   "gumbel": {
+    "mu": 38.401,
+    "beta": 4.628
+   },
+   "levels_kmh": {
+    "2": 40.1,
+    "5": 45.3,
+    "10": 48.8,
+    "25": 53.2,
+    "50": 56.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.6
+  },
+  {
+   "name": "Kawasaki",
+   "latitude": 35.5206,
+   "longitude": 139.7172,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kobe",
+   "latitude": 34.6913,
+   "longitude": 135.183,
+   "gumbel": {
+    "mu": 53.739,
+    "beta": 6.866
+   },
+   "levels_kmh": {
+    "2": 56.3,
+    "5": 64.0,
+    "10": 69.2,
+    "25": 75.7,
+    "50": 80.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.8
+  },
+  {
+   "name": "Kyoto",
+   "latitude": 35.0211,
+   "longitude": 135.7538,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Saitama",
+   "latitude": 35.9081,
+   "longitude": 139.6566,
+   "gumbel": {
+    "mu": 52.327,
+    "beta": 6.66
+   },
+   "levels_kmh": {
+    "2": 54.8,
+    "5": 62.3,
+    "10": 67.3,
+    "25": 73.6,
+    "50": 78.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.3
+  },
+  {
+   "name": "Hiroshima",
+   "latitude": 34.4,
+   "longitude": 132.45,
+   "gumbel": {
+    "mu": 47.204,
+    "beta": 6.378
+   },
+   "levels_kmh": {
+    "2": 49.5,
+    "5": 56.8,
+    "10": 61.6,
+    "25": 67.6,
+    "50": 72.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.6
+  },
+  {
+   "name": "Sendai",
+   "latitude": 38.2667,
+   "longitude": 140.8667,
+   "gumbel": {
+    "mu": 43.134,
+    "beta": 4.064
+   },
+   "levels_kmh": {
+    "2": 44.6,
+    "5": 49.2,
+    "10": 52.3,
+    "25": 56.1,
+    "50": 59.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.9
+  },
+  {
+   "name": "Chiba",
+   "latitude": 35.6,
+   "longitude": 140.1167,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kitakyushu",
+   "latitude": 33.8518,
+   "longitude": 130.8503,
+   "gumbel": {
+    "mu": 62.09,
+    "beta": 6.268
+   },
+   "levels_kmh": {
+    "2": 64.4,
+    "5": 71.5,
+    "10": 76.2,
+    "25": 82.1,
+    "50": 86.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 102.4
+  },
+  {
+   "name": "Setagaya",
+   "latitude": 35.6419,
+   "longitude": 139.6472,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Sakai",
+   "latitude": 34.5822,
+   "longitude": 135.4665,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Niigata",
+   "latitude": 37.9226,
+   "longitude": 139.0412,
+   "gumbel": {
+    "mu": 65.64,
+    "beta": 7.468
+   },
+   "levels_kmh": {
+    "2": 68.4,
+    "5": 76.8,
+    "10": 82.4,
+    "25": 89.5,
+    "50": 94.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 103.4
+  },
+  {
+   "name": "Hamamatsu",
+   "latitude": 34.7,
+   "longitude": 137.7333,
+   "gumbel": {
+    "mu": 71.678,
+    "beta": 10.314
+   },
+   "levels_kmh": {
+    "2": 75.5,
+    "5": 87.1,
+    "10": 94.9,
+    "25": 104.7,
+    "50": 111.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 110.9
+  },
+  {
+   "name": "Ōta",
+   "latitude": 35.5613,
+   "longitude": 139.716,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kumamoto",
+   "latitude": 32.8059,
+   "longitude": 130.6918,
+   "gumbel": {
+    "mu": 36.511,
+    "beta": 5.395
+   },
+   "levels_kmh": {
+    "2": 38.5,
+    "5": 44.6,
+    "10": 48.7,
+    "25": 53.8,
+    "50": 57.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.9
+  },
+  {
+   "name": "Aihara",
+   "latitude": 35.6,
+   "longitude": 139.3167,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Okayama",
+   "latitude": 34.65,
+   "longitude": 133.9333,
+   "gumbel": {
+    "mu": 52.783,
+    "beta": 6.252
+   },
+   "levels_kmh": {
+    "2": 55.1,
+    "5": 62.2,
+    "10": 66.9,
+    "25": 72.8,
+    "50": 77.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 89.2
+  },
+  {
+   "name": "Sagamihara",
+   "latitude": 35.5671,
+   "longitude": 139.2417,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Edogawe",
+   "latitude": 35.6923,
+   "longitude": 139.8731,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Adachi",
+   "latitude": 35.7632,
+   "longitude": 139.8076,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Shizuoka",
+   "latitude": 34.9833,
+   "longitude": 138.3833,
+   "gumbel": {
+    "mu": 52.558,
+    "beta": 6.078
+   },
+   "levels_kmh": {
+    "2": 54.8,
+    "5": 61.7,
+    "10": 66.2,
+    "25": 72.0,
+    "50": 76.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 83.4
+  },
+  {
+   "name": "Honchō",
+   "latitude": 35.7013,
+   "longitude": 139.9865,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kawaguchi",
+   "latitude": 35.8052,
+   "longitude": 139.7107,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Kagoshima",
+   "latitude": 31.5667,
+   "longitude": 130.55,
+   "gumbel": {
+    "mu": 67.682,
+    "beta": 13.66
+   },
+   "levels_kmh": {
+    "2": 72.7,
+    "5": 88.2,
+    "10": 98.4,
+    "25": 111.4,
+    "50": 121.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 111.3
+  },
+  {
+   "name": "Suginami",
+   "latitude": 36.2013,
+   "longitude": 140.2841,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Itabashi",
+   "latitude": 35.7489,
+   "longitude": 139.715,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Hachiōji",
+   "latitude": 35.6558,
+   "longitude": 139.3239,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Kotō",
+   "latitude": 32.7786,
+   "longitude": 130.7454,
+   "gumbel": {
+    "mu": 36.511,
+    "beta": 5.395
+   },
+   "levels_kmh": {
+    "2": 38.5,
+    "5": 44.6,
+    "10": 48.7,
+    "25": 53.8,
+    "50": 57.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.9
+  },
+  {
+   "name": "Himeji",
+   "latitude": 34.8167,
+   "longitude": 134.7,
+   "gumbel": {
+    "mu": 48.156,
+    "beta": 7.479
+   },
+   "levels_kmh": {
+    "2": 50.9,
+    "5": 59.4,
+    "10": 65.0,
+    "25": 72.1,
+    "50": 77.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.2
+  },
+  {
+   "name": "Utsunomiya",
+   "latitude": 36.5667,
+   "longitude": 139.8833,
+   "gumbel": {
+    "mu": 43.009,
+    "beta": 5.017
+   },
+   "levels_kmh": {
+    "2": 44.8,
+    "5": 50.5,
+    "10": 54.3,
+    "25": 59.1,
+    "50": 62.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.4
+  },
+  {
+   "name": "Matsuyama",
+   "latitude": 33.8392,
+   "longitude": 132.7657,
+   "gumbel": {
+    "mu": 47.401,
+    "beta": 6.494
+   },
+   "levels_kmh": {
+    "2": 49.8,
+    "5": 57.1,
+    "10": 62.0,
+    "25": 68.2,
+    "50": 72.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.4
+  },
+  {
+   "name": "Matsudo",
+   "latitude": 35.7799,
+   "longitude": 139.9014,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Ichikawa",
+   "latitude": 35.7341,
+   "longitude": 139.9065,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Higashiosaka",
+   "latitude": 34.6667,
+   "longitude": 135.5833,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Nishinomiya",
+   "latitude": 34.7156,
+   "longitude": 135.332,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Kurashiki",
+   "latitude": 34.5833,
+   "longitude": 133.7667,
+   "gumbel": {
+    "mu": 52.783,
+    "beta": 6.252
+   },
+   "levels_kmh": {
+    "2": 55.1,
+    "5": 62.2,
+    "10": 66.9,
+    "25": 72.8,
+    "50": 77.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 89.2
+  },
+  {
+   "name": "Ōita",
+   "latitude": 33.2333,
+   "longitude": 131.6,
+   "gumbel": {
+    "mu": 43.229,
+    "beta": 7.973
+   },
+   "levels_kmh": {
+    "2": 46.2,
+    "5": 55.2,
+    "10": 61.2,
+    "25": 68.7,
+    "50": 74.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.5
+  },
+  {
+   "name": "Fukuyama",
+   "latitude": 34.4833,
+   "longitude": 133.3667,
+   "gumbel": {
+    "mu": 51.221,
+    "beta": 6.449
+   },
+   "levels_kmh": {
+    "2": 53.6,
+    "5": 60.9,
+    "10": 65.7,
+    "25": 71.8,
+    "50": 76.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kanazawa",
+   "latitude": 36.6,
+   "longitude": 136.6167,
+   "gumbel": {
+    "mu": 61.552,
+    "beta": 7.789
+   },
+   "levels_kmh": {
+    "2": 64.4,
+    "5": 73.2,
+    "10": 79.1,
+    "25": 86.5,
+    "50": 91.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 94.0
+  },
+  {
+   "name": "Amagasaki",
+   "latitude": 34.7167,
+   "longitude": 135.4167,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Katsushika",
+   "latitude": 35.7333,
+   "longitude": 139.85,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Fujisawa",
+   "latitude": 35.3493,
+   "longitude": 139.4767,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Kashiwa",
+   "latitude": 35.8622,
+   "longitude": 139.9773,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Machida",
+   "latitude": 35.5403,
+   "longitude": 139.4508,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Toyota",
+   "latitude": 35.0833,
+   "longitude": 137.15,
+   "gumbel": {
+    "mu": 55.218,
+    "beta": 7.165
+   },
+   "levels_kmh": {
+    "2": 57.8,
+    "5": 66.0,
+    "10": 71.3,
+    "25": 78.1,
+    "50": 83.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 82.3
+  },
+  {
+   "name": "Shinagawa",
+   "latitude": 33.6363,
+   "longitude": 133.0057,
+   "gumbel": {
+    "mu": 37.932,
+    "beta": 6.423
+   },
+   "levels_kmh": {
+    "2": 40.3,
+    "5": 47.6,
+    "10": 52.4,
+    "25": 58.5,
+    "50": 63.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.0
+  },
+  {
+   "name": "Takamatsu",
+   "latitude": 34.3333,
+   "longitude": 134.05,
+   "gumbel": {
+    "mu": 52.783,
+    "beta": 6.252
+   },
+   "levels_kmh": {
+    "2": 55.1,
+    "5": 62.2,
+    "10": 66.9,
+    "25": 72.8,
+    "50": 77.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 89.2
+  },
+  {
+   "name": "Toyama",
+   "latitude": 36.7,
+   "longitude": 137.2167,
+   "gumbel": {
+    "mu": 47.81,
+    "beta": 6.476
+   },
+   "levels_kmh": {
+    "2": 50.2,
+    "5": 57.5,
+    "10": 62.4,
+    "25": 68.5,
+    "50": 73.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.4
+  },
+  {
+   "name": "Yokosuka",
+   "latitude": 35.2836,
+   "longitude": 139.6672,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Nagasaki",
+   "latitude": 32.75,
+   "longitude": 129.8833,
+   "gumbel": {
+    "mu": 39.73,
+    "beta": 5.118
+   },
+   "levels_kmh": {
+    "2": 41.6,
+    "5": 47.4,
+    "10": 51.2,
+    "25": 56.1,
+    "50": 59.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Hirakata",
+   "latitude": 34.8135,
+   "longitude": 135.6491,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Gifu",
+   "latitude": 35.4229,
+   "longitude": 136.7604,
+   "gumbel": {
+    "mu": 45.748,
+    "beta": 7.564
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 57.1,
+    "10": 62.8,
+    "25": 69.9,
+    "50": 75.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.6
+  },
+  {
+   "name": "Toyonaka",
+   "latitude": 34.7824,
+   "longitude": 135.4693,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Miyazaki",
+   "latitude": 31.9167,
+   "longitude": 131.4167,
+   "gumbel": {
+    "mu": 35.509,
+    "beta": 7.8
+   },
+   "levels_kmh": {
+    "2": 38.4,
+    "5": 47.2,
+    "10": 53.1,
+    "25": 60.5,
+    "50": 65.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.0
+  },
+  {
+   "name": "Suita",
+   "latitude": 34.7614,
+   "longitude": 135.5157,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Okazaki",
+   "latitude": 34.95,
+   "longitude": 137.1667,
+   "gumbel": {
+    "mu": 55.218,
+    "beta": 7.165
+   },
+   "levels_kmh": {
+    "2": 57.8,
+    "5": 66.0,
+    "10": 71.3,
+    "25": 78.1,
+    "50": 83.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 82.3
+  },
+  {
+   "name": "Ichinomiya",
+   "latitude": 35.3,
+   "longitude": 136.8,
+   "gumbel": {
+    "mu": 45.748,
+    "beta": 7.564
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 57.1,
+    "10": 62.8,
+    "25": 69.9,
+    "50": 75.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.6
+  },
+  {
+   "name": "Toyohashi",
+   "latitude": 34.7667,
+   "longitude": 137.3833,
+   "gumbel": {
+    "mu": 40.89,
+    "beta": 5.276
+   },
+   "levels_kmh": {
+    "2": 42.8,
+    "5": 48.8,
+    "10": 52.8,
+    "25": 57.8,
+    "50": 61.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.3
+  },
+  {
+   "name": "Minato",
+   "latitude": 34.2152,
+   "longitude": 135.1501,
+   "gumbel": {
+    "mu": 53.774,
+    "beta": 8.269
+   },
+   "levels_kmh": {
+    "2": 56.8,
+    "5": 66.2,
+    "10": 72.4,
+    "25": 80.2,
+    "50": 86.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.5
+  },
+  {
+   "name": "Takasaki",
+   "latitude": 36.3333,
+   "longitude": 139.0167,
+   "gumbel": {
+    "mu": 51.452,
+    "beta": 4.54
+   },
+   "levels_kmh": {
+    "2": 53.1,
+    "5": 58.3,
+    "10": 61.7,
+    "25": 66.0,
+    "50": 69.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.1
+  },
+  {
+   "name": "Nagano",
+   "latitude": 36.65,
+   "longitude": 138.1833,
+   "gumbel": {
+    "mu": 49.796,
+    "beta": 5.95
+   },
+   "levels_kmh": {
+    "2": 52.0,
+    "5": 58.7,
+    "10": 63.2,
+    "25": 68.8,
+    "50": 73.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.6
+  },
+  {
+   "name": "Nara-shi",
+   "latitude": 34.685,
+   "longitude": 135.8048,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Iwaki",
+   "latitude": 37.05,
+   "longitude": 140.8833,
+   "gumbel": {
+    "mu": 33.83,
+    "beta": 3.451
+   },
+   "levels_kmh": {
+    "2": 35.1,
+    "5": 39.0,
+    "10": 41.6,
+    "25": 44.9,
+    "50": 47.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 47.0
+  },
+  {
+   "name": "Wakayama",
+   "latitude": 34.2333,
+   "longitude": 135.1667,
+   "gumbel": {
+    "mu": 53.774,
+    "beta": 8.269
+   },
+   "levels_kmh": {
+    "2": 56.8,
+    "5": 66.2,
+    "10": 72.4,
+    "25": 80.2,
+    "50": 86.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.5
+  },
+  {
+   "name": "Kawagoe",
+   "latitude": 35.9086,
+   "longitude": 139.4853,
+   "gumbel": {
+    "mu": 52.327,
+    "beta": 6.66
+   },
+   "levels_kmh": {
+    "2": 54.8,
+    "5": 62.3,
+    "10": 67.3,
+    "25": 73.6,
+    "50": 78.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.3
+  },
+  {
+   "name": "Takatsuki",
+   "latitude": 34.8483,
+   "longitude": 135.6168,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Shinjuku",
+   "latitude": 35.6912,
+   "longitude": 139.7085,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Koshigaya",
+   "latitude": 35.8903,
+   "longitude": 139.7892,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Ōtsu",
+   "latitude": 35.0,
+   "longitude": 135.8667,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Nakano",
+   "latitude": 35.7045,
+   "longitude": 139.6695,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Tokorozawa",
+   "latitude": 35.7992,
+   "longitude": 139.469,
+   "gumbel": {
+    "mu": 52.327,
+    "beta": 6.66
+   },
+   "levels_kmh": {
+    "2": 54.8,
+    "5": 62.3,
+    "10": 67.3,
+    "25": 73.6,
+    "50": 78.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.3
+  },
+  {
+   "name": "Asahikawa",
+   "latitude": 43.7706,
+   "longitude": 142.3649,
+   "gumbel": {
+    "mu": 42.155,
+    "beta": 6.048
+   },
+   "levels_kmh": {
+    "2": 44.4,
+    "5": 51.2,
+    "10": 55.8,
+    "25": 61.5,
+    "50": 65.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.4
+  },
+  {
+   "name": "Maebashi",
+   "latitude": 36.4,
+   "longitude": 139.0833,
+   "gumbel": {
+    "mu": 53.988,
+    "beta": 5.638
+   },
+   "levels_kmh": {
+    "2": 56.1,
+    "5": 62.4,
+    "10": 66.7,
+    "25": 72.0,
+    "50": 76.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.2
+  },
+  {
+   "name": "Kita",
+   "latitude": 35.7526,
+   "longitude": 139.7335,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Kochi",
+   "latitude": 33.55,
+   "longitude": 133.5333,
+   "gumbel": {
+    "mu": 64.732,
+    "beta": 11.312
+   },
+   "levels_kmh": {
+    "2": 68.9,
+    "5": 81.7,
+    "10": 90.2,
+    "25": 100.9,
+    "50": 108.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 104.0
+  },
+  {
+   "name": "Kōriyama",
+   "latitude": 37.4,
+   "longitude": 140.3833,
+   "gumbel": {
+    "mu": 52.455,
+    "beta": 5.327
+   },
+   "levels_kmh": {
+    "2": 54.4,
+    "5": 60.4,
+    "10": 64.4,
+    "25": 69.5,
+    "50": 73.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.0
+  },
+  {
+   "name": "Naha",
+   "latitude": 26.213,
+   "longitude": 127.6785,
+   "gumbel": {
+    "mu": 82.192,
+    "beta": 20.179
+   },
+   "levels_kmh": {
+    "2": 89.6,
+    "5": 112.5,
+    "10": 127.6,
+    "25": 146.7,
+    "50": 160.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 150.6
+  },
+  {
+   "name": "Kasugai",
+   "latitude": 35.2476,
+   "longitude": 136.9723,
+   "gumbel": {
+    "mu": 55.218,
+    "beta": 7.165
+   },
+   "levels_kmh": {
+    "2": 57.8,
+    "5": 66.0,
+    "10": 71.3,
+    "25": 78.1,
+    "50": 83.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 82.3
+  },
+  {
+   "name": "Akita",
+   "latitude": 39.7167,
+   "longitude": 140.1167,
+   "gumbel": {
+    "mu": 53.158,
+    "beta": 5.553
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 61.5,
+    "10": 65.7,
+    "25": 70.9,
+    "50": 74.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.5
+  },
+  {
+   "name": "Yokkaichi",
+   "latitude": 34.9667,
+   "longitude": 136.6167,
+   "gumbel": {
+    "mu": 55.218,
+    "beta": 7.165
+   },
+   "levels_kmh": {
+    "2": 57.8,
+    "5": 66.0,
+    "10": 71.3,
+    "25": 78.1,
+    "50": 83.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 82.3
+  },
+  {
+   "name": "Akashi",
+   "latitude": 34.6552,
+   "longitude": 135.0069,
+   "gumbel": {
+    "mu": 53.739,
+    "beta": 6.866
+   },
+   "levels_kmh": {
+    "2": 56.3,
+    "5": 64.0,
+    "10": 69.2,
+    "25": 75.7,
+    "50": 80.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.8
+  },
+  {
+   "name": "Kurume",
+   "latitude": 33.3167,
+   "longitude": 130.5167,
+   "gumbel": {
+    "mu": 38.401,
+    "beta": 4.628
+   },
+   "levels_kmh": {
+    "2": 40.1,
+    "5": 45.3,
+    "10": 48.8,
+    "25": 53.2,
+    "50": 56.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.6
+  },
+  {
+   "name": "Toshima",
+   "latitude": 35.7613,
+   "longitude": 139.7449,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Aomori",
+   "latitude": 40.8167,
+   "longitude": 140.7333,
+   "gumbel": {
+    "mu": 57.283,
+    "beta": 5.579
+   },
+   "levels_kmh": {
+    "2": 59.3,
+    "5": 65.7,
+    "10": 69.8,
+    "25": 75.1,
+    "50": 79.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.0
+  },
+  {
+   "name": "Fukushima",
+   "latitude": 37.75,
+   "longitude": 140.4667,
+   "gumbel": {
+    "mu": 54.352,
+    "beta": 5.159
+   },
+   "levels_kmh": {
+    "2": 56.2,
+    "5": 62.1,
+    "10": 66.0,
+    "25": 70.9,
+    "50": 74.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.0
+  },
+  {
+   "name": "Morioka",
+   "latitude": 39.7,
+   "longitude": 141.15,
+   "gumbel": {
+    "mu": 33.074,
+    "beta": 3.661
+   },
+   "levels_kmh": {
+    "2": 34.4,
+    "5": 38.6,
+    "10": 41.3,
+    "25": 44.8,
+    "50": 47.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.3
+  },
+  {
+   "name": "Meguro",
+   "latitude": 35.6322,
+   "longitude": 139.7017,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Sumida",
+   "latitude": 35.7329,
+   "longitude": 139.8209,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Ibaraki",
+   "latitude": 34.8164,
+   "longitude": 135.5683,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Ichihara",
+   "latitude": 35.5167,
+   "longitude": 140.0833,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Hakodate",
+   "latitude": 41.7758,
+   "longitude": 140.7367,
+   "gumbel": {
+    "mu": 50.558,
+    "beta": 5.24
+   },
+   "levels_kmh": {
+    "2": 52.5,
+    "5": 58.4,
+    "10": 62.3,
+    "25": 67.3,
+    "50": 71.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.3
+  },
+  {
+   "name": "Tsu",
+   "latitude": 34.7333,
+   "longitude": 136.5167,
+   "gumbel": {
+    "mu": 33.007,
+    "beta": 4.163
+   },
+   "levels_kmh": {
+    "2": 34.5,
+    "5": 39.3,
+    "10": 42.4,
+    "25": 46.3,
+    "50": 49.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.9
+  },
+  {
+   "name": "Yao",
+   "latitude": 34.6167,
+   "longitude": 135.6,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Kakogawachō-honmachi",
+   "latitude": 34.7694,
+   "longitude": 134.829,
+   "gumbel": {
+    "mu": 48.156,
+    "beta": 7.479
+   },
+   "levels_kmh": {
+    "2": 50.9,
+    "5": 59.4,
+    "10": 65.0,
+    "25": 72.1,
+    "50": 77.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.2
+  },
+  {
+   "name": "Mito",
+   "latitude": 36.35,
+   "longitude": 140.45,
+   "gumbel": {
+    "mu": 48.115,
+    "beta": 6.249
+   },
+   "levels_kmh": {
+    "2": 50.4,
+    "5": 57.5,
+    "10": 62.2,
+    "25": 68.1,
+    "50": 72.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 71.7
+  },
+  {
+   "name": "Tokushima",
+   "latitude": 34.0667,
+   "longitude": 134.5667,
+   "gumbel": {
+    "mu": 36.082,
+    "beta": 4.41
+   },
+   "levels_kmh": {
+    "2": 37.7,
+    "5": 42.7,
+    "10": 46.0,
+    "25": 50.2,
+    "50": 53.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.1
+  },
+  {
+   "name": "Nagaoka",
+   "latitude": 37.45,
+   "longitude": 138.85,
+   "gumbel": {
+    "mu": 48.823,
+    "beta": 3.806
+   },
+   "levels_kmh": {
+    "2": 50.2,
+    "5": 54.5,
+    "10": 57.4,
+    "25": 61.0,
+    "50": 63.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.7
+  },
+  {
+   "name": "Shimonoseki",
+   "latitude": 33.9555,
+   "longitude": 130.9371,
+   "gumbel": {
+    "mu": 62.09,
+    "beta": 6.268
+   },
+   "levels_kmh": {
+    "2": 64.4,
+    "5": 71.5,
+    "10": 76.2,
+    "25": 82.1,
+    "50": 86.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 102.4
+  },
+  {
+   "name": "Fuchū",
+   "latitude": 35.6745,
+   "longitude": 139.4822,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Fukui-shi",
+   "latitude": 36.0644,
+   "longitude": 136.2226,
+   "gumbel": {
+    "mu": 59.308,
+    "beta": 8.016
+   },
+   "levels_kmh": {
+    "2": 62.2,
+    "5": 71.3,
+    "10": 77.3,
+    "25": 84.9,
+    "50": 90.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 87.7
+  },
+  {
+   "name": "Minato City",
+   "latitude": 35.6581,
+   "longitude": 139.7515,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Hiratsuka",
+   "latitude": 35.3278,
+   "longitude": 139.3373,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Sōka",
+   "latitude": 35.8364,
+   "longitude": 139.7996,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Yamagata",
+   "latitude": 38.2333,
+   "longitude": 140.3667,
+   "gumbel": {
+    "mu": 54.352,
+    "beta": 5.159
+   },
+   "levels_kmh": {
+    "2": 56.2,
+    "5": 62.1,
+    "10": 66.0,
+    "25": 70.9,
+    "50": 74.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.0
+  },
+  {
+   "name": "Fuji",
+   "latitude": 35.1667,
+   "longitude": 138.6833,
+   "gumbel": {
+    "mu": 47.881,
+    "beta": 6.692
+   },
+   "levels_kmh": {
+    "2": 50.3,
+    "5": 57.9,
+    "10": 62.9,
+    "25": 69.3,
+    "50": 74.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.0
+  },
+  {
+   "name": "Sasebo",
+   "latitude": 33.1683,
+   "longitude": 129.725,
+   "gumbel": {
+    "mu": 39.73,
+    "beta": 5.118
+   },
+   "levels_kmh": {
+    "2": 41.6,
+    "5": 47.4,
+    "10": 51.2,
+    "25": 56.1,
+    "50": 59.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Chigasaki",
+   "latitude": 35.3364,
+   "longitude": 139.4043,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Chōfu",
+   "latitude": 35.6592,
+   "longitude": 139.5484,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Yamato",
+   "latitude": 35.4728,
+   "longitude": 139.451,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Tsukuba",
+   "latitude": 36.0833,
+   "longitude": 140.1167,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Matsumoto",
+   "latitude": 36.2333,
+   "longitude": 137.9667,
+   "gumbel": {
+    "mu": 50.908,
+    "beta": 7.006
+   },
+   "levels_kmh": {
+    "2": 53.5,
+    "5": 61.4,
+    "10": 66.7,
+    "25": 73.3,
+    "50": 78.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.5
+  },
+  {
+   "name": "Bunkyo",
+   "latitude": 35.5331,
+   "longitude": 139.4217,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Hachinohe",
+   "latitude": 40.5,
+   "longitude": 141.5,
+   "gumbel": {
+    "mu": 56.732,
+    "beta": 5.78
+   },
+   "levels_kmh": {
+    "2": 58.9,
+    "5": 65.4,
+    "10": 69.7,
+    "25": 75.2,
+    "50": 79.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.0
+  },
+  {
+   "name": "Neyagawa",
+   "latitude": 34.7662,
+   "longitude": 135.6276,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Saga",
+   "latitude": 33.2333,
+   "longitude": 130.3,
+   "gumbel": {
+    "mu": 39.73,
+    "beta": 5.118
+   },
+   "levels_kmh": {
+    "2": 41.6,
+    "5": 47.4,
+    "10": 51.2,
+    "25": 56.1,
+    "50": 59.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Shibuya",
+   "latitude": 35.6589,
+   "longitude": 139.7066,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kasukabe",
+   "latitude": 35.9831,
+   "longitude": 139.7497,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  },
+  {
+   "name": "Ageo",
+   "latitude": 35.9714,
+   "longitude": 139.6138,
+   "gumbel": {
+    "mu": 52.327,
+    "beta": 6.66
+   },
+   "levels_kmh": {
+    "2": 54.8,
+    "5": 62.3,
+    "10": 67.3,
+    "25": 73.6,
+    "50": 78.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.3
+  },
+  {
+   "name": "Takarazuka",
+   "latitude": 34.7994,
+   "longitude": 135.357,
+   "gumbel": {
+    "mu": 52.274,
+    "beta": 8.051
+   },
+   "levels_kmh": {
+    "2": 55.2,
+    "5": 64.3,
+    "10": 70.4,
+    "25": 78.0,
+    "50": 83.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.5
+  },
+  {
+   "name": "Ōta",
+   "latitude": 36.3,
+   "longitude": 139.3667,
+   "gumbel": {
+    "mu": 53.988,
+    "beta": 5.638
+   },
+   "levels_kmh": {
+    "2": 56.1,
+    "5": 62.4,
+    "10": 66.7,
+    "25": 72.0,
+    "50": 76.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.2
+  },
+  {
+   "name": "Minamirinkan",
+   "latitude": 35.4953,
+   "longitude": 139.4428,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Atsugi",
+   "latitude": 35.4427,
+   "longitude": 139.3693,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Arakawa",
+   "latitude": 35.7383,
+   "longitude": 139.7805,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Kure",
+   "latitude": 34.2322,
+   "longitude": 132.5666,
+   "gumbel": {
+    "mu": 47.401,
+    "beta": 6.494
+   },
+   "levels_kmh": {
+    "2": 49.8,
+    "5": 57.1,
+    "10": 62.0,
+    "25": 68.2,
+    "50": 72.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.4
+  },
+  {
+   "name": "Isesaki",
+   "latitude": 36.3167,
+   "longitude": 139.2,
+   "gumbel": {
+    "mu": 53.988,
+    "beta": 5.638
+   },
+   "levels_kmh": {
+    "2": 56.1,
+    "5": 62.4,
+    "10": 66.7,
+    "25": 72.0,
+    "50": 76.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.2
+  },
+  {
+   "name": "Taito",
+   "latitude": 35.7075,
+   "longitude": 139.7788,
+   "gumbel": {
+    "mu": 57.352,
+    "beta": 8.359
+   },
+   "levels_kmh": {
+    "2": 60.4,
+    "5": 69.9,
+    "10": 76.2,
+    "25": 84.1,
+    "50": 90.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.9
+  },
+  {
+   "name": "Nishi-Tokyo-shi",
+   "latitude": 35.7253,
+   "longitude": 139.5383,
+   "gumbel": {
+    "mu": 56.695,
+    "beta": 7.264
+   },
+   "levels_kmh": {
+    "2": 59.4,
+    "5": 67.6,
+    "10": 73.0,
+    "25": 79.9,
+    "50": 85.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 84.1
+  },
+  {
+   "name": "Kishiwada",
+   "latitude": 34.4667,
+   "longitude": 135.3667,
+   "gumbel": {
+    "mu": 45.581,
+    "beta": 6.427
+   },
+   "levels_kmh": {
+    "2": 47.9,
+    "5": 55.2,
+    "10": 60.0,
+    "25": 66.1,
+    "50": 70.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.7
+  },
+  {
+   "name": "Matsue",
+   "latitude": 35.4833,
+   "longitude": 133.05,
+   "gumbel": {
+    "mu": 70.859,
+    "beta": 7.136
+   },
+   "levels_kmh": {
+    "2": 73.5,
+    "5": 81.6,
+    "10": 86.9,
+    "25": 93.7,
+    "50": 98.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 109.1
+  },
+  {
+   "name": "Nagareyama",
+   "latitude": 35.8563,
+   "longitude": 139.9027,
+   "gumbel": {
+    "mu": 58.283,
+    "beta": 7.65
+   },
+   "levels_kmh": {
+    "2": 61.1,
+    "5": 69.8,
+    "10": 75.5,
+    "25": 82.8,
+    "50": 88.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.2
+  }
+ ]
+}

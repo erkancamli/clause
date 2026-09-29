@@ -1,0 +1,1857 @@
+{
+ "code": "MX",
+ "name": "Mexico",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 288.0,
+   "observed": 191,
+   "place_years": 1440,
+   "dispersion": 14.01,
+   "p_at_most_observed": 0.0495,
+   "p_at_least_observed": 0.9526
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Mexico City",
+   "latitude": 19.4285,
+   "longitude": -99.1277,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Tijuana",
+   "latitude": 32.5027,
+   "longitude": -117.0037,
+   "gumbel": {
+    "mu": 45.51,
+    "beta": 4.934
+   },
+   "levels_kmh": {
+    "2": 47.3,
+    "5": 52.9,
+    "10": 56.6,
+    "25": 61.3,
+    "50": 64.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.5
+  },
+  {
+   "name": "Iztapalapa",
+   "latitude": 19.3553,
+   "longitude": -99.0622,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Puebla",
+   "latitude": 19.0478,
+   "longitude": -98.2072,
+   "gumbel": {
+    "mu": 38.368,
+    "beta": 3.87
+   },
+   "levels_kmh": {
+    "2": 39.8,
+    "5": 44.2,
+    "10": 47.1,
+    "25": 50.7,
+    "50": 53.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 51.6
+  },
+  {
+   "name": "Ecatepec de Morelos",
+   "latitude": 19.6049,
+   "longitude": -99.0606,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Santiago de Querétaro",
+   "latitude": 20.5881,
+   "longitude": -100.3881,
+   "gumbel": {
+    "mu": 37.847,
+    "beta": 3.538
+   },
+   "levels_kmh": {
+    "2": 39.1,
+    "5": 43.2,
+    "10": 45.8,
+    "25": 49.2,
+    "50": 51.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.9
+  },
+  {
+   "name": "León de los Aldama",
+   "latitude": 21.1218,
+   "longitude": -101.6825,
+   "gumbel": {
+    "mu": 41.571,
+    "beta": 3.67
+   },
+   "levels_kmh": {
+    "2": 42.9,
+    "5": 47.1,
+    "10": 49.8,
+    "25": 53.3,
+    "50": 55.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.5
+  },
+  {
+   "name": "Ciudad Juárez",
+   "latitude": 31.7202,
+   "longitude": -106.4608,
+   "gumbel": {
+    "mu": 57.872,
+    "beta": 5.35
+   },
+   "levels_kmh": {
+    "2": 59.8,
+    "5": 65.9,
+    "10": 69.9,
+    "25": 75.0,
+    "50": 78.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.8
+  },
+  {
+   "name": "Zapopan",
+   "latitude": 20.7211,
+   "longitude": -103.3874,
+   "gumbel": {
+    "mu": 32.007,
+    "beta": 2.358
+   },
+   "levels_kmh": {
+    "2": 32.9,
+    "5": 35.5,
+    "10": 37.3,
+    "25": 39.5,
+    "50": 41.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.9
+  },
+  {
+   "name": "Guadalajara",
+   "latitude": 20.6774,
+   "longitude": -103.3475,
+   "gumbel": {
+    "mu": 32.007,
+    "beta": 2.358
+   },
+   "levels_kmh": {
+    "2": 32.9,
+    "5": 35.5,
+    "10": 37.3,
+    "25": 39.5,
+    "50": 41.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.9
+  },
+  {
+   "name": "Mérida",
+   "latitude": 20.967,
+   "longitude": -89.6232,
+   "gumbel": {
+    "mu": 13.428,
+    "beta": 1.65
+   },
+   "levels_kmh": {
+    "2": 14.0,
+    "5": 15.9,
+    "10": 17.1,
+    "25": 18.7,
+    "50": 19.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 22.0
+  },
+  {
+   "name": "Gustavo Adolfo Madero",
+   "latitude": 19.4939,
+   "longitude": -99.1107,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Monterrey",
+   "latitude": 25.6843,
+   "longitude": -100.3172,
+   "gumbel": {
+    "mu": 44.011,
+    "beta": 5.207
+   },
+   "levels_kmh": {
+    "2": 45.9,
+    "5": 51.8,
+    "10": 55.7,
+    "25": 60.7,
+    "50": 64.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.4
+  },
+  {
+   "name": "Ciudad Nezahualcoyotl",
+   "latitude": 19.4006,
+   "longitude": -99.0148,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Mexicali",
+   "latitude": 32.6278,
+   "longitude": -115.4545,
+   "gumbel": {
+    "mu": 41.192,
+    "beta": 3.263
+   },
+   "levels_kmh": {
+    "2": 42.4,
+    "5": 46.1,
+    "10": 48.5,
+    "25": 51.6,
+    "50": 53.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.7
+  },
+  {
+   "name": "Chihuahua",
+   "latitude": 28.6353,
+   "longitude": -106.0889,
+   "gumbel": {
+    "mu": 59.56,
+    "beta": 4.398
+   },
+   "levels_kmh": {
+    "2": 61.2,
+    "5": 66.2,
+    "10": 69.5,
+    "25": 73.6,
+    "50": 76.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 71.7
+  },
+  {
+   "name": "Cancún",
+   "latitude": 21.1743,
+   "longitude": -86.8466,
+   "gumbel": {
+    "mu": 27.546,
+    "beta": 5.617
+   },
+   "levels_kmh": {
+    "2": 29.6,
+    "5": 36.0,
+    "10": 40.2,
+    "25": 45.5,
+    "50": 49.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.0
+  },
+  {
+   "name": "Naucalpan de Juárez",
+   "latitude": 19.4785,
+   "longitude": -99.2396,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Hermosillo",
+   "latitude": 29.0887,
+   "longitude": -110.9668,
+   "gumbel": {
+    "mu": 39.054,
+    "beta": 5.814
+   },
+   "levels_kmh": {
+    "2": 41.2,
+    "5": 47.8,
+    "10": 52.1,
+    "25": 57.7,
+    "50": 61.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 70.9
+  },
+  {
+   "name": "Culiacán",
+   "latitude": 24.8021,
+   "longitude": -107.3942,
+   "gumbel": {
+    "mu": 32.578,
+    "beta": 2.857
+   },
+   "levels_kmh": {
+    "2": 33.6,
+    "5": 36.9,
+    "10": 39.0,
+    "25": 41.7,
+    "50": 43.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 69.8
+  },
+  {
+   "name": "Morelia",
+   "latitude": 19.7008,
+   "longitude": -101.1844,
+   "gumbel": {
+    "mu": 29.341,
+    "beta": 3.853
+   },
+   "levels_kmh": {
+    "2": 30.8,
+    "5": 35.1,
+    "10": 38.0,
+    "25": 41.7,
+    "50": 44.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 49.6
+  },
+  {
+   "name": "Torreón",
+   "latitude": 25.5439,
+   "longitude": -103.419,
+   "gumbel": {
+    "mu": 45.234,
+    "beta": 4.469
+   },
+   "levels_kmh": {
+    "2": 46.9,
+    "5": 51.9,
+    "10": 55.3,
+    "25": 59.5,
+    "50": 62.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.0
+  },
+  {
+   "name": "Álvaro Obregón",
+   "latitude": 19.3587,
+   "longitude": -99.2033,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "San Luis Potosí",
+   "latitude": 22.1523,
+   "longitude": -100.9714,
+   "gumbel": {
+    "mu": 50.132,
+    "beta": 5.071
+   },
+   "levels_kmh": {
+    "2": 52.0,
+    "5": 57.7,
+    "10": 61.5,
+    "25": 66.4,
+    "50": 69.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 69.4
+  },
+  {
+   "name": "Aguascalientes",
+   "latitude": 21.8826,
+   "longitude": -102.2843,
+   "gumbel": {
+    "mu": 39.616,
+    "beta": 2.694
+   },
+   "levels_kmh": {
+    "2": 40.6,
+    "5": 43.7,
+    "10": 45.7,
+    "25": 48.2,
+    "50": 50.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.1
+  },
+  {
+   "name": "Saltillo",
+   "latitude": 25.426,
+   "longitude": -100.9796,
+   "gumbel": {
+    "mu": 45.553,
+    "beta": 5.433
+   },
+   "levels_kmh": {
+    "2": 47.5,
+    "5": 53.7,
+    "10": 57.8,
+    "25": 62.9,
+    "50": 66.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.3
+  },
+  {
+   "name": "Guadalupe",
+   "latitude": 25.6766,
+   "longitude": -100.2591,
+   "gumbel": {
+    "mu": 42.298,
+    "beta": 3.135
+   },
+   "levels_kmh": {
+    "2": 43.4,
+    "5": 47.0,
+    "10": 49.4,
+    "25": 52.3,
+    "50": 54.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.4
+  },
+  {
+   "name": "Acapulco de Juárez",
+   "latitude": 16.8494,
+   "longitude": -99.9089,
+   "gumbel": {
+    "mu": 35.95,
+    "beta": 4.243
+   },
+   "levels_kmh": {
+    "2": 37.5,
+    "5": 42.3,
+    "10": 45.5,
+    "25": 49.5,
+    "50": 52.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.8
+  },
+  {
+   "name": "Tlalnepantla",
+   "latitude": 19.5401,
+   "longitude": -99.1954,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Tlaquepaque",
+   "latitude": 20.6412,
+   "longitude": -103.2934,
+   "gumbel": {
+    "mu": 32.007,
+    "beta": 2.358
+   },
+   "levels_kmh": {
+    "2": 32.9,
+    "5": 35.5,
+    "10": 37.3,
+    "25": 39.5,
+    "50": 41.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.9
+  },
+  {
+   "name": "Coyoacán",
+   "latitude": 19.3467,
+   "longitude": -99.1617,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Tuxtla",
+   "latitude": 16.7536,
+   "longitude": -93.1158,
+   "gumbel": {
+    "mu": 34.446,
+    "beta": 2.243
+   },
+   "levels_kmh": {
+    "2": 35.3,
+    "5": 37.8,
+    "10": 39.5,
+    "25": 41.6,
+    "50": 43.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.9
+  },
+  {
+   "name": "Reynosa",
+   "latitude": 26.08,
+   "longitude": -98.2846,
+   "gumbel": {
+    "mu": 49.6,
+    "beta": 3.38
+   },
+   "levels_kmh": {
+    "2": 50.8,
+    "5": 54.7,
+    "10": 57.2,
+    "25": 60.4,
+    "50": 62.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.1
+  },
+  {
+   "name": "Tlalpan",
+   "latitude": 19.2951,
+   "longitude": -99.1621,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Cuautitlán Izcalli",
+   "latitude": 19.6439,
+   "longitude": -99.216,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Cuauhtémoc",
+   "latitude": 19.4451,
+   "longitude": -99.1461,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Victoria de Durango",
+   "latitude": 24.0203,
+   "longitude": -104.6576,
+   "gumbel": {
+    "mu": 48.247,
+    "beta": 4.011
+   },
+   "levels_kmh": {
+    "2": 49.7,
+    "5": 54.3,
+    "10": 57.3,
+    "25": 61.1,
+    "50": 63.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.2
+  },
+  {
+   "name": "Heroica Matamoros",
+   "latitude": 25.8797,
+   "longitude": -97.5042,
+   "gumbel": {
+    "mu": 50.913,
+    "beta": 4.14
+   },
+   "levels_kmh": {
+    "2": 52.4,
+    "5": 57.1,
+    "10": 60.2,
+    "25": 64.2,
+    "50": 67.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 70.2
+  },
+  {
+   "name": "Toluca",
+   "latitude": 19.2879,
+   "longitude": -99.6532,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Ciudad López Mateos",
+   "latitude": 19.5579,
+   "longitude": -99.2567,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Ciudad Apodaca",
+   "latitude": 25.7814,
+   "longitude": -100.1891,
+   "gumbel": {
+    "mu": 44.261,
+    "beta": 3.556
+   },
+   "levels_kmh": {
+    "2": 45.6,
+    "5": 49.6,
+    "10": 52.3,
+    "25": 55.6,
+    "50": 58.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.0
+  },
+  {
+   "name": "Ciudad General Escobedo",
+   "latitude": 25.7966,
+   "longitude": -100.3177,
+   "gumbel": {
+    "mu": 42.731,
+    "beta": 4.353
+   },
+   "levels_kmh": {
+    "2": 44.3,
+    "5": 49.3,
+    "10": 52.5,
+    "25": 56.7,
+    "50": 59.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 58.1
+  },
+  {
+   "name": "Ensenada",
+   "latitude": 31.8715,
+   "longitude": -116.6007,
+   "gumbel": {
+    "mu": 43.694,
+    "beta": 4.931
+   },
+   "levels_kmh": {
+    "2": 45.5,
+    "5": 51.1,
+    "10": 54.8,
+    "25": 59.5,
+    "50": 62.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.7
+  },
+  {
+   "name": "Xochimilco",
+   "latitude": 19.2547,
+   "longitude": -99.1036,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Venustiano Carranza",
+   "latitude": 19.4436,
+   "longitude": -99.105,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Veracruz",
+   "latitude": 19.1809,
+   "longitude": -96.1429,
+   "gumbel": {
+    "mu": 51.313,
+    "beta": 4.87
+   },
+   "levels_kmh": {
+    "2": 53.1,
+    "5": 58.6,
+    "10": 62.3,
+    "25": 66.9,
+    "50": 70.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 71.7
+  },
+  {
+   "name": "Xalapa de Enríquez",
+   "latitude": 19.5312,
+   "longitude": -96.9159,
+   "gumbel": {
+    "mu": 44.576,
+    "beta": 3.996
+   },
+   "levels_kmh": {
+    "2": 46.0,
+    "5": 50.6,
+    "10": 53.6,
+    "25": 57.4,
+    "50": 60.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.3
+  },
+  {
+   "name": "Nuevo Laredo",
+   "latitude": 27.4763,
+   "longitude": -99.5164,
+   "gumbel": {
+    "mu": 47.983,
+    "beta": 3.003
+   },
+   "levels_kmh": {
+    "2": 49.1,
+    "5": 52.5,
+    "10": 54.7,
+    "25": 57.6,
+    "50": 59.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.3
+  },
+  {
+   "name": "Azcapotzalco",
+   "latitude": 19.487,
+   "longitude": -99.1859,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "San Nicolás de los Garza",
+   "latitude": 25.7417,
+   "longitude": -100.3022,
+   "gumbel": {
+    "mu": 42.298,
+    "beta": 3.135
+   },
+   "levels_kmh": {
+    "2": 43.4,
+    "5": 47.0,
+    "10": 49.4,
+    "25": 52.3,
+    "50": 54.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.4
+  },
+  {
+   "name": "Tonalá",
+   "latitude": 20.6226,
+   "longitude": -103.2417,
+   "gumbel": {
+    "mu": 32.007,
+    "beta": 2.358
+   },
+   "levels_kmh": {
+    "2": 32.9,
+    "5": 35.5,
+    "10": 37.3,
+    "25": 39.5,
+    "50": 41.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.9
+  },
+  {
+   "name": "Ojo de Agua",
+   "latitude": 19.6803,
+   "longitude": -99.01,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Benito Juárez",
+   "latitude": 19.3727,
+   "longitude": -99.1564,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Xico",
+   "latitude": 19.2703,
+   "longitude": -98.9509,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Iztacalco",
+   "latitude": 19.3953,
+   "longitude": -99.0978,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Mazatlán",
+   "latitude": 23.2216,
+   "longitude": -106.4189,
+   "gumbel": {
+    "mu": 33.023,
+    "beta": 5.6
+   },
+   "levels_kmh": {
+    "2": 35.1,
+    "5": 41.4,
+    "10": 45.6,
+    "25": 50.9,
+    "50": 54.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.0
+  },
+  {
+   "name": "Irapuato",
+   "latitude": 20.671,
+   "longitude": -101.3558,
+   "gumbel": {
+    "mu": 37.557,
+    "beta": 3.125
+   },
+   "levels_kmh": {
+    "2": 38.7,
+    "5": 42.2,
+    "10": 44.6,
+    "25": 47.6,
+    "50": 49.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.0
+  },
+  {
+   "name": "Miguel Hidalgo",
+   "latitude": 19.4341,
+   "longitude": -99.2002,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Benito Juarez",
+   "latitude": 19.3984,
+   "longitude": -99.1577,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Tapachula",
+   "latitude": 14.9054,
+   "longitude": -92.2589,
+   "gumbel": {
+    "mu": 29.999,
+    "beta": 3.556
+   },
+   "levels_kmh": {
+    "2": 31.3,
+    "5": 35.3,
+    "10": 38.0,
+    "25": 41.4,
+    "50": 43.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.5
+  },
+  {
+   "name": "Villahermosa",
+   "latitude": 17.9862,
+   "longitude": -92.9393,
+   "gumbel": {
+    "mu": 39.891,
+    "beta": 3.741
+   },
+   "levels_kmh": {
+    "2": 41.3,
+    "5": 45.5,
+    "10": 48.3,
+    "25": 51.9,
+    "50": 54.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 51.7
+  },
+  {
+   "name": "Celaya",
+   "latitude": 20.5218,
+   "longitude": -100.814,
+   "gumbel": {
+    "mu": 37.847,
+    "beta": 3.538
+   },
+   "levels_kmh": {
+    "2": 39.1,
+    "5": 43.2,
+    "10": 45.8,
+    "25": 49.2,
+    "50": 51.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.9
+  },
+  {
+   "name": "Cuernavaca",
+   "latitude": 18.9261,
+   "longitude": -99.2308,
+   "gumbel": {
+    "mu": 25.961,
+    "beta": 3.227
+   },
+   "levels_kmh": {
+    "2": 27.1,
+    "5": 30.8,
+    "10": 33.2,
+    "25": 36.3,
+    "50": 38.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.9
+  },
+  {
+   "name": "Tepic",
+   "latitude": 21.5073,
+   "longitude": -104.8933,
+   "gumbel": {
+    "mu": 31.793,
+    "beta": 3.83
+   },
+   "levels_kmh": {
+    "2": 33.2,
+    "5": 37.5,
+    "10": 40.4,
+    "25": 44.0,
+    "50": 46.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.4
+  },
+  {
+   "name": "Ciudad Victoria",
+   "latitude": 23.7406,
+   "longitude": -99.1436,
+   "gumbel": {
+    "mu": 35.354,
+    "beta": 2.162
+   },
+   "levels_kmh": {
+    "2": 36.1,
+    "5": 38.6,
+    "10": 40.2,
+    "25": 42.3,
+    "50": 43.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 58.6
+  },
+  {
+   "name": "Soledad de Graciano Sánchez",
+   "latitude": 22.1891,
+   "longitude": -100.9379,
+   "gumbel": {
+    "mu": 50.132,
+    "beta": 5.071
+   },
+   "levels_kmh": {
+    "2": 52.0,
+    "5": 57.7,
+    "10": 61.5,
+    "25": 66.4,
+    "50": 69.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 69.4
+  },
+  {
+   "name": "Ciudad Obregón",
+   "latitude": 27.4864,
+   "longitude": -109.9408,
+   "gumbel": {
+    "mu": 40.038,
+    "beta": 7.554
+   },
+   "levels_kmh": {
+    "2": 42.8,
+    "5": 51.4,
+    "10": 57.0,
+    "25": 64.2,
+    "50": 69.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.3
+  },
+  {
+   "name": "Ixtapaluca",
+   "latitude": 19.3156,
+   "longitude": -98.8828,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Coatzacoalcos",
+   "latitude": 18.149,
+   "longitude": -94.4447,
+   "gumbel": {
+    "mu": 47.671,
+    "beta": 4.639
+   },
+   "levels_kmh": {
+    "2": 49.4,
+    "5": 54.6,
+    "10": 58.1,
+    "25": 62.5,
+    "50": 65.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.2
+  },
+  {
+   "name": "Tampico",
+   "latitude": 22.2852,
+   "longitude": -97.8778,
+   "gumbel": {
+    "mu": 52.991,
+    "beta": 3.697
+   },
+   "levels_kmh": {
+    "2": 54.3,
+    "5": 58.5,
+    "10": 61.3,
+    "25": 64.8,
+    "50": 67.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.9
+  },
+  {
+   "name": "Ciudad Benito Juárez",
+   "latitude": 25.6466,
+   "longitude": -100.0914,
+   "gumbel": {
+    "mu": 42.298,
+    "beta": 3.135
+   },
+   "levels_kmh": {
+    "2": 43.4,
+    "5": 47.0,
+    "10": 49.4,
+    "25": 52.3,
+    "50": 54.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.4
+  },
+  {
+   "name": "Tláhuac",
+   "latitude": 19.2869,
+   "longitude": -99.0051,
+   "gumbel": {
+    "mu": 32.966,
+    "beta": 3.566
+   },
+   "levels_kmh": {
+    "2": 34.3,
+    "5": 38.3,
+    "10": 41.0,
+    "25": 44.4,
+    "50": 46.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.5
+  },
+  {
+   "name": "Santa Catarina",
+   "latitude": 25.6732,
+   "longitude": -100.4581,
+   "gumbel": {
+    "mu": 44.011,
+    "beta": 5.207
+   },
+   "levels_kmh": {
+    "2": 45.9,
+    "5": 51.8,
+    "10": 55.7,
+    "25": 60.7,
+    "50": 64.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.4
+  },
+  {
+   "name": "Uruapan",
+   "latitude": 19.4168,
+   "longitude": -102.0584,
+   "gumbel": {
+    "mu": 29.436,
+    "beta": 3.828
+   },
+   "levels_kmh": {
+    "2": 30.8,
+    "5": 35.2,
+    "10": 38.0,
+    "25": 41.7,
+    "50": 44.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.1
+  },
+  {
+   "name": "Cholula",
+   "latitude": 19.0641,
+   "longitude": -98.3035,
+   "gumbel": {
+    "mu": 38.368,
+    "beta": 3.87
+   },
+   "levels_kmh": {
+    "2": 39.8,
+    "5": 44.2,
+    "10": 47.1,
+    "25": 50.7,
+    "50": 53.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 51.6
+  },
+  {
+   "name": "Nicolás Romero",
+   "latitude": 19.6418,
+   "longitude": -99.3068,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Zumpango",
+   "latitude": 19.7967,
+   "longitude": -99.0995,
+   "gumbel": {
+    "mu": 37.181,
+    "beta": 4.337
+   },
+   "levels_kmh": {
+    "2": 38.8,
+    "5": 43.7,
+    "10": 46.9,
+    "25": 51.1,
+    "50": 54.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.5
+  },
+  {
+   "name": "Coacalco",
+   "latitude": 19.6292,
+   "longitude": -99.1069,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Nogales",
+   "latitude": 31.3086,
+   "longitude": -110.9422,
+   "gumbel": {
+    "mu": 50.546,
+    "beta": 3.006
+   },
+   "levels_kmh": {
+    "2": 51.6,
+    "5": 55.1,
+    "10": 57.3,
+    "25": 60.2,
+    "50": 62.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.2
+  },
+  {
+   "name": "Gómez Palacio",
+   "latitude": 25.5687,
+   "longitude": -103.4996,
+   "gumbel": {
+    "mu": 47.337,
+    "beta": 5.158
+   },
+   "levels_kmh": {
+    "2": 49.2,
+    "5": 55.1,
+    "10": 58.9,
+    "25": 63.8,
+    "50": 67.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.1
+  },
+  {
+   "name": "Los Mochis",
+   "latitude": 25.791,
+   "longitude": -108.9982,
+   "gumbel": {
+    "mu": 34.354,
+    "beta": 4.205
+   },
+   "levels_kmh": {
+    "2": 35.9,
+    "5": 40.7,
+    "10": 43.8,
+    "25": 47.8,
+    "50": 50.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 48.3
+  },
+  {
+   "name": "Pachuca de Soto",
+   "latitude": 20.117,
+   "longitude": -98.7333,
+   "gumbel": {
+    "mu": 33.26,
+    "beta": 4.158
+   },
+   "levels_kmh": {
+    "2": 34.8,
+    "5": 39.5,
+    "10": 42.6,
+    "25": 46.6,
+    "50": 49.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 49.7
+  },
+  {
+   "name": "Oaxaca",
+   "latitude": 17.0602,
+   "longitude": -96.7254,
+   "gumbel": {
+    "mu": 41.459,
+    "beta": 3.427
+   },
+   "levels_kmh": {
+    "2": 42.7,
+    "5": 46.6,
+    "10": 49.2,
+    "25": 52.4,
+    "50": 54.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.8
+  },
+  {
+   "name": "La Paz",
+   "latitude": 24.1423,
+   "longitude": -110.3132,
+   "gumbel": {
+    "mu": 43.735,
+    "beta": 12.191
+   },
+   "levels_kmh": {
+    "2": 48.2,
+    "5": 62.0,
+    "10": 71.2,
+    "25": 82.7,
+    "50": 91.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 89.5
+  },
+  {
+   "name": "Colonia del Valle",
+   "latitude": 19.3861,
+   "longitude": -99.162,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Tehuacán",
+   "latitude": 18.4642,
+   "longitude": -97.3974,
+   "gumbel": {
+    "mu": 43.101,
+    "beta": 3.771
+   },
+   "levels_kmh": {
+    "2": 44.5,
+    "5": 48.8,
+    "10": 51.6,
+    "25": 55.2,
+    "50": 57.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.7
+  },
+  {
+   "name": "Magdalena Contreras",
+   "latitude": 19.3321,
+   "longitude": -99.2112,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Puerto Vallarta",
+   "latitude": 20.617,
+   "longitude": -105.2302,
+   "gumbel": {
+    "mu": 34.27,
+    "beta": 6.442
+   },
+   "levels_kmh": {
+    "2": 36.6,
+    "5": 43.9,
+    "10": 48.8,
+    "25": 54.9,
+    "50": 59.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.3
+  },
+  {
+   "name": "Campeche",
+   "latitude": 19.8407,
+   "longitude": -90.5168,
+   "gumbel": {
+    "mu": 38.76,
+    "beta": 4.5
+   },
+   "levels_kmh": {
+    "2": 40.4,
+    "5": 45.5,
+    "10": 48.9,
+    "25": 53.2,
+    "50": 56.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.4
+  },
+  {
+   "name": "Buenavista",
+   "latitude": 19.6083,
+   "longitude": -99.1694,
+   "gumbel": {
+    "mu": 28.584,
+    "beta": 3.486
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 33.8,
+    "10": 36.4,
+    "25": 39.7,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.8
+  },
+  {
+   "name": "Ciudad Acuña",
+   "latitude": 29.3232,
+   "longitude": -100.9522,
+   "gumbel": {
+    "mu": 49.779,
+    "beta": 5.238
+   },
+   "levels_kmh": {
+    "2": 51.7,
+    "5": 57.6,
+    "10": 61.6,
+    "25": 66.5,
+    "50": 70.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.0
+  },
+  {
+   "name": "San Cristóbal de las Casas",
+   "latitude": 16.7301,
+   "longitude": -92.6382,
+   "gumbel": {
+    "mu": 32.144,
+    "beta": 2.777
+   },
+   "levels_kmh": {
+    "2": 33.2,
+    "5": 36.3,
+    "10": 38.4,
+    "25": 41.0,
+    "50": 43.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.2
+  },
+  {
+   "name": "Jiutepec",
+   "latitude": 18.8814,
+   "longitude": -99.1778,
+   "gumbel": {
+    "mu": 25.961,
+    "beta": 3.227
+   },
+   "levels_kmh": {
+    "2": 27.1,
+    "5": 30.8,
+    "10": 33.2,
+    "25": 36.3,
+    "50": 38.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.9
+  },
+  {
+   "name": "Monclova",
+   "latitude": 26.9069,
+   "longitude": -101.4206,
+   "gumbel": {
+    "mu": 41.118,
+    "beta": 3.193
+   },
+   "levels_kmh": {
+    "2": 42.3,
+    "5": 45.9,
+    "10": 48.3,
+    "25": 51.3,
+    "50": 53.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.4
+  },
+  {
+   "name": "Córdoba",
+   "latitude": 18.8842,
+   "longitude": -96.9256,
+   "gumbel": {
+    "mu": 31.134,
+    "beta": 2.648
+   },
+   "levels_kmh": {
+    "2": 32.1,
+    "5": 35.1,
+    "10": 37.1,
+    "25": 39.6,
+    "50": 41.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 40.1
+  },
+  {
+   "name": "Cabo San Lucas",
+   "latitude": 22.8909,
+   "longitude": -109.9124,
+   "gumbel": {
+    "mu": 48.608,
+    "beta": 12.486
+   },
+   "levels_kmh": {
+    "2": 53.2,
+    "5": 67.3,
+    "10": 76.7,
+    "25": 88.5,
+    "50": 97.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 87.7
+  }
+ ]
+}

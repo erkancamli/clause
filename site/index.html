@@ -6585,11 +6585,19 @@ var ADDR = {query:"", hits:[], seq:0}, addrTimer = null;
    grammar. Named rather than implied: a buyer who cannot find their country
    is owed the list, not an empty box. */
 function whereItIsWritten(){
-  if(flow.peril!=="quake")
-    return flow.peril==="car" ? t("Vehicle cover is written only in Türkiye for now.")
-         : flow.peril==="storm" ? t("Storm cover is written only in Türkiye for now.")
-         : t("Drought cover is written only in Türkiye for now.");
-  var where=(COVERAGE&&COVERAGE.__priceable&&COVERAGE.__priceable.earthquake)||["TR"];
+  /* Read from what the protocol says it can price, per peril, rather than from
+     a sentence written here. Rain and wind used to be Türkiye and only Türkiye,
+     and the copy said so; they are now wherever a country's own daily record has
+     been fitted and passed its backtest, which is a list that moves. */
+  var priced=(COVERAGE&&COVERAGE.__priceable)||{};
+  if(flow.peril!=="quake"){
+    var here=priced[PERIL_KEYS[flow.peril]]||["TR"];
+    var them=listText(here.map(function(c){ return regionName(c)||c; }).sort());
+    return flow.peril==="car" ? t("Vehicle cover is written in {countries}: within 60 km of a place whose daily rainfall record has been fitted and tested.",{countries:them})
+         : flow.peril==="storm" ? t("Storm cover is written in {countries}: within 60 km of a place whose daily wind record has been fitted and tested.",{countries:them})
+         : t("Drought cover is written in {countries}, at the stations whose seasonal rainfall has been measured.",{countries:them});
+  }
+  var where=priced.earthquake||["TR"];
   var names=where.map(function(c){ return regionName(c)||c; }).sort();
   return t("Earthquake cover can be priced in {countries}: places where our own model passed its test, or where the country's own authority publishes the hazard at the address.",
            {countries:listText(names)});
@@ -6608,7 +6616,11 @@ function searchAddress(query){
   clearTimeout(addrTimer);
   addrTimer=setTimeout(function(){
     var seq=++ADDR.seq, at=coordinates();
-    var near=at?("&lat="+at.latitude.toFixed(3)+"&lon="+at.longitude.toFixed(3)):((flow.peril==="car"||flow.peril==="storm")?"&lat=39&lon=35":"");
+    /* A search is biased towards where the buyer already is. It used to fall back
+     to the middle of Türkiye for the two daily covers, which put a buyer in
+     Rome at the far end of every result list. With nothing to go on it now
+     biases towards nothing. */
+  var near=at?("&lat="+at.latitude.toFixed(3)+"&lon="+at.longitude.toFixed(3)):"";
     api("/api/geocode?q="+encodeURIComponent(key.slice(0,120))+"&lang="+LANG+near,{timeout:9000}).then(function(reply){
       if(seq!==ADDR.seq)return;
       ADDR.query=key; ADDR.hits=reply.places||[];
@@ -6702,8 +6714,11 @@ function showMap(){
 }
 function movePin(latlng){
   var lat=latlng.lat, lon=latlng.lng;
-  if(flow.peril==="car"&&!inTurkeyBox(lat,lon)){ $("locate-msg").textContent=t("Vehicle cover is written only in Türkiye for now."); updateMap(); return; }
-  if(flow.peril==="storm"&&!inTurkeyBox(lat,lon)){ $("locate-msg").textContent=t("Storm cover is written only in Türkiye for now."); updateMap(); return; }
+  /* The pin used to be refused outside a Türkiye shaped box for the car and
+     storm covers, which was true of the models and is not a thing the page can
+     know any more: those covers are written wherever a country's own daily
+     record has been fitted and passed. The point goes to the protocol, which
+     answers with the countries and the distance, in the buyer's language. */
   setPoint(lat,lon,null,null);
   api("/api/reverse?latitude="+lat.toFixed(5)+"&longitude="+lon.toFixed(5)+"&lang="+LANG,{timeout:9000}).then(function(r){
     var p=r.place||{};
@@ -8564,8 +8579,10 @@ function parseCoordinate(text){
   if (!m) return null;
   var lat = parseFloat(m[1]), lon = parseFloat(m[2]);
   if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
-  // Rain is measured at stations in Türkiye, so drought stays there.
-  if ((flow.peril === "drought" || flow.peril === "car" || flow.peril === "storm") && !inTurkeyBox(lat, lon)) return null;
+  // Drought settles at a named station rather than at a coordinate, so a typed
+  // coordinate is not a subject for it. The two daily covers take one anywhere,
+  // and the protocol answers with the countries and the distance.
+  if (flow.peril === "drought" && !inTurkeyBox(lat, lon)) return null;
   return {name: lat.toFixed(3) + ", " + lon.toFixed(3), latitude: lat, longitude: lon,
           region: t("a coordinate you gave"), kind: "point"};
 }
@@ -8589,7 +8606,11 @@ function searchWorld(query){
   clearTimeout(worldTimer);
   worldTimer = setTimeout(function(){
     var seq = ++WORLD.seq;
-    api("/api/places?query=" + encodeURIComponent(key.slice(0, 64)), {timeout:8000}).then(function(reply){
+    /* Which cover is being bought decides which places can be priced: the rain
+       model passes in six countries and the wind model in another set, and the
+       earthquake list answered for all three. */
+    api("/api/places?query=" + encodeURIComponent(key.slice(0, 64)) +
+        "&peril=" + encodeURIComponent(PERIL_KEYS[flow.peril] || ""), {timeout:8000}).then(function(reply){
       if (seq !== WORLD.seq) return;
       WORLD.query = key;
       WORLD.hits = (reply.places || []).filter(function(p){ return p.country && p.country !== "TR"; });
@@ -8645,10 +8666,8 @@ function renderResults(query){
     var chosen = flow.subject === value;
     var off = place.priced === false;
     var abroad = place.country && place.country !== "TR";
-    var sub = off ? (flow.peril === "car"
-                      ? t("Vehicle cover is written only in Türkiye for now.")
-                      : flow.peril === "storm"
-                      ? t("Storm cover is written only in Türkiye for now.")
+    var sub = off ? (flow.peril === "car" || flow.peril === "storm"
+                      ? whereItIsWritten()
                       : t("No tested earthquake model covers {country} yet, so cover cannot be priced here.",
                       {country:regionName(place.country)}))
             : abroad ? [place.region, regionName(place.country)].filter(Boolean).join(", ")

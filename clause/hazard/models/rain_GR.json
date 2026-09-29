@@ -1,0 +1,492 @@
+{
+ "code": "GR",
+ "name": "Greece",
+ "kind": "rain_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily precipitation, NASA POWER PRECTOTCORR (MERRA-2)",
+ "unit": "mm",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 72.0,
+   "observed": 82,
+   "place_years": 360,
+   "dispersion": 11.13,
+   "p_at_most_observed": 0.6841,
+   "p_at_least_observed": 0.3275
+  },
+  "changes_after_first_run": [
+   "count test: places are not independent; negative binomial with the dispersion measured on the fitting years replaces the binomial (first run: binomial, p = 0.0027, failed)",
+   "published levels fitted on the most recent 30 years, because strong rainfall years became about a quarter more frequent from 2001"
+  ]
+ },
+ "places": [
+  {
+   "name": "Athens",
+   "latitude": 37.9838,
+   "longitude": 23.7278,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Thessaloníki",
+   "latitude": 40.6407,
+   "longitude": 22.9349,
+   "gumbel": {
+    "mu": 27.664,
+    "beta": 6.562
+   },
+   "levels_mm": {
+    "2": 30.1,
+    "5": 37.5,
+    "10": 42.4,
+    "25": 48.7,
+    "50": 53.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 71.2
+  },
+  {
+   "name": "Pátra",
+   "latitude": 38.2462,
+   "longitude": 21.7351,
+   "gumbel": {
+    "mu": 36.933,
+    "beta": 14.565
+   },
+   "levels_mm": {
+    "2": 42.3,
+    "5": 58.8,
+    "10": 69.7,
+    "25": 83.5,
+    "50": 93.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 130.0
+  },
+  {
+   "name": "Piraeus",
+   "latitude": 37.942,
+   "longitude": 23.6462,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Lárisa",
+   "latitude": 39.6285,
+   "longitude": 22.4211,
+   "gumbel": {
+    "mu": 27.906,
+    "beta": 13.183
+   },
+   "levels_mm": {
+    "2": 32.7,
+    "5": 47.7,
+    "10": 57.6,
+    "25": 70.1,
+    "50": 79.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 130.3
+  },
+  {
+   "name": "Peristéri",
+   "latitude": 38.0154,
+   "longitude": 23.6919,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Irákleion",
+   "latitude": 35.3279,
+   "longitude": 25.1434,
+   "gumbel": {
+    "mu": 23.855,
+    "beta": 8.484
+   },
+   "levels_mm": {
+    "2": 27.0,
+    "5": 36.6,
+    "10": 42.9,
+    "25": 51.0,
+    "50": 57.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 50.2
+  },
+  {
+   "name": "Kallithéa",
+   "latitude": 37.95,
+   "longitude": 23.7,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Acharnés",
+   "latitude": 38.0833,
+   "longitude": 23.7333,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Kalamariá",
+   "latitude": 40.5825,
+   "longitude": 22.9503,
+   "gumbel": {
+    "mu": 27.664,
+    "beta": 6.562
+   },
+   "levels_mm": {
+    "2": 30.1,
+    "5": 37.5,
+    "10": 42.4,
+    "25": 48.7,
+    "50": 53.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 71.2
+  },
+  {
+   "name": "Níkaia",
+   "latitude": 37.9667,
+   "longitude": 23.65,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Glyfáda",
+   "latitude": 37.8629,
+   "longitude": 23.758,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Volos",
+   "latitude": 39.3692,
+   "longitude": 22.9477,
+   "gumbel": {
+    "mu": 28.292,
+    "beta": 12.138
+   },
+   "levels_mm": {
+    "2": 32.7,
+    "5": 46.5,
+    "10": 55.6,
+    "25": 67.1,
+    "50": 75.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 92.9
+  },
+  {
+   "name": "Ílion",
+   "latitude": 38.0333,
+   "longitude": 23.7,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Ilioúpoli",
+   "latitude": 37.9315,
+   "longitude": 23.7678,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Keratsíni",
+   "latitude": 37.9625,
+   "longitude": 23.6197,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Évosmos",
+   "latitude": 40.6706,
+   "longitude": 22.9083,
+   "gumbel": {
+    "mu": 27.664,
+    "beta": 6.562
+   },
+   "levels_mm": {
+    "2": 30.1,
+    "5": 37.5,
+    "10": 42.4,
+    "25": 48.7,
+    "50": 53.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 71.2
+  },
+  {
+   "name": "Khalándrion",
+   "latitude": 38.0237,
+   "longitude": 23.8007,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Néa Smýrni",
+   "latitude": 37.945,
+   "longitude": 23.7142,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Maroúsi",
+   "latitude": 38.05,
+   "longitude": 23.8,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Agios Dimitrios",
+   "latitude": 37.9333,
+   "longitude": 23.7333,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Zográfos",
+   "latitude": 37.9757,
+   "longitude": 23.7691,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Aigáleo",
+   "latitude": 37.9833,
+   "longitude": 23.6833,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  },
+  {
+   "name": "Néa Ionía",
+   "latitude": 38.0357,
+   "longitude": 23.7573,
+   "gumbel": {
+    "mu": 37.716,
+    "beta": 25.433
+   },
+   "levels_mm": {
+    "2": 47.0,
+    "5": 75.9,
+    "10": 94.9,
+    "25": 119.1,
+    "50": 137.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.1
+  }
+ ]
+}
