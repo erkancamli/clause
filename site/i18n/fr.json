@@ -968,6 +968,7 @@
     "The term ended without a reading reaching the trigger of {trigger}.": "La durée s’est achevée sans qu’aucune mesure n’atteigne le seuil de déclenchement de {trigger}.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "La durée s’est achevée. La mesure la plus élevée était de {value} ; il fallait {trigger} pour que cette police paie.",
     "There is no rebuild cost schedule for this country yet.": "Il n’existe pas encore de barème des coûts de reconstruction pour ce pays.",
+    "This is the building, not the land and not what it would sell for. An earthquake takes the building down; the land is still yours.": "Il s'agit du bâtiment, pas du terrain ni de son prix de vente. Un séisme abat le bâtiment ; le terrain reste le vôtre.",
     "This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule.": "C’est la couverture maximale qu’il peut porter. Les chiffres sont indicatifs ; l’assureur qui émet la police applique son propre barème.",
     "Too small to insure here: the smallest cover is {min} USDC.": "Trop petit pour être assuré ici : la plus petite couverture est de {min} USDC.",
     "USGS ShakeMap": "USGS ShakeMap",

@@ -136,3 +136,25 @@ def test_the_map_frame_clips_the_tiles_it_draws() -> None:
     assert "overflow:hidden" in rule.group(1), (
         "the map frame no longer clips its tiles; the phone will scroll sideways"
     )
+
+
+def test_the_ceiling_says_what_it_leaves_out() -> None:
+    """A buyer whose flat is worth a hundred times the cover asks one question.
+
+    The answer is that the cover is the building and the flat's worth is mostly
+    the land under it, which an earthquake does not take. The rebuild schedule
+    says as much in its own words -- "excludes VAT, land, infrastructure and
+    site works" -- and the page was carrying that note in its payload and
+    keeping it to itself.
+    """
+    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
+    # The schedule's own words, wherever the figure came from.
+    assert "if(from.figure.note) said.push(from.figure.note);" in page
+    # And the plain sentence, on the home valuation only: a field's revenue and
+    # a car's market value are not buildings and the sentence would be false.
+    plain = "This is the building, not the land and not what it would sell for."
+    assert plain in page
+    # Guarded immediately, not somewhere in the neighbourhood: the line above it
+    # also mentions the home kind, so a loose window passes a broken guard.
+    said = page[page.index(plain) - 40:page.index(plain)]
+    assert said.lstrip().startswith('(z.kind==="home"?'), said

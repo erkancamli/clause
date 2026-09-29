@@ -9569,6 +9569,11 @@ function whereTheRateIsFrom(z){
     from=((VALUATION.rebuild_basis||{})[country]||{})[z.building];
     if(!from||!from.figure)return "";
     said.push(f0.format(from.figure.amount)+" "+from.figure.currency+"/m², "+from.figure.source);
+    /* What the figure leaves out, which is the answer to the question a buyer
+       actually asks: my flat is worth a hundred times what you are offering.
+       It is, and what it is worth is mostly the land under it. The schedule
+       says so in its own words and the page was keeping them to itself. */
+    if(from.figure.note) said.push(from.figure.note);
     if(from.stands_in) said.push(from.stands_in);
     if(from.carried_forward) said.push(from.carried_forward);
     if(from.region&&from.region.name) said.push(from.region.name+" ×"+from.region.factor);
@@ -9632,7 +9637,9 @@ function renderSize(){
         esc(t("Too small to insure here: the smallest cover is {min} USDC.",{min:f0.format(min)}))+'</span>';
     } else {
       out.innerHTML='<span>'+esc(t(z.kind==="home"?"What it would cost to rebuild":"A normal season's income"))+'</span>'+
-        '<b>'+money(value)+' USDC</b><span>'+esc(z.basis)+'</span>'+whereTheRateIsFrom(z)+
+        '<b>'+money(value)+' USDC</b><span>'+esc(z.basis)+'</span>'+
+        (z.kind==="home"?'<span>'+esc(t("This is the building, not the land and not what it would sell for. An earthquake takes the building down; the land is still yours."))+'</span>':"")+
+        whereTheRateIsFrom(z)+
         '<span>'+esc(t("This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule."))+'</span>';
     }
     setNextLabel(); updatePriceBar();

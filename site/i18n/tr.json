@@ -968,6 +968,7 @@
     "The term ended without a reading reaching the trigger of {trigger}.": "Süre, hiçbir ölçüm {trigger} tetikleyicisine ulaşmadan sona erdi.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "Süre sona erdi. En yüksek ölçüm {value} oldu; bu poliçenin ödeme yapması için {trigger} gerekiyordu.",
     "There is no rebuild cost schedule for this country yet.": "Bu ülke için henüz bir yeniden inşa maliyeti tablosu yok.",
+    "This is the building, not the land and not what it would sell for. An earthquake takes the building down; the land is still yours.": "Bu, binanın kendisi; arsa değil ve satış değeri değil. Deprem binayı yıkar, arsa yine sizindir.",
     "This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule.": "Bu, taşıyabileceği en yüksek teminattır. Rakamlar yol göstericidir; poliçeyi düzenleyen sigorta şirketi kendi tablosunu uygular.",
     "Too small to insure here: the smallest cover is {min} USDC.": "Burada sigortalanamayacak kadar küçük: en düşük teminat {min} USDC.",
     "USGS ShakeMap": "USGS ShakeMap",

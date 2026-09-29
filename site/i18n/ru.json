@@ -968,6 +968,7 @@
     "The term ended without a reading reaching the trigger of {trigger}.": "Срок закончился, а ни одно показание не достигло порога срабатывания {trigger}.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "Срок закончился. Наибольшее показание: {value}; для выплаты по этому полису требовалось {trigger}.",
     "There is no rebuild cost schedule for this country yet.": "Для этой страны пока нет таблицы стоимости восстановления.",
+    "This is the building, not the land and not what it would sell for. An earthquake takes the building down; the land is still yours.": "Это здание, а не земля и не цена продажи. Землетрясение обрушивает здание, земля остаётся вашей.",
     "This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule.": "Это максимальное покрытие, которое для него возможно. Цифры ориентировочные; страховщик, выдающий полис, применяет собственную таблицу.",
     "Too small to insure here: the smallest cover is {min} USDC.": "Слишком мало, чтобы застраховать здесь: минимальное покрытие — {min} USDC.",
     "USGS ShakeMap": "USGS ShakeMap",

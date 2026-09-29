@@ -264,10 +264,20 @@ def places_of(code: str) -> list[tuple[str, float, float, int]]:
     """
     data = json.loads((MODELS / "places.json").read_text(encoding="utf-8"))
     out = []
+    seen: set[tuple[float, float]] = set()
     for row in data.get("places", []):
         if len(row) < 7 or row[2] != code:
             continue
-        out.append((str(row[0]), float(row[4]), float(row[5]), int(row[6])))
+        latitude, longitude = float(row[4]), float(row[5])
+        # One place per coordinate. Japan offers Choshi and Hasaki at the same
+        # point, and Furano twice under two spellings, so the build fetched two
+        # identical curves and the model file carried both. Harmless to a search
+        # that works in kilometres, and still two rows where there is one place.
+        key = (round(latitude, 4), round(longitude, 4))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((str(row[0]), latitude, longitude, int(row[6])))
     out.sort(key=lambda r: -r[3])
     return out
 

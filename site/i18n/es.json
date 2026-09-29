@@ -968,6 +968,7 @@
     "The term ended without a reading reaching the trigger of {trigger}.": "El plazo terminó sin que ninguna lectura alcanzara el umbral de {trigger}.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "El plazo terminó. La lectura más alta fue {value}; esta póliza necesitaba {trigger} para pagar.",
     "There is no rebuild cost schedule for this country yet.": "Todavía no hay una tabla de costos de reconstrucción para este país.",
+    "This is the building, not the land and not what it would sell for. An earthquake takes the building down; the land is still yours.": "Esto es el edificio, no el suelo ni lo que se pagaría por él. Un terremoto derriba el edificio; el suelo sigue siendo suyo.",
     "This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule.": "Esta es la cobertura máxima que puede tener. Las cifras son orientativas; la aseguradora que emite la póliza aplica su propia tabla.",
     "Too small to insure here: the smallest cover is {min} USDC.": "Demasiado pequeño para asegurarlo aquí: la cobertura mínima es de {min} USDC.",
     "USGS ShakeMap": "USGS ShakeMap",

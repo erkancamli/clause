@@ -203,9 +203,27 @@ def test_the_shipped_curves_are_hazard_curves() -> None:
             assert all(a >= b for a, b in zip(rates, rates[1:])), f"{code} {point['name']}"
             assert all(y > 0 for y in rates)
 
-    read = pub.curves()
-    assert len(read) == sum(len(c["points"]) for c in countries.values())
-    for row in read:
+    # Everything below comes from the one reading above. Comparing the runtime's
+    # cached view against a second read of the path counts two moments, and a
+    # build writing the file between them made this fail with nothing wrong,
+    # which is the worst kind of test. So the reader is applied to the rows
+    # already in hand instead.
+    # Keyed on the coordinate, because a name is not a key: Japan offers two
+    # cities called Sendai, one in Miyagi and one in Kagoshima, and twenty five
+    # other repeated names. Keyed on the name, half of each pair silently
+    # replaced the other and this compared one city's curve against the other's.
+    read = {(row["country"], row["latitude"], row["longitude"]): row for row in pub.curves()}
+    assert len(read) == sum(1 for c in countries.values() for p in c["points"]
+                            if len(pub._read_curve(p["curve"])) >= 2)
+    for code, country in countries.items():
+        for point in country["points"]:
+            want = pub._read_curve(point["curve"])
+            if len(want) < 2:
+                continue
+            where = (code, point["latitude"], point["longitude"])
+            assert where in read, where
+            assert read[where]["curve"] == want, where
+    for row in read.values():
         curve = row["curve"]
         # In intensity by the time the runtime sees it, weak end dropped, and
         # strictly increasing, because this is the axis the runtime reads along
@@ -382,3 +400,20 @@ def test_one_bad_place_does_not_end_the_build(monkeypatch, tmp_path) -> None:
     assert len(seen) == 4                  # it kept going
     assert len(built["points"]) == 3
     assert len(built["missed"]) == 1       # and said which one it lost
+
+
+def test_one_place_per_coordinate_is_fetched() -> None:
+    """Two names at one point are one point, and one curve.
+
+    Japan offers Choshi and Hasaki at the same coordinate, and Furano twice
+    under two spellings. Without this the build asks J-SHIS for the same mesh
+    twice and the model file carries the answer twice, which a search working in
+    kilometres does not mind and a reader of the file reasonably does.
+    """
+    for code in pub.SOURCES:
+        where = pub.places_of(code)
+        seen = {(round(la, 4), round(lo, 4)) for _n, la, lo, _p in where}
+        assert len(seen) == len(where), code
+        # Largest first, so a limit takes the places most people live in.
+        people = [p for *_r, p in where]
+        assert people == sorted(people, reverse=True), code

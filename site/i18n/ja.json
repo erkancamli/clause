@@ -968,6 +968,7 @@
     "The term ended without a reading reaching the trigger of {trigger}.": "測定値がトリガーの{trigger}に達しないまま期間が終了しました。",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "期間が終了しました。最大の測定値は{value}でした。この保険契約の支払いには{trigger}が必要でした。",
     "There is no rebuild cost schedule for this country yet.": "この国の再建費用表はまだありません。",
+    "This is the building, not the land and not what it would sell for. An earthquake takes the building down; the land is still yours.": "これは建物であって、土地でも売却価格でもありません。地震は建物を倒しますが、土地はあなたのものです。",
     "This is the most cover it can carry. Figures are indicative; the insurer issuing the policy applies its own schedule.": "これが引き受けられる補償の上限です。数値は目安であり、保険契約を発行する保険会社は独自の算定表を適用します。",
     "Too small to insure here: the smallest cover is {min} USDC.": "小さすぎるため、ここでは保険の対象にできません。最小の補償は{min} USDCです。",
     "USGS ShakeMap": "USGS ShakeMap",
