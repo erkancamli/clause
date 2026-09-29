@@ -7715,23 +7715,34 @@ function deadlineText(){
 
 function plainSentence(){
   var q=priced(),l=flow.limit;
+  /* The levels and the first payment come from the policy's own curve, as the
+     car and storm sentences below have always taken theirs. This one had all
+     three written into it: intensity VI, intensity VIII, and a quarter of the
+     limit. The shaking cover pays 35 per cent at its first step, not 25, and
+     that step is 6.25 in Istanbul and 6.62 in New York rather than VI, because
+     an older building is damaged by less shaking. The most read sentence on
+     the page was wrong about what the policy pays and about when. */
   if(flow.peril==="quake"&&shakingIndex()){
-    return t("If the ground at {place} shakes at <b>intensity VI or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity VIII. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {place:esc(subjectLabel()), first:money(.25*l), full:money(l), premium:money(q.premium)});
+    var qc=structure().pts;
+    return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+      {place:esc(subjectLabel()), level:f1.format(qc[0][0]), top:f1.format(qc[2][0]),
+       first:money(qc[0][1]*l), full:money(l), premium:money(q.premium)});
   }
   if(flow.peril==="quake"){
-    return t("If an earthquake of <b>magnitude 5.5 or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude 7. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {km:flow.radius, place:esc(subjectLabel()), first:money(.25*l), full:money(l), premium:money(q.premium)});
+    var mc=structure().pts;
+    return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+      {mag:f1.format(mc[0][0]), top:f1.format(mc[2][0]), km:flow.radius,
+       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), premium:money(q.premium)});
   }
   if(flow.peril==="car"){
     var cc=structure().pts;
     return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(.25*l), full:money(l), top:f1.format(cc[2][0]), premium:money(q.premium)});
+      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), premium:money(q.premium)});
   }
   if(flow.peril==="storm"){
     var sc=structure().pts;
     return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {kmh:f0.format(Math.round(sc[0][0])), place:esc(subjectLabel()), first:money(.25*l), full:money(l), top:f0.format(Math.round(sc[2][0])), premium:money(q.premium)});
+      {kmh:f0.format(Math.round(sc[0][0])), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:f0.format(Math.round(sc[2][0])), premium:money(q.premium)});
   }
   if(flow.peril==="drought"){
     var s=stationFor();

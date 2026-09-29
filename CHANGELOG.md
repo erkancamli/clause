@@ -68,6 +68,13 @@
   Both are built from the curve's own points now, which is what the car and
   storm rows beside them have always done.
 
+  The sentence above them had the same three facts written into it by hand:
+  "you receive a quarter, rising to the full amount at intensity VIII". The
+  cover pays 35 per cent at its first step, not 25. The magnitude sentence
+  beside it named 5.5 and 7 the same way, and those move with the building too.
+  All four sentences read their levels and their first payment from the policy
+  now.
+
   The price bar had the same fault in one line: it named each rung by rounding
   its level to the nearest roman numeral, so New York's 6.62 was printed as
   VII. A numeral is a whole number and these steps are not. It is kept where

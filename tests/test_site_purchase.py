@@ -370,3 +370,26 @@ def test_a_roman_numeral_is_a_whole_number_and_these_steps_are_not() -> None:
     assert "ROMAN[Math.round(level)]" not in packed, "the level is still rounded to a numeral"
     assert "level===Math.round(level)" in packed, "there is no test for a whole number"
     assert "f1.format(level)" in packed, "a step that is not whole is not printed as a number"
+
+
+def test_the_sentence_a_buyer_reads_is_the_policy_they_are_buying() -> None:
+    """The most read line on the page had the policy written into it by hand.
+
+    "If the ground shakes at intensity VI or more you receive a quarter, rising
+    to the full amount at intensity VIII." Three facts, none of them this
+    policy's: the shaking cover pays 35 per cent at its first step, and that
+    step is 6.25 in Istanbul and 6.62 in New York, because an older building is
+    damaged by less shaking. The magnitude sentence beside it named 5.5 and 7
+    the same way, and those move with the building too.
+
+    The car and storm sentences have always read their levels from the policy's
+    own curve. All four read their levels and their first payment from it now.
+    """
+    body = _function("plainSentence")
+    for fixed in ("intensity VI or more", "at intensity VIII",
+                  "magnitude 5.5 or more", "for a magnitude 7"):
+        assert fixed not in body, f"the sentence still names {fixed!r}"
+    # And no share is written down: every one comes off the curve.
+    assert ".25*l" not in body.replace(" ", ""), "a payout share is still written down"
+    for share in ("qc[0][1]*l", "mc[0][1]*l", "cc[0][1]*l", "sc[0][1]*l"):
+        assert share in body.replace(" ", ""), f"{share} does not come from the curve"
