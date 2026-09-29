@@ -331,7 +331,7 @@ class Earthquake(Peril):
         if self.in_turkey(latitude, longitude):
             return "TR"
         model = self.priced_at(latitude, longitude)
-        return model.code if model else None
+        return model.country if model else None
 
     def validate_subject(self, subject: dict[str, Any]) -> dict[str, Any]:
         """A subject is a coordinate and a radius. A place name is a shortcut.
@@ -408,7 +408,7 @@ class Earthquake(Peril):
             # Greece's model failed too, and nobody publishes a curve we hold
             # for Greece, so telling a buyer in Athens that cover is written
             # there would be an invitation to nothing.
-            if here is not None and not here.passed and here.code in self.published_territory():
+            if here is not None and not here.passed and here.country in self.published_territory():
                 # The country is open, this address is not, and the difference
                 # is worth stating rather than answering with a country list the
                 # buyer can see their own country in.

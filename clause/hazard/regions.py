@@ -31,13 +31,35 @@ GFZ = Source("GFZ GEOFON", "https://geofon.gfz.de/fdsnws/event/1/", "global")
 
 @dataclass(frozen=True, slots=True)
 class Region:
-    code: str                                   # ISO 3166 alpha 2
+    """One box of ground fitted as a unit, and the country whose law it is in.
+
+    Those are two different things, and the United States is where they came
+    apart. A region is the extent a catalogue can be fitted over: one b value,
+    one completeness magnitude, one largest event, all of which describe a
+    tectonic setting rather than a state. Alaska's largest recorded event is
+    8.7 and the lower forty eight's is 7.8, and its rate of magnitude five is
+    three times theirs; fitting them together would give California an Alaskan
+    b value and Alaska a Californian ceiling. So they are separate regions.
+
+    They are the same country. Whose licence writes the policy, whose law
+    governs it and which register a buyer appears in are questions about the
+    country, and the answer for Anchorage is the same as for Brooklyn.
+    """
+
+    code: str                                   # the region's own key
     name: str
     south: float
     north: float
     west: float
     east: float
     national: Source
+    #: ISO 3166 alpha 2. Empty means the region is a whole country and its
+    #: code is the country's, which is true of every region but two.
+    country_code: str = ""
+
+    @property
+    def country(self) -> str:
+        return self.country_code or self.code
 
     @property
     def sources(self) -> tuple[Source, ...]:
@@ -93,4 +115,23 @@ REGIONS: dict[str, Region] = {r.code: r for r in (
     # publishes the global catalogue, and listing it again would make the
     # country look better watched than it is.
     Region("US", "United States", 24.0, 50.0, -125.5, -66.0, USGS),
+    # Alaska and Hawaii, in the United States and not in that box. They were
+    # left out because one box cannot hold all three, and that reasoning is
+    # still right: it is the fit that cannot be shared, not the country. Over
+    # the box below Alaska gives b=0.829, a largest event of 8.7 and 20.9
+    # magnitude five earthquakes a year, against the lower forty eight's 0.745,
+    # 7.8 and 7.2. Put together, each would be described by the other.
+    #
+    # Without them our own model answered Anchorage, Fairbanks, Juneau,
+    # Honolulu and Hilo with the same number, the global background floor, once
+    # in 11,119 years at intensity VII. Fitted here they read once in 41, 479,
+    # 3,956, 15,398 and 108, against the USGS's own once in 87 at Anchorage and
+    # once in 105 at Hilo.
+    #
+    # The Alaskan box stops at the antimeridian. The Aleutians run past it and
+    # a box that wrapped would need every reader of it to handle the wrap; no
+    # place this product offers is out there, the westernmost being Juneau at
+    # -134, and the day one is the box is the thing to fix.
+    Region("AK", "Alaska", 51.0, 72.0, -180.0, -129.0, USGS, country_code="US"),
+    Region("HI", "Hawaii", 18.0, 23.5, -161.5, -154.0, USGS, country_code="US"),
 )}

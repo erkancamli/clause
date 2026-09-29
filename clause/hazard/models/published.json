@@ -56396,782 +56396,7 @@
   "code": "US",
   "conversion": "Worden, Gerstenberger, Rhoades and Wald (2012), peak ground velocity to modified Mercalli intensity",
   "measure": "PGV, cm/s, at a reference site of 760 m/s",
-  "missed": [
-   "Vista",
-   "Davie",
-   "Clinton Township",
-   "Erie",
-   "Portsmouth Heights",
-   "Richmond Hill",
-   "Alief",
-   "Spring Hill",
-   "Compton",
-   "League City",
-   "Flint",
-   "Allen",
-   "Dorchester",
-   "Mission Viejo",
-   "Vacaville",
-   "Ventura",
-   "Highlands Ranch",
-   "Lawton",
-   "Beaverton",
-   "South Gate",
-   "Portsmouth",
-   "Sparks",
-   "Yuma",
-   "Brockton",
-   "Dearborn",
-   "Federal Way",
-   "Lee's Summit",
-   "Asheville",
-   "Spokane Valley",
-   "Fordham",
-   "Livonia",
-   "Roswell",
-   "Lawrence",
-   "The Woodlands",
-   "West Albany",
-   "Yakima",
-   "Indio",
-   "Rio Rancho",
-   "Enchanted Hills",
-   "Santa Fe",
-   "Sandy",
-   "Whittier",
-   "Canarsie",
-   "Kirkland",
-   "Menifee",
-   "Newport Beach",
-   "Tracy",
-   "Citrus Heights",
-   "Bend",
-   "Canton",
-   "Lehigh Acres",
-   "Greenburgh",
-   "Bloomington",
-   "West Town",
-   "Germantown",
-   "Clifton",
-   "Duluth",
-   "Champaign",
-   "Near North Side",
-   "Chino",
-   "Ogden",
-   "Redwood City",
-   "Bellingham",
-   "O'Fallon",
-   "Hoover",
-   "Melbourne",
-   "Danbury",
-   "East Norwalk",
-   "Edinburg",
-   "Sunrise",
-   "Bloomington",
-   "Cicero",
-   "Hemet",
-   "San Pedro",
-   "Ahwatukee Foothills",
-   "Johns Creek",
-   "Mission",
-   "Troy",
-   "Buena Park",
-   "Mid-City",
-   "Palm Coast",
-   "Sioux City",
-   "Lake Forest",
-   "Merced",
-   "Longview",
-   "Bryan",
-   "Westland",
-   "Warwick",
-   "Farmington Hills",
-   "San Tan Valley",
-   "Mount Pleasant",
-   "Cranston",
-   "Largo",
-   "Homestead",
-   "South Suffolk",
-   "Tustin",
-   "Mountain View",
-   "Napa",
-   "Somerville",
-   "Kendall",
-   "Lawrence",
-   "Parma",
-   "New Rochelle",
-   "Lynchburg",
-   "Medford",
-   "Deerfield Beach",
-   "Sylmar",
-   "Pleasanton",
-   "Belmont Cragin",
-   "Brooklyn Park",
-   "Goodyear",
-   "Kennewick",
-   "Alameda",
-   "Town 'n' Country",
-   "Bellflower",
-   "Chino Hills",
-   "Bloomington",
-   "Alafaya",
-   "Springdale",
-   "Racine",
-   "Hammond",
-   "Milpitas",
-   "Gary",
-   "Scranton",
-   "Baldwin Park",
-   "Auburn",
-   "Fishers",
-   "Saint Joseph",
-   "Pharr",
-   "Upland",
-   "Folsom",
-   "Baytown",
-   "San Ramon",
-   "Camden",
-   "Lake Charles",
-   "Kalamazoo",
-   "Brick",
-   "Arlington Heights",
-   "Plymouth",
-   "South Ozone Park",
-   "Doral",
-   "Waterford",
-   "Evanston",
-   "Manteca",
-   "Wyoming",
-   "Loveland",
-   "Cheektowaga",
-   "Kings Bridge",
-   "Bismarck",
-   "Perris",
-   "Bethlehem",
-   "Albany",
-   "Schaumburg",
-   "Gastonia",
-   "Union City",
-   "Bolingbrook",
-   "Iowa City",
-   "Layton",
-   "Missouri City",
-   "Appleton",
-   "Shelby",
-   "Fort Myers",
-   "Boynton Beach",
-   "Jonesboro",
-   "South Lawndale",
-   "Logan Square",
-   "Rapid City",
-   "Warner Robins",
-   "Rochester Hills",
-   "Decatur",
-   "Southfield",
-   "Saint George",
-   "New Britain",
-   "Daytona Beach",
-   "Franklin",
-   "Turlock",
-   "Temple",
-   "West Ridge",
-   "Apple Valley",
-   "Lynwood",
-   "Waukesha",
-   "Canton",
-   "Gulfport",
-   "Pawtucket",
-   "Lauderhill",
-   "Rock Hill",
-   "Silver Spring",
-   "West Gulfport",
-   "Flower Mound",
-   "Centreville",
-   "Passaic",
-   "Riverview",
-   "Redlands",
-   "Missoula",
-   "Rancho Cordova",
-   "Wilmington",
-   "New Braunfels",
-   "Cherry Hill",
-   "Flagstaff",
-   "Muncie",
-   "Mira Mesa",
-   "Woodland Hills",
-   "Weston",
-   "Frederick",
-   "Pasco",
-   "Pittsburg",
-   "Ridgewood",
-   "Palatine",
-   "North Richland Hills",
-   "Union City",
-   "Kissimmee",
-   "Walnut Creek",
-   "Cordova",
-   "Mount Vernon",
-   "Conroe",
-   "Dothan",
-   "Northridge",
-   "Waterloo",
-   "Maple Grove",
-   "Framingham",
-   "Redondo Beach",
-   "Bossier City",
-   "Yorba Linda",
-   "Woodbury",
-   "Eau Claire",
-   "Waldorf",
-   "Forest Hills",
-   "Davis",
-   "Glen Burnie",
-   "Camarillo",
-   "Victoria",
-   "Gaithersburg",
-   "South San Francisco",
-   "Kenner",
-   "Jackson Heights",
-   "Rockville",
-   "Lincoln Park",
-   "Janesville",
-   "West Des Moines",
-   "Montebello",
-   "Georgetown",
-   "Alpharetta",
-   "Lorain",
-   "Bowling Green",
-   "Flatlands",
-   "Dundalk",
-   "Eden Prairie",
-   "North Bergen",
-   "Florence-Graham",
-   "Waltham",
-   "West Hartford",
-   "Rogers",
-   "Carol City",
-   "Encinitas",
-   "East Village",
-   "Haverhill",
-   "Jupiter",
-   "Council Bluffs",
-   "Wellington",
-   "West Coon Rapids",
-   "North Miami",
-   "Hamilton",
-   "North Port",
-   "Tulare",
-   "Coon Rapids",
-   "Millcreek",
-   "La Habra",
-   "Blaine",
-   "Auburn",
-   "Lake Elsinore",
-   "Carmichael",
-   "Burnsville",
-   "Monterey Park",
-   "Castro Valley",
-   "Irvington",
-   "Rocklin",
-   "Utica",
-   "Malden",
-   "National City",
-   "Financial District",
-   "Bethesda",
-   "Terre Haute",
-   "Brentwood",
-   "Lakeville",
-   "West Allis",
-   "San Rafael",
-   "South Whittier",
-   "Tinley Park",
-   "Pflugerville",
-   "New Brunswick",
-   "Grand Forks",
-   "Fountain Valley",
-   "North Hills",
-   "Diamond Bar",
-   "Taunton",
-   "Oak Lawn",
-   "Union",
-   "Ankeny",
-   "Chicopee",
-   "Irving Park",
-   "Berwyn",
-   "Kendale Lakes",
-   "Smyrna",
-   "Dearborn Heights",
-   "Porterville",
-   "Piscataway",
-   "Hendersonville",
-   "Morningside Heights",
-   "Rocky Mount",
-   "Corvallis",
-   "Olympia",
-   "Valdosta",
-   "Hanford",
-   "Castle Rock",
-   "Greenwood",
-   "Chicago Lawn",
-   "Hempstead",
-   "Novato",
-   "Kettering",
-   "Shoreline",
-   "Decatur",
-   "Paramount",
-   "Port Arthur",
-   "Abington",
-   "Anderson",
-   "Tamiami",
-   "Towson",
-   "North Chicopee",
-   "Uptown",
-   "Sarasota",
-   "Cypress Hills",
-   "West Haven",
-   "Rosemead",
-   "Perth Amboy",
-   "Sherman Oaks",
-   "Southaven",
-   "Saint Peters",
-   "Downtown DC",
-   "Harrisonburg",
-   "Peabody",
-   "Placentia",
-   "Lenexa",
-   "DeSoto",
-   "Burlington",
-   "South Hill",
-   "Elkhart",
-   "La Crosse",
-   "Oak Park",
-   "Florissant",
-   "Sammamish",
-   "Wakefield",
-   "Albany",
-   "Hoffman Estates",
-   "Albany Park",
-   "Methuen",
-   "Glendora",
-   "Wilmington",
-   "Queens Village",
-   "Brookhaven",
-   "Palm Desert",
-   "Joplin",
-   "Enid",
-   "Bonita Springs",
-   "Irondequoit",
-   "Caldwell",
-   "Minnetonka",
-   "Pinellas Park",
-   "Battle Creek",
-   "Casa Grande",
-   "South Shore",
-   "Mott Haven",
-   "The Villages",
-   "Grand Island",
-   "Grapevine",
-   "Stratford",
-   "Kentwood",
-   "City of Milford (balance)",
-   "Tigard",
-   "East Hartford",
-   "Apple Valley",
-   "Plainfield",
-   "Leesburg",
-   "Parsippany",
-   "Coral Gables",
-   "The Trails of Frisco",
-   "The Hammocks",
-   "Buckeye",
-   "Flagami",
-   "Catalina Foothills",
-   "North La Crosse",
-   "Burien",
-   "Havertown",
-   "Logan",
-   "South Peabody",
-   "Aliso Viejo",
-   "Harrisburg",
-   "Galveston",
-   "Poway",
-   "Edina",
-   "Minnetonka Mills",
-   "Stonecrest",
-   "Cerritos",
-   "Redford",
-   "Troy",
-   "Sunnyside",
-   "Wharton",
-   "Whitman",
-   "Downers Grove",
-   "Azusa",
-   "Wilson",
-   "Monroe",
-   "Parker",
-   "La Mirada",
-   "Minot",
-   "Aloha",
-   "Saginaw",
-   "Bedford",
-   "Rancho Santa Margarita",
-   "Murray",
-   "Cuyahoga Falls",
-   "Coeur d'Alene",
-   "Bloomfield",
-   "Rowland Heights",
-   "Covina",
-   "Stillwater",
-   "Niagara Falls",
-   "Collierville",
-   "Oxford Circle",
-   "Summerville",
-   "South Bel Air",
-   "Sheboygan",
-   "Middletown",
-   "Aspen Hill",
-   "Dunwoody",
-   "Huntington",
-   "Maricopa",
-   "Roswell",
-   "Cedar Hill",
-   "East Brunswick",
-   "East Lansing",
-   "Apopka",
-   "Maspeth",
-   "Mishawaka",
-   "Portage",
-   "West Orange",
-   "McLean",
-   "Ceres",
-   "Chesterfield",
-   "Barnstable",
-   "Salina",
-   "Lawrence",
-   "Bel Air South",
-   "Euclid",
-   "Texas City",
-   "Wauwatosa",
-   "Vermont Square",
-   "Florin",
-   "Twin Falls",
-   "Glenview",
-   "East Providence",
-   "Palm Springs",
-   "San Luis Obispo",
-   "Mission District",
-   "Country Club",
-   "Gwynn Oak",
-   "Winnetka",
-   "Jeffersonville",
-   "San Jacinto",
-   "Mentor",
-   "Mansfield",
-   "Hattiesburg",
-   "Draper",
-   "Middletown",
-   "Wylie",
-   "Laguna",
-   "Smyrna",
-   "Charlottesville",
-   "Lacey",
-   "Littleton",
-   "Beavercreek",
-   "Kannapolis",
-   "Elmhurst",
-   "Hell's Kitchen",
-   "Auburn Gresham",
-   "City of Sammamish",
-   "Antelope",
-   "Keller",
-   "Biloxi",
-   "Apex",
-   "West Lafayette",
-   "Cutler Bay",
-   "Titusville",
-   "Altoona",
-   "Oro Valley",
-   "Saint Louis Park",
-   "Enfield",
-   "Dublin",
-   "Tuckahoe",
-   "Potomac",
-   "Cleveland Heights",
-   "Sayreville",
-   "Hackensack",
-   "Pine Bluff",
-   "West Seneca",
-   "Strongsville",
-   "Coachella",
-   "Penn Hills",
-   "Encino",
-   "Bentonville",
-   "Fort Pierce",
-   "Bridgewater",
-   "Danville",
-   "Oakland Park",
-   "Attleboro",
-   "Severn",
-   "Blacksburg",
-   "Haltom City",
-   "Brighton Park",
-   "Lompoc",
-   "Wesley Chapel",
-   "Urbandale",
-   "York",
-   "North Miami Beach",
-   "El Centro",
-   "Rego Park",
-   "North Brunswick",
-   "Echo Park",
-   "North Bethesda",
-   "Beaumont",
-   "Lombard",
-   "Bountiful",
-   "North Lauderdale",
-   "Burleson",
-   "Ocoee",
-   "Ashburn",
-   "Southington",
-   "Augusta",
-   "Bozeman",
-   "Sierra Vista",
-   "Freeport",
-   "Pittsfield",
-   "West Babylon",
-   "DeKalb",
-   "San Bruno",
-   "Altamonte Springs",
-   "Bell Gardens",
-   "Schertz",
-   "East Boston",
-   "Morgan Hill",
-   "Bothell",
-   "Fond du Lac",
-   "Sicklerville",
-   "Sayreville Junction",
-   "Farmington",
-   "La Jolla",
-   "Altadena",
-   "Fairfield",
-   "Ashburn",
-   "Rancho Palos Verdes",
-   "North Highlands",
-   "Moline",
-   "East Concord",
-   "Jefferson City",
-   "Henrietta",
-   "Rockwall",
-   "Plainfield",
-   "Burlington",
-   "Rohnert Park",
-   "Urbana",
-   "Southglenn",
-   "Prescott Valley",
-   "State College",
-   "Kearny",
-   "El Dorado Hills",
-   "Danville",
-   "Belleville",
-   "Linden",
-   "Moorhead",
-   "Woodside",
-   "Brea",
-   "Riverton",
-   "Prescott",
-   "Mount Laurel",
-   "Hutchinson",
-   "Leominster",
-   "Catonsville",
-   "West Hills",
-   "Edmonds",
-   "Marana",
-   "New City",
-   "Morris Heights",
-   "Peachtree Corners",
-   "Princeton",
-   "Westerville",
-   "Little Elm",
-   "Hanover Park",
-   "Hillsborough",
-   "Channelview",
-   "Panama City",
-   "Wake Forest",
-   "Huber Heights",
-   "Martinez",
-   "East Meadow",
-   "Hanover",
-   "Wheeling",
-   "Apache Junction",
-   "Pleasant Grove",
-   "Brookfield",
-   "Columbia Heights",
-   "Delaware",
-   "Roy",
-   "Valley Stream",
-   "Spanish Fork",
-   "Keizer",
-   "Woodlawn",
-   "Lima",
-   "Spartanburg",
-   "Hermitage",
-   "Park Ridge",
-   "Fenway/Kenmore",
-   "Winter Haven",
-   "Aventura",
-   "Severna Park",
-   "Royal Palm Beach",
-   "Brighton",
-   "Phenix City",
-   "Milton",
-   "Sun City",
-   "Lake Worth Beach",
-   "Kew Gardens Hills",
-   "Jamaica Plain",
-   "Monrovia",
-   "Hollister",
-   "Los Banos",
-   "Sewell",
-   "Plant City",
-   "Greenfield",
-   "Marion",
-   "Braintree",
-   "Newnan",
-   "Texarkana",
-   "Addison",
-   "Reynoldsburg",
-   "South Jordan Heights",
-   "Odenton",
-   "Mableton",
-   "Hilton Head",
-   "Grants Pass",
-   "Indian Trail",
-   "Calumet City",
-   "Lincoln Park",
-   "Lynnwood",
-   "Whitestone",
-   "Beloit",
-   "Belleville",
-   "Longview",
-   "South Miami Heights",
-   "Portage",
-   "Westfield",
-   "New Albany",
-   "Clifton Park",
-   "Fort Lee",
-   "Brighton",
-   "Bartlesville",
-   "Ewing",
-   "San Juan",
-   "Woodhaven",
-   "Mission Bend",
-   "San Juan Capistrano",
-   "Pahrump",
-   "Saint Charles",
-   "Temple City",
-   "Marion",
-   "Mechanicsville",
-   "Lufkin",
-   "Pennsauken",
-   "Rome",
-   "Mattapan",
-   "Claremont",
-   "Franklin",
-   "Richfield",
-   "Bell",
-   "Lewiston",
-   "Dunedin",
-   "Kendall West",
-   "Del Rio",
-   "Oakville",
-   "Commack",
-   "Menomonee Falls",
-   "Moorpark",
-   "Gadsden",
-   "Issaquah",
-   "Spring Hill",
-   "Trumbull",
-   "Olive Branch",
-   "Mooresville",
-   "West Torrington",
-   "Willowbrook",
-   "Leavenworth",
-   "Clinton",
-   "Cottage Grove",
-   "Wildwood",
-   "Richmond West",
-   "Mount Pleasant",
-   "Oregon City",
-   "Goldsboro",
-   "Manhattan Beach",
-   "Parkland",
-   "Martinez",
-   "East Florence",
-   "Kyle",
-   "Kearns",
-   "Linton Hall",
-   "Tupelo",
-   "Hot Springs",
-   "Wildomar",
-   "Wentzville",
-   "Valrico",
-   "Coventry",
-   "Rosenberg",
-   "Bettendorf",
-   "East Point",
-   "Prattville",
-   "Ponte Vedra Beach",
-   "Boardman",
-   "Cooper City",
-   "Oxon Hill-Glassmanor",
-   "Egypt Lake-Leto",
-   "North Lawndale",
-   "Oak Creek",
-   "Peachtree City",
-   "Merrillville",
-   "Saint Cloud",
-   "La Porte",
-   "University City",
-   "Upper Arlington",
-   "Torrington",
-   "Beverly Hills",
-   "Inver Grove Heights",
-   "Cumberland",
-   "Bayview-Hunters Point",
-   "Pleasant Hill",
-   "Stow",
-   "Lauderdale Lakes",
-   "La Vergne",
-   "Winter Springs",
-   "Merritt Island",
-   "Greenpoint",
-   "West Little River",
-   "Brunswick",
-   "San Dimas",
-   "Monroe",
-   "North Center",
-   "Queen Creek",
-   "Gahanna",
-   "Leawood",
-   "Owasso",
-   "Derry Village",
-   "Central Islip",
-   "Norristown",
-   "Lower West Side",
-   "Glendale Heights",
-   "Butte",
-   "Dana Point",
-   "Benton",
-   "Vestavia Hills",
-   "La Presa",
-   "Oakton",
-   "Chester",
-   "Mount Vernon",
-   "Studio City",
-   "Salisbury",
-   "Riviera Beach",
-   "Orangevale"
-  ],
+  "missed": [],
   "points": [
    {
     "curve": [
@@ -114900,6 +114125,2118 @@
     "longitude": -81.5693,
     "model": "CONUS 2023 R2",
     "name": "Collinwood"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.023735673
+     ],
+     [
+      0.355,
+      0.016650373
+     ],
+     [
+      0.532,
+      0.0116117
+     ],
+     [
+      0.798,
+      0.0080574547
+     ],
+     [
+      1.19,
+      0.0055782966
+     ],
+     [
+      1.8,
+      0.0037439013
+     ],
+     [
+      2.69,
+      0.002471207
+     ],
+     [
+      4.04,
+      0.001562705
+     ],
+     [
+      6.06,
+      0.00094105565
+     ],
+     [
+      9.09,
+      0.00052988627
+     ],
+     [
+      13.6,
+      0.00027417776
+     ],
+     [
+      20.5,
+      0.00012366347
+     ],
+     [
+      30.7,
+      4.7766881e-05
+     ],
+     [
+      46.0,
+      1.4913398e-05
+     ],
+     [
+      69.0,
+      3.6112822e-06
+     ],
+     [
+      103.0,
+      6.7080962e-07
+     ],
+     [
+      155.0,
+      9.3348374e-08
+     ],
+     [
+      233.0,
+      1.4279818e-08
+     ],
+     [
+      349.0,
+      2.8648641e-09
+     ],
+     [
+      525.0,
+      4.6603256e-10
+     ]
+    ],
+    "latitude": 32.7357,
+    "longitude": -97.1081,
+    "model": "CONUS 2023 R2",
+    "name": "Arlington"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.033850648
+     ],
+     [
+      0.355,
+      0.022583842
+     ],
+     [
+      0.532,
+      0.014358932
+     ],
+     [
+      0.798,
+      0.0085971186
+     ],
+     [
+      1.19,
+      0.0048720831
+     ],
+     [
+      1.8,
+      0.0025387448
+     ],
+     [
+      2.69,
+      0.0012659131
+     ],
+     [
+      4.04,
+      0.00058209835
+     ],
+     [
+      6.06,
+      0.00024640632
+     ],
+     [
+      9.09,
+      9.5988678e-05
+     ],
+     [
+      13.6,
+      3.5691732e-05
+     ],
+     [
+      20.5,
+      1.2794745e-05
+     ],
+     [
+      30.7,
+      4.5609838e-06
+     ],
+     [
+      46.0,
+      1.5060045e-06
+     ],
+     [
+      69.0,
+      4.1754409e-07
+     ],
+     [
+      103.0,
+      9.289463e-08
+     ],
+     [
+      155.0,
+      1.4575844e-08
+     ],
+     [
+      233.0,
+      1.4460836e-09
+     ],
+     [
+      349.0,
+      7.72243e-11
+     ],
+     [
+      525.0,
+      4.8958969e-13
+     ]
+    ],
+    "latitude": 33.5386,
+    "longitude": -112.186,
+    "model": "CONUS 2023 R2",
+    "name": "Glendale"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.045394339
+     ],
+     [
+      0.355,
+      0.031500454
+     ],
+     [
+      0.532,
+      0.021677338
+     ],
+     [
+      0.798,
+      0.01481835
+     ],
+     [
+      1.19,
+      0.010108011
+     ],
+     [
+      1.8,
+      0.0066933596
+     ],
+     [
+      2.69,
+      0.0043648802
+     ],
+     [
+      4.04,
+      0.0027276385
+     ],
+     [
+      6.06,
+      0.0016299505
+     ],
+     [
+      9.09,
+      0.00091763301
+     ],
+     [
+      13.6,
+      0.00047979832
+     ],
+     [
+      20.5,
+      0.0002229678
+     ],
+     [
+      30.7,
+      9.096651e-05
+     ],
+     [
+      46.0,
+      3.0817325e-05
+     ],
+     [
+      69.0,
+      8.3489843e-06
+     ],
+     [
+      103.0,
+      1.8281406e-06
+     ],
+     [
+      155.0,
+      3.1738968e-07
+     ],
+     [
+      233.0,
+      5.8950164e-08
+     ],
+     [
+      349.0,
+      1.2791731e-08
+     ],
+     [
+      525.0,
+      2.2631482e-09
+     ]
+    ],
+    "latitude": 32.461,
+    "longitude": -84.9877,
+    "model": "CONUS 2023 R2",
+    "name": "Columbus"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.034178838
+     ],
+     [
+      0.355,
+      0.023538057
+     ],
+     [
+      0.532,
+      0.01606358
+     ],
+     [
+      0.798,
+      0.010899572
+     ],
+     [
+      1.19,
+      0.0074224889
+     ],
+     [
+      1.8,
+      0.0049589017
+     ],
+     [
+      2.69,
+      0.0032985731
+     ],
+     [
+      4.04,
+      0.0021247848
+     ],
+     [
+      6.06,
+      0.001321384
+     ],
+     [
+      9.09,
+      0.0007801805
+     ],
+     [
+      13.6,
+      0.0004295171
+     ],
+     [
+      20.5,
+      0.0002106034
+     ],
+     [
+      30.7,
+      9.0422883e-05
+     ],
+     [
+      46.0,
+      3.2232749e-05
+     ],
+     [
+      69.0,
+      9.2856676e-06
+     ],
+     [
+      103.0,
+      2.2230105e-06
+     ],
+     [
+      155.0,
+      4.5059719e-07
+     ],
+     [
+      233.0,
+      9.6691556e-08
+     ],
+     [
+      349.0,
+      2.121346e-08
+     ],
+     [
+      525.0,
+      3.6913112e-09
+     ]
+    ],
+    "latitude": 41.7606,
+    "longitude": -88.3201,
+    "model": "CONUS 2023 R2",
+    "name": "Aurora"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.043298005
+     ],
+     [
+      0.355,
+      0.029930339
+     ],
+     [
+      0.532,
+      0.020089714
+     ],
+     [
+      0.798,
+      0.013080552
+     ],
+     [
+      1.19,
+      0.0083113787
+     ],
+     [
+      1.8,
+      0.0050172855
+     ],
+     [
+      2.69,
+      0.0029593291
+     ],
+     [
+      4.04,
+      0.0016617115
+     ],
+     [
+      6.06,
+      0.00089089211
+     ],
+     [
+      9.09,
+      0.00045294055
+     ],
+     [
+      13.6,
+      0.00021842351
+     ],
+     [
+      20.5,
+      9.7691291e-05
+     ],
+     [
+      30.7,
+      4.1541865e-05
+     ],
+     [
+      46.0,
+      1.6538686e-05
+     ],
+     [
+      69.0,
+      6.1278628e-06
+     ],
+     [
+      103.0,
+      2.1237632e-06
+     ],
+     [
+      155.0,
+      6.5217913e-07
+     ],
+     [
+      233.0,
+      1.7580561e-07
+     ],
+     [
+      349.0,
+      4.0185495e-08
+     ],
+     [
+      525.0,
+      7.0535034e-09
+     ]
+    ],
+    "latitude": 42.1015,
+    "longitude": -72.5898,
+    "model": "CONUS 2023 R2",
+    "name": "Springfield"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.017844547
+     ],
+     [
+      0.355,
+      0.012891505
+     ],
+     [
+      0.532,
+      0.0092637571
+     ],
+     [
+      0.798,
+      0.0066035457
+     ],
+     [
+      1.19,
+      0.0046729097
+     ],
+     [
+      1.8,
+      0.0032011473
+     ],
+     [
+      2.69,
+      0.0021600133
+     ],
+     [
+      4.04,
+      0.001402574
+     ],
+     [
+      6.06,
+      0.00087101783
+     ],
+     [
+      9.09,
+      0.00050758614
+     ],
+     [
+      13.6,
+      0.00027293423
+     ],
+     [
+      20.5,
+      0.0001297466
+     ],
+     [
+      30.7,
+      5.4370603e-05
+     ],
+     [
+      46.0,
+      1.931491e-05
+     ],
+     [
+      69.0,
+      5.679165e-06
+     ],
+     [
+      103.0,
+      1.4072948e-06
+     ],
+     [
+      155.0,
+      2.9297986e-07
+     ],
+     [
+      233.0,
+      6.0772109e-08
+     ],
+     [
+      349.0,
+      1.36223e-08
+     ],
+     [
+      525.0,
+      2.7976667e-09
+     ]
+    ],
+    "latitude": 29.6911,
+    "longitude": -95.2091,
+    "model": "CONUS 2023 R2",
+    "name": "Pasadena"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.031561772
+     ],
+     [
+      0.355,
+      0.021636918
+     ],
+     [
+      0.532,
+      0.014728143
+     ],
+     [
+      0.798,
+      0.009984265
+     ],
+     [
+      1.19,
+      0.006807704
+     ],
+     [
+      1.8,
+      0.0045723906
+     ],
+     [
+      2.69,
+      0.0030706812
+     ],
+     [
+      4.04,
+      0.0020025596
+     ],
+     [
+      6.06,
+      0.0012642921
+     ],
+     [
+      9.09,
+      0.00076105637
+     ],
+     [
+      13.6,
+      0.00042855667
+     ],
+     [
+      20.5,
+      0.00021543595
+     ],
+     [
+      30.7,
+      9.4726446e-05
+     ],
+     [
+      46.0,
+      3.4176244e-05
+     ],
+     [
+      69.0,
+      9.6030721e-06
+     ],
+     [
+      103.0,
+      2.0333201e-06
+     ],
+     [
+      155.0,
+      2.870776e-07
+     ],
+     [
+      233.0,
+      3.0623314e-08
+     ],
+     [
+      349.0,
+      5.1212595e-09
+     ],
+     [
+      525.0,
+      8.7512396e-10
+     ]
+    ],
+    "latitude": 39.1142,
+    "longitude": -94.6275,
+    "model": "CONUS 2023 R2",
+    "name": "Kansas City"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.0058730941
+     ],
+     [
+      0.355,
+      0.0043867925
+     ],
+     [
+      0.532,
+      0.0032191249
+     ],
+     [
+      0.798,
+      0.0022945684
+     ],
+     [
+      1.19,
+      0.0015796339
+     ],
+     [
+      1.8,
+      0.0010172056
+     ],
+     [
+      2.69,
+      0.00062321569
+     ],
+     [
+      4.04,
+      0.00035281366
+     ],
+     [
+      6.06,
+      0.00018416792
+     ],
+     [
+      9.09,
+      8.7757287e-05
+     ],
+     [
+      13.6,
+      3.8248409e-05
+     ],
+     [
+      20.5,
+      1.5048256e-05
+     ],
+     [
+      30.7,
+      5.6841703e-06
+     ],
+     [
+      46.0,
+      2.1167929e-06
+     ],
+     [
+      69.0,
+      7.9304403e-07
+     ],
+     [
+      103.0,
+      2.9619083e-07
+     ],
+     [
+      155.0,
+      9.999283e-08
+     ],
+     [
+      233.0,
+      2.9516194e-08
+     ],
+     [
+      349.0,
+      7.3712574e-09
+     ],
+     [
+      525.0,
+      1.4284273e-09
+     ]
+    ],
+    "latitude": 26.0112,
+    "longitude": -80.1495,
+    "model": "CONUS 2023 R2",
+    "name": "Hollywood"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.048657116
+     ],
+     [
+      0.355,
+      0.033096628
+     ],
+     [
+      0.532,
+      0.022227782
+     ],
+     [
+      0.798,
+      0.014809616
+     ],
+     [
+      1.19,
+      0.0099195034
+     ],
+     [
+      1.8,
+      0.0065914731
+     ],
+     [
+      2.69,
+      0.0044615136
+     ],
+     [
+      4.04,
+      0.0029886038
+     ],
+     [
+      6.06,
+      0.0019593157
+     ],
+     [
+      9.09,
+      0.0012371708
+     ],
+     [
+      13.6,
+      0.00074050606
+     ],
+     [
+      20.5,
+      0.00040252666
+     ],
+     [
+      30.7,
+      0.00019549657
+     ],
+     [
+      46.0,
+      8.0235518e-05
+     ],
+     [
+      69.0,
+      2.6385216e-05
+     ],
+     [
+      103.0,
+      6.7125648e-06
+     ],
+     [
+      155.0,
+      1.1690349e-06
+     ],
+     [
+      233.0,
+      1.1956087e-07
+     ],
+     [
+      349.0,
+      7.7037096e-09
+     ],
+     [
+      525.0,
+      9.9507642e-10
+     ]
+    ],
+    "latitude": 38.9517,
+    "longitude": -92.3341,
+    "model": "CONUS 2023 R2",
+    "name": "Columbia"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.017286396
+     ],
+     [
+      0.355,
+      0.012532014
+     ],
+     [
+      0.532,
+      0.0087893935
+     ],
+     [
+      0.798,
+      0.0059414559
+     ],
+     [
+      1.19,
+      0.0038829152
+     ],
+     [
+      1.8,
+      0.002379024
+     ],
+     [
+      2.69,
+      0.0013943975
+     ],
+     [
+      4.04,
+      0.00076168145
+     ],
+     [
+      6.06,
+      0.00039399779
+     ],
+     [
+      9.09,
+      0.00019561242
+     ],
+     [
+      13.6,
+      9.4633381e-05
+     ],
+     [
+      20.5,
+      4.362796e-05
+     ],
+     [
+      30.7,
+      1.9342391e-05
+     ],
+     [
+      46.0,
+      7.9954315e-06
+     ],
+     [
+      69.0,
+      3.0409345e-06
+     ],
+     [
+      103.0,
+      1.0743598e-06
+     ],
+     [
+      155.0,
+      3.3752346e-07
+     ],
+     [
+      233.0,
+      9.4305302e-08
+     ],
+     [
+      349.0,
+      2.2580304e-08
+     ],
+     [
+      525.0,
+      4.1604259e-09
+     ]
+    ],
+    "latitude": 39.8366,
+    "longitude": -105.0372,
+    "model": "CONUS 2023 R2",
+    "name": "Westminster"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.042568312
+     ],
+     [
+      0.355,
+      0.028948756
+     ],
+     [
+      0.532,
+      0.019447362
+     ],
+     [
+      0.798,
+      0.012978225
+     ],
+     [
+      1.19,
+      0.0087218653
+     ],
+     [
+      1.8,
+      0.0058071963
+     ],
+     [
+      2.69,
+      0.0039044681
+     ],
+     [
+      4.04,
+      0.0025673806
+     ],
+     [
+      6.06,
+      0.0016396982
+     ],
+     [
+      9.09,
+      0.0010026667
+     ],
+     [
+      13.6,
+      0.00057663646
+     ],
+     [
+      20.5,
+      0.000298056
+     ],
+     [
+      30.7,
+      0.00013610861
+     ],
+     [
+      46.0,
+      5.166587e-05
+     ],
+     [
+      69.0,
+      1.5437162e-05
+     ],
+     [
+      103.0,
+      3.5182846e-06
+     ],
+     [
+      155.0,
+      5.3962483e-07
+     ],
+     [
+      233.0,
+      5.5500855e-08
+     ],
+     [
+      349.0,
+      7.1345764e-09
+     ],
+     [
+      525.0,
+      1.1568588e-09
+     ]
+    ],
+    "latitude": 40.6936,
+    "longitude": -89.589,
+    "model": "CONUS 2023 R2",
+    "name": "Peoria"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.056657305
+     ],
+     [
+      0.355,
+      0.03885087
+     ],
+     [
+      0.532,
+      0.026142911
+     ],
+     [
+      0.798,
+      0.01736725
+     ],
+     [
+      1.19,
+      0.011560886
+     ],
+     [
+      1.8,
+      0.0076179844
+     ],
+     [
+      2.69,
+      0.0051128393
+     ],
+     [
+      4.04,
+      0.0033981705
+     ],
+     [
+      6.06,
+      0.0022116327
+     ],
+     [
+      9.09,
+      0.0013862471
+     ],
+     [
+      13.6,
+      0.0008241045
+     ],
+     [
+      20.5,
+      0.00044531139
+     ],
+     [
+      30.7,
+      0.00021533201
+     ],
+     [
+      46.0,
+      8.8185559e-05
+     ],
+     [
+      69.0,
+      2.902025e-05
+     ],
+     [
+      103.0,
+      7.4275516e-06
+     ],
+     [
+      155.0,
+      1.3245965e-06
+     ],
+     [
+      233.0,
+      1.5085801e-07
+     ],
+     [
+      349.0,
+      1.4001257e-08
+     ],
+     [
+      525.0,
+      1.9596488e-09
+     ]
+    ],
+    "latitude": 39.8017,
+    "longitude": -89.6437,
+    "model": "CONUS 2023 R2",
+    "name": "Springfield"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.015324699
+     ],
+     [
+      0.355,
+      0.010579512
+     ],
+     [
+      0.532,
+      0.0072987382
+     ],
+     [
+      0.798,
+      0.005030265
+     ],
+     [
+      1.19,
+      0.0034637856
+     ],
+     [
+      1.8,
+      0.0023153194
+     ],
+     [
+      2.69,
+      0.0015288501
+     ],
+     [
+      4.04,
+      0.00096849729
+     ],
+     [
+      6.06,
+      0.00057922035
+     ],
+     [
+      9.09,
+      0.00031788577
+     ],
+     [
+      13.6,
+      0.00015617269
+     ],
+     [
+      20.5,
+      6.449706e-05
+     ],
+     [
+      30.7,
+      2.1966573e-05
+     ],
+     [
+      46.0,
+      5.8043151e-06
+     ],
+     [
+      69.0,
+      1.1387866e-06
+     ],
+     [
+      103.0,
+      1.6227127e-07
+     ],
+     [
+      155.0,
+      2.3237359e-08
+     ],
+     [
+      233.0,
+      5.2646872e-09
+     ],
+     [
+      349.0,
+      1.1296534e-09
+     ],
+     [
+      525.0,
+      1.9138879e-10
+     ]
+    ],
+    "latitude": 44.0216,
+    "longitude": -92.4699,
+    "model": "CONUS 2023 R2",
+    "name": "Rochester"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.7917772
+     ],
+     [
+      0.355,
+      0.59246018
+     ],
+     [
+      0.532,
+      0.4305253
+     ],
+     [
+      0.798,
+      0.30594754
+     ],
+     [
+      1.19,
+      0.21492471
+     ],
+     [
+      1.8,
+      0.14654473
+     ],
+     [
+      2.69,
+      0.098948129
+     ],
+     [
+      4.04,
+      0.064728865
+     ],
+     [
+      6.06,
+      0.041148882
+     ],
+     [
+      9.09,
+      0.02550859
+     ],
+     [
+      13.6,
+      0.015564231
+     ],
+     [
+      20.5,
+      0.0090895254
+     ],
+     [
+      30.7,
+      0.0049536583
+     ],
+     [
+      46.0,
+      0.0023683991
+     ],
+     [
+      69.0,
+      0.00094168691
+     ],
+     [
+      103.0,
+      0.00030051434
+     ],
+     [
+      155.0,
+      7.0049366e-05
+     ],
+     [
+      233.0,
+      1.1000689e-05
+     ],
+     [
+      349.0,
+      9.0153617e-07
+     ],
+     [
+      525.0,
+      1.0119673e-08
+     ]
+    ],
+    "latitude": 37.9358,
+    "longitude": -122.3478,
+    "model": "CONUS 2023 R2",
+    "name": "Richmond"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.041765905
+     ],
+     [
+      0.355,
+      0.029721894
+     ],
+     [
+      0.532,
+      0.020598585
+     ],
+     [
+      0.798,
+      0.013854628
+     ],
+     [
+      1.19,
+      0.0090848302
+     ],
+     [
+      1.8,
+      0.0056675325
+     ],
+     [
+      2.69,
+      0.0034606024
+     ],
+     [
+      4.04,
+      0.0020258519
+     ],
+     [
+      6.06,
+      0.00114509
+     ],
+     [
+      9.09,
+      0.00062324648
+     ],
+     [
+      13.6,
+      0.00032750676
+     ],
+     [
+      20.5,
+      0.00016295354
+     ],
+     [
+      30.7,
+      7.8223346e-05
+     ],
+     [
+      46.0,
+      3.5467939e-05
+     ],
+     [
+      69.0,
+      1.4937818e-05
+     ],
+     [
+      103.0,
+      5.8073356e-06
+     ],
+     [
+      155.0,
+      1.965806e-06
+     ],
+     [
+      233.0,
+      5.7268648e-07
+     ],
+     [
+      349.0,
+      1.3909668e-07
+     ],
+     [
+      525.0,
+      2.5754085e-08
+     ]
+    ],
+    "latitude": 40.7471,
+    "longitude": -73.8601,
+    "model": "CONUS 2023 R2",
+    "name": "Corona"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.83172822
+     ],
+     [
+      0.355,
+      0.6418645
+     ],
+     [
+      0.532,
+      0.48105738
+     ],
+     [
+      0.798,
+      0.35012418
+     ],
+     [
+      1.19,
+      0.24814856
+     ],
+     [
+      1.8,
+      0.16689635
+     ],
+     [
+      2.69,
+      0.1082022
+     ],
+     [
+      4.04,
+      0.066017376
+     ],
+     [
+      6.06,
+      0.03808014
+     ],
+     [
+      9.09,
+      0.020708702
+     ],
+     [
+      13.6,
+      0.010619939
+     ],
+     [
+      20.5,
+      0.0050528086
+     ],
+     [
+      30.7,
+      0.0023187604
+     ],
+     [
+      46.0,
+      0.0010188834
+     ],
+     [
+      69.0,
+      0.00041430547
+     ],
+     [
+      103.0,
+      0.00014850643
+     ],
+     [
+      155.0,
+      4.1865115e-05
+     ],
+     [
+      233.0,
+      8.6179971e-06
+     ],
+     [
+      349.0,
+      1.1038443e-06
+     ],
+     [
+      525.0,
+      5.2962005e-08
+     ]
+    ],
+    "latitude": 33.9022,
+    "longitude": -118.0817,
+    "model": "CONUS 2023 R2",
+    "name": "Norwalk"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.88614029
+     ],
+     [
+      0.355,
+      0.65780645
+     ],
+     [
+      0.532,
+      0.47011575
+     ],
+     [
+      0.798,
+      0.32320776
+     ],
+     [
+      1.19,
+      0.21473331
+     ],
+     [
+      1.8,
+      0.13411756
+     ],
+     [
+      2.69,
+      0.080347196
+     ],
+     [
+      4.04,
+      0.044721863
+     ],
+     [
+      6.06,
+      0.023035322
+     ],
+     [
+      9.09,
+      0.010800017
+     ],
+     [
+      13.6,
+      0.0045509247
+     ],
+     [
+      20.5,
+      0.0016502542
+     ],
+     [
+      30.7,
+      0.00052255885
+     ],
+     [
+      46.0,
+      0.00013841343
+     ],
+     [
+      69.0,
+      2.9800465e-05
+     ],
+     [
+      103.0,
+      5.1089941e-06
+     ],
+     [
+      155.0,
+      6.0245327e-07
+     ],
+     [
+      233.0,
+      4.8289891e-08
+     ],
+     [
+      349.0,
+      2.5244362e-09
+     ],
+     [
+      525.0,
+      1.8772674e-11
+     ]
+    ],
+    "latitude": 33.2,
+    "longitude": -117.2425,
+    "model": "CONUS 2023 R2",
+    "name": "Vista"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.0059953664
+     ],
+     [
+      0.355,
+      0.004473653
+     ],
+     [
+      0.532,
+      0.0032800492
+     ],
+     [
+      0.798,
+      0.0023364579
+     ],
+     [
+      1.19,
+      0.0016078561
+     ],
+     [
+      1.8,
+      0.0010353533
+     ],
+     [
+      2.69,
+      0.00063461274
+     ],
+     [
+      4.04,
+      0.00035961204
+     ],
+     [
+      6.06,
+      0.00018798314
+     ],
+     [
+      9.09,
+      8.9725001e-05
+     ],
+     [
+      13.6,
+      3.9166066e-05
+     ],
+     [
+      20.5,
+      1.5421336e-05
+     ],
+     [
+      30.7,
+      5.8203532e-06
+     ],
+     [
+      46.0,
+      2.161672e-06
+     ],
+     [
+      69.0,
+      8.071391e-07
+     ],
+     [
+      103.0,
+      3.0056393e-07
+     ],
+     [
+      155.0,
+      1.0121209e-07
+     ],
+     [
+      233.0,
+      2.9790354e-08
+     ],
+     [
+      349.0,
+      7.4144105e-09
+     ],
+     [
+      525.0,
+      1.4311319e-09
+     ]
+    ],
+    "latitude": 26.0629,
+    "longitude": -80.2331,
+    "model": "CONUS 2023 R2",
+    "name": "Davie"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.77943951
+     ],
+     [
+      0.355,
+      0.58169759
+     ],
+     [
+      0.532,
+      0.42065882
+     ],
+     [
+      0.798,
+      0.29718959
+     ],
+     [
+      1.19,
+      0.20767202
+     ],
+     [
+      1.8,
+      0.14099627
+     ],
+     [
+      2.69,
+      0.094903498
+     ],
+     [
+      4.04,
+      0.061908484
+     ],
+     [
+      6.06,
+      0.039137989
+     ],
+     [
+      9.09,
+      0.023818722
+     ],
+     [
+      13.6,
+      0.01388582
+     ],
+     [
+      20.5,
+      0.0074588543
+     ],
+     [
+      30.7,
+      0.0035904651
+     ],
+     [
+      46.0,
+      0.0014403941
+     ],
+     [
+      69.0,
+      0.00045194818
+     ],
+     [
+      103.0,
+      0.00010585155
+     ],
+     [
+      155.0,
+      1.5140116e-05
+     ],
+     [
+      233.0,
+      9.7320207e-07
+     ],
+     [
+      349.0,
+      1.4690447e-08
+     ],
+     [
+      525.0,
+      8.564088e-11
+     ]
+    ],
+    "latitude": 37.7966,
+    "longitude": -122.4086,
+    "model": "CONUS 2023 R2",
+    "name": "Chinatown"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.031125328
+     ],
+     [
+      0.355,
+      0.021159656
+     ],
+     [
+      0.532,
+      0.014166928
+     ],
+     [
+      0.798,
+      0.0093361268
+     ],
+     [
+      1.19,
+      0.0060839983
+     ],
+     [
+      1.8,
+      0.0038182965
+     ],
+     [
+      2.69,
+      0.0023682656
+     ],
+     [
+      4.04,
+      0.0014126768
+     ],
+     [
+      6.06,
+      0.00080255401
+     ],
+     [
+      9.09,
+      0.00042338402
+     ],
+     [
+      13.6,
+      0.00020285258
+     ],
+     [
+      20.5,
+      8.3442765e-05
+     ],
+     [
+      30.7,
+      2.9340215e-05
+     ],
+     [
+      46.0,
+      8.5733981e-06
+     ],
+     [
+      69.0,
+      2.1396882e-06
+     ],
+     [
+      103.0,
+      5.0708387e-07
+     ],
+     [
+      155.0,
+      1.2772437e-07
+     ],
+     [
+      233.0,
+      3.2470518e-08
+     ],
+     [
+      349.0,
+      7.0982052e-09
+     ],
+     [
+      525.0,
+      1.2033553e-09
+     ]
+    ],
+    "latitude": 42.587,
+    "longitude": -82.9199,
+    "model": "CONUS 2023 R2",
+    "name": "Clinton Township"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.037462241
+     ],
+     [
+      0.355,
+      0.025986079
+     ],
+     [
+      0.532,
+      0.01757278
+     ],
+     [
+      0.798,
+      0.011565621
+     ],
+     [
+      1.19,
+      0.007439398
+     ],
+     [
+      1.8,
+      0.0045409568
+     ],
+     [
+      2.69,
+      0.002691237
+     ],
+     [
+      4.04,
+      0.0015033384
+     ],
+     [
+      6.06,
+      0.00079236517
+     ],
+     [
+      9.09,
+      0.00039211071
+     ],
+     [
+      13.6,
+      0.00018351508
+     ],
+     [
+      20.5,
+      8.0137488e-05
+     ],
+     [
+      30.7,
+      3.3777114e-05
+     ],
+     [
+      46.0,
+      1.3558118e-05
+     ],
+     [
+      69.0,
+      5.1209715e-06
+     ],
+     [
+      103.0,
+      1.8150692e-06
+     ],
+     [
+      155.0,
+      5.6739302e-07
+     ],
+     [
+      233.0,
+      1.5492819e-07
+     ],
+     [
+      349.0,
+      3.5694829e-08
+     ],
+     [
+      525.0,
+      6.2881111e-09
+     ]
+    ],
+    "latitude": 39.2404,
+    "longitude": -76.8394,
+    "model": "CONUS 2023 R2",
+    "name": "Columbia"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.033736585
+     ],
+     [
+      0.355,
+      0.023061014
+     ],
+     [
+      0.532,
+      0.015482422
+     ],
+     [
+      0.798,
+      0.010167087
+     ],
+     [
+      1.19,
+      0.0065484863
+     ],
+     [
+      1.8,
+      0.004025444
+     ],
+     [
+      2.69,
+      0.0024272446
+     ],
+     [
+      4.04,
+      0.0013963206
+     ],
+     [
+      6.06,
+      0.00075879553
+     ],
+     [
+      9.09,
+      0.00037894847
+     ],
+     [
+      13.6,
+      0.00017015415
+     ],
+     [
+      20.5,
+      6.5450734e-05
+     ],
+     [
+      30.7,
+      2.2047908e-05
+     ],
+     [
+      46.0,
+      6.5182075e-06
+     ],
+     [
+      69.0,
+      1.7962047e-06
+     ],
+     [
+      103.0,
+      5.0296754e-07
+     ],
+     [
+      155.0,
+      1.3889836e-07
+     ],
+     [
+      233.0,
+      3.5042943e-08
+     ],
+     [
+      349.0,
+      7.5895603e-09
+     ],
+     [
+      525.0,
+      1.280483e-09
+     ]
+    ],
+    "latitude": 42.1292,
+    "longitude": -80.0851,
+    "model": "CONUS 2023 R2",
+    "name": "Erie"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.029005753
+     ],
+     [
+      0.355,
+      0.020084977
+     ],
+     [
+      0.532,
+      0.013676003
+     ],
+     [
+      0.798,
+      0.0091408033
+     ],
+     [
+      1.19,
+      0.0060042637
+     ],
+     [
+      1.8,
+      0.0037508944
+     ],
+     [
+      2.69,
+      0.0022664475
+     ],
+     [
+      4.04,
+      0.0012816968
+     ],
+     [
+      6.06,
+      0.00067539072
+     ],
+     [
+      9.09,
+      0.0003273543
+     ],
+     [
+      13.6,
+      0.00014540512
+     ],
+     [
+      20.5,
+      5.7546645e-05
+     ],
+     [
+      30.7,
+      2.0935937e-05
+     ],
+     [
+      46.0,
+      6.9787442e-06
+     ],
+     [
+      69.0,
+      2.1706129e-06
+     ],
+     [
+      103.0,
+      6.5458704e-07
+     ],
+     [
+      155.0,
+      1.8453589e-07
+     ],
+     [
+      233.0,
+      4.7390627e-08
+     ],
+     [
+      349.0,
+      1.0616331e-08
+     ],
+     [
+      525.0,
+      1.869587e-09
+     ]
+    ],
+    "latitude": 36.821,
+    "longitude": -76.3688,
+    "model": "CONUS 2023 R2",
+    "name": "Portsmouth Heights"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.042429571
+     ],
+     [
+      0.355,
+      0.030205024
+     ],
+     [
+      0.532,
+      0.020937579
+     ],
+     [
+      0.798,
+      0.014083862
+     ],
+     [
+      1.19,
+      0.0092346922
+     ],
+     [
+      1.8,
+      0.0057594042
+     ],
+     [
+      2.69,
+      0.0035146872
+     ],
+     [
+      4.04,
+      0.0020557595
+     ],
+     [
+      6.06,
+      0.0011608854
+     ],
+     [
+      9.09,
+      0.00063135271
+     ],
+     [
+      13.6,
+      0.000331655
+     ],
+     [
+      20.5,
+      0.0001650773
+     ],
+     [
+      30.7,
+      7.9341961e-05
+     ],
+     [
+      46.0,
+      3.6061777e-05
+     ],
+     [
+      69.0,
+      1.5245797e-05
+     ],
+     [
+      103.0,
+      5.9590088e-06
+     ],
+     [
+      155.0,
+      2.0321997e-06
+     ],
+     [
+      233.0,
+      5.9786248e-07
+     ],
+     [
+      349.0,
+      1.4710387e-07
+     ],
+     [
+      525.0,
+      2.7733504e-08
+     ]
+    ],
+    "latitude": 40.6998,
+    "longitude": -73.8312,
+    "model": "CONUS 2023 R2",
+    "name": "Richmond Hill"
    }
   ],
   "publisher": "USGS National Seismic Hazard Model",
