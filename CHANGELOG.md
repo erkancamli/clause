@@ -1,5 +1,83 @@
 # Changelog
 
+## 1.46.0, 29 September 2026
+
+- Anchorage can be priced.
+
+  Our own model answered Anchorage, Fairbanks, Juneau, Honolulu and Hilo with
+  the same number: once in 11,119 years at intensity VII. Not a measurement, a
+  default, at an address four hundred kilometres from the largest earthquake
+  ever recorded in North America. The USGS puts intensity VII there at once in
+  87 years.
+
+  The catalogue stopped at the lower forty eight because one box cannot hold
+  all three. That reasoning is right, and it is about the fit rather than the
+  country. Over its own box Alaska gives a b value of 0.829, a largest event of
+  8.7 and 20.9 magnitude five earthquakes a year, against the lower forty
+  eight's 0.745, 7.8 and 7.2. Fitted together, each would be described by the
+  other.
+
+  So a region is the extent a catalogue can be fitted over as a unit, and a
+  country is whose law and licence the policy is under. Those were one field.
+  Alaska and Hawaii are regions of the United States now, with catalogues of
+  their own, and the quantile map has something to map:
+
+  | | ours, was | ours, now | the publisher |
+  |---|---:|---:|---:|
+  | Anchorage | 1 in 11,119 | 1 in 41 | 1 in 87 |
+  | Hilo | 1 in 11,119 | 1 in 108 | 1 in 105 |
+  | Honolulu | 1 in 11,119 | 1 in 15,398 | 1 in 3,406 |
+
+  Anchorage, Hilo and Honolulu reconcile at a residual of 1.00 and price. Los
+  Angeles and New York are unchanged. Anchorage comes out dearer than Los
+  Angeles because it is nearly twice as likely to reach intensity VII, 1.75%
+  against 0.96% over a year.
+
+  Neither new region passes its own backtest, as the lower forty eight does
+  not. The publisher's curves entitle all three; our catalogue supplies the
+  events the capital model draws, and those are Alaskan events now rather than
+  a floor.
+
+- The model card a buyer opens is the model that priced them.
+
+  The page linked the card by the country the grid reported, which was the same
+  thing as the model until the United States became three of them. A buyer in
+  Anchorage following that link would read a model fitted on ground three
+  thousand kilometres away, with a different b value and a largest event nearly
+  a whole unit smaller, and would have no way to tell.
+
+- Eight Springfields, five Columbuses, and one curve between them.
+
+  The published build kept the places it had already fetched as a set of names,
+  so the second Springfield was counted as done before it was ever asked for.
+  The United States offers eight of them, five Columbuses -- Ohio at nine
+  hundred thousand and Mississippi at twenty three -- and three hundred and
+  eight repeated names in all, covering seven hundred and sixty nine of the
+  places this product offers. Japan has forty three, among them the two Sendais
+  this repository already found once, in a test, and fixed there rather than
+  here.
+
+  The cost is not a wrong price: the runtime searches by coordinate and will
+  not find a Missouri curve near Massachusetts. It is a place that is never
+  fetched and never reported as missing, which is worse, because nothing in the
+  file says it is not there. It showed up as 745 names matching 656 points.
+
+- A limit is a throttle on the asking, not a decision about what to keep.
+
+  It decided both, so one run with a smaller limit silently deleted every curve
+  past it: four hundred American curves, fetched over hours from a public
+  service, thrown away by an argument that reads like a patience setting. A
+  curve is dropped only when its place is no longer offered at all.
+
+- Four interrupted builds in a row shipped a model that named no gaps.
+
+  The partial save carried the missed list as it stood when the run began, not
+  as it stood when the save was written, so a build killed half way wrote a
+  file saying nothing was missing while its own log showed a hundred refusals.
+  The first pass that ran to the end is what exposed it: a thousand and twelve
+  misses appearing at once, none of them new. The test that holds the missed
+  list under a fiftieth of the points had had nothing to see.
+
 ## 1.45.0, 29 September 2026
 
 - Honolulu is open, and Anchorage says why it is not.
