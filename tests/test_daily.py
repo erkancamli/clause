@@ -278,3 +278,64 @@ def test_either_test_may_carry_a_country_but_the_record_may_not_be_waived() -> N
         for rolling_ok in (True, False):
             short = verdict(record_ok=False, count_ok=count_ok, rolling_ok=rolling_ok)
             assert not short["passed"] and "record" in short["failed"]
+
+
+def test_the_in_sample_figure_says_which_kind_of_failure_it_is() -> None:
+    """A fifth in sample everywhere, so the distribution is not what fails.
+
+    This figure is not a test and nothing is gated on it. It exists because
+    "your country is not sold" is not an answer, and because two plausible
+    explanations for the three countries that fail were measured and both were
+    wrong: it is not the tail (Italy and Greece are far heavier tailed and they
+    pass) and it is not a straight trend (gating a slope on two sigma opens Japan
+    and loses Italy and New Zealand). What is left is that the years since are
+    not the years before, and this figure is how a reader sees that.
+    """
+    for stem in ("rain", "wind"):
+        for code, doc in daily.models(stem).items():
+            v = doc["validation"]
+            inside = v["in_sample"]
+            assert inside["place_years"] > 0, (stem, code)
+            # Near a fifth, in every country, whether it is sold or not.
+            assert 0.15 <= inside["share"] <= 0.28, (stem, code, inside["share"])
+
+    # And where a country is refused, the years since are far worse than the
+    # years before, which is the shape of a changed world rather than a bad fit.
+    for code, doc in daily.models("rain").items():
+        v = doc["validation"]
+        if v["passed"]:
+            continue
+        rolled = v["rolling"]["observed"] / v["rolling"]["place_years"]
+        assert rolled > 1.4 * v["in_sample"]["share"], code
+
+
+def test_the_in_sample_figure_is_measured_on_the_fitting_years() -> None:
+    """On the years the fit was made on, and on no others.
+
+    Measured on the years since instead, it would be the rolling test with the
+    fit frozen, and it would answer a question nobody asked. On this record
+    there are only fifteen of those years and the minimum is twenty five, so the
+    figure would quietly become empty rather than wrong, which is worse.
+    """
+    from clause.hazard import daily_extremes as de
+    from clause.hazard.rain_build import SPEC
+
+    class OnePlace:
+        name, latitude, longitude, kind = "P", 0.0, 0.0, "province"
+
+    # Forty five years, quiet until 2010 and violent after: a series whose
+    # fitting years describe themselves and whose later years do not.
+    made = {f"{y}0101": (10.0 if y <= de.FIT_UNTIL else 500.0) for y in range(1981, 2026)}
+    monkey = de.fetch
+    try:
+        de.fetch = lambda spec, la, lo, end: made     # type: ignore[assignment]
+        beat, trials = de._in_sample(SPEC, [OnePlace()], 2025, "20251231")
+        rolled, roll_trials = de._rolling(SPEC, [OnePlace()], 2025, "20251231")
+    finally:
+        de.fetch = monkey                             # type: ignore[assignment]
+
+    # Thirty fitting years, and a flat series never beats its own fit.
+    assert trials == de.FIT_UNTIL - 1980
+    assert beat == 0
+    # While every later year beats it, which is what the rolling test is for.
+    assert roll_trials == 2025 - de.FIT_UNTIL and rolled > 0

@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.44.2, 29 September 2026
+
+- Why three countries are not sold rain cover, measured rather than shrugged at.
+
+  Indonesia, Japan and the Philippines fail both rainfall tests. Each model file
+  now carries an `in_sample` figure, which is not a test and nothing is gated on
+  it: how often the years the fit was made on beat that same fit, which should be
+  a fifth of them. It is the one number that says which kind of failure a reader
+  is looking at.
+
+  | | in sample | fixed | rolling |
+  | --- | --- | --- | --- |
+  | Indonesia, rain | 18.8% | 43.2% | 36.5% |
+  | Japan, rain | 21.1% | 36.2% | 32.0% |
+  | Philippines, rain | 18.7% | 60.5% | 47.3% |
+  | Italy, rain | 20.8% | 25.8% | 26.9% |
+
+  All three sit at a fifth in sample, so the Gumbel describes the years it was
+  fitted on and the distribution is not what fails. The years since are not the
+  years before.
+
+- Two explanations, both written down before being measured, both wrong.
+
+  **Not the tail.** A Gumbel has a thin upper tail and monsoon rain is supposed to
+  be heavy tailed, so fitting a GEV should have exposed the three. The shape
+  parameter says otherwise and says it clearly: Italy at -0.448 and Greece at
+  -0.373 are far heavier tailed than Japan at -0.022 or the Philippines at +0.015,
+  and Italy and Greece pass. Fitting what the rain is would not have changed who
+  is sold.
+
+  **Not a straight trend.** Carrying a slope and extrapolating it one year ahead
+  helps where there is a slope: Japan's rolling exceedance falls from 32.0% to
+  23.8%, the Philippines' from 47.3% to 31.0%. It also breaks Italy, 26.9% to
+  34.4%, and New Zealand, 29.4% to 32.8%, whose slopes are noise near zero.
+  Gating the slope on the ordinary two sigma test does not rescue it: Italy and
+  New Zealand still fail while only Japan opens, two lost for one gained. The
+  rule for that was fixed before the measurement and it says abandon the trend,
+  so the trend is abandoned and nothing was shipped from it.
+
+  Both are recorded in the method note, because the next person to look at this
+  will have both ideas within five minutes and they are both dead ends.
+
 ## 1.44.1, 29 September 2026
 
 - A second test, because the first one was not asking about this model.
