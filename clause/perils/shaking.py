@@ -393,12 +393,17 @@ def _sampler(latitude: float, longitude: float, part: str, magnitude_below: floa
 
 
 def draw(rng: Any, subject: dict[str, Any], part: str = "all",
-         magnitude_below: float | None = None) -> list[float]:
+         magnitude_below: float | None = None, *, mapped: bool = True) -> list[float]:
     """Shaking at the address from events drawn in one year, one value per event.
 
     Used by the capital model for the part of the hazard that is local to the
     address; large shared events are shaken separately so neighbours settle
     together.
+
+    ``mapped`` off returns the intensities our own equation gives, before the
+    published model's map. A caller that is about to take the largest of them
+    can map that one value instead of all of them, because the map rises: the
+    largest of the mapped is the map of the largest.
     """
     total, cumulative, events = _sampler(
         round(float(subject["latitude"]), 4), round(float(subject["longitude"]), 4),
@@ -413,8 +418,8 @@ def draw(rng: Any, subject: dict[str, Any], part: str = "all",
         # a walk down the table found, at the cost of a binary search.
         i = min(bisect_left(cumulative, rng.random() * total), last)
         m, d = events[i]
-        out.append(theirs_at(subject, mmi(m, d) + rng.gauss(0.0, IPE_SIGMA)))
-    return out
+        out.append(mmi(m, d) + rng.gauss(0.0, IPE_SIGMA))
+    return [theirs_at(subject, x) for x in out] if mapped else out
 
 
 def _poisson(rng: Any, mean: float) -> int:
