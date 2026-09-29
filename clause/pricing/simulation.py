@@ -486,21 +486,28 @@ def _settle_shaking(
                         shared.append((trial, d, magnitude))
         local_part, below = "background", None
 
-    # Through the same map the price is read through. The shared half of the
-    # hazard used to skip it, which left the price and the capital model
-    # answering differently wherever the map does anything: a Tokyo policy
+    # Both halves are gathered on our own intensity scale and the published
+    # model's map is applied once per trial, to the largest. The shared half
+    # used to skip the map altogether, which left the price and the capital
+    # model answering differently wherever the map does anything: a Tokyo policy
     # settled at a tenth where its own price assumed a fifth. It was invisible
     # while the correction was a single number that happened to be zero there.
+    #
+    # Once per trial rather than once per event, because the map rises and the
+    # largest of the mapped values is the map of the largest. The map itself is
+    # cheap, under a microsecond; what costs is building it, sixty milliseconds
+    # at an address nothing has asked about yet, once.
     for trial, d, magnitude in shared:
-        value = sh.theirs_at(subject, sh.mmi(magnitude, d) + own.gauss(0.0, sh.IPE_SIGMA))
+        value = sh.mmi(magnitude, d) + own.gauss(0.0, sh.IPE_SIGMA)
         if value > strongest[trial]:
             strongest[trial] = value
     for trial in range(trials):
-        for value in sh.draw(local, subject, local_part, magnitude_below=below):
+        for value in sh.draw(local, subject, local_part, magnitude_below=below, mapped=False):
             if value > strongest[trial]:
                 strongest[trial] = value
 
-    return [exposure.curve.payout(value, exposure.limit) for value in strongest]
+    return [exposure.curve.payout(sh.theirs_at(subject, value), exposure.limit)
+            for value in strongest]
 
 
 # Extreme rainfall days are regional: one storm system floods several provinces
