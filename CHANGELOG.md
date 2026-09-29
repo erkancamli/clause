@@ -1,5 +1,52 @@
 # Changelog
 
+## 1.44.3, 29 September 2026
+
+- The ceiling now says what it leaves out.
+
+  A buyer whose flat is worth a hundred million and who is offered cover of two
+  asks one question, and it is a fair one. The answer is that the cover is the
+  building and the flat's worth is mostly the land under it, which an earthquake
+  does not take: "This is the building, not the land and not what it would sell
+  for. An earthquake takes the building down; the land is still yours."
+
+  The rebuild schedule says the same thing in its own words, "excludes VAT,
+  land, infrastructure and site works", and the page has been carrying that note
+  in its payload and keeping it to itself. It is printed now, beside the source.
+
+  What the ceiling does vary by was already shown and is worth restating: floor
+  area, and the year the building went up. A 120 m² flat built in 2010 carries
+  52,299 and the same flat built in 1975 carries 34,244.
+
+  What it does not vary by, in Türkiye, is the district, and that is a fact
+  about Türkiye rather than a gap here: the Ministry publishes one national
+  table, TÜİK's index has no regional breakdown, and DASK's per square metre
+  value is the same everywhere. The page says that too, in the source line.
+
+  What it should vary by and does not is the building's class. The Ministry's
+  schedule has classes and we use III-B for every flat, so a high specification
+  building is valued as a standard one. That is a real gap and it is blocked on
+  the table: every Turkish government domain answers 000 from where this build
+  runs, so the class figures have to be pasted in rather than fetched.
+
+- A name is not a key, and neither was a coordinate.
+
+  The test that checks the published hazard file compared each stored curve
+  against what the runtime reads back, keyed on the place's name. Japan offers
+  two cities called Sendai, one in Miyagi and one in Kagoshima, and twenty five
+  other repeated names, so half of each pair silently replaced the other and the
+  test compared one city's curve against the other's. Keyed on the coordinate it
+  found two more: Choshi and Hasaki share a point, and Furano is offered twice
+  under two spellings, so the build asked J-SHIS for the same mesh twice and the
+  file carried the answer twice. One place per coordinate now, in the build and
+  in the file.
+
+  That test also read the file twice, once through the runtime's cached view and
+  once from the path, and compared the two. A build writing between them made it
+  fail with nothing wrong, which is the worst kind of test. It reads once.
+
+  Fifty more American places from the USGS, 140 to 190.
+
 ## 1.44.2, 29 September 2026
 
 - Why three countries are not sold rain cover, measured rather than shrugged at.
