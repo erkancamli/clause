@@ -143,6 +143,40 @@ def test_the_release_notes_are_the_changelog(monkeypatch) -> None:
     assert section.lstrip().startswith("-"), "a version's notes are a list of changes"
 
 
+def test_the_version_is_the_same_number_everywhere_it_is_written() -> None:
+    """Three copies drifted, and two of them were on the front page.
+
+    The README badge said 1.17.0 and pyproject said 1.3.2 while the package
+    said 1.46.0. Anyone reading the repository was told a version that had not
+    existed for thirty releases. A number kept by hand in three places is kept
+    correctly in one of them.
+
+    The README also carried a hand-counted test total, 738 while the suite ran
+    over eleven hundred. That badge is gone rather than corrected: the deploy
+    badge above it already says whether the suite passes, and it says so by
+    running it.
+    """
+    import re
+
+    import clause
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    badge = re.search(r"badge/version-([0-9][^-]*)-", readme)
+    assert badge, "the README no longer carries a version badge"
+    assert badge.group(1) == clause.__version__, (
+        f"README says {badge.group(1)}, the package says {clause.__version__}")
+
+    declared_version = re.search(
+        r'^version = "([^"]+)"', (ROOT / "pyproject.toml").read_text(), re.M)
+    assert declared_version, "pyproject no longer declares a version"
+    assert declared_version.group(1) == clause.__version__, (
+        f"pyproject says {declared_version.group(1)}, "
+        f"the package says {clause.__version__}")
+
+    assert "%20passing" not in readme, (
+        "a hand-counted test total is back, and it will go stale again")
+
+
 # ------------------------------------------------- replacing what is running
 
 def test_the_installer_never_writes_into_the_running_release() -> None:

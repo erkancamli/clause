@@ -1,5 +1,88 @@
 # Changelog
 
+## 1.47.0, 29 September 2026
+
+- Two covers on one building felt the same earthquake as two different
+  earthquakes, and splitting a policy made the risk smaller.
+
+  The intensity equation says what shaking a magnitude produces at a distance,
+  and the scatter around it is the difference between that prediction and what
+  the ground actually does. The scatter was drawn from a stream seeded by the
+  policy identifier. So the earthquake was shared, as it should be, and then
+  each policy was told a different intensity for it: of the trials where either
+  of two covers on one address was paid, one in four paid only one of them.
+
+  The comment above the line said two houses on the same street feel the same
+  earthquake a little differently, which is true and is what the scatter is
+  for. It is a fact about the ground under an address, not about the contract
+  written on it, and the seed did not know the difference.
+
+  What followed is worse than a mispriced policy. Ten pieces of one cover
+  settled as ten independent sites, so the book's own arithmetic stopped
+  holding: a million of Kadıköy cover split ten ways measured less risk than
+  the same million whole, and the pool's capital fell when a buyer split cover
+  it had already agreed to carry. This was the real engine of the splitting
+  arbitrage recorded in 1.46.0. The floor added there was a bound on the
+  symptom; this is the cause.
+
+  | a million of Kadıköy cover | was | now |
+  |---|---:|---:|
+  | in one policy | 108,249.23 | 112,134.92 |
+  | ten bought one after another | 103,418.90 | 112,134.92 |
+  | ten locked at the same moment | 107,460.44 | 112,134.92 |
+
+  Seeded by the address, the three are the same figure to the cent, which is
+  what marginal allocation requires and what it could never deliver while the
+  pieces settled apart. A hundred thousand of Kadıköy cover moves from
+  11,289.31 to 11,213.49 against a book of two hundred İstanbul policies, and
+  New York is unchanged at 29.02.
+
+  The same seed was thinning background events for a circle smaller than the
+  reference catalogue's, so two covers on one address with one radius kept
+  different events. That is now keyed to the address and the radius too.
+
+  What this does not close is the last line of 1.46.0: quotes locked at the
+  same moment, each priced against the book as it was. Where the floor sets the
+  price that gap is nothing, because the floor is proportional to the limit;
+  where the measured marginal is linear in the limit, as it is at an address
+  the book already holds, it is also nothing, and the table above measures it
+  at zero. It is real only in the band where the measured marginal is
+  superlinear, and it is still open there.
+
+- Two passengers on one aeroplane were delayed by different amounts.
+
+  The same seed, in the same place: a flight's delay came from a stream keyed
+  to the policy, so every cover written on one aeroplane landed at a different
+  time. The carrier's bad day was already shared across the book, which is the
+  correlation between different flights of one airline and a weaker thing than
+  this one. It is now keyed to the flight: the number, the date and the two
+  airports. Covers on one flight are paid or not paid together, and covers on
+  the next flight out are still their own.
+
+- Every earthquake quote was told it deepened a concentration, wherever it was.
+
+  The sentence a quote carries about its neighbours counted the policies the
+  pool already holds "at this location" by comparing `subject["location"]`, the
+  place code the buyer typed. The peril resolves that code to a latitude and a
+  longitude and drops the key before the engine ever sees the subject, so the
+  comparison was `None` against `None`: true for every pair of earthquake
+  policies on earth.
+
+  A New York quote was therefore told the pool already held two hundred
+  policies at its location while every one of them was in İstanbul, on the same
+  screen that priced it as diversifying. The two sentences contradicted each
+  other and the wrong one was the confident one. The other branch, written for
+  a policy that really does spread the book, could never be reached at all.
+
+  Neighbours are now counted by distance: two policies are near enough that one
+  earthquake can pay both exactly when their circles overlap, which is when the
+  centres are no further apart than the two radii added together. Against a
+  book of two hundred İstanbul policies, a Kadıköy quote now counts 88 of them
+  and New York counts none, and each is told which.
+
+  The price did not change. Only what the quote says about itself did, and it
+  was saying something untrue.
+
 ## 1.46.0, 29 September 2026
 
 - A risk the book never feels was written for nothing.

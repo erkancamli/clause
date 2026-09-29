@@ -505,21 +505,53 @@ class PricingEngine:
         same_peril = [e for e in book if e.peril_key == peril.key]
 
         if peril.key == "earthquake":
-            here = [
-                e for e in same_peril
-                if e.subject.get("location") == subject.get("location")
-            ]
+            # Near enough that one earthquake can pay both. Each policy watches
+            # a circle, so two of them can be paid by a single event exactly
+            # when their circles overlap, which is when the centres are no
+            # further apart than the two radii added together.
+            #
+            # This used to compare subject["location"], the place code the
+            # buyer typed. By the time a subject reaches here the peril has
+            # resolved it to a point and dropped that key, so the comparison
+            # was None against None: true for every pair of earthquake
+            # policies on earth. A New York quote was told the pool already
+            # held two hundred policies at its location while every one of
+            # them was in Istanbul, and the sentence for a policy that really
+            # does spread the book could never be reached at all.
+            from ..perils.geo import distance_km
+
+            try:
+                point = (float(subject["latitude"]), float(subject["longitude"]))
+                radius = float(subject.get("radius_km", 0.0))
+            except (KeyError, TypeError, ValueError):
+                here: list[Exposure] = []
+            else:
+                def overlaps(other: Exposure) -> bool:
+                    try:
+                        there = (float(other.subject["latitude"]),
+                                 float(other.subject["longitude"]))
+                        reach = float(other.subject.get("radius_km", 0.0)) + radius
+                    except (KeyError, TypeError, ValueError):
+                        return False
+                    return distance_km(point, there) <= reach
+
+                here = [e for e in same_peril if overlaps(e)]
+            # What the sentence says is what was measured and no more: the
+            # circles overlap, so an earthquake inside the overlap is one
+            # earthquake that pays both.
             if here:
                 notes.append(
                     f"The pool already holds {len(here)} earthquake "
-                    f"{'policy' if len(here) == 1 else 'policies'} at this location. "
-                    "They pay together, so this one deepens an exposure rather than "
+                    f"{'policy' if len(here) == 1 else 'policies'} watching ground "
+                    "that overlaps this one's. An earthquake in the overlap pays "
+                    "both, so this policy deepens that exposure rather than "
                     "spreading it."
                 )
             elif same_peril:
                 notes.append(
-                    "The pool's other earthquake exposure sits elsewhere, so this "
-                    "policy spreads the book rather than deepening it."
+                    "No earthquake policy the pool holds watches ground that "
+                    "overlaps this one's, so this policy spreads the book rather "
+                    "than deepening it."
                 )
             note = peril.radius_note(subject)
             if note:
