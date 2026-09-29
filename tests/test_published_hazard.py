@@ -734,10 +734,19 @@ def test_a_repeated_name_does_not_skip_the_second_place(monkeypatch, tmp_path) -
     assert asked == []
     assert len(again["points"]) == 3
 
-    # The other half of the same rule: a curve for a place the build no longer
-    # offers is dropped. Keyed by name, the Massachusetts Springfield survives
-    # a limit that only reaches the Missouri one, because they share a name,
-    # and the file keeps a curve for a place nothing will ever look up.
+    # A limit throttles the asking and does not decide what the file keeps. It
+    # used to do both, so one run with a smaller limit silently deleted every
+    # curve past it: four hundred American curves, fetched over hours from a
+    # public service, thrown away by an argument that reads like a patience
+    # setting.
     asked.clear()
     narrowed = pub.build("JP", limit=1, keep=built["points"])
-    assert [r["latitude"] for r in narrowed["points"]] == [37.22], narrowed["points"]
+    assert asked == [], "a limit made the build ask again for what it had"
+    assert sorted(r["latitude"] for r in narrowed["points"]) == [37.22, 39.96, 42.1]
+
+    # What is dropped is a curve for a place no longer offered at all.
+    monkeypatch.setattr(pub, "places_of", lambda code: [
+        ("Springfield", 37.2200, -93.3000, 170188),
+    ])
+    shrunk = pub.build("JP", keep=built["points"])
+    assert [r["latitude"] for r in shrunk["points"]] == [37.22], shrunk["points"]

@@ -356,10 +356,18 @@ def build(code: str, *, limit: int | None = None,
 
     already = {where(row["latitude"], row["longitude"]) for row in rows}
     missed: list[str] = []
-    places = places_of(code)
-    if limit:
-        places = places[:limit]
-    wanted = {where(la, lo) for _n, la, lo, _p in places}
+    offered = places_of(code)
+    # What this run asks for, and what the file keeps, are different things. A
+    # limit is a throttle on the asking: it says how far down the list of
+    # places, largest first, this run is willing to go. It used to decide what
+    # the file kept as well, so running once with a smaller limit silently
+    # deleted every curve past it -- four hundred of them, fetched over hours
+    # from a public service, thrown away by an argument that reads like a
+    # patience setting.
+    #
+    # A curve is dropped only when its place is no longer offered at all.
+    places = offered[:limit] if limit else offered
+    wanted = {where(la, lo) for _n, la, lo, _p in offered}
     rows = [row for row in rows if where(row["latitude"], row["longitude"]) in wanted]
     for name, latitude, longitude, _people in places:
         if where(latitude, longitude) in already:
