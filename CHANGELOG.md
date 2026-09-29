@@ -41,6 +41,18 @@
   reference catalogue's, so two covers on one address with one radius kept
   different events. That is now keyed to the address and the radius too.
 
+  A change that makes co-located cover settle together raises the capital a
+  book needs, and a pool whose requirement jumps past its own funds stops
+  writing business, which is the failure a buyer sees as the site refusing to
+  sell. Measured before shipping, on a book of two hundred policies across five
+  Turkish locations carrying 20,502,714 of cover, the requirement moves from
+  10,694,951.84 to 10,710,991.28. That is a seventh of one per cent. The book's
+  worst half per cent is already dominated by ruptures that pay almost every
+  policy in it at its top band, and the scatter this corrects was never what
+  put them there; what it was distorting is the marginal reading of one more
+  policy at an address the book already holds, which is a price rather than a
+  solvency position.
+
   What this does not close is the last line of 1.46.0: quotes locked at the
   same moment, each priced against the book as it was. Where the floor sets the
   price that gap is nothing, because the floor is proportional to the limit;
