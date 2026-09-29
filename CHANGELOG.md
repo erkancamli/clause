@@ -81,6 +81,22 @@
   the step really is one, which is a building of the current code, and the
   number itself is printed otherwise.
 
+- The American model says what it covers, which is the 720 largest places.
+
+  It holds 1,240 curves in all: the 720 largest American places, complete but
+  for six, and 520 more that came with them. Six is what the publisher would
+  not answer for, and they are named in the file rather than passed over:
+  Lauderhill, Rock Hill, Silver Spring, West Gulfport, Flower Mound, Mira Mesa.
+
+  The scope is what the publisher could actually be asked for today. The USGS
+  hazard service answered about one request in six through most of this,
+  failing with its own backend's error, and a run scoped to fifteen hundred
+  places ended with three hundred of them unread. A model file that claims
+  fifteen hundred and holds twelve hundred is not honest about itself, and the
+  test that holds the unread list under a fiftieth of the curves is what said
+  so. The scope moves down to what was delivered rather than the test moving
+  up, and it rises again as the service allows, without refetching anything.
+
 - A rare risk knows its own capital without drawing for it.
 
   The floor rests on standalone capital, so that had to be a number the
