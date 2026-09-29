@@ -316,14 +316,16 @@ def places_of(code: str) -> list[tuple[str, float, float, int]]:
 
 def build(code: str, *, limit: int | None = None,
           keep: list[dict[str, Any]] | None = None,
-          save: Callable[[list[dict[str, Any]]], None] | None = None) -> dict[str, Any]:
+          save: Callable[[list[dict[str, Any]], list[str]], None] | None = None
+          ) -> dict[str, Any]:
     """Fetch a country's published curves, keeping what an earlier run got.
 
     These are public services with their own load, and asking one for two
     hundred points takes as long as it takes. A run that is interrupted, or
     that a publisher's own backend refuses half way through, should cost only
     the places it did not reach: ``keep`` is the previous run's points, and a
-    place already in it is not asked for again.
+    place already in it is not asked for again -- a place being a coordinate,
+    which is unique here, rather than a name, which is not.
     """
     source = SOURCES[code]
     fetch: Callable[..., Any] = source["fetch"]
@@ -339,15 +341,36 @@ def build(code: str, *, limit: int | None = None,
                 found = names(float(row["latitude"]), float(row["longitude"]))
                 if found:
                     row["model"] = found[1]
-    already = {row["name"] for row in rows}
+    # A place is its coordinate, not its name. The United States offers eight
+    # Springfields and five Columbuses -- Ohio at nine hundred thousand and
+    # Mississippi at twenty three -- and Japan two Sendais, and keying the
+    # already-fetched set by name meant the first of each pair was fetched and
+    # every other one silently skipped for ever, counted as done and never
+    # asked for. Three hundred and eight repeated American names cover seven
+    # hundred and sixty nine of the places this product offers.
+    #
+    # places_of already guarantees one place per coordinate, so the coordinate
+    # is a key and the name is not.
+    def where(latitude: float, longitude: float) -> tuple[float, float]:
+        return (round(float(latitude), 4), round(float(longitude), 4))
+
+    already = {where(row["latitude"], row["longitude"]) for row in rows}
     missed: list[str] = []
-    places = places_of(code)
-    if limit:
-        places = places[:limit]
-    wanted = {name for name, *_ in places}
-    rows = [row for row in rows if row["name"] in wanted]
+    offered = places_of(code)
+    # What this run asks for, and what the file keeps, are different things. A
+    # limit is a throttle on the asking: it says how far down the list of
+    # places, largest first, this run is willing to go. It used to decide what
+    # the file kept as well, so running once with a smaller limit silently
+    # deleted every curve past it -- four hundred of them, fetched over hours
+    # from a public service, thrown away by an argument that reads like a
+    # patience setting.
+    #
+    # A curve is dropped only when its place is no longer offered at all.
+    places = offered[:limit] if limit else offered
+    wanted = {where(la, lo) for _n, la, lo, _p in offered}
+    rows = [row for row in rows if where(row["latitude"], row["longitude"]) in wanted]
     for name, latitude, longitude, _people in places:
-        if name in already:
+        if where(latitude, longitude) in already:
             continue
         try:
             curve = fetch(latitude, longitude)
@@ -376,7 +399,14 @@ def build(code: str, *, limit: int | None = None,
         rows.append(row)
         print(f"  {code} {name}: {len(curve)} points", flush=True)
         if save is not None and len(rows) % 10 == 0:
-            save(rows)
+            # This run's misses, not the last one's. The partial save used to
+            # carry the missed list frozen at the start of the run, so a build
+            # killed half way wrote a file that named no gaps at all: four
+            # interrupted American passes in a row shipped as models with
+            # nothing missing, while the log showed a hundred refusals. The
+            # test that holds the missed list under a fiftieth of the points
+            # could not see any of it.
+            save(rows, missed)
         time.sleep(source["pause"])
     return _record(code, rows, missed)
 
@@ -449,9 +479,9 @@ def main(argv: list[str]) -> int:
             continue
         so_far = {} if refresh else dict(have.get(code) or {})
 
-        def save(rows: list[dict[str, Any]], _code: str = code,
-                 _missed: list[str] = list(so_far.get("missed") or [])) -> None:
-            have[_code] = _record(_code, rows, _missed)
+        def save(rows: list[dict[str, Any]], missed: list[str],
+                 _code: str = code) -> None:
+            have[_code] = _record(_code, rows, missed)
             _write(have)
 
         have[code] = build(code, limit=limit, keep=so_far.get("points"), save=save)

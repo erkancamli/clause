@@ -39,6 +39,11 @@ class HazardModel:
     def __init__(self, doc: dict[str, Any], rates: Iterable[float] | None = None) -> None:
         self.doc = doc
         self.code: str = doc["code"]
+        # The region's key and the country's are the same for every region but
+        # Alaska and Hawaii, which are their own fits inside the United States.
+        # Everything that means "whose law and licence" reads country;
+        # everything that means "which grid and which file" reads code.
+        self.country: str = str(doc.get("country") or doc["code"])
         self.name: str = doc["name"]
         self.version: str = doc.get("version", "")
         grid = doc["grid"]
@@ -167,7 +172,8 @@ class HazardModel:
         """What a buyer, an insurer or a regulator can read about this model."""
         doc = self.doc
         return {
-            "country": self.code, "name": self.name, "version": self.version,
+            "country": self.country, "region": self.code,
+            "name": self.name, "version": self.version,
             "built": doc.get("built"), "method": doc.get("method"),
             "b_value": self.b_value, "completeness": doc.get("completeness"),
             "max_magnitude": self.max_magnitude, "rate_m5_per_year": doc.get("total_rate_m5"),
@@ -231,7 +237,7 @@ def load_models() -> dict[str, HazardModel]:
 
 def priced_countries() -> frozenset[str]:
     """Countries whose model passed its backtest. Only these are sold."""
-    return frozenset(code for code, m in models().items() if m.passed)
+    return frozenset(m.country for m in models().values() if m.passed)
 
 
 def model_for(latitude: float, longitude: float, *, include_turkey: bool = False) -> HazardModel | None:

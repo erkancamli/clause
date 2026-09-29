@@ -302,3 +302,94 @@ def test_a_bar_that_stood_down_does_not_count_back_from_the_old_price() -> None:
         "the bar blanks the figure without forgetting it"
     )
     assert body.count("noAmount(") >= 2, "the bar has ways of blanking that do not forget"
+
+
+def test_the_model_card_a_buyer_opens_is_the_model_that_priced_them() -> None:
+    """One country, three catalogue models, and one link between them.
+
+    The page linked the model card by the country the grid reported. That was
+    the same thing as the model until the United States became three of them:
+    the lower forty eight, Alaska and Hawaii. A buyer in Anchorage following
+    that link would read a model fitted on ground three thousand kilometres
+    away, with a different b value, a different completeness magnitude and a
+    largest event nearly a whole unit smaller, and would have no way to tell.
+
+    The card is opened by the region now, which is the model's own key, and
+    falls back to the country for every model that is one.
+    """
+    body = _function("radiusNoteHtml")
+    assert "modelCardLink(g.region||g.country)" in body.replace(" ", ""), (
+        "the card is still opened by the country rather than the model"
+    )
+
+
+def test_the_payout_table_is_the_policy_and_not_the_round_numbers_near_it() -> None:
+    """Three answers to one question, on one policy, and none of them the contract's.
+
+    An older building is damaged by less shaking, and the policy carries that:
+    in Istanbul the steps are 6.25, 7.25 and 8.25, in New York 6.62, 7.62 and
+    8.62, and they pay 35, 75 and 100 per cent. Neither table on this page said
+    so.
+
+    The table on the second step wrote all three levels and all three shares
+    down by hand -- VI, VII and VIII at 25, 60 and 100 -- and read the hazard at
+    those round numbers. A New York policy looked as though it paid once in
+    1,788 years; it pays once in about 3,100, because 6.62 is a level that
+    happens half as often as 6.0.
+
+    The table on the confirm step read the policy's own curve, which is right,
+    but at VI, VII and VIII, which is not: at 6.0 an Istanbul policy pays
+    nothing, so the first row said zero, and the second row showed the first
+    step's share under the second step's name.
+
+    Both are built from the curve's own points now, as the car and storm rows
+    always have been.
+    """
+    for name in ("payRows", "shakingHtml"):
+        body = _function(name)
+        block = body[body.index("shakingIndex()"):] if name == "payRows" else body
+        block = block[: block.index("else if")] if "else if" in block else block
+
+        assert "Intensity {level} or more" in block, f"{name} still names a fixed level"
+        for fixed in ("Intensity VI:", "Intensity VII:", "Intensity VIII"):
+            assert fixed not in block, f"{name} still writes {fixed!r} down"
+        # And the shares come from the curve rather than from this file.
+        for share in ("0.25", "0.6,", "),0.25", ",0.6"):
+            assert share not in block.replace(" ", ""), f"{name} still writes a share down"
+
+
+def test_a_roman_numeral_is_a_whole_number_and_these_steps_are_not() -> None:
+    """MMI VII for a step at 6.62 is a level that happens half as often.
+
+    The price bar names each rung of the ladder. It rounded the level to the
+    nearest numeral, so New York's first step, 6.62, was printed as VII. The
+    numeral is kept where the step really is a whole number, which is a
+    building of the current code, and the number itself is printed otherwise.
+    """
+    packed = _function("rungWords").replace(" ", "")
+    assert "ROMAN[Math.round(level)]" not in packed, "the level is still rounded to a numeral"
+    assert "level===Math.round(level)" in packed, "there is no test for a whole number"
+    assert "f1.format(level)" in packed, "a step that is not whole is not printed as a number"
+
+
+def test_the_sentence_a_buyer_reads_is_the_policy_they_are_buying() -> None:
+    """The most read line on the page had the policy written into it by hand.
+
+    "If the ground shakes at intensity VI or more you receive a quarter, rising
+    to the full amount at intensity VIII." Three facts, none of them this
+    policy's: the shaking cover pays 35 per cent at its first step, and that
+    step is 6.25 in Istanbul and 6.62 in New York, because an older building is
+    damaged by less shaking. The magnitude sentence beside it named 5.5 and 7
+    the same way, and those move with the building too.
+
+    The car and storm sentences have always read their levels from the policy's
+    own curve. All four read their levels and their first payment from it now.
+    """
+    body = _function("plainSentence")
+    for fixed in ("intensity VI or more", "at intensity VIII",
+                  "magnitude 5.5 or more", "for a magnitude 7"):
+        assert fixed not in body, f"the sentence still names {fixed!r}"
+    # And no share is written down: every one comes off the curve.
+    assert ".25*l" not in body.replace(" ", ""), "a payout share is still written down"
+    for share in ("qc[0][1]*l", "mc[0][1]*l", "cc[0][1]*l", "sc[0][1]*l"):
+        assert share in body.replace(" ", ""), f"{share} does not come from the curve"

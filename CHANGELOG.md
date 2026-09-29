@@ -1,5 +1,192 @@
 # Changelog
 
+## 1.46.0, 29 September 2026
+
+- A risk the book never feels was written for nothing.
+
+  A buyer asked why New York costs 13.81 and Türkiye 7,000, and the answer is
+  worse than the question. The two addresses differ by 129 times in expected
+  loss, which is the hazard and is right: intensity VII once in 78 years
+  against once in 5,952. They differ by 718 times in premium. All of the
+  difference beyond the hazard is a risk load New York does not pay.
+
+  New York's marginal capital was exactly zero. The book is concentrated in
+  Türkiye, so its worst half per cent is Turkish earthquakes, and a policy that
+  pays once in three thousand seven hundred years is never in it. The marginal
+  reading of that is zero and the reading is correct; the pricing rule built on
+  it is not. The policy was sold for its expected loss plus expenses, 13.79
+  against an expected loss of 12.77, which is ninety three per cent of the
+  premium expected to be paid straight back out. Miami was the same at ninety
+  two.
+
+  Two things followed and neither is acceptable. A concentration could be built
+  for nothing one policy at a time, because the hundred thousandth New York
+  policy is priced against a book that does not contain the other ninety nine
+  thousand. And the charge was not proportional to the cover: a million of New
+  York cover in one policy measured 8,845 of capital and cost 1,198.55, while
+  the same million split into ten policies measured zero and cost 137.90. The
+  same risk, split ten ways, for a ninth of the price; anyone wanting a million
+  simply bought ten.
+
+  A policy is charged for at least a twentieth of the capital it would need
+  standing alone, however well it sits against today's book, because today's
+  book is not tomorrow's. Standalone capital is proportional to the limit, so
+  the floor cannot be arbitraged by splitting. Ninety five per cent
+  diversification credit is generous by any capital model's standard, so this is
+  a floor rather than a charge: it binds only where the measured marginal was
+  near zero, and every price with a real marginal charge is untouched.
+
+  | | was | now | loss ratio |
+  |---|---:|---:|---|
+  | New York | 13.79 | 29.02 | 0.93 → 0.44 |
+  | Miami | 1.31 | 2.75 | 0.92 → 0.44 |
+  | Los Angeles | 883.37 | 883.37 | unchanged |
+  | Kadıköy | 10,010.33 | 10,010.33 | unchanged |
+
+- Three answers to "what does this pay, and how often", on one policy.
+
+  An older building is damaged by less shaking, and the policy carries that: in
+  İstanbul the steps are 6.25, 7.25 and 8.25, in New York 6.62, 7.62 and 8.62,
+  and they pay 35, 75 and 100 per cent of the limit. Neither table on the page
+  said so, and they did not agree with each other either.
+
+  | | first step | second | third |
+  |---|---|---|---|
+  | the contract | 35% at 6.25 | 75% at 7.25 | 100% at 8.25 |
+  | the page, step two | 25% at VI | 60% at VII | 100% at VIII |
+  | the page, confirm step | 0% at VI | 35% at VII | 100% at VIII |
+
+  The table on the second step had all three levels and all three shares
+  written down by hand, and read the hazard at those round numbers: a New York
+  policy looked as though it paid once in 1,788 years, when it pays once in
+  about 3,100, because 6.62 is a level that happens half as often as 6.0. The
+  table on the confirm step read the policy's own curve, which is right, at VI,
+  VII and VIII, which is not: at 6.0 an İstanbul policy pays nothing, so its
+  first row said zero and its second showed the first step's share under the
+  second step's name.
+
+  Both are built from the curve's own points now, which is what the car and
+  storm rows beside them have always done.
+
+  The sentence above them had the same three facts written into it by hand:
+  "you receive a quarter, rising to the full amount at intensity VIII". The
+  cover pays 35 per cent at its first step, not 25. The magnitude sentence
+  beside it named 5.5 and 7 the same way, and those move with the building too.
+  All four sentences read their levels and their first payment from the policy
+  now.
+
+  The price bar had the same fault in one line: it named each rung by rounding
+  its level to the nearest roman numeral, so New York's 6.62 was printed as
+  VII. A numeral is a whole number and these steps are not. It is kept where
+  the step really is one, which is a building of the current code, and the
+  number itself is printed otherwise.
+
+- The American model says what it covers, which is the 720 largest places.
+
+  It holds 1,240 curves in all: the 720 largest American places, complete but
+  for six, and 520 more that came with them. Six is what the publisher would
+  not answer for, and they are named in the file rather than passed over:
+  Lauderhill, Rock Hill, Silver Spring, West Gulfport, Flower Mound, Mira Mesa.
+
+  The scope is what the publisher could actually be asked for today. The USGS
+  hazard service answered about one request in six through most of this,
+  failing with its own backend's error, and a run scoped to fifteen hundred
+  places ended with three hundred of them unread. A model file that claims
+  fifteen hundred and holds twelve hundred is not honest about itself, and the
+  test that holds the unread list under a fiftieth of the curves is what said
+  so. The scope moves down to what was delivered rather than the test moving
+  up, and it rises again as the service allows, without refetching anything.
+
+- A rare risk knows its own capital without drawing for it.
+
+  The floor rests on standalone capital, so that had to be a number the
+  simulation can produce, and for a rare risk it cannot: in twenty thousand
+  trials New York pays five times, and in a third of four thousand trial runs it
+  pays none at all, for a standalone requirement of exactly zero and a floor of
+  five per cent of nothing.
+
+  It does not have to be drawn for. Below the solvency tail the answer is exact.
+  If a policy pays less often than one time in two hundred, every outcome in
+  which it pays is inside the worst half per cent, so the tail average is the
+  expected loss divided by that half per cent and the capital is 199 times the
+  expected loss. The same number however many trials are run.
+
+- Anchorage can be priced.
+
+  Our own model answered Anchorage, Fairbanks, Juneau, Honolulu and Hilo with
+  the same number: once in 11,119 years at intensity VII. Not a measurement, a
+  default, at an address four hundred kilometres from the largest earthquake
+  ever recorded in North America. The USGS puts intensity VII there at once in
+  87 years.
+
+  The catalogue stopped at the lower forty eight because one box cannot hold
+  all three. That reasoning is right, and it is about the fit rather than the
+  country. Over its own box Alaska gives a b value of 0.829, a largest event of
+  8.7 and 20.9 magnitude five earthquakes a year, against the lower forty
+  eight's 0.745, 7.8 and 7.2. Fitted together, each would be described by the
+  other.
+
+  So a region is the extent a catalogue can be fitted over as a unit, and a
+  country is whose law and licence the policy is under. Those were one field.
+  Alaska and Hawaii are regions of the United States now, with catalogues of
+  their own, and the quantile map has something to map:
+
+  | | ours, was | ours, now | the publisher |
+  |---|---:|---:|---:|
+  | Anchorage | 1 in 11,119 | 1 in 41 | 1 in 87 |
+  | Hilo | 1 in 11,119 | 1 in 108 | 1 in 105 |
+  | Honolulu | 1 in 11,119 | 1 in 15,398 | 1 in 3,406 |
+
+  Anchorage, Hilo and Honolulu reconcile at a residual of 1.00 and price. Los
+  Angeles and New York are unchanged. Anchorage comes out dearer than Los
+  Angeles because it is nearly twice as likely to reach intensity VII, 1.75%
+  against 0.96% over a year.
+
+  Neither new region passes its own backtest, as the lower forty eight does
+  not. The publisher's curves entitle all three; our catalogue supplies the
+  events the capital model draws, and those are Alaskan events now rather than
+  a floor.
+
+- The model card a buyer opens is the model that priced them.
+
+  The page linked the card by the country the grid reported, which was the same
+  thing as the model until the United States became three of them. A buyer in
+  Anchorage following that link would read a model fitted on ground three
+  thousand kilometres away, with a different b value and a largest event nearly
+  a whole unit smaller, and would have no way to tell.
+
+- Eight Springfields, five Columbuses, and one curve between them.
+
+  The published build kept the places it had already fetched as a set of names,
+  so the second Springfield was counted as done before it was ever asked for.
+  The United States offers eight of them, five Columbuses -- Ohio at nine
+  hundred thousand and Mississippi at twenty three -- and three hundred and
+  eight repeated names in all, covering seven hundred and sixty nine of the
+  places this product offers. Japan has forty three, among them the two Sendais
+  this repository already found once, in a test, and fixed there rather than
+  here.
+
+  The cost is not a wrong price: the runtime searches by coordinate and will
+  not find a Missouri curve near Massachusetts. It is a place that is never
+  fetched and never reported as missing, which is worse, because nothing in the
+  file says it is not there. It showed up as 745 names matching 656 points.
+
+- A limit is a throttle on the asking, not a decision about what to keep.
+
+  It decided both, so one run with a smaller limit silently deleted every curve
+  past it: four hundred American curves, fetched over hours from a public
+  service, thrown away by an argument that reads like a patience setting. A
+  curve is dropped only when its place is no longer offered at all.
+
+- Four interrupted builds in a row shipped a model that named no gaps.
+
+  The partial save carried the missed list as it stood when the run began, not
+  as it stood when the save was written, so a build killed half way wrote a
+  file saying nothing was missing while its own log showed a hundred refusals.
+  The first pass that ran to the end is what exposed it: a thousand and twelve
+  misses appearing at once, none of them new. The test that holds the missed
+  list under a fiftieth of the points had had nothing to see.
+
 ## 1.45.0, 29 September 2026
 
 - Honolulu is open, and Anchorage says why it is not.

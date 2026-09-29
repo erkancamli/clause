@@ -553,10 +553,13 @@ def test_a_distance_that_is_not_about_this_site_is_not_quoted() -> None:
     """
     from clause.perils.quake import TRACES_REACH_KM
 
-    honolulu = EARTHQUAKE.radius_note(
-        {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50.0})
-    assert "No mapped fault system reaches this site" in honolulu
-    assert "km away" not in honolulu
+    # Honolulu was the case that exposed it and has a catalogue model of its
+    # own now, so the rule is shown where it still bites: a point our grids do
+    # not reach, which falls to the fault traces and finds none.
+    pacific = EARTHQUAKE.radius_note(
+        {"latitude": 0.0, "longitude": -140.0, "radius_km": 50.0})
+    assert "No mapped fault system reaches this site" in pacific
+    assert "km away" not in pacific
 
     ankara = EARTHQUAKE.radius_note(
         {"latitude": 39.9208, "longitude": 32.8541, "radius_km": 50.0})
@@ -566,4 +569,4 @@ def test_a_distance_that_is_not_about_this_site_is_not_quoted() -> None:
     # And the bound is what separates them, not the country.
     from clause.perils.geo import site_at
     assert site_at(39.9208, 32.8541).nearest_distance_km < TRACES_REACH_KM
-    assert site_at(21.3069, -157.8583).nearest_distance_km > TRACES_REACH_KM
+    assert site_at(0.0, -140.0).nearest_distance_km > TRACES_REACH_KM

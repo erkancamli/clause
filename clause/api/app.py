@@ -1479,7 +1479,8 @@ def create_app(
                     "note": EARTHQUAKE.radius_note({**subject, "radius_km": float(r)}),
                 }
             reply["grid"] = {
-                "country": grid.code, "name": grid.name, "version": grid.version,
+                "country": grid.country, "region": grid.code,
+                "name": grid.name, "version": grid.version,
                 "reference_magnitude": grid.reference, "b_value": grid.b_value,
                 "max_magnitude": grid.max_magnitude, "radii": radii,
                 "fitted_until": grid.validation.get("fitted_until"),
@@ -1545,7 +1546,10 @@ def create_app(
         for code, model in sorted(all_models().items()):
             card = model.card()
             cards.append({
-                "country": code, "name": model.name, "version": model.version,
+                # The key that fetches this card, and the country it is in.
+                # They are the same for every model but Alaska and Hawaii.
+                "country": model.country, "region": code,
+                "name": model.name, "version": model.version,
                 "passed": model.passed, "priced_by": (
                     "fault model" if code == "TR" else ("this model" if model.passed else "nothing yet")
                 ),

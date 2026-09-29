@@ -62,9 +62,35 @@ def test_a_country_on_its_own_authority_is_sold_only_where_that_reaches() -> Non
     grid = EARTHQUAKE.grid_model(near)
     assert grid is not None and grid.code == "US" and not grid.passed
 
-    # Open country, and nothing published within sixty kilometres of this field.
+    # Open country, and nothing published within sixty kilometres of this point.
+    #
+    # The point is found rather than written down. It used to be a field
+    # outside Bozeman, which was sixty kilometres from any published curve
+    # until the build reached Montana, and then this test failed for the best
+    # possible reason: the address it called unreachable had become buyable.
+    # A test that has to be edited every time the data improves is a test that
+    # will be edited without being read.
+    from clause.hazard import published as pub
+    from clause.hazard.model import models as all_models
+
+    outline = all_models()["US"]
+    far = None
+    for latitude in range(25, 50):
+        for longitude in range(-124, -67):
+            if not outline.contains(latitude + 0.5, longitude + 0.5):
+                continue
+            if pub.nearest(latitude + 0.5, longitude + 0.5) is None:
+                far = (latitude + 0.5, longitude + 0.5)
+                break
+        if far:
+            break
+    assert far is not None, (
+        "every point on a one degree grid inside the United States now has a "
+        "published curve within sixty kilometres, so this rule has nothing "
+        "left to bite on and the test should be retired rather than loosened"
+    )
     with pytest.raises(ValueError, match="no tested earthquake model reaches this address"):
-        EARTHQUAKE.validate_subject({"latitude": 45.6770, "longitude": -111.0429,
+        EARTHQUAKE.validate_subject({"latitude": far[0], "longitude": far[1],
                                      "radius_km": 50.0})
 
     # And a country whose model failed and whose authority publishes nothing we
@@ -269,3 +295,105 @@ def test_an_address_the_two_models_cannot_agree_on_is_not_priced() -> None:
     assert not sh.beyond_reconciling(subject)          # Osaka: the map is exact
     # Where nothing is published there is nothing to disagree with.
     assert not sh.beyond_reconciling({"latitude": 40.99, "longitude": 29.03})
+
+
+def test_a_region_is_not_a_country() -> None:
+    """Two fields that were one, and the United States is where they parted.
+
+    A region is the extent a catalogue can be fitted over as a unit: one b
+    value, one completeness magnitude, one largest event. Over its own box
+    Alaska gives 0.829, 4.7 and 8.7; the lower forty eight gives 0.745, 4.7 and
+    7.8, with a third of Alaska's rate of magnitude five. Fitted together, each
+    would be described by the other, which is why Alaska and Hawaii were left
+    out of the American box in the first place.
+
+    Whose law writes the policy is a different question, and its answer for
+    Anchorage is the same as for Brooklyn.
+    """
+    from clause.hazard.regions import REGIONS
+
+    assert REGIONS["AK"].country == "US" and REGIONS["HI"].country == "US"
+    # Every other region is a whole country and says so by saying nothing.
+    for code, region in REGIONS.items():
+        if code in ("AK", "HI"):
+            continue
+        assert region.country == code, code
+
+    # And the shipped model files carry both, so the runtime never has to guess.
+    have = models()
+    assert {"US", "AK", "HI"} <= set(have), sorted(have)
+    assert have["AK"].country == "US" and have["AK"].code == "AK"
+    assert have["US"].country == "US" and have["US"].code == "US"
+
+
+def test_the_country_a_buyer_is_in_is_never_a_region_code() -> None:
+    """The licensing question, which is the one this split could get wrong.
+
+    risk_country decides whose licence may write the policy and which register
+    the buyer appears in. Answering "AK" would ask for a licence in a country
+    that does not exist, and the buyer in Anchorage would be told no company is
+    active where they live.
+    """
+    from clause.hazard.regions import REGIONS
+
+    peril = EARTHQUAKE
+    for name, latitude, longitude in (("Anchorage", 61.2181, -149.9003),
+                                      ("Honolulu", 21.3069, -157.8583),
+                                      ("Los Angeles", 34.0522, -118.2437),
+                                      ("New York", 40.7128, -74.0060)):
+        said = peril.risk_country({"latitude": latitude, "longitude": longitude,
+                                   "radius_km": 50.0, "index": "shaking"})
+        assert said == "US", f"{name} is in {said!r}"
+
+    # Nor does the list of countries cover ever name one.
+    countries = {r.country for r in REGIONS.values()}
+    assert not (priced_countries() - countries), priced_countries()
+    assert "AK" not in priced_countries() and "HI" not in priced_countries()
+
+
+def test_a_region_that_passes_its_backtest_opens_its_country(monkeypatch) -> None:
+    """The rule, exercised rather than waited for.
+
+    Neither Alaska nor Hawaii passes its backtest today, so the list of
+    countries cover is written in cannot tell a country from a region by
+    looking at what ships. It will the day one of them does, and by then the
+    list is what a buyer reads to find out whether their own country is open.
+    """
+    import clause.hazard.model as hm
+
+    class Passing:
+        code, country, passed = "AK", "US", True
+
+    class Failing:
+        code, country, passed = "HI", "US", False
+
+    monkeypatch.setattr(hm, "models", lambda: {"AK": Passing(), "HI": Failing()})
+    assert hm.priced_countries() == frozenset({"US"})
+
+
+def test_alaska_is_priced_by_alaska_and_california_by_the_lower_forty_eight() -> None:
+    """One country, three grids, and each address asked of the one that knows it.
+
+    Before this, our own model answered Anchorage, Fairbanks, Juneau, Honolulu
+    and Hilo with the same number: the global background floor, once in 11,119
+    years at intensity VII. Not a measurement, a default, at an address four
+    hundred kilometres from the largest earthquake ever recorded in North
+    America.
+    """
+    peril = EARTHQUAKE
+    anchorage = {"latitude": 61.2181, "longitude": -149.9003, "radius_km": 50.0}
+    hilo = {"latitude": 19.7299, "longitude": -155.0907, "radius_km": 50.0}
+    los_angeles = {"latitude": 34.0522, "longitude": -118.2437, "radius_km": 50.0}
+
+    assert peril.grid_model(anchorage).code == "AK"
+    assert peril.grid_model(hilo).code == "HI"
+    assert peril.grid_model(los_angeles).code == "US"
+
+    # And the floor is gone: three different rates where there was one.
+    from clause.perils import shaking as sh
+    rates = {name: sh.raw_rate_at_least(where, 7.0)
+             for name, where in (("Anchorage", anchorage), ("Hilo", hilo),
+                                 ("Los Angeles", los_angeles))}
+    assert len(set(round(r, 12) for r in rates.values())) == 3, rates
+    # Anchorage is the most exposed of the three, which is why this was worth doing.
+    assert rates["Anchorage"] > rates["Los Angeles"] > 0

@@ -221,10 +221,15 @@ def fit(region: Region, events: list[dict], *, until: float) -> dict:
 
 
 def outline_for(region: Region, outlines: dict) -> list[list[list[float]]]:
-    """The country's land, clipped to its box and simplified to about 2 km."""
+    """The country's land, clipped to the region's box and simplified to 2 km.
+
+    The outline is the country's, found by its ISO code; the clipping is the
+    region's. Alaska and Hawaii are rings of the American multipolygon and
+    fall out of it by the box test below without any outline of their own.
+    """
     for feature in outlines["features"]:
         props = feature["properties"]
-        if props.get("ISO_A2") == region.code or props.get("ISO_A2_EH") == region.code:
+        if props.get("ISO_A2") == region.country or props.get("ISO_A2_EH") == region.country:
             geometry = feature["geometry"]
             polygons = geometry["coordinates"] if geometry["type"] == "MultiPolygon" else [geometry["coordinates"]]
             rings = []
@@ -236,7 +241,7 @@ def outline_for(region: Region, outlines: dict) -> list[list[list[float]]]:
                 if len(simple) >= 4:
                     rings.append([[round(x, 3), round(y, 3)] for x, y in simple])
             return rings
-    raise ValueError(f"no outline for {region.code}")
+    raise ValueError(f"no outline for {region.code} ({region.country})")
 
 
 def _simplify_ring(ring: list[list[float]], tolerance: float) -> list[list[float]]:
@@ -286,7 +291,8 @@ def write_model(region: Region, fitted: dict, outline, validation: dict,
                 crosscheck: dict | None = None) -> Path:
     MODELS.mkdir(parents=True, exist_ok=True)
     doc = {
-        "code": region.code, "name": region.name, "version": VERSION,
+        "code": region.code, "country": region.country,
+        "name": region.name, "version": VERSION,
         "built": dt.date.today().isoformat(),
         "method": {
             "catalogue": "USGS ComCat, magnitude 4.5 and above, public domain",
@@ -317,7 +323,10 @@ def write_model(region: Region, fitted: dict, outline, validation: dict,
 def write_places(codes: list[str]) -> Path:
     """Cities of 15,000 or more in the modelled countries, for the search box."""
     rows, admin = fetch_places(CACHE)
-    wanted = set(codes) - {"TR"}           # Türkiye keeps its own, finer index
+    # GeoNames tags a place with its country, so the filter is by country and
+    # not by region: Honolulu is a US row, and asking for "HI" would ask for a
+    # country that does not exist.
+    wanted = {REGIONS[c].country for c in codes if c in REGIONS} - {"TR"}
     out = []
     for r in rows:
         if len(r) < 15 or r[8] not in wanted:

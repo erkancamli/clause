@@ -568,68 +568,185 @@ def test_the_refusal_a_buyer_reads_puts_the_two_figures_side_by_side(monkeypatch
 def test_whose_country_and_which_grid_are_two_questions() -> None:
     """They came apart the moment a published curve reached past the catalogue.
 
-    Honolulu is in the United States and outside the box the American
-    catalogue was fitted on: CONUS, 24 to 50 north. Cover there was refused
-    with "no tested earthquake model covers this location yet", which was true
-    of our catalogue and not true of the ground, because the USGS has published
-    a Hawaii model since 2021 and this build now holds its curve.
+    Honolulu is in the United States and outside the box the lower forty
+    eight's catalogue was fitted on, so cover there was refused with "no tested
+    earthquake model covers this location yet", which was true of that
+    catalogue and not true of the ground. It has a catalogue of its own now,
+    fitted over Hawaii, and the split it forced is still the point: the country
+    is one and the grids are three.
 
-    The two answers have to differ. A grid asked about a point outside its own
-    box sums zero cells and answers zero, which reads as "no earthquakes here"
-    and means "this grid is not about here"; pricing Honolulu on that would
-    have quoted no hazard at all rather than the background floor.
+    A grid asked about a point outside its own box sums zero cells and answers
+    zero, which reads as "no earthquakes here" and means "this grid is not
+    about here", so which grid answers has to be decided before it is asked.
     """
     from clause.perils.quake import Earthquake
 
     peril = Earthquake()
     honolulu = {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50,
                 "index": "shaking"}
+    anchorage = {"latitude": 61.2181, "longitude": -149.9003, "radius_km": 50,
+                 "index": "shaking"}
     inland = {"latitude": 40.7128, "longitude": -74.0060, "radius_km": 50,
               "index": "shaking"}
 
-    # In the country, out of the grid.
-    assert peril.risk_country(honolulu) == "US"
-    assert peril.grid_model(honolulu) is None
-    # In both.
-    assert peril.risk_country(inland) == "US"
-    assert peril.grid_model(inland) is not None
+    # One country, three grids.
+    assert peril.risk_country(honolulu) == peril.risk_country(inland) == "US"
+    assert peril.risk_country(anchorage) == "US"
+    assert {peril.grid_model(w).code for w in (honolulu, anchorage, inland)} == {"HI", "AK", "US"}
 
-    # And the grid, asked anyway, really does answer zero rather than a rate.
-    grid = peril.grid_model(inland)
-    assert grid is not None and not grid.in_box(21.3069, -157.8583)
-    assert grid.rate_reference_within(21.3069, -157.8583, 50.0) == 0.0
+    # And no grid is ever asked about ground it was not fitted on.
+    for where in (honolulu, anchorage, inland):
+        grid = peril.grid_model(where)
+        assert grid.in_box(where["latitude"], where["longitude"]), grid.code
+    lower48 = peril.grid_model(inland)
+    assert not lower48.in_box(21.3069, -157.8583)
+    assert lower48.rate_reference_within(21.3069, -157.8583, 50.0) == 0.0
 
 
-def test_hawaii_is_priced_and_alaska_says_why_it_is_not() -> None:
-    """The two outcomes this opened, both measured against the shipped file.
+def test_the_three_american_models_each_price_their_own_ground() -> None:
+    """What the split opened, held against the shipped files.
 
-    Honolulu reconciles: the Hawaii model and our own events, corrected, agree
-    across the fit band. Anchorage does not, and it is not close: the USGS puts
-    intensity VII there at once in 87 years and our catalogue, which has no
-    Alaskan events at all and answers with the global floor, reaches once in
-    11,119. The existing guard refuses it, and the sentence now says both.
+    All three reconcile with the publisher's own curves: the quantile map's
+    residual is at or near 1.00 at each, well inside the factor of two this
+    protocol will write on. Before the Alaskan and Hawaiian catalogues existed
+    the same three addresses shared one number, the global background floor.
     """
     from clause.perils.quake import Earthquake
 
     peril = Earthquake()
     shipped = json.loads(pub.OUT.read_text(encoding="utf-8"))
     held = {row["name"] for row in shipped.get("US", {}).get("points", [])}
-    if not {"Honolulu", "Anchorage"} <= held:
+    if not {"Honolulu", "Anchorage", "Hilo"} <= held:
         pytest.skip("the published build has not reached Hawaii and Alaska yet")
 
-    honolulu = {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50,
-                "index": "shaking"}
-    term = sh.site_term(honolulu)
-    assert term is not None and "Hawaii 2021 R1" in term["publisher"]
-    assert term["worst_ratio"] <= sh.MOST_DISAGREEMENT
-    peril.validate_subject(dict(honolulu, place="Honolulu"))   # priced
+    wanted = {"Honolulu": ("Hawaii 2021 R1", 21.3069, -157.8583),
+              "Hilo": ("Hawaii 2021 R1", 19.7299, -155.0907),
+              "Anchorage": ("Alaska 2023 R1", 61.2181, -149.9003)}
+    rates = {}
+    for name, (model, latitude, longitude) in wanted.items():
+        where = {"latitude": latitude, "longitude": longitude, "radius_km": 50,
+                 "place": name, "index": "shaking"}
+        term = sh.site_term(where)
+        assert term is not None and model in term["publisher"], (name, term)
+        assert term["worst_ratio"] <= sh.MOST_DISAGREEMENT, (name, term["worst_ratio"])
+        peril.validate_subject(where)                      # priced, not refused
+        rates[name] = sh.raw_rate_at_least(where, 7.0)
 
-    anchorage = {"latitude": 61.2181, "longitude": -149.9003, "radius_km": 50,
-                 "index": "shaking"}
-    term = sh.site_term(anchorage)
-    assert term is not None and "Alaska 2023 R1" in term["publisher"]
-    assert term["worst_ratio"] > sh.MOST_DISAGREEMENT
-    with pytest.raises(ValueError) as refused:
-        peril.validate_subject(dict(anchorage, place="Anchorage"))
-    said = str(refused.value)
-    assert "Alaska 2023 R1" in said and "once in 87 years" in said
+    # Three addresses, three rates. They were one.
+    assert len(set(round(r, 12) for r in rates.values())) == 3, rates
+    # Anchorage is the most exposed of the three by a long way, which is the
+    # reason the Alaskan catalogue was worth fitting.
+    assert rates["Anchorage"] > rates["Hilo"] > rates["Honolulu"]
+
+
+def test_a_build_cut_short_still_names_what_it_could_not_read(monkeypatch, tmp_path) -> None:
+    """Four interrupted runs in a row shipped a model that named no gaps.
+
+    The partial save carried the missed list as it stood when the run began, so
+    a build killed half way wrote a file saying nothing was missing while its
+    own log showed a hundred refusals from the publisher. The test that holds
+    the missed list under a fiftieth of the points had nothing to see, and the
+    first run that actually finished is what exposed it: a thousand and twelve
+    misses appearing at once, none of them new.
+
+    A save names this run's misses, so the file is honest at every point during
+    a long build and not only at the end of one.
+    """
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+    monkeypatch.setitem(pub.SOURCES["JP"], "pause", 0.0)
+    asked: list[int] = []
+
+    def fetch(latitude, longitude):
+        asked.append(1)
+        # Every third place is refused by the publisher, as this build's own
+        # American pass was refused for most of an afternoon.
+        if len(asked) % 3 == 0:
+            raise pub.Busy("getaddrinfo EBUSY lambda.us-east-1.amazonaws.com")
+        return [[10.0, 0.05], [40.0, 0.005]]
+
+    monkeypatch.setitem(pub.SOURCES["JP"], "fetch", fetch)
+    seen: list[tuple[int, int]] = []
+    pub.build("JP", limit=40, save=lambda rows, missed: seen.append((len(rows), len(missed))))
+
+    assert seen, "a build of forty places saved nothing on the way"
+    # Every save carries the refusals that had happened by then, not zero.
+    assert all(missed > 0 for _points, missed in seen), seen
+    # And they grow with the run rather than standing still.
+    assert seen[-1][1] > seen[0][1], seen
+
+
+def test_a_place_is_its_coordinate_and_not_its_name() -> None:
+    """Eight Springfields, five Columbuses, and one curve between them.
+
+    The build kept the places it had already fetched as a set of names, so the
+    second Springfield was counted as done before it was ever asked for. The
+    United States offers eight of them, five Columbuses -- Ohio at nine hundred
+    thousand and Mississippi at twenty three -- and three hundred and eight
+    repeated names in all, covering seven hundred and sixty nine of the places
+    this product offers. Japan has forty three, among them two Sendais.
+
+    What that costs is not a wrong price: the runtime searches by coordinate
+    and will not find a Missouri curve near Massachusetts. It is a place that
+    is never fetched and never reported as missing, which is worse, because
+    nothing in the file says it is not there.
+    """
+    repeated = 0
+    for code in pub.SOURCES:
+        places = pub.places_of(code)
+        names = {}
+        for name, latitude, longitude, _people in places:
+            names.setdefault(name, []).append((latitude, longitude))
+        repeated += sum(len(v) for v in names.values() if len(v) > 1)
+    assert repeated > 100, "the premise is gone: no country offers a repeated name"
+
+
+def test_a_repeated_name_does_not_skip_the_second_place(monkeypatch, tmp_path) -> None:
+    """Driven through the build, with two places sharing one name."""
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+    monkeypatch.setitem(pub.SOURCES["JP"], "pause", 0.0)
+    monkeypatch.setattr(pub, "places_of", lambda code: [
+        ("Springfield", 37.2200, -93.3000, 170188),
+        ("Springfield", 42.1000, -72.5900, 154341),
+        ("Columbus", 39.9600, -83.0000, 913175),
+    ])
+    asked: list[tuple[float, float]] = []
+
+    def fetch(latitude, longitude):
+        asked.append((round(latitude, 4), round(longitude, 4)))
+        return [[10.0, 0.05], [40.0, 0.005]]
+
+    monkeypatch.setitem(pub.SOURCES["JP"], "fetch", fetch)
+
+    # The case that matters: an earlier run got the Missouri Springfield and
+    # stopped. Keyed by name, the Massachusetts one is counted as done and is
+    # never asked for, in this run or any run after it.
+    kept = [{"name": "Springfield", "latitude": 37.22, "longitude": -93.3,
+             "curve": [[10.0, 0.05], [40.0, 0.005]]}]
+    built = pub.build("JP", keep=kept)
+    assert (42.1, -72.59) in asked, "the second Springfield was never asked for"
+    assert (37.22, -93.3) not in asked, "the first Springfield was asked for twice"
+    assert len(built["points"]) == 3, [(r["name"], r["latitude"]) for r in built["points"]]
+    assert sorted(r["latitude"] for r in built["points"]) == [37.22, 39.96, 42.1]
+
+    # And a run after that asks for none of them again.
+    asked.clear()
+    again = pub.build("JP", keep=built["points"])
+    assert asked == []
+    assert len(again["points"]) == 3
+
+    # A limit throttles the asking and does not decide what the file keeps. It
+    # used to do both, so one run with a smaller limit silently deleted every
+    # curve past it: four hundred American curves, fetched over hours from a
+    # public service, thrown away by an argument that reads like a patience
+    # setting.
+    asked.clear()
+    narrowed = pub.build("JP", limit=1, keep=built["points"])
+    assert asked == [], "a limit made the build ask again for what it had"
+    assert sorted(r["latitude"] for r in narrowed["points"]) == [37.22, 39.96, 42.1]
+
+    # What is dropped is a curve for a place no longer offered at all.
+    monkeypatch.setattr(pub, "places_of", lambda code: [
+        ("Springfield", 37.2200, -93.3000, 170188),
+    ])
+    shrunk = pub.build("JP", keep=built["points"])
+    assert [r["latitude"] for r in shrunk["points"]] == [37.22], shrunk["points"]
