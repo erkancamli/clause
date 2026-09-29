@@ -789,3 +789,49 @@ def test_a_rule_about_what_may_be_accepted_is_not_asked_of_the_saved_book() -> N
         "the narrowest repair: it keeps the licence and loses the asset")
     # Running it again is not an event.
     assert lawful_settlement(registry) == 0
+
+
+def test_three_stand_ins_in_a_country_do_not_quote_one_price() -> None:
+    """A list of one price with three names is not a market.
+
+    Companies were given their own cost of capital and expense ratio, and the
+    eight written out by hand got them while the three hundred generated per
+    country did not. So it was fixed everywhere except where most buyers are:
+    outside those eight countries three companies quoted the same premium to the
+    penny and differed only in the fee on top.
+    """
+    from clause.protocol.carrier import priced_by, world_specimens
+
+    by_country: dict[str, list] = {}
+    for carrier in world_specimens():
+        by_country.setdefault(carrier.domicile, []).append(carrier)
+
+    for code, carriers in list(by_country.items())[:8]:
+        assert len(carriers) >= 3, code
+        priced = [priced_by(c, expected_loss=4000.0, marginal_capital=8000.0,
+                            term_days=365.0)["premium"] for c in carriers]
+        assert len(set(priced)) == len(priced), f"{code} quotes one premium {priced}"
+        # And the cheapest on the total is not the cheapest on the risk, so the
+        # buyer has a trade to make rather than an order to read off.
+        totals = [p * (1 + c.fronting_fee) for p, c in zip(priced, carriers)]
+        assert totals.index(min(totals)) != priced.index(max(priced))
+        assert max(totals) / min(totals) > 1.03, f"{code} spread {totals}"
+
+
+def test_a_saved_stand_in_gets_this_builds_terms() -> None:
+    """A book saved before the terms changed kept quoting the old ones."""
+    from dataclasses import replace as _replace
+
+    from clause.protocol.carrier import (Registry, refresh_specimens,
+                                         specimen_registry, world_specimens)
+
+    registry = specimen_registry()
+    fresh = next(c for c in world_specimens() if c.domicile == "US" and c.carrier_id.endswith("-2"))
+    stale = _replace(fresh, cost_of_capital=0.2, expense_ratio=0.2, fronting_fee=0.09)
+    registry.register(stale)
+    registry.activate(stale.carrier_id)
+    assert refresh_specimens(registry) >= 1
+    now = registry.carriers[stale.carrier_id]
+    assert now.cost_of_capital == fresh.cost_of_capital
+    assert now.expense_ratio == fresh.expense_ratio
+    assert now.fronting_fee == fresh.fronting_fee

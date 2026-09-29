@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.43.1, 29 September 2026
+
+- Three companies in a country, one price. Again, and this time where the
+  buyers are.
+
+  1.41.0 gave companies their own cost of capital and expense ratio so that a
+  market of nine would stop being one price with nine names. It reached the
+  eight companies written out by hand and not the three hundred generated one
+  per country, so it was fixed everywhere except where most buyers are: a buyer
+  in New York or Osaka saw three companies quoting the same premium to the penny
+  and differing only in the fee on top.
+
+  The three stand ins in each country now differ on the two numbers that move
+  the premium itself. B is the patient one, cheapest capital and dearest to run,
+  and it pays in five days; C is the opposite and pays the next day. On a New
+  York flat that is 5,378.06 against 5,882.13, a nine per cent spread, and the
+  cheapest total is no longer the cheapest risk, so the buyer has a trade to
+  make rather than an order to read off.
+
+  A saved book keeps its stand ins, and refreshing them only brought their
+  licences up to the build's. Their terms come up too now, or a running
+  deployment would have gone on charging the old single price.
+
+- The map is applied to the largest, not to each.
+
+  The map from our intensities to a published model's rises, so the largest of
+  the mapped values is the map of the largest. Settling a trial applied it to
+  every event and then took the maximum; it takes the maximum and applies it
+  once.
+
+  That change came out of chasing a regression that was not there, and the
+  correction matters more than the change. Settling a ten thousand trial world
+  looked seven times dearer with the map than without. Measured properly, that
+  reading was a cold cache: the first call at an address builds a 181 point
+  curve of our own rates, about 60 ms, and the run without the map had it built
+  already. The map itself costs under a microsecond, and a first quote at an
+  untouched address is 1.04 seconds end to end against 0.05 warm. The comment
+  claiming the sevenfold is gone, because a false measurement in the source is
+  worse than none.
+
+- Thirty more American places from the USGS, 80 to 110.
+
 ## 1.43.0, 28 September 2026
 
 - A number could not follow their curve, so it is a map now.

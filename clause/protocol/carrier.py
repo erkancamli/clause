@@ -1146,16 +1146,28 @@ def world_specimens(*, now: float | None = None) -> list[Carrier]:
     # The suffix matters more than it looks: the unsuffixed id is the one an
     # older saved book already holds, so it keeps its terms exactly, and the
     # two new ones are added beside it rather than renumbering anything.
+    #
+    # They also differ on the two numbers that move the premium itself and not
+    # only the fee on top of it: what the capital a policy ties up must earn,
+    # and what it costs to run the business holding it. Without that, three
+    # companies in the same country quoted the same premium to the penny and
+    # differed only in the fee, which is the thing a buyer wrote in to complain
+    # about. It was fixed for the eight companies written out by hand and not
+    # for the three hundred generated here, so it was fixed everywhere except
+    # where most buyers are. B is the patient one: cheapest capital, dearest to
+    # run, slowest to pay. C is the opposite and pays the next day.
     KINDS = (
-        ("", "", 0.05, 3.0, 0.0, 1_000_000.0),
-        ("-2", " B", 0.028, 5.0, 0.0, 3_000_000.0),
-        ("-3", " C", 0.075, 1.0, 14.0, 5_000_000.0),
+        # suffix, letter, fee, payout days, extra cooling off, capacity,
+        # cost of capital, expense ratio
+        ("", "", 0.05, 3.0, 0.0, 1_000_000.0, 0.12, 0.09),
+        ("-2", " B", 0.028, 5.0, 0.0, 3_000_000.0, 0.09, 0.13),
+        ("-3", " C", 0.075, 1.0, 14.0, 5_000_000.0, 0.16, 0.05),
     )
     out = []
     for code, name in sorted(NAMES.items()):
         if code in _NO_SPECIMEN:
             continue
-        for suffix, letter, fee, days, extra, capacity in KINDS:
+        for suffix, letter, fee, days, extra, capacity, capital, expense in KINDS:
             out.append(Carrier(
                 specimen=True, contact="specimen, not a company",
                 carrier_id=f"specimen-{code.lower()}{suffix}",
@@ -1174,6 +1186,7 @@ def world_specimens(*, now: float | None = None) -> list[Carrier]:
                 appetite=Appetite(max_limit=500_000, max_term_days=400, perils=EVERY_PERIL),
                 capacity=capacity, fronting_fee=fee, fiat_payout_days=days,
                 extra_cooling_off_days=extra,
+                cost_of_capital=capital, expense_ratio=expense,
             ))
     return out
 
@@ -1220,7 +1233,14 @@ def refresh_specimens(registry: "Registry", *, now: float | None = None) -> int:
     not close when the first one filled, a running deployment kept its saved
     two and stayed closed. So one is registered here if it is missing.
 
-    Only specimens are touched, and only their licences, appetite and
+    Their terms come up to this build's too, and for the same reason. A stand
+    in's fee, what it wants its capital to earn, what it costs to run, and how
+    long it takes to pay are this build's data and not something the company
+    registered, so a saved book that predates them keeps quoting the old ones.
+    The day the three stand ins in each country stopped charging the same
+    premium, a running deployment kept charging it.
+
+    Only specimens are touched, and only their licences, appetite, terms and
     existence: a real company's licence is what it registered, and nothing
     here rewrites that. Status and reviews stay as they are, so a stand in a
     reviewer suspended stays suspended.
@@ -1245,12 +1265,17 @@ def refresh_specimens(registry: "Registry", *, now: float | None = None) -> int:
             continue
         if not have.specimen:
             continue
+        terms = ("fronting_fee", "cost_of_capital", "expense_ratio",
+                 "fiat_payout_days", "extra_cooling_off_days")
         same = (tuple(l.perils for l in have.licences) == tuple(l.perils for l in fresh.licences)
-                and have.appetite.perils == fresh.appetite.perils)
+                and have.appetite.perils == fresh.appetite.perils
+                and all(getattr(have, name) == getattr(fresh, name) for name in terms))
         if same:
             continue
         have.licences = fresh.licences
         have.appetite = fresh.appetite
+        for name in terms:
+            setattr(have, name, getattr(fresh, name))
         refreshed += 1
     return refreshed
 
