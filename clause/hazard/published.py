@@ -324,7 +324,8 @@ def build(code: str, *, limit: int | None = None,
     hundred points takes as long as it takes. A run that is interrupted, or
     that a publisher's own backend refuses half way through, should cost only
     the places it did not reach: ``keep`` is the previous run's points, and a
-    place already in it is not asked for again.
+    place already in it is not asked for again -- a place being a coordinate,
+    which is unique here, rather than a name, which is not.
     """
     source = SOURCES[code]
     fetch: Callable[..., Any] = source["fetch"]
@@ -340,15 +341,28 @@ def build(code: str, *, limit: int | None = None,
                 found = names(float(row["latitude"]), float(row["longitude"]))
                 if found:
                     row["model"] = found[1]
-    already = {row["name"] for row in rows}
+    # A place is its coordinate, not its name. The United States offers eight
+    # Springfields and five Columbuses -- Ohio at nine hundred thousand and
+    # Mississippi at twenty three -- and Japan two Sendais, and keying the
+    # already-fetched set by name meant the first of each pair was fetched and
+    # every other one silently skipped for ever, counted as done and never
+    # asked for. Three hundred and eight repeated American names cover seven
+    # hundred and sixty nine of the places this product offers.
+    #
+    # places_of already guarantees one place per coordinate, so the coordinate
+    # is a key and the name is not.
+    def where(latitude: float, longitude: float) -> tuple[float, float]:
+        return (round(float(latitude), 4), round(float(longitude), 4))
+
+    already = {where(row["latitude"], row["longitude"]) for row in rows}
     missed: list[str] = []
     places = places_of(code)
     if limit:
         places = places[:limit]
-    wanted = {name for name, *_ in places}
-    rows = [row for row in rows if row["name"] in wanted]
+    wanted = {where(la, lo) for _n, la, lo, _p in places}
+    rows = [row for row in rows if where(row["latitude"], row["longitude"]) in wanted]
     for name, latitude, longitude, _people in places:
-        if name in already:
+        if where(latitude, longitude) in already:
             continue
         try:
             curve = fetch(latitude, longitude)

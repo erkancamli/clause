@@ -669,3 +669,71 @@ def test_a_build_cut_short_still_names_what_it_could_not_read(monkeypatch, tmp_p
     assert all(missed > 0 for _points, missed in seen), seen
     # And they grow with the run rather than standing still.
     assert seen[-1][1] > seen[0][1], seen
+
+
+def test_a_place_is_its_coordinate_and_not_its_name() -> None:
+    """Eight Springfields, five Columbuses, and one curve between them.
+
+    The build kept the places it had already fetched as a set of names, so the
+    second Springfield was counted as done before it was ever asked for. The
+    United States offers eight of them, five Columbuses -- Ohio at nine hundred
+    thousand and Mississippi at twenty three -- and three hundred and eight
+    repeated names in all, covering seven hundred and sixty nine of the places
+    this product offers. Japan has forty three, among them two Sendais.
+
+    What that costs is not a wrong price: the runtime searches by coordinate
+    and will not find a Missouri curve near Massachusetts. It is a place that
+    is never fetched and never reported as missing, which is worse, because
+    nothing in the file says it is not there.
+    """
+    repeated = 0
+    for code in pub.SOURCES:
+        places = pub.places_of(code)
+        names = {}
+        for name, latitude, longitude, _people in places:
+            names.setdefault(name, []).append((latitude, longitude))
+        repeated += sum(len(v) for v in names.values() if len(v) > 1)
+    assert repeated > 100, "the premise is gone: no country offers a repeated name"
+
+
+def test_a_repeated_name_does_not_skip_the_second_place(monkeypatch, tmp_path) -> None:
+    """Driven through the build, with two places sharing one name."""
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+    monkeypatch.setitem(pub.SOURCES["JP"], "pause", 0.0)
+    monkeypatch.setattr(pub, "places_of", lambda code: [
+        ("Springfield", 37.2200, -93.3000, 170188),
+        ("Springfield", 42.1000, -72.5900, 154341),
+        ("Columbus", 39.9600, -83.0000, 913175),
+    ])
+    asked: list[tuple[float, float]] = []
+
+    def fetch(latitude, longitude):
+        asked.append((round(latitude, 4), round(longitude, 4)))
+        return [[10.0, 0.05], [40.0, 0.005]]
+
+    monkeypatch.setitem(pub.SOURCES["JP"], "fetch", fetch)
+
+    # The case that matters: an earlier run got the Missouri Springfield and
+    # stopped. Keyed by name, the Massachusetts one is counted as done and is
+    # never asked for, in this run or any run after it.
+    kept = [{"name": "Springfield", "latitude": 37.22, "longitude": -93.3,
+             "curve": [[10.0, 0.05], [40.0, 0.005]]}]
+    built = pub.build("JP", keep=kept)
+    assert (42.1, -72.59) in asked, "the second Springfield was never asked for"
+    assert (37.22, -93.3) not in asked, "the first Springfield was asked for twice"
+    assert len(built["points"]) == 3, [(r["name"], r["latitude"]) for r in built["points"]]
+    assert sorted(r["latitude"] for r in built["points"]) == [37.22, 39.96, 42.1]
+
+    # And a run after that asks for none of them again.
+    asked.clear()
+    again = pub.build("JP", keep=built["points"])
+    assert asked == []
+    assert len(again["points"]) == 3
+
+    # The other half of the same rule: a curve for a place the build no longer
+    # offers is dropped. Keyed by name, the Massachusetts Springfield survives
+    # a limit that only reaches the Missouri one, because they share a name,
+    # and the file keeps a curve for a place nothing will ever look up.
+    asked.clear()
+    narrowed = pub.build("JP", limit=1, keep=built["points"])
+    assert [r["latitude"] for r in narrowed["points"]] == [37.22], narrowed["points"]
