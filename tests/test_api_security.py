@@ -642,7 +642,10 @@ def test_a_flat_in_istanbul_goes_on_turkish_paper_wherever_its_owner_lives(
 
 def test_the_map_publishes_what_each_peril_can_be_priced_for(client) -> None:
     payload = client.get("/api/compliance").json()
-    assert payload["priceable"]["earthquake"] == ["CL", "JP", "MX", "NZ", "TR", "TW"]
+    # The United States is in the list on the USGS's hazard rather than on our
+    # own backtest, which its catalogue model failed. Being in the list opens
+    # the country; whether a given address is reached is asked per address.
+    assert payload["priceable"]["earthquake"] == ["CL", "JP", "MX", "NZ", "TR", "TW", "US"]
     assert payload["priceable"]["flight_delay"] is None
     for row in payload["coverage"]:
         assert row["open"] is True and row["perils"]

@@ -9,5 +9,5 @@ them to decide.
 # Copyright (c) 2026 Erkan Çamlı. All rights reserved. See LICENSE.
 
 
-__version__ = "1.42.0"
+__version__ = "1.43.0"
 __all__ = ["__version__"]

@@ -6591,7 +6591,7 @@ function whereItIsWritten(){
          : t("Drought cover is written only in Türkiye for now.");
   var where=(COVERAGE&&COVERAGE.__priceable&&COVERAGE.__priceable.earthquake)||["TR"];
   var names=where.map(function(c){ return regionName(c)||c; }).sort();
-  return t("Earthquake cover can be priced in {countries}: a tested model exists for those and nowhere else yet.",
+  return t("Earthquake cover can be priced in {countries}: places where our own model passed its test, or where the country's own authority publishes the hazard at the address.",
            {countries:listText(names)});
 }
 function quakePriced(country){
@@ -8723,8 +8723,13 @@ function shakingHtml(){
    told whose figure priced the cover rather than left to assume it is ours. */
 function shakingSource(){
   var from=flow.shaking&&flow.shaking.published;
-  if(from&&from.publisher) return t("These frequencies follow {publisher}, the national hazard model published for {place}, converted to intensity with a published relation (Worden and others, 2012). Ours follow theirs to within a factor of {factor} across the levels above.",{publisher:from.publisher,place:from.place,factor:f1.format(from.worst_ratio||1)});
-  return t("Worked out from the same earthquake model, with a published intensity equation (Allen, Wald and Worden 2012) and its scatter.");
+  if(!from||!from.publisher) return t("Worked out from the same earthquake model, with a published intensity equation (Allen, Wald and Worden 2012) and its scatter.");
+  var said=t("These frequencies are {publisher}'s own, the national hazard model published for {place}, converted to intensity with a published relation (Worden and others, 2012).",{publisher:from.publisher,place:from.place});
+  /* The map is exact between their published points, so most of the time there
+     is no factor worth printing. Where their curve reaches past ours far
+     enough that the bound holds the map back, there is, and it is printed. */
+  if((from.worst_ratio||1)>1.1) said+=" "+t("Ours follow theirs to within a factor of {factor} across the levels above.",{factor:f1.format(from.worst_ratio)});
+  return said;
 }
 function hazardChanged(){ renderRadius(); updatePriceBar(); updateMap(); if (flow.step === 2) setNextLabel(); }
 function loadHazard(){

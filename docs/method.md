@@ -114,57 +114,81 @@ publish the same object at a point: ground motion against the annual frequency
 of exceeding it. `clause.hazard.published` fetches those curves offline, the
 same way the catalogue build fetches the catalogue, and converts velocity to
 intensity with the relation ShakeMap itself uses in the other direction
-(Worden, Gerstenberger, Rhoades and Wald, 2012, as its own implementation
-carries it).
+(Worden, Gerstenberger, Rhoades and Wald, 2012, with the coefficients its own
+implementation carries).
 
-The difference between their curve and ours at an address is then read off as
-one number: how many intensity units harder the ground there shakes than a
-global equation with no site term expects. That number is carried by every
-event, so the events keep their magnitudes, their distances and the neighbours
-they shake at the same moment, and only the ground under the address changes.
-Reading the published curve directly would give the same annual rates and lose
-the events, and the capital model settles neighbours together by event.
+**The map, not a number.** The difference between their curve and ours is
+carried as a mapping: the intensity our model would have called *x* becomes the
+intensity at which the published curve has the same annual rate. That is a
+quantile map, built from the two curves and nothing else, and inside the
+published points it is exact. Our answer is their answer.
 
-At Osaka the term is +1.22 intensity units, and it is worth stating what that
-was hiding. Before it, this model said the ground under Osaka reaches intensity
-VIII about once in 1,035 years. Japan's own model says once in 101. After the
-term we say once in 160, and the three stronger levels J-SHIS publishes are
-matched within 30%. A single number cannot follow a curve of a different shape,
-so the worst disagreement left over is published with the term rather than
-averaged away.
+The first version of this carried one number instead, a shift in intensity
+units fitted by least squares. It worked where the two curves have the same
+shape and failed where they do not. Japan publishes a handful of points over a
+narrow range and the fit was good; the United States publishes twenty over a
+wide one, and across them our curve had the wrong slope rather than only the
+wrong level. A single shift left a median factor of four in New York, which is
+not a number anybody should be quoted. Every residual is now 1.00 or 1.01.
 
-The term is bounded at 1.5 intensity units, it is fitted only on the part of
-the published curve the product actually prices (intensity V to X), and the
-worst disagreement it leaves is published with it.
+The map keeps what the shift kept. The events stay ours, with their magnitudes,
+their distances and the neighbours they shake at the same moment, because it is
+applied to each event's intensity rather than to the curve wholesale. Both
+halves of the hazard go through it: the large events drawn once per country and
+shared by every policy in it, and the small local ones drawn per address.
+Reading the published curve directly and discarding ours would give the same
+annual rates and lose the events, and the capital model settles neighbours
+together by event.
 
-That bound and that residual are the honest part. Across all 1,295 Japanese
-places the median term is +0.47 and the median residual a factor of 1.8, which
-is inside the spread of the intensity conversion itself; a tenth of them sit at
-the bound. Tokyo is the check that the method is not simply adding hazard
-everywhere: its term is +0.00, because a catalogue since 1973 sees Tokyo's
-seismicity perfectly well, and Sendai's is +0.02. The large terms land where a
-short catalogue is blind: Osaka +1.22 and Fukuoka +1.08, over the Nankai
-interface and Kyushu's slow inland faults.
+**What J-SHIS publishes, all of it.** Its four velocity levels are the strong,
+rare end: at Osaka they begin at a return period of 101 years and run to 2,475,
+which is above the whole band a policy is written at. It also publishes the
+probability in thirty years of reaching each JMA intensity, which is the
+frequent end, and at Osaka those reach a return period of 13 years. Converting
+a JMA intensity needs no general rule between the two scales, which is the step
+that cannot be settled from outside: J-SHIS gives both a velocity and a JMA
+intensity at each of its probability levels, so those pairs are that mesh's own
+relation between them. Where the two families overlap they agree to within 20%,
+at Osaka 83 years against 101, which is the check on the conversion. Japan's
+curve now spans intensity VI to X at every place.
 
-The United States fits worse, and the reason is worth naming rather than
-burying. USGS publishes twenty points per curve against J-SHIS's four, over a
-much wider range, and across them our curve has the wrong *shape* and not just
-the wrong level: the median residual is a factor of 4.2. New York is the clean
-example. At intensity VI the two models agree almost exactly, once in about
-1,600 years each, and at intensity VIII they differ six fold. One number cannot
-follow a curve of a different slope. The term still moves the price towards the
-published figure and is still better than no term, but it is an approximation,
-the quote says by how much, and the proper fix is a mapping with a slope rather
-than a single shift.
+**The bound.** The map may move one intensity by at most two units. Two was
+measured: at one and a half the bound binds on Japan and leaves the quote a
+third under what J-SHIS publishes, which is the dangerous direction, and
+nothing above two changes any answer. It was one and a half while the step from
+a published velocity to an intensity was the weakest link; that step is now the
+publisher's own relation at the publisher's own mesh.
 
-What it covers. Every Japanese place this product offers except four, and 80
-of the largest places in the United States, each within 60 km. The American
-figure is low because the USGS service refused most of the build's requests on
-the day it ran, not because it covers less; the build keeps what it got and
-skips it next time, so further passes fill in rather than start again. A hazard curve is drawn
-for a place and not a plot, and the national grids behind these figures are
-coarser than that anyway. An address no published curve reaches is priced by our
-own model as before, and the quote says so by naming no publisher.
+**Where it stops.** Between a publisher's points the map is exact unless the
+bound holds it back, and where it does the gap is not a detail. So an address
+whose published curve and our own events cannot be brought within a factor of
+two of each other, across the band a policy is written at, is not priced, and
+the refusal names the two figures. That costs about one place in fourteen in
+Japan and one in nine in the United States. Niigata was the case that set the
+rule and then stopped needing it: our figure there was intensity VII once in
+eleven thousand years against J-SHIS's seventy three, which turned out to be a
+containment bug rather than a hazard disagreement (the city was outside our own
+Japan outline, so no Japanese rates applied at all). After that fix it prices at
+73 years with a residual of 1.01. The rule stays, because the next Niigata will
+not be a bug.
+
+**Where it applies, and what that opens.** Earthquake cover used to be written
+only where our own catalogue model passed its backtest. That is one of two
+grounds now, and the other is better rather than worse: where a national
+authority publishes the hazard at an address, the level is theirs and our model
+is only supplying the events. Our model for the United States failed its own
+test, badly, expecting 27.5 earthquakes of magnitude 5.5 around 296 American
+cities where 10 happened, so its level cannot price a policy. The USGS level
+can. So the United States is written, at the addresses a published curve
+reaches, and the refusal elsewhere says which of the two is missing.
+
+A country being open does not open every address in it. A published curve is
+held for every Japanese place this product offers except four, and for the
+largest American ones; each describes addresses within 60 km, because a hazard
+curve is drawn for a place and not a plot and the national grids behind these
+figures are coarser than that anyway. An address no curve reaches, in a country
+whose own model passed, is priced by that model as before and the quote names
+no publisher.
 
 ### Drought
 

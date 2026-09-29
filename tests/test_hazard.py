@@ -31,12 +31,47 @@ def test_every_model_carries_its_backtest() -> None:
         assert bool(v["passed"]) == (not v["failed"]), code
 
 
-def test_only_passed_models_are_sold() -> None:
+def test_a_country_is_sold_on_a_model_that_passed_or_on_its_own_authority() -> None:
+    """Two grounds, and nothing else, decide where earthquake cover is written.
+
+    Either our own catalogue model for the country passed its backtest, or the
+    country's own authority publishes the hazard and our model only supplies the
+    events. The United States is the second case: its catalogue model expected
+    27.5 earthquakes of magnitude 5.5 around 296 American cities and 10
+    happened, so its level cannot price a policy, and the USGS publishes the
+    level itself.
+    """
     passed = {code for code, m in models().items() if m.passed}
     assert priced_countries() == frozenset(passed)
-    assert EARTHQUAKE.territory == frozenset({"TR"}) | passed
+    on_authority = EARTHQUAKE.published_territory()
+    assert EARTHQUAKE.territory == frozenset({"TR"}) | passed | on_authority
+    # A country with neither is not sold, whatever else is true of it.
     for code in ("GR", "IT", "ID", "PH"):
-        assert code not in EARTHQUAKE.territory, f"{code} failed its backtest and must not be sold"
+        assert code not in passed
+        assert code not in on_authority
+        assert code not in EARTHQUAKE.territory, f"{code} has no figure and must not be sold"
+
+
+def test_a_country_on_its_own_authority_is_sold_only_where_that_reaches() -> None:
+    """The country being open does not open every address in it."""
+    assert "US" in EARTHQUAKE.territory
+    # New York: the USGS publishes a curve at Brooklyn, a few kilometres away.
+    near = EARTHQUAKE.validate_subject({"latitude": 40.7128, "longitude": -74.0060,
+                                        "radius_km": 50.0, "index": "shaking"})
+    assert EARTHQUAKE.risk_country(near) == "US"
+    grid = EARTHQUAKE.grid_model(near)
+    assert grid is not None and grid.code == "US" and not grid.passed
+
+    # Open country, and nothing published within sixty kilometres of this field.
+    with pytest.raises(ValueError, match="no tested earthquake model reaches this address"):
+        EARTHQUAKE.validate_subject({"latitude": 45.6770, "longitude": -111.0429,
+                                     "radius_km": 50.0})
+
+    # And a country whose model failed and whose authority publishes nothing we
+    # hold is not told it is open. Athens: Greece is in neither list.
+    assert "GR" not in EARTHQUAKE.territory
+    with pytest.raises(ValueError, match="cover is written only where one does"):
+        EARTHQUAKE.validate_subject({"latitude": 37.98, "longitude": 23.73, "radius_km": 50.0})
 
 
 def test_turkey_stays_on_the_fault_model() -> None:
@@ -188,3 +223,49 @@ def test_global_place_search_endpoint(client) -> None:
     assert "GeoNames" in reply["attribution"]
     turkish = client.get("/api/places").json()
     assert turkish["places"] and all(p["country"] == "TR" for p in turkish["places"])
+
+
+def test_just_off_the_coast_is_measured_to_the_coast_not_to_its_corners() -> None:
+    """A simplified outline has long edges, and a city can sit beside one.
+
+    Niigata, a city of eight hundred thousand that this product offers, fell
+    outside Japan: the nearest corner of the simplified polygon was further than
+    the coastal tolerance even though the edge itself was a kilometre away. The
+    model then had no rates for it, a fallback answered instead, and the figure
+    that came out was intensity VII once in eleven thousand years in a city an
+    earthquake destroyed in 1964.
+    """
+    from clause.hazard.model import _to_segment_km
+
+    jp, us = models()["JP"], models()["US"]
+    assert jp.contains(37.9226, 139.0412), "Niigata"
+    assert us.contains(25.9018, -97.4975), "Brownsville"
+
+    # And measuring to the edge has not swallowed anybody's neighbour.
+    for latitude, longitude in ((37.5665, 126.9780), (43.1155, 131.8855),
+                                (31.2304, 121.4737), (25.0330, 121.5654)):
+        assert not jp.contains(latitude, longitude)
+    for latitude, longitude in ((25.6866, -100.3161), (49.2827, -123.1207),
+                                (23.1136, -82.3666)):
+        assert not us.contains(latitude, longitude)
+    tr = models()["TR"]
+    for latitude, longitude in ((39.1, 26.3), (35.1856, 33.3823), (36.2021, 37.1343)):
+        assert not tr.contains(latitude, longitude), (latitude, longitude)
+
+    # The distance itself: a point beside the middle of a long edge is close to
+    # the edge and far from either end of it.
+    assert _to_segment_km(0.0, 0.0, 0.0, -5.0, 0.0, 5.0) == 0.0
+    assert _to_segment_km(0.1, 0.0, 0.0, -5.0, 0.0, 5.0) == pytest.approx(11.1, abs=0.2)
+    # Past the end of the edge it is the distance to the end.
+    assert _to_segment_km(0.0, 6.0, 0.0, -5.0, 0.0, 5.0) == pytest.approx(111.2, abs=1.0)
+
+
+def test_an_address_the_two_models_cannot_agree_on_is_not_priced() -> None:
+    """A price from the smaller of two figures a hundred apart is not cover."""
+    from clause.perils import shaking as sh
+
+    assert sh.MOST_DISAGREEMENT == 2.0
+    subject = {"latitude": 34.6937, "longitude": 135.5023}
+    assert not sh.beyond_reconciling(subject)          # Osaka: the map is exact
+    # Where nothing is published there is nothing to disagree with.
+    assert not sh.beyond_reconciling({"latitude": 40.99, "longitude": 29.03})
