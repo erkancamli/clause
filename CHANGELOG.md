@@ -30,11 +30,23 @@
 
   A policy is charged for at least a twentieth of the capital it would need
   standing alone, however well it sits against today's book, because today's
-  book is not tomorrow's. Standalone capital is proportional to the limit, so
-  the floor cannot be arbitraged by splitting. Ninety five per cent
-  diversification credit is generous by any capital model's standard, so this is
-  a floor rather than a charge: it binds only where the measured marginal was
-  near zero, and every price with a real marginal charge is untouched.
+  book is not tomorrow's. Ninety five per cent diversification credit is
+  generous by any capital model's standard, so this is a floor rather than a
+  charge: it binds only where the measured marginal was near zero, and every
+  price with a real marginal charge is untouched.
+
+  Standalone capital is proportional to the limit, so wherever the floor is
+  what sets the price, splitting cannot get under it: ten policies of a hundred
+  thousand cost exactly what one of a million costs. That is not the whole of
+  the splitting question and it should not be read as though it were. Above the
+  floor the measured marginal takes over and it is superlinear: on the live
+  book the floor sets New York's price up to about 200,000 of cover, and beyond
+  that the same cover costs 29.02 per hundred thousand split and up to 135.28
+  whole. What stops that being free is that binding a policy puts it in the
+  book and re-prices the next one. What does not stop it is a set of quotes
+  locked at the same moment, each holding its price for ten minutes against the
+  book as it was. That gap is open, and it is written here rather than left to
+  be discovered.
 
   | | was | now | loss ratio |
   |---|---:|---:|---|

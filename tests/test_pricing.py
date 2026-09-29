@@ -462,23 +462,38 @@ def test_a_risk_the_book_never_feels_is_still_charged_for(engine: PricingEngine)
     assert quote.expected_loss / quote.premium < 0.6
 
 
-def test_the_same_cover_costs_the_same_split_or_whole(engine: PricingEngine) -> None:
-    """Ten policies of a hundred thousand, or one of a million.
+def test_where_the_floor_sets_the_price_the_price_is_proportional(engine: PricingEngine) -> None:
+    """The floor is linear in the limit, so splitting cannot get under it.
 
     On the live book a million of New York cover in one policy measured 8,845
     of capital and cost 1,198.55, while the same million split into ten
     policies measured zero and cost 137.90: the same risk, split ten ways, for
-    a ninth of the price. Anyone wanting a million simply bought ten.
+    a ninth of the price. Zero is what the floor replaces, and standalone
+    capital is proportional to the limit, so wherever the floor is what sets
+    the price, ten policies of a hundred thousand cost exactly what one of a
+    million costs.
 
-    Standalone capital is proportional to the limit, so a floor written against
-    it cannot be arbitraged by splitting.
+    That is not the whole of it, and this test does not pretend otherwise. Once
+    the exposure is large enough that the book's own tail moves, the measured
+    marginal takes over, and it is superlinear: on the live book the floor sets
+    New York's price to about 200,000 of cover, and above that a policy costs
+    29.02 per hundred thousand split and up to 135.28 whole. Splitting is
+    cheaper there, and what stops it being free is that binding one policy puts
+    it in the book and re-prices the next. What does not stop it is a set of
+    quotes locked at the same moment, which is a real gap and is written down
+    in the changelog rather than claimed shut.
     """
     book = _istanbul_book(engine)
-    one = engine.quote(peril_key="earthquake", subject=_new_york(),
-                       limit=1_000_000.0, term_days=365.0, book=book)
-    ten = engine.quote(peril_key="earthquake", subject=_new_york(),
-                       limit=100_000.0, term_days=365.0, book=book)
-    assert one.premium == pytest.approx(ten.premium * 10, rel=1e-6), (one.premium, ten.premium)
+    small = engine.quote(peril_key="earthquake", subject=_new_york(),
+                         limit=100_000.0, term_days=365.0, book=book)
+    large = engine.quote(peril_key="earthquake", subject=_new_york(),
+                         limit=200_000.0, term_days=365.0, book=book)
+    # Both are set by the floor, which is the regime this is about.
+    for quote in (small, large):
+        assert quote.marginal_capital == pytest.approx(
+            0.05 * quote.standalone_capital, rel=1e-6), quote.marginal_capital
+    assert large.premium == pytest.approx(small.premium * 2, rel=1e-6), (
+        small.premium, large.premium)
 
 
 def test_a_rare_risk_knows_its_own_capital_without_drawing_for_it() -> None:
