@@ -568,71 +568,75 @@ def test_the_refusal_a_buyer_reads_puts_the_two_figures_side_by_side(monkeypatch
 def test_whose_country_and_which_grid_are_two_questions() -> None:
     """They came apart the moment a published curve reached past the catalogue.
 
-    Honolulu is in the United States and outside the box the American
-    catalogue was fitted on: CONUS, 24 to 50 north. Cover there was refused
-    with "no tested earthquake model covers this location yet", which was true
-    of our catalogue and not true of the ground, because the USGS has published
-    a Hawaii model since 2021 and this build now holds its curve.
+    Honolulu is in the United States and outside the box the lower forty
+    eight's catalogue was fitted on, so cover there was refused with "no tested
+    earthquake model covers this location yet", which was true of that
+    catalogue and not true of the ground. It has a catalogue of its own now,
+    fitted over Hawaii, and the split it forced is still the point: the country
+    is one and the grids are three.
 
-    The two answers have to differ. A grid asked about a point outside its own
-    box sums zero cells and answers zero, which reads as "no earthquakes here"
-    and means "this grid is not about here"; pricing Honolulu on that would
-    have quoted no hazard at all rather than the background floor.
+    A grid asked about a point outside its own box sums zero cells and answers
+    zero, which reads as "no earthquakes here" and means "this grid is not
+    about here", so which grid answers has to be decided before it is asked.
     """
     from clause.perils.quake import Earthquake
 
     peril = Earthquake()
     honolulu = {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50,
                 "index": "shaking"}
+    anchorage = {"latitude": 61.2181, "longitude": -149.9003, "radius_km": 50,
+                 "index": "shaking"}
     inland = {"latitude": 40.7128, "longitude": -74.0060, "radius_km": 50,
               "index": "shaking"}
 
-    # In the country, out of the grid.
-    assert peril.risk_country(honolulu) == "US"
-    assert peril.grid_model(honolulu) is None
-    # In both.
-    assert peril.risk_country(inland) == "US"
-    assert peril.grid_model(inland) is not None
+    # One country, three grids.
+    assert peril.risk_country(honolulu) == peril.risk_country(inland) == "US"
+    assert peril.risk_country(anchorage) == "US"
+    assert {peril.grid_model(w).code for w in (honolulu, anchorage, inland)} == {"HI", "AK", "US"}
 
-    # And the grid, asked anyway, really does answer zero rather than a rate.
-    grid = peril.grid_model(inland)
-    assert grid is not None and not grid.in_box(21.3069, -157.8583)
-    assert grid.rate_reference_within(21.3069, -157.8583, 50.0) == 0.0
+    # And no grid is ever asked about ground it was not fitted on.
+    for where in (honolulu, anchorage, inland):
+        grid = peril.grid_model(where)
+        assert grid.in_box(where["latitude"], where["longitude"]), grid.code
+    lower48 = peril.grid_model(inland)
+    assert not lower48.in_box(21.3069, -157.8583)
+    assert lower48.rate_reference_within(21.3069, -157.8583, 50.0) == 0.0
 
 
-def test_hawaii_is_priced_and_alaska_says_why_it_is_not() -> None:
-    """The two outcomes this opened, both measured against the shipped file.
+def test_the_three_american_models_each_price_their_own_ground() -> None:
+    """What the split opened, held against the shipped files.
 
-    Honolulu reconciles: the Hawaii model and our own events, corrected, agree
-    across the fit band. Anchorage does not, and it is not close: the USGS puts
-    intensity VII there at once in 87 years and our catalogue, which has no
-    Alaskan events at all and answers with the global floor, reaches once in
-    11,119. The existing guard refuses it, and the sentence now says both.
+    All three reconcile with the publisher's own curves: the quantile map's
+    residual is at or near 1.00 at each, well inside the factor of two this
+    protocol will write on. Before the Alaskan and Hawaiian catalogues existed
+    the same three addresses shared one number, the global background floor.
     """
     from clause.perils.quake import Earthquake
 
     peril = Earthquake()
     shipped = json.loads(pub.OUT.read_text(encoding="utf-8"))
     held = {row["name"] for row in shipped.get("US", {}).get("points", [])}
-    if not {"Honolulu", "Anchorage"} <= held:
+    if not {"Honolulu", "Anchorage", "Hilo"} <= held:
         pytest.skip("the published build has not reached Hawaii and Alaska yet")
 
-    honolulu = {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50,
-                "index": "shaking"}
-    term = sh.site_term(honolulu)
-    assert term is not None and "Hawaii 2021 R1" in term["publisher"]
-    assert term["worst_ratio"] <= sh.MOST_DISAGREEMENT
-    peril.validate_subject(dict(honolulu, place="Honolulu"))   # priced
+    wanted = {"Honolulu": ("Hawaii 2021 R1", 21.3069, -157.8583),
+              "Hilo": ("Hawaii 2021 R1", 19.7299, -155.0907),
+              "Anchorage": ("Alaska 2023 R1", 61.2181, -149.9003)}
+    rates = {}
+    for name, (model, latitude, longitude) in wanted.items():
+        where = {"latitude": latitude, "longitude": longitude, "radius_km": 50,
+                 "place": name, "index": "shaking"}
+        term = sh.site_term(where)
+        assert term is not None and model in term["publisher"], (name, term)
+        assert term["worst_ratio"] <= sh.MOST_DISAGREEMENT, (name, term["worst_ratio"])
+        peril.validate_subject(where)                      # priced, not refused
+        rates[name] = sh.raw_rate_at_least(where, 7.0)
 
-    anchorage = {"latitude": 61.2181, "longitude": -149.9003, "radius_km": 50,
-                 "index": "shaking"}
-    term = sh.site_term(anchorage)
-    assert term is not None and "Alaska 2023 R1" in term["publisher"]
-    assert term["worst_ratio"] > sh.MOST_DISAGREEMENT
-    with pytest.raises(ValueError) as refused:
-        peril.validate_subject(dict(anchorage, place="Anchorage"))
-    said = str(refused.value)
-    assert "Alaska 2023 R1" in said and "once in 87 years" in said
+    # Three addresses, three rates. They were one.
+    assert len(set(round(r, 12) for r in rates.values())) == 3, rates
+    # Anchorage is the most exposed of the three by a long way, which is the
+    # reason the Alaskan catalogue was worth fitting.
+    assert rates["Anchorage"] > rates["Hilo"] > rates["Honolulu"]
 
 
 def test_a_build_cut_short_still_names_what_it_could_not_read(monkeypatch, tmp_path) -> None:

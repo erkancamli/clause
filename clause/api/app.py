@@ -1546,7 +1546,10 @@ def create_app(
         for code, model in sorted(all_models().items()):
             card = model.card()
             cards.append({
-                "country": code, "name": model.name, "version": model.version,
+                # The key that fetches this card, and the country it is in.
+                # They are the same for every model but Alaska and Hawaii.
+                "country": model.country, "region": code,
+                "name": model.name, "version": model.version,
                 "passed": model.passed, "priced_by": (
                     "fault model" if code == "TR" else ("this model" if model.passed else "nothing yet")
                 ),

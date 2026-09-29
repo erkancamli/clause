@@ -302,3 +302,22 @@ def test_a_bar_that_stood_down_does_not_count_back_from_the_old_price() -> None:
         "the bar blanks the figure without forgetting it"
     )
     assert body.count("noAmount(") >= 2, "the bar has ways of blanking that do not forget"
+
+
+def test_the_model_card_a_buyer_opens_is_the_model_that_priced_them() -> None:
+    """One country, three catalogue models, and one link between them.
+
+    The page linked the model card by the country the grid reported. That was
+    the same thing as the model until the United States became three of them:
+    the lower forty eight, Alaska and Hawaii. A buyer in Anchorage following
+    that link would read a model fitted on ground three thousand kilometres
+    away, with a different b value, a different completeness magnitude and a
+    largest event nearly a whole unit smaller, and would have no way to tell.
+
+    The card is opened by the region now, which is the model's own key, and
+    falls back to the country for every model that is one.
+    """
+    body = _function("radiusNoteHtml")
+    assert "modelCardLink(g.region||g.country)" in body.replace(" ", ""), (
+        "the card is still opened by the country rather than the model"
+    )

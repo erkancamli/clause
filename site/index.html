@@ -7398,7 +7398,12 @@ function radiusNoteHtml(){
   var small=gridRate(flow.radius),big=gridRate(Math.min(100,flow.radius*2));
   if(flow.radius<100&&small>0)
     bits.push(t("Doubling the radius takes in about {x} times as many.",{x:f1.format(big/small)}));
-  return esc(bits.join(" "))+" "+modelCardLink(g.country);
+  /* The card of the model that priced this address, which is not always the
+     country's. The United States is three catalogue models -- the lower forty
+     eight, Alaska and Hawaii -- and a buyer in Anchorage reading the American
+     card would be reading a model fitted on ground three thousand kilometres
+     away, with a different b value and a smaller largest event. */
+  return esc(bits.join(" "))+" "+modelCardLink(g.region||g.country);
 }
 function radiusNote(){
   var at=coordinates(); if(!at)return "";
