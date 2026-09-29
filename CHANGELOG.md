@@ -66,12 +66,13 @@
   CONUS 1,404, Hawaii 13, Alaska 1. The depth it declares is the 1,300 largest
   American places, of which 8 are still without a curve: Morris Heights,
   Peachtree Corners, Huntsville, Warren, Amherst, Lancaster, Gainesville and
-  Montclair. The USGS hazard service refused most of what it was asked for
-  today, answering about one request in six and, for one whole pass over the
-  gaps, one in eighty three. A limit is a throttle on the asking and not a
-  decision about what to keep, so every curve already fetched is still in the
-  file; what the smaller number changes is the scope the model claims to
-  cover, which is now the scope it actually reaches.
+  Montclair. The USGS hazard service was up and down all day: one pass took the
+  file from 1,240 curves to 1,318 and named 182 places it could not reach, a
+  later one reached 1,410 with nothing missed, and a pass over what was left
+  returned a single curve out of eighty three. A limit is a throttle on the
+  asking and not a decision about what to keep, so every curve already fetched
+  is still in the file; what the smaller number changes is the scope the model
+  claims to cover, which is now the scope it actually reaches.
 
   Anchorage and Hilo are sold. Fairbanks and Juneau are still refused, because
   nothing published sits within sixty kilometres of either; they open when the
