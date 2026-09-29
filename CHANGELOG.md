@@ -2,6 +2,61 @@
 
 ## 1.46.0, 29 September 2026
 
+- A risk the book never feels was written for nothing.
+
+  A buyer asked why New York costs 13.81 and Türkiye 7,000, and the answer is
+  worse than the question. The two addresses differ by 129 times in expected
+  loss, which is the hazard and is right: intensity VII once in 78 years
+  against once in 5,952. They differ by 718 times in premium. All of the
+  difference beyond the hazard is a risk load New York does not pay.
+
+  New York's marginal capital was exactly zero. The book is concentrated in
+  Türkiye, so its worst half per cent is Turkish earthquakes, and a policy that
+  pays once in three thousand seven hundred years is never in it. The marginal
+  reading of that is zero and the reading is correct; the pricing rule built on
+  it is not. The policy was sold for its expected loss plus expenses, 13.79
+  against an expected loss of 12.77, which is ninety three per cent of the
+  premium expected to be paid straight back out. Miami was the same at ninety
+  two.
+
+  Two things followed and neither is acceptable. A concentration could be built
+  for nothing one policy at a time, because the hundred thousandth New York
+  policy is priced against a book that does not contain the other ninety nine
+  thousand. And the charge was not proportional to the cover: a million of New
+  York cover in one policy measured 8,845 of capital and cost 1,198.55, while
+  the same million split into ten policies measured zero and cost 137.90. The
+  same risk, split ten ways, for a ninth of the price; anyone wanting a million
+  simply bought ten.
+
+  A policy is charged for at least a twentieth of the capital it would need
+  standing alone, however well it sits against today's book, because today's
+  book is not tomorrow's. Standalone capital is proportional to the limit, so
+  the floor cannot be arbitraged by splitting. Ninety five per cent
+  diversification credit is generous by any capital model's standard, so this is
+  a floor rather than a charge: it binds only where the measured marginal was
+  near zero, and every price with a real marginal charge is untouched.
+
+  | | was | now | loss ratio |
+  |---|---:|---:|---|
+  | New York | 13.79 | 29.02 | 0.93 → 0.44 |
+  | Miami | 1.31 | 2.75 | 0.92 → 0.44 |
+  | Los Angeles | 883.37 | 883.37 | unchanged |
+  | Kadıköy | 10,010.33 | 10,010.33 | unchanged |
+
+- A rare risk knows its own capital without drawing for it.
+
+  The floor rests on standalone capital, so that had to be a number the
+  simulation can produce, and for a rare risk it cannot: in twenty thousand
+  trials New York pays five times, and in a third of four thousand trial runs it
+  pays none at all, for a standalone requirement of exactly zero and a floor of
+  five per cent of nothing.
+
+  It does not have to be drawn for. Below the solvency tail the answer is exact.
+  If a policy pays less often than one time in two hundred, every outcome in
+  which it pays is inside the worst half per cent, so the tail average is the
+  expected loss divided by that half per cent and the capital is 199 times the
+  expected loss. The same number however many trials are run.
+
 - Anchorage can be priced.
 
   Our own model answered Anchorage, Fairbanks, Juneau, Honolulu and Hilo with
