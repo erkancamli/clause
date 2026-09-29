@@ -633,3 +633,39 @@ def test_hawaii_is_priced_and_alaska_says_why_it_is_not() -> None:
         peril.validate_subject(dict(anchorage, place="Anchorage"))
     said = str(refused.value)
     assert "Alaska 2023 R1" in said and "once in 87 years" in said
+
+
+def test_a_build_cut_short_still_names_what_it_could_not_read(monkeypatch, tmp_path) -> None:
+    """Four interrupted runs in a row shipped a model that named no gaps.
+
+    The partial save carried the missed list as it stood when the run began, so
+    a build killed half way wrote a file saying nothing was missing while its
+    own log showed a hundred refusals from the publisher. The test that holds
+    the missed list under a fiftieth of the points had nothing to see, and the
+    first run that actually finished is what exposed it: a thousand and twelve
+    misses appearing at once, none of them new.
+
+    A save names this run's misses, so the file is honest at every point during
+    a long build and not only at the end of one.
+    """
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+    monkeypatch.setitem(pub.SOURCES["JP"], "pause", 0.0)
+    asked: list[int] = []
+
+    def fetch(latitude, longitude):
+        asked.append(1)
+        # Every third place is refused by the publisher, as this build's own
+        # American pass was refused for most of an afternoon.
+        if len(asked) % 3 == 0:
+            raise pub.Busy("getaddrinfo EBUSY lambda.us-east-1.amazonaws.com")
+        return [[10.0, 0.05], [40.0, 0.005]]
+
+    monkeypatch.setitem(pub.SOURCES["JP"], "fetch", fetch)
+    seen: list[tuple[int, int]] = []
+    pub.build("JP", limit=40, save=lambda rows, missed: seen.append((len(rows), len(missed))))
+
+    assert seen, "a build of forty places saved nothing on the way"
+    # Every save carries the refusals that had happened by then, not zero.
+    assert all(missed > 0 for _points, missed in seen), seen
+    # And they grow with the run rather than standing still.
+    assert seen[-1][1] > seen[0][1], seen

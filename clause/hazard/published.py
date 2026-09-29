@@ -316,7 +316,8 @@ def places_of(code: str) -> list[tuple[str, float, float, int]]:
 
 def build(code: str, *, limit: int | None = None,
           keep: list[dict[str, Any]] | None = None,
-          save: Callable[[list[dict[str, Any]]], None] | None = None) -> dict[str, Any]:
+          save: Callable[[list[dict[str, Any]], list[str]], None] | None = None
+          ) -> dict[str, Any]:
     """Fetch a country's published curves, keeping what an earlier run got.
 
     These are public services with their own load, and asking one for two
@@ -376,7 +377,14 @@ def build(code: str, *, limit: int | None = None,
         rows.append(row)
         print(f"  {code} {name}: {len(curve)} points", flush=True)
         if save is not None and len(rows) % 10 == 0:
-            save(rows)
+            # This run's misses, not the last one's. The partial save used to
+            # carry the missed list frozen at the start of the run, so a build
+            # killed half way wrote a file that named no gaps at all: four
+            # interrupted American passes in a row shipped as models with
+            # nothing missing, while the log showed a hundred refusals. The
+            # test that holds the missed list under a fiftieth of the points
+            # could not see any of it.
+            save(rows, missed)
         time.sleep(source["pause"])
     return _record(code, rows, missed)
 
@@ -449,9 +457,9 @@ def main(argv: list[str]) -> int:
             continue
         so_far = {} if refresh else dict(have.get(code) or {})
 
-        def save(rows: list[dict[str, Any]], _code: str = code,
-                 _missed: list[str] = list(so_far.get("missed") or [])) -> None:
-            have[_code] = _record(_code, rows, _missed)
+        def save(rows: list[dict[str, Any]], missed: list[str],
+                 _code: str = code) -> None:
+            have[_code] = _record(_code, rows, missed)
             _write(have)
 
         have[code] = build(code, limit=limit, keep=so_far.get("points"), save=save)
