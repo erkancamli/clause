@@ -198,6 +198,11 @@ EVENT_SERVICE = "earthquake.usgs.gov/fdsnws/event/1/query"
 SHAKEMAP_SERVICE = "earthquake.usgs.gov/fdsnws/event/1/query"
 
 
+#: How far a mapped fault trace can be and still describe the ground at an
+#: address. The traces are Türkiye's, so beyond this the nearest one is in
+#: another country and its distance says nothing about the site being priced.
+TRACES_REACH_KM = 500.0
+
 class Earthquake(Peril):
     key = "earthquake"
     name = "Earthquake, on magnitude within a radius"
@@ -274,9 +279,20 @@ class Earthquake(Peril):
         passed = model_for(latitude, longitude)
         if passed is not None:
             return passed
-        if nearest(round(latitude, 4), round(longitude, 4)) is None:
+        near = nearest(round(latitude, 4), round(longitude, 4))
+        if near is None:
             return None
-        return model_at(latitude, longitude)
+        here = model_at(latitude, longitude)
+        if here is not None:
+            return here
+        # A published curve covers this address and no catalogue outline does.
+        # That is Alaska and Hawaii: inside the United States, outside the box
+        # the American catalogue was fitted on, and covered by two national
+        # models of the USGS's own. The curve says which country published it,
+        # and that is the country whose law and licences apply here. Honolulu
+        # was refused with "no tested earthquake model covers this location",
+        # which was true of our catalogue and not true of the ground.
+        return models().get(str(near.get("country") or ""))
 
     @staticmethod
     def in_turkey(latitude: float, longitude: float) -> bool:
@@ -296,7 +312,16 @@ class Earthquake(Peril):
         latitude, longitude = float(subject["latitude"]), float(subject["longitude"])
         if self.in_turkey(latitude, longitude):
             return None
-        return self.priced_at(latitude, longitude)
+        model = self.priced_at(latitude, longitude)
+        # Whose country it is and which grid prices it are two questions, and
+        # they came apart the moment a published curve could cover ground the
+        # catalogue was not fitted on. A grid asked about a point outside its
+        # own box answers zero, which reads as "no earthquakes here" and is
+        # really "this grid is not about here". Honolulu would have been priced
+        # at no hazard at all rather than at the background floor.
+        if model is not None and not model.in_box(latitude, longitude):
+            return None
+        return model
 
     def risk_country(self, subject: dict[str, Any]) -> str | None:
         try:
@@ -348,8 +373,29 @@ class Earthquake(Peril):
             if (self.priced_at(latitude, longitude) is not None
                     and sh.beyond_reconciling({"latitude": latitude, "longitude": longitude})):
                 near = sh.site_term({"latitude": latitude, "longitude": longitude}) or {}
+                # Both figures, not the residual alone. The residual is what
+                # the map could not close, and it is the right thing to gate
+                # on; it is not what the two models say. At Anchorage they are
+                # 128 times apart and the residual is six. A reader asking why
+                # their address was refused wants the two numbers, and can
+                # check ours against the publisher's own map.
+                theirs, ours = near.get("theirs_one_in"), near.get("ours_one_in")
+                who = near.get("publisher") or "the national model"
+                # Plain digits, no thousands separator. This sentence is
+                # written here and translated by pattern, so the separator
+                # would be an English one wherever it is read: "11,119" is
+                # eleven thousand to one reader and eleven to another.
+                if theirs and ours:
+                    raise ValueError(
+                        f"this address cannot be priced: {who} puts shaking of "
+                        f"intensity VII here at about once in {theirs} years and our "
+                        f"own events reach once in {ours}. Corrected as far as this "
+                        f"model allows, a factor of {near.get('worst_ratio', 0):.0f} is "
+                        f"left between them, and a premium from the smaller of the two "
+                        f"is not cover"
+                    )
                 raise ValueError(
-                    f"this address cannot be priced: {near.get('publisher', 'the national model')} "
+                    f"this address cannot be priced: {who} "
                     f"and our own earthquake model disagree by a factor of "
                     f"{near.get('worst_ratio', 0):.0f} about how often the ground here "
                     f"shakes, and a premium from the smaller of the two is not "
@@ -675,6 +721,19 @@ class Earthquake(Peril):
         rate, _ = characteristic_rate_at(latitude, longitude, radius)
 
         if site.nearest is None:
+            # A distance that is not a fact about this site is not said. The
+            # trace database is Türkiye's, and it answers a point in Hawaii
+            # with 19,253 km, which is the distance to Anatolia rather than a
+            # description of Oahu; the sentence then read "no mapped system
+            # dominates this site: the nearest trace is about 19253 km away",
+            # which contradicts itself in its own second clause. Ankara's
+            # nearest trace is 96 km off and that is worth saying.
+            if site.nearest_distance_km > TRACES_REACH_KM:
+                return (
+                    "No mapped fault system reaches this site. The hazard here "
+                    "is diffuse background seismicity, and a wider radius buys "
+                    "more of it in proportion to area."
+                )
             return (
                 "No mapped system dominates this site: the nearest trace is "
                 f"about {site.nearest_distance_km:.0f} km away. The hazard here "

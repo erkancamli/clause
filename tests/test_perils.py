@@ -537,3 +537,33 @@ def test_a_record_nothing_can_name_is_still_a_record() -> None:
     assert airports_of(nonsense) == ("", "")
     assert isinstance(peril.describe_subject(nonsense), str)
     assert isinstance(peril.describe_subject({}), str)
+
+
+def test_a_distance_that_is_not_about_this_site_is_not_quoted() -> None:
+    """The sentence contradicted itself in its own second clause.
+
+    "No mapped system dominates this site: the nearest trace is about 19253 km
+    away." The trace database is Türkiye's, so for a point in Hawaii it answers
+    with the distance to Anatolia, which is not a description of Oahu. It was
+    unreachable outside Türkiye while every such address was refused; opening
+    Hawaii on the USGS's own model made it a sentence a buyer reads.
+
+    Where a trace is near enough to bear on the site, it is still named: Ankara
+    has none dominating it and the nearest is 96 km off, which is worth saying.
+    """
+    from clause.perils.quake import TRACES_REACH_KM
+
+    honolulu = EARTHQUAKE.radius_note(
+        {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50.0})
+    assert "No mapped fault system reaches this site" in honolulu
+    assert "km away" not in honolulu
+
+    ankara = EARTHQUAKE.radius_note(
+        {"latitude": 39.9208, "longitude": 32.8541, "radius_km": 50.0})
+    assert "the nearest trace is about" in ankara
+    assert " km away" in ankara
+
+    # And the bound is what separates them, not the country.
+    from clause.perils.geo import site_at
+    assert site_at(39.9208, 32.8541).nearest_distance_km < TRACES_REACH_KM
+    assert site_at(21.3069, -157.8583).nearest_distance_km > TRACES_REACH_KM
