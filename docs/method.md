@@ -331,6 +331,49 @@ That is a different claim, so the model file makes it: `sold_on` names which
 test carried the country, and `failed` still lists the one that did not. Too
 few years of record is not negotiable by either.
 
+#### Why Indonesia, Japan and the Philippines are not sold rain cover
+
+Each file also carries an `in_sample` figure, which is not a test and nothing is
+gated on it. It is the one number that says which kind of failure a reader is
+looking at: how often the years the fit was made on beat that same fit, which
+should be a fifth of them.
+
+| | in sample | fixed | rolling |
+| --- | --- | --- | --- |
+| Indonesia, rain | 18.8% | 43.2% | 36.5% |
+| Japan, rain | 21.1% | 36.2% | 32.0% |
+| Philippines, rain | 18.7% | 60.5% | 47.3% |
+| Italy, rain, for comparison | 20.8% | 25.8% | 26.9% |
+
+All three sit at a fifth in sample. The Gumbel describes the years it was fitted
+on in every country built here, so the distribution is not what fails. What
+fails is that the years since are not the years before.
+
+Two explanations were tested and both were written down before being measured,
+and both were wrong. It is worth recording them so nobody spends the afternoon
+again.
+
+**Not the tail.** A Gumbel has a thin upper tail, and monsoon rainfall is
+supposed to be heavy tailed, so fitting a GEV should have exposed the three. The
+shape parameter says otherwise, and says it clearly: Italy at -0.448 and Greece
+at -0.373 are far heavier tailed than Japan at -0.022 or the Philippines at
++0.015, and Italy and Greece pass. Fitting what the rain is would not have
+changed who is sold.
+
+**Not a straight trend either.** Carrying a slope in the fit and extrapolating it
+one year ahead helps where there is a slope: Japan's rolling exceedance falls
+from 32.0% to 23.8% and the Philippines' from 47.3% to 31.0%. It also breaks
+Italy, from 26.9% to 34.4%, and New Zealand, from 29.4% to 32.8%, whose slopes
+are noise near zero. Gating the slope on the ordinary two sigma test does not
+rescue it: Italy and New Zealand still fail while only Japan is opened, which is
+two lost for one gained. The rule for that was fixed before the measurement, and
+it says abandon the trend, so the trend is abandoned.
+
+So the three stay shut, and the reason is now specific rather than a shrug: in
+those countries the rate at which extreme daily rain beats a thirty year fit has
+risen from a fifth to between a third and a half, and neither a fatter tail nor a
+straight line through the last thirty years follows it.
+
 Where no file has been built at all, the same refusal.
 
 A place from a country whose model failed is never a fallback for an address

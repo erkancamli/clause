@@ -205,6 +205,29 @@ def verdict(*, record_ok: bool, count_ok: bool, rolling_ok: bool) -> dict[str, A
     }
 
 
+def _in_sample(spec: Spec, places: list[Any], last_year: int, end: str) -> tuple[int, int]:
+    """How often the fitting years beat their own fit. A fifth, if the fit fits.
+
+    This is not a test and nothing is gated on it. It is the figure that tells a
+    reader which kind of failure they are looking at: a distribution that cannot
+    describe the years it was fitted on is a broken model, and one that describes
+    them but not the years since is a changed world. For every country built
+    here it is the second.
+    """
+    beat = trials = 0
+    for place in places:
+        series = fetch(spec, place.latitude, place.longitude, end)
+        maxima = annual_maxima(series, last_year, scale=spec.scale)
+        years = sorted(y for y in maxima if y <= FIT_UNTIL)
+        if len(years) < ROLLING_LEAST:
+            continue
+        mu, beta = gumbel([maxima[y] for y in years])
+        five = level(mu, beta, 5)
+        beat += sum(1 for y in years if maxima[y] > five)
+        trials += len(years)
+    return beat, trials
+
+
 def _rolling(spec: Spec, places: list[Any], last_year: int, end: str) -> tuple[int, int]:
     """How often the year ahead beat a fit on the years before it.
 
@@ -290,6 +313,12 @@ def build(spec: Spec, *, sources: list[dict[str, Any]], code: str = "TR", name: 
     # is not that fit: it is fitted on the most recent thirty years and used to
     # price the year ahead. So the question that matches the product had not
     # been asked. It is asked here, and it was written down before it was run.
+    # And the same question asked of the years the fit was made on, which is the
+    # one figure that separates a distribution that does not describe the data
+    # from a world that moved. Every country sits near a fifth here, the ones
+    # that fail both tests included, so the Gumbel is not what fails.
+    inside, inside_trials = _in_sample(spec, provinces, last_year, end)
+
     rolled, rolled_trials = _rolling(spec, provinces, last_year, end)
     rolled_expected = rolled_trials * p
     rolled_low = nb_cdf(rolled, rolled_expected, dispersion) if rolled_trials else 0.0
@@ -318,6 +347,13 @@ def build(spec: Spec, *, sources: list[dict[str, Any]], code: str = "TR", name: 
                 "p_at_most_observed": round(rolled_low, 4),
                 "p_at_least_observed": round(rolled_high, 4),
                 "passed": rolling_ok,
+            },
+            "in_sample": {
+                "question": ("how often the years the fit was made on beat that "
+                             "same fit, which should be a fifth of them"),
+                "expected": round(0.2 * inside_trials, 1), "observed": inside,
+                "place_years": inside_trials,
+                "share": round(inside / inside_trials, 3) if inside_trials else None,
             },
             "changes_after_first_run": list(spec.changes_after_first_run),
         },

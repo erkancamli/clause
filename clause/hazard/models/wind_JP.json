@@ -40,6 +40,13 @@
    "p_at_least_observed": 0.0696,
    "passed": true
   },
+  "in_sample": {
+   "question": "how often the years the fit was made on beat that same fit, which should be a fifth of them",
+   "expected": 810.0,
+   "observed": 852,
+   "place_years": 4050,
+   "share": 0.21
+  },
   "changes_after_first_run": []
  },
  "places": [
