@@ -182,6 +182,30 @@ cities where 10 happened, so its level cannot price a policy. The USGS level
 can. So the United States is written, at the addresses a published curve
 reaches, and the refusal elsewhere says which of the two is missing.
 
+#### Which national models can actually be read, and on what terms
+
+Two, and they are the two that are wired. Written down because the next person
+will otherwise spend an afternoon finding this out.
+
+- **Japan, NIED J-SHIS.** A documented mesh service, no key, returning the whole
+  curve and the site's own velocity to intensity pairs with it. Wired.
+- **United States, USGS NSHMP.** A documented web service, no key, twenty points
+  per curve. Wired. It refuses most requests in some hours and none in others,
+  which the build is built around rather than against.
+- **New Zealand, GNS.** The public hazard tool talks to a GraphQL endpoint whose
+  API key is shipped inside its own JavaScript bundle. That is GNS's key and not
+  a documented endpoint, so it is not used: driving a build with someone else's
+  credential, and committing that credential here, are both things this
+  repository will not do. New Zealand's own catalogue model passes its backtest,
+  so a published model would refine what is already sold rather than open it.
+- **Europe, ESHM20 through EFEHR.** The hazard repository is behind a sign in,
+  and licences in that family are not uniformly commercial: one related release
+  is CC BY NC, which a product that prices insurance for money cannot use. So
+  Greece and Italy are not opened this way, and would not be even if the files
+  were public, until a licence says they may be. That is a permission question
+  rather than a data question, and it is the only one of the four a better
+  fetcher cannot solve.
+
 A country being open does not open every address in it. A published curve is
 held for every Japanese place this product offers except four, and for the
 largest American ones; each describes addresses within 60 km, because a hazard
