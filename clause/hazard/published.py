@@ -106,21 +106,53 @@ def _get(url: str, *, timeout: float = 120.0, tries: int = 2) -> Any:
 
 # -- the United States -------------------------------------------------------
 
-#: The resolved revision, not the `conus-2023` alias. The alias answers with a
-#: 302 whose Location downgrades to http, which no sane client follows, and
-#: naming the revision also puts it in the model file: a hazard curve should
-#: say which revision of the national model drew it.
-USGS = ("https://earthquake.usgs.gov/ws/nshmp/conus-2023.R2/dynamic/hazard/"
-        "{lon}/{lat}/{vs30}")
+#: The resolved revisions, not the `conus-2023` style aliases. An alias answers
+#: with a 302 whose Location downgrades to http, which no sane client follows,
+#: and naming the revision also puts it in the model file: a hazard curve
+#: should say which revision of which national model drew it.
+#:
+#: There are three, because the United States is not one piece of ground. CONUS
+#: stops at the border of the lower forty eight, so this build asked it about
+#: Anchorage and was told there is no curve there: one of the most seismic
+#: cities in the world, four hundred kilometres from the 1964 rupture, and the
+#: USGS has published a model for it since 2007. Honolulu, the largest American
+#: place after the CONUS two hundred, came back the same way. Each model is
+#: asked about the ground it covers, and each curve carries the name of the one
+#: that drew it, because "the national model" is three different models and a
+#: buyer reading the source line should see which.
+USGS = "https://earthquake.usgs.gov/ws/nshmp/{model}/dynamic/hazard/{lon}/{lat}/{vs30}"
+#: Revision, printed name, and the box of ground it answers for: south, north,
+#: west, east. The boxes are the publishers' own footprints rounded outwards,
+#: and every American place this product offers falls in exactly one of them,
+#: which is checked in the tests rather than assumed here. A place in none is
+#: named as missed rather than asked of a model that does not cover it.
+USGS_MODELS = (
+    ("alaska-2023.R1", "Alaska 2023 R1", (48.0, 72.0, -180.0, -129.0)),
+    ("hawaii-2021.R1", "Hawaii 2021 R1", (18.0, 23.5, -161.5, -154.0)),
+    ("conus-2023.R2", "CONUS 2023 R2", (24.0, 50.0, -125.5, -66.0)),
+)
+
+
+def usgs_model(latitude: float, longitude: float) -> tuple[str, str] | None:
+    """Which of the three national models covers a point, and what it is called."""
+    for revision, name, (south, north, west, east) in USGS_MODELS:
+        if south <= latitude <= north and west <= longitude <= east:
+            return revision, name
+    return None
+
 
 def usgs_curve(latitude: float, longitude: float, *, vs30: int = 760) -> list[list[float]] | None:
-    """The 2023 national model's curve at a point: PGV against annual rate.
+    """The national model's curve at a point: PGV against annual rate.
 
     Soil is left at the reference 760 m/s because the buyer's own site class
     is not known, and saying so is better than assuming a softer one and
     quietly pricing every address as though it stood on it.
     """
-    data = _get(USGS.format(lon=round(longitude, 4), lat=round(latitude, 4), vs30=vs30))
+    chosen = usgs_model(latitude, longitude)
+    if chosen is None:
+        return None
+    data = _get(USGS.format(model=chosen[0], lon=round(longitude, 4),
+                            lat=round(latitude, 4), vs30=vs30))
     for curve in (data.get("response") or {}).get("hazardCurves", []):
         if (curve.get("imt") or {}).get("value") != "PGV":
             continue
@@ -245,8 +277,8 @@ def jshis_curve(latitude: float, longitude: float) -> list[list[float]] | None:
 
 
 SOURCES: dict[str, dict[str, Any]] = {
-    "US": {"fetch": usgs_curve, "pause": 3.0,
-           "publisher": "USGS National Seismic Hazard Model, CONUS 2023 R2",
+    "US": {"fetch": usgs_curve, "pause": 3.0, "names": usgs_model,
+           "publisher": "USGS National Seismic Hazard Model",
            "reference": "https://earthquake.usgs.gov/ws/nshmp/",
            "measure": "PGV, cm/s, at a reference site of 760 m/s"},
     "JP": {"fetch": jshis_curve, "pause": 0.5,
@@ -295,7 +327,18 @@ def build(code: str, *, limit: int | None = None,
     """
     source = SOURCES[code]
     fetch: Callable[..., Any] = source["fetch"]
+    # Where a country is covered by more than one published model, each point
+    # carries the name of the one that answered for it. A point fetched before
+    # this build learned that is stamped from its coordinate rather than asked
+    # for again: which model covers a place is arithmetic, not a request.
+    names: Callable[..., Any] | None = source.get("names")
     rows: list[dict[str, Any]] = list(keep or [])
+    if names is not None:
+        for row in rows:
+            if not row.get("model"):
+                found = names(float(row["latitude"]), float(row["longitude"]))
+                if found:
+                    row["model"] = found[1]
     already = {row["name"] for row in rows}
     missed: list[str] = []
     places = places_of(code)
@@ -324,8 +367,13 @@ def build(code: str, *, limit: int | None = None,
             print(f"  {code} {name}: no curve", file=sys.stderr)
             missed.append(name)
             continue
-        rows.append({"name": name, "latitude": round(latitude, 4),
-                     "longitude": round(longitude, 4), "curve": curve})
+        row = {"name": name, "latitude": round(latitude, 4),
+               "longitude": round(longitude, 4), "curve": curve}
+        if names is not None:
+            found = names(latitude, longitude)
+            if found:
+                row["model"] = found[1]
+        rows.append(row)
         print(f"  {code} {name}: {len(curve)} points", flush=True)
         if save is not None and len(rows) % 10 == 0:
             save(rows)
@@ -450,13 +498,26 @@ def curves() -> tuple[dict[str, Any], ...]:
             out.append({
                 "country": code, "name": row["name"],
                 "latitude": float(row["latitude"]), "longitude": float(row["longitude"]),
-                "curve": curve, "publisher": country.get("publisher", ""),
+                "curve": curve, "publisher": _said(country, row),
                 "reference": country.get("reference", ""),
                 "measure": country.get("measure", ""),
                 "conversion": country.get("conversion", ""),
                 "version": country.get("version", ""),
             })
     return tuple(out)
+
+
+def _said(country: dict[str, Any], row: dict[str, Any]) -> str:
+    """Who published this one curve.
+
+    The country names the model family and the point names the revision that
+    drew it, because the United States is three models under one name and a
+    source line that says only the family tells a buyer in Anchorage that their
+    price came from a model of the lower forty eight.
+    """
+    said = str(country.get("publisher", ""))
+    model = str(row.get("model") or "")
+    return f"{said}, {model}" if said and model else (said or model)
 
 
 def _read_curve(stored: Any) -> tuple[tuple[float, float], ...]:

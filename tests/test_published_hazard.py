@@ -417,3 +417,219 @@ def test_one_place_per_coordinate_is_fetched() -> None:
         # Largest first, so a limit takes the places most people live in.
         people = [p for *_r, p in where]
         assert people == sorted(people, reverse=True), code
+
+
+def test_every_american_place_offered_has_a_model_that_covers_it() -> None:
+    """The United States is three published models, not one.
+
+    CONUS stops at the border of the lower forty eight. This build asked it
+    about Anchorage and was told there is no curve there: a city four hundred
+    kilometres from the 1964 rupture, for which the USGS has published a model
+    since 2007. Honolulu, the largest American place after the CONUS two
+    hundred, came back the same way, and so did forty six other Hawaiian
+    places and four more Alaskan ones.
+
+    The claim the build rests on is that every American place this product
+    offers falls inside exactly one of the three footprints, so that asking the
+    model whose box contains a point is the same as asking the model that
+    covers it. That is a claim about a list of places, which is checked here
+    rather than assumed in a comment.
+    """
+    counted: dict[str, int] = {}
+    for name, latitude, longitude, _people in pub.places_of("US"):
+        boxes = [model for model, _named, (s, n, w, e) in pub.USGS_MODELS
+                 if s <= latitude <= n and w <= longitude <= e]
+        assert len(boxes) == 1, f"{name} at {latitude},{longitude} is in {boxes}"
+        counted[boxes[0]] = counted.get(boxes[0], 0) + 1
+    # And all three are actually used, so a box that stopped matching anything
+    # would be noticed rather than quietly carried.
+    assert set(counted) == {model for model, *_ in pub.USGS_MODELS}, counted
+
+
+def test_a_point_no_model_covers_is_not_asked_of_one(monkeypatch) -> None:
+    """Outside all three, the answer is no curve, and no request is made.
+
+    The alternative is asking the model of the lower forty eight about a point
+    in the middle of the Pacific and taking whatever it says, which is how a
+    place gets priced by a model that has never seen it.
+    """
+    def never(*_args, **_kwargs):
+        raise AssertionError("a point outside every model was asked for anyway")
+
+    monkeypatch.setattr(pub, "_get", never)
+    assert pub.usgs_model(0.0, 0.0) is None
+    assert pub.usgs_curve(0.0, 0.0) is None
+    # Guam, which this product does not offer and which no box claims.
+    assert pub.usgs_model(13.4443, 144.7937) is None
+
+
+def test_a_curve_says_which_revision_drew_it() -> None:
+    """A source line that names the family names the wrong model two ways.
+
+    "USGS National Seismic Hazard Model" is true of Anchorage, Honolulu and
+    Brooklyn alike and tells a buyer in any of them nothing. The country names
+    the family and the point names the revision.
+    """
+    country = {"publisher": "USGS National Seismic Hazard Model"}
+    assert pub._said(country, {"model": "Alaska 2023 R1"}) == (
+        "USGS National Seismic Hazard Model, Alaska 2023 R1")
+    # A point from before the build learned this still reads as the family.
+    assert pub._said(country, {}) == "USGS National Seismic Hazard Model"
+    assert pub._said({}, {"model": "Hawaii 2021 R1"}) == "Hawaii 2021 R1"
+    assert pub._said({}, {}) == ""
+
+
+def test_a_point_fetched_before_this_is_stamped_without_asking_again(monkeypatch, tmp_path) -> None:
+    """Which model covers a place is arithmetic, not a request.
+
+    The two hundred American curves already in the file were fetched before the
+    build could name the model behind them. Refetching them to learn a fact
+    that follows from their coordinates would cost an hour of a public service's
+    time for nothing.
+    """
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+    asked: list[str] = []
+
+    def fetch(latitude, longitude):
+        asked.append(f"{latitude},{longitude}")
+        return [[10.0, 0.05], [40.0, 0.005]]
+
+    monkeypatch.setitem(pub.SOURCES["US"], "fetch", fetch)
+    monkeypatch.setitem(pub.SOURCES["US"], "pause", 0.0)
+    kept = [{"name": name, "latitude": round(la, 4), "longitude": round(lo, 4),
+             "curve": [[10.0, 0.05], [40.0, 0.005]]}
+            for name, la, lo, _p in pub.places_of("US")[:3]]
+    built = pub.build("US", limit=3, keep=kept)
+    assert asked == [], "a stored point was fetched again to learn its model"
+    assert all(row.get("model") for row in built["points"]), built["points"]
+
+
+def test_a_refusal_carries_both_models_own_figures(published) -> None:
+    """The residual is the right thing to gate on and not the whole story.
+
+    A published curve our own events cannot be brought within a factor of two
+    of is refused, and the sentence a buyer read named that factor alone:
+    "disagree by a factor of 6". Six is what survived the correction, which is
+    not what the two models say. At Anchorage the USGS Alaska model puts
+    intensity VII at once in 87 years and our own events reach once in 11,119,
+    a hundred and twenty eight times apart, and the residual after the map is
+    clamped is six. Elsewhere the residual is the larger of the two numbers.
+    Either way it answers a different question than the one a reader is asking.
+
+    So both figures are carried, uncorrected, straight off the two curves.
+    """
+    published(curve=((9.0, 0.5), (9.9, 0.2)))
+    subject = {"latitude": OSAKA[0], "longitude": OSAKA[1]}
+    term = sh.site_term(subject)
+    assert term is not None
+
+    # Each is its own curve read at intensity VII, and nothing else.
+    theirs = pub.rate_at(tuple(sh._mapping(round(OSAKA[0], 4), round(OSAKA[1], 4)) and
+                               ((9.0, 0.5), (9.9, 0.2))), 7.0)
+    assert term["theirs_one_in"] == round(1.0 / theirs)
+    ours = sh.raw_rate_at_least(subject, 7.0)
+    assert term["ours_one_in"] == round(1.0 / ours)
+    # And the residual is a third number, not one of these two.
+    assert term["worst_ratio"] not in (term["ours_one_in"], term["theirs_one_in"])
+
+
+def test_the_refusal_a_buyer_reads_puts_the_two_figures_side_by_side(monkeypatch) -> None:
+    """The sentence itself, from the code that builds it.
+
+    Written out rather than paraphrased, because the number a buyer is given
+    for their own address is the thing being fixed here.
+    """
+    from clause.perils import quake as qk
+
+    peril = qk.Earthquake()
+    monkeypatch.setattr(peril, "in_turkey", lambda *a, **k: False)
+    monkeypatch.setattr(peril, "priced_at", lambda *a, **k: {"name": "Anchorage"})
+    # quake.py imports shaking inside the function, so the patch goes on the
+    # module it reaches for rather than on a name quake.py does not hold.
+    monkeypatch.setattr(sh, "beyond_reconciling", lambda *a, **k: True)
+    monkeypatch.setattr(sh, "site_term", lambda *a, **k: {
+        "publisher": "USGS National Seismic Hazard Model, Alaska 2023 R1",
+        "worst_ratio": 6.07, "theirs_one_in": 87, "ours_one_in": 11119,
+        "place": "Anchorage", "distance_km": 0.0, "shift": 2.0, "at_the_limit": True})
+
+    with pytest.raises(ValueError) as refused:
+        peril.validate_subject({"latitude": 61.2181, "longitude": -149.9003,
+                                "radius_km": 50, "index": "shaking"})
+    said = str(refused.value)
+    assert "Alaska 2023 R1" in said
+    assert "once in 87 years" in said
+    assert "once in 11119" in said
+    # Plain digits. This sentence is translated by pattern, so an English
+    # thousands separator would read as a decimal point to half its readers.
+    assert "11,119" not in said
+    assert "factor of 6" in said
+
+
+def test_whose_country_and_which_grid_are_two_questions() -> None:
+    """They came apart the moment a published curve reached past the catalogue.
+
+    Honolulu is in the United States and outside the box the American
+    catalogue was fitted on: CONUS, 24 to 50 north. Cover there was refused
+    with "no tested earthquake model covers this location yet", which was true
+    of our catalogue and not true of the ground, because the USGS has published
+    a Hawaii model since 2021 and this build now holds its curve.
+
+    The two answers have to differ. A grid asked about a point outside its own
+    box sums zero cells and answers zero, which reads as "no earthquakes here"
+    and means "this grid is not about here"; pricing Honolulu on that would
+    have quoted no hazard at all rather than the background floor.
+    """
+    from clause.perils.quake import Earthquake
+
+    peril = Earthquake()
+    honolulu = {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50,
+                "index": "shaking"}
+    inland = {"latitude": 40.7128, "longitude": -74.0060, "radius_km": 50,
+              "index": "shaking"}
+
+    # In the country, out of the grid.
+    assert peril.risk_country(honolulu) == "US"
+    assert peril.grid_model(honolulu) is None
+    # In both.
+    assert peril.risk_country(inland) == "US"
+    assert peril.grid_model(inland) is not None
+
+    # And the grid, asked anyway, really does answer zero rather than a rate.
+    grid = peril.grid_model(inland)
+    assert grid is not None and not grid.in_box(21.3069, -157.8583)
+    assert grid.rate_reference_within(21.3069, -157.8583, 50.0) == 0.0
+
+
+def test_hawaii_is_priced_and_alaska_says_why_it_is_not() -> None:
+    """The two outcomes this opened, both measured against the shipped file.
+
+    Honolulu reconciles: the Hawaii model and our own events, corrected, agree
+    across the fit band. Anchorage does not, and it is not close: the USGS puts
+    intensity VII there at once in 87 years and our catalogue, which has no
+    Alaskan events at all and answers with the global floor, reaches once in
+    11,119. The existing guard refuses it, and the sentence now says both.
+    """
+    from clause.perils.quake import Earthquake
+
+    peril = Earthquake()
+    shipped = json.loads(pub.OUT.read_text(encoding="utf-8"))
+    held = {row["name"] for row in shipped.get("US", {}).get("points", [])}
+    if not {"Honolulu", "Anchorage"} <= held:
+        pytest.skip("the published build has not reached Hawaii and Alaska yet")
+
+    honolulu = {"latitude": 21.3069, "longitude": -157.8583, "radius_km": 50,
+                "index": "shaking"}
+    term = sh.site_term(honolulu)
+    assert term is not None and "Hawaii 2021 R1" in term["publisher"]
+    assert term["worst_ratio"] <= sh.MOST_DISAGREEMENT
+    peril.validate_subject(dict(honolulu, place="Honolulu"))   # priced
+
+    anchorage = {"latitude": 61.2181, "longitude": -149.9003, "radius_km": 50,
+                 "index": "shaking"}
+    term = sh.site_term(anchorage)
+    assert term is not None and "Alaska 2023 R1" in term["publisher"]
+    assert term["worst_ratio"] > sh.MOST_DISAGREEMENT
+    with pytest.raises(ValueError) as refused:
+        peril.validate_subject(dict(anchorage, place="Anchorage"))
+    said = str(refused.value)
+    assert "Alaska 2023 R1" in said and "once in 87 years" in said

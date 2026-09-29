@@ -274,8 +274,18 @@ def _mapping(latitude: float, longitude: float) -> tuple[Any, ...] | None:
             worst = max(worst, got / rate, rate / got)
 
     at_seven = round(7.0 - _look_at(GRID, tuple(ours), 7.0), 3)
+    # What the two models say about intensity VII before any correction, kept
+    # so a refusal can quote what they say rather than only what is left after
+    # the map. The residual is the right thing to gate on and a poor thing to
+    # quote alone: it is the largest disagreement anywhere in the fit band once
+    # the map has done what it can, which can be smaller than the gap a reader
+    # is asking about or larger than it. At Anchorage the USGS puts intensity
+    # VII at one in 87 years and our own events reach one in 11,119, and the
+    # residual is six.
+    raw_theirs = pub.rate_at(curve, 7.0)
+    raw_ours = _look(mine, 7.0)
     return (tuple(ours), near["name"], near["distance_km"], near["publisher"],
-            at_the_limit, round(worst, 2), at_seven)
+            at_the_limit, round(worst, 2), at_seven, raw_ours, raw_theirs)
 
 
 def _look_at(grid: tuple[float, ...], table: tuple[float, ...], x: float) -> float:
@@ -351,9 +361,17 @@ def site_term(subject: dict[str, Any]) -> dict[str, Any] | None:
     found = _mapping(round(float(subject["latitude"]), 4), round(float(subject["longitude"]), 4))
     if found is None:
         return None
-    _, name, km, publisher, clipped, worst, at_seven = found
+    _, name, km, publisher, clipped, worst, at_seven, raw_ours, raw_theirs = found
+
+    def one_in(rate: float) -> int | None:
+        return round(1.0 / rate) if rate > 0 else None
+
     return {"shift": at_seven, "place": name, "distance_km": km,
-            "publisher": publisher, "at_the_limit": clipped, "worst_ratio": worst}
+            "publisher": publisher, "at_the_limit": clipped, "worst_ratio": worst,
+            # Intensity VII, uncorrected, from each model: the figures a
+            # refusal quotes, and the two a reader can check against the
+            # publisher's own map.
+            "ours_one_in": one_in(raw_ours), "theirs_one_in": one_in(raw_theirs)}
 
 
 def rate_at_least(subject: dict[str, Any], level: float, part: str = "all") -> float:

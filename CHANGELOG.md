@@ -1,5 +1,84 @@
 # Changelog
 
+## 1.45.0, 29 September 2026
+
+- Honolulu is open, and Anchorage says why it is not.
+
+  The build asked the USGS about Anchorage and was told there is no curve
+  there. Anchorage: four hundred kilometres from the 1964 rupture, the largest
+  earthquake ever recorded in North America. Honolulu, the largest American
+  place after the two hundred already held, came back the same way. So would
+  the other forty six Hawaiian and four Alaskan places this product offers,
+  which sit further down the list by population and will be fetched as the
+  build works through it.
+
+  Nothing was wrong with the publisher. The United States is three national
+  models, not one, and this build knew only the first. CONUS 2023 stops at the
+  border of the lower forty eight; Alaska has had its own model since 2007 and
+  Hawaii since 2021. Each is asked about the ground it covers now, and each
+  curve carries the name of the model that drew it, because "the USGS national
+  model" is true of Anchorage, Honolulu and Brooklyn alike and tells a reader
+  in any of them nothing. The two hundred and sixty curves already held were
+  stamped from their own coordinates rather than fetched again: which model
+  covers a place is arithmetic, not a request. All fifty two American places
+  outside the lower forty eight fall inside exactly one of the three
+  footprints, which is checked in the tests rather than assumed in a comment.
+
+  Honolulu prices. Its ladder reads once in 854 years at intensity VI, once in
+  3,405 at VII, once in 17,543 at VIII, which sits between New York and Los
+  Angeles, and a year of 100,000 in cover comes to 444.90.
+
+  Anchorage does not, and the existing guard is what stops it. Our own
+  catalogue has no Alaskan events at all and answers with the global
+  background floor, once in 11,119 years at intensity VII, against the USGS's
+  once in 87. The quantile map closes what it can and is held at its two
+  intensity bound; a factor of six is left, past the factor of two this
+  protocol will write on, and the address is refused.
+
+- Whose country it is and which grid prices it are two questions.
+
+  They were one function, and they came apart the moment a published curve
+  reached ground the catalogue was not fitted on. Honolulu is in the United
+  States and outside the box the American catalogue was built from, so cover
+  there was refused with "no tested earthquake model covers this location yet",
+  which was true of our catalogue and not true of the ground.
+
+  Asked which country, the published curve now answers: it records who
+  published it, and that is whose law and licences apply. Asked which grid, a
+  model whose box does not reach the address answers with itself no longer. A
+  grid asked about a point outside its own box sums zero cells and returns
+  zero, which reads as "no earthquakes here" and means "this grid is not about
+  here" -- Honolulu would have been priced at no hazard at all rather than at
+  the background floor.
+
+- A refusal quotes what the two models say, not only what is left between them.
+
+  "This address cannot be priced: the national model and our own earthquake
+  model disagree by a factor of 6." Six is the residual after the map has done
+  what it can, which answers a different question than the one a reader is
+  asking, and it can be smaller than the gap or larger. At Anchorage the two
+  models are 128 times apart and the residual is six.
+
+  Both figures are carried now, straight off the two curves: "puts shaking of
+  intensity VII here at about once in 87 years and our own events reach once in
+  11119". Plain digits, no thousands separator, because this sentence is
+  translated by pattern and an English separator reads as a decimal point to
+  half of the people who see it.
+
+- A distance that is not about this site is no longer quoted.
+
+  "No mapped system dominates this site: the nearest trace is about 19253 km
+  away." The trace database is Türkiye's, so for a point in Hawaii it answers
+  with the distance to Anatolia. The sentence contradicted itself in its own
+  second clause. It was unreachable outside Türkiye while every such address
+  was refused; opening Hawaii made it a sentence a buyer reads. Where a trace
+  is near enough to bear on the site it is still named, and Ankara's is 96 km
+  off.
+
+- Forty more American places from the USGS, 220 to 260. The publisher's own
+  backend failed for an hour in the middle of the run, which the build reports
+  as missed places rather than as curves.
+
 ## 1.44.4, 29 September 2026
 
 - The price on the screen is the price that will be charged, from the first
