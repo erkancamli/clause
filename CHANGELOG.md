@@ -1,5 +1,115 @@
 # Changelog
 
+## 1.43.0, 28 September 2026
+
+- A number could not follow their curve, so it is a map now.
+
+  1.42.0 carried the gap between a published national hazard model and ours as
+  one number, a shift in intensity units. That works where the two curves have
+  the same shape. Across the twenty points the USGS publishes per curve, ours
+  had the wrong slope rather than only the wrong level, and a single shift left
+  the New York quote a median factor of four out. The release said so and
+  printed the factor, which is not the same as being right.
+
+  The gap is a mapping now: the intensity our model would have called x becomes
+  the intensity at which the published curve has the same annual rate. It is
+  built from the two curves and nothing else, and inside the published points it
+  is exact. Every residual is 1.00 or 1.01, against 1.6 at Osaka and 4.6 in New
+  York before. The events stay ours, because the map is applied to each event
+  rather than to the curve wholesale.
+
+- J-SHIS publishes the frequent end too, and that is the end policies live at.
+
+  Its four velocity levels start at a return period of 101 years and run to
+  2,475, which is above the whole band a policy is written at, so everything
+  below was our own shape extrapolated. It also publishes the probability in
+  thirty years of reaching each JMA intensity, and at Osaka those reach 13
+  years.
+
+  Converting a JMA intensity used to be the step I could not settle, and got
+  backwards once. It does not need settling: J-SHIS gives both a velocity and a
+  JMA intensity at each of its own probability levels, so those pairs are that
+  mesh's own relation between the two scales. Where the two families of its
+  figures overlap they agree to within 20%, 83 years against 101 at Osaka, which
+  is the check. Japan's curve now spans intensity VI to X at every place instead
+  of VIII to X.
+
+  The bound on how far the map may move one intensity went from 1.5 units to 2,
+  measured rather than chosen: at 1.5 it binds on Japan and leaves the quote a
+  third under what J-SHIS publishes, which is the dangerous direction, and
+  nothing above 2 changes any answer.
+
+  What the two together do to the figures that started this, at intensity VII:
+
+  | Place | Before today | Now | Their own figure |
+  | --- | --- | --- | --- |
+  | Osaka | once in 210 years | once in 21 | once in 21 |
+  | Tokyo | once in 23 | once in 8 | once in 8 |
+  | Fukuoka | once in 550 | once in 113 | once in 113 |
+  | Niigata | once in 224 | once in 73 | once in 73 |
+  | Los Angeles | once in 143 | once in 148 | once in 148 |
+  | New York | once in 5,024 | once in 5,787 | once in 5,788 |
+
+- Niigata was not in Japan.
+
+  A city of eight hundred thousand that this product offers, and our own outline
+  did not contain it, so no Japanese rates applied and a fallback answered
+  instead: intensity VII once in eleven thousand years, in a city an earthquake
+  destroyed in 1964. The cause was in the containment test rather than the
+  outline. It measured how far a point is from the outline's corners, and these
+  outlines are simplified, so two corners can sit a long way apart along a
+  straight stretch of coast and a city a kilometre outside the middle of that
+  stretch is far from both. It measures the distance to the coast now, and
+  Niigata prices at Japan's own figure, once in 73 years. Brownsville was
+  outside the United States for the same reason.
+
+  Nobody's neighbour came in with them: Seoul, Vladivostok, Shanghai and Taipei
+  are still not Japan, Monterrey, Vancouver and Havana are still not the United
+  States, and Lesbos, Nicosia and Aleppo are still not Türkiye. There is a test
+  for each, and removing the clamp that keeps the measurement on the coastline
+  puts Lesbos in Türkiye, which is how I know the test works.
+
+- An address the two models cannot agree on is not priced at all.
+
+  The map is exact between a publisher's points unless the bound holds it back,
+  and where it does the gap is not a detail to print in small type. So where the
+  published curve and our own events cannot be brought within a factor of two of
+  each other across the band a policy is written at, the address is refused and
+  the refusal says which two figures disagree and by how much. It costs about
+  one place in fourteen in Japan and one in nine in the United States. A premium
+  from the smaller of two figures a factor of seven apart is not cover, and
+  disclosing the factor is not the same as being right.
+
+- Half the hazard was skipping the correction. That was a bug in 1.42.0.
+
+  Shaking at an address comes from two places: large events drawn once per
+  country and shared by every policy in it, and small local ones drawn per
+  address. Only the local half went through the correction. So the price and the
+  capital model answered different questions wherever the correction did
+  anything, and a Tokyo policy settled at a tenth where its own price assumed a
+  fifth.
+
+  It was invisible in 1.42.0 because the one place this invariant is measured is
+  Tokyo, whose shift was exactly zero. The map made it non-zero and the test
+  failed immediately, which is what that test is for. Osaka is measured now too.
+
+- The United States is written, on the USGS's figure rather than on ours.
+
+  Cover used to be written only where our own catalogue model passed its
+  backtest. Our American model fails it badly: around 296 American cities it
+  expected 27.5 earthquakes of magnitude 5.5 and 10 happened, so its level
+  cannot price a policy. But the level is not what it is needed for any more.
+  Where the USGS publishes the hazard at an address, the level is theirs and our
+  model supplies only the events, which is a better basis than our own failed
+  backtest rather than a worse one.
+
+  So a country is written on either ground, and a buyer in New York can buy.
+  Being open does not open every address: outside 60 km of a published curve the
+  refusal now says which of the two is missing, instead of handing back a list
+  of countries with the buyer's own country in it. The page no longer claims a
+  tested model exists everywhere cover is written, because for one country it
+  does not.
+
 ## 1.42.0, 28 September 2026
 
 - Where a country publishes its own earthquake hazard, that is the figure.

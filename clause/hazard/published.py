@@ -2,6 +2,7 @@
 
     python -m clause.hazard.published JP US
     python -m clause.hazard.published JP --limit 40
+    python -m clause.hazard.published JP --refresh
 
 Why this exists
 ---------------
@@ -137,10 +138,62 @@ def usgs_curve(latitude: float, longitude: float, *, vs30: int = 760) -> list[li
 
 JSHIS = ("https://www.j-shis.bosai.go.jp/map/api/pshm/Y2023/AVR/TTL_MTTL/"
          "meshinfo.geojson?position={lon},{lat}&epsg=4301")
-#: Surface velocity at four exceedance probabilities in fifty years, which is
-#: how J-SHIS publishes its national model.
-JSHIS_LEVELS = (("T50_P39_SV", 0.39), ("T50_P10_SV", 0.10),
-                ("T50_P05_SV", 0.05), ("T50_P02_SV", 0.02))
+#: Surface velocity at six exceedance probabilities, which is how J-SHIS
+#: publishes the strong end of its national model: the probability of
+#: exceedance in thirty or fifty years, and the velocity that goes with it.
+JSHIS_VELOCITIES = (("T30_P03", 0.03, 30.0), ("T30_P06", 0.06, 30.0),
+                    ("T50_P02", 0.02, 50.0), ("T50_P05", 0.05, 50.0),
+                    ("T50_P10", 0.10, 50.0), ("T50_P39", 0.39, 50.0))
+#: And the probability in thirty years of reaching a JMA intensity, which is
+#: how it publishes the frequent end. These are the levels a policy is actually
+#: written at: at Osaka the velocities above start at a return period of 101
+#: years, and these reach 13.
+JSHIS_INTENSITIES = (("T30_I45_PS", 4.5), ("T30_I50_PS", 5.0),
+                     ("T30_I55_PS", 5.5), ("T30_I60_PS", 6.0))
+
+
+def _rate(probability: float, years: float) -> float:
+    return -math.log(1.0 - probability) / years
+
+
+def _velocity_of(pairs: list[tuple[float, float]], intensity: float) -> float | None:
+    """A JMA intensity as a velocity, by the site's own published pairs.
+
+    J-SHIS gives both a velocity and a JMA intensity at each probability level,
+    which is the same hazard described twice, so the pairs are that mesh's own
+    relation between the two. Converting one of its intensity thresholds with
+    them needs no general JMA to intensity rule, which is the step that cannot
+    be settled from outside and which an earlier version of this got backwards.
+    Straight in log velocity, and down the end slope just past either end.
+    """
+    # One intensity can carry two velocities: at Osaka J-SHIS answers 5.9 with
+    # both 71.7 and 75.9, from a thirty year and a fifty year level. They are
+    # the same intensity, so they are one point, and leaving them as two put a
+    # zero in the denominator below and ended a two hour build at its 970th
+    # place.
+    together: dict[float, list[float]] = {}
+    for intensity_, velocity_ in pairs:
+        together.setdefault(intensity_, []).append(math.log10(velocity_))
+    xs = sorted(together)
+    ys = [sum(together[x]) / len(together[x]) for x in xs]
+    if len(xs) < 2:
+        return None
+    if intensity <= xs[0]:
+        slope = (ys[1] - ys[0]) / (xs[1] - xs[0])
+        if xs[0] - intensity > 1.5:
+            return None
+        return 10 ** (ys[0] + slope * (intensity - xs[0]))
+    if intensity >= xs[-1]:
+        slope = (ys[-1] - ys[-2]) / (xs[-1] - xs[-2])
+        if intensity - xs[-1] > 1.5:
+            return None
+        return 10 ** (ys[-1] + slope * (intensity - xs[-1]))
+    for i in range(1, len(xs)):
+        if intensity <= xs[i]:
+            part = (intensity - xs[i - 1]) / (xs[i] - xs[i - 1])
+            return 10 ** (ys[i - 1] + part * (ys[i] - ys[i - 1]))
+    return None
+
 
 def jshis_curve(latitude: float, longitude: float) -> list[list[float]] | None:
     data = _get(JSHIS.format(lon=round(longitude, 5), lat=round(latitude, 5)))
@@ -148,15 +201,47 @@ def jshis_curve(latitude: float, longitude: float) -> list[list[float]] | None:
     if not features:
         return None
     said = features[0].get("properties") or {}
-    points = []
-    for key, p50 in JSHIS_LEVELS:
+
+    points: dict[float, float] = {}
+    pairs: list[tuple[float, float]] = []
+    for key, probability, years in JSHIS_VELOCITIES:
+        if key + "_SV" not in said:
+            continue
+        velocity = float(said[key + "_SV"])
+        points[velocity] = _rate(probability, years)
+        if key + "_SI" in said:
+            pairs.append((float(said[key + "_SI"]), velocity))
+    pairs = sorted(set(pairs))
+
+    for key, intensity in JSHIS_INTENSITIES:
         if key not in said:
             continue
-        pgv = float(said[key])
-        rate = -math.log(1.0 - p50) / 50.0
-        points.append([pgv, rate])
-    points.sort()
-    return points or None
+        probability = float(said[key])
+        if not 0.0 < probability < 1.0:
+            continue
+        velocity = _velocity_of(pairs, intensity)
+        if velocity is None or velocity <= 0:
+            continue
+        # A velocity already published keeps its own rate: that one came
+        # straight from the model and this one came through a conversion.
+        points.setdefault(round(velocity, 4), _rate(probability, 30.0))
+
+    # A hazard curve falls. Where the two families cross and disagree, the
+    # stronger shaking cannot be the more frequent, so the rate is held down,
+    # and a point that ends up at the rate of the one before it is dropped: at
+    # Tokyo an intensity threshold converts to within a fifth of a percent of a
+    # published velocity, because the conversion goes through the very pairs
+    # that velocity belongs to, and the two are one point measured twice. Two
+    # points at one rate is a flat step in a curve the map is read along.
+    out: list[list[float]] = []
+    last = float("inf")
+    for velocity in sorted(points):
+        rate = min(points[velocity], last)
+        if rate <= 0 or rate >= last:
+            continue
+        out.append([round(velocity, 4), rate])
+        last = rate
+    return out if len(out) >= 2 else None
 
 
 SOURCES: dict[str, dict[str, Any]] = {
@@ -213,7 +298,15 @@ def build(code: str, *, limit: int | None = None,
             continue
         try:
             curve = fetch(latitude, longitude)
-        except (urllib.error.URLError, TimeoutError, ValueError, Busy) as error:
+        except (urllib.error.URLError, TimeoutError, Busy) as error:
+            print(f"  {code} {name}: {type(error).__name__} {error}", file=sys.stderr)
+            missed.append(name)
+            continue
+        except Exception as error:      # noqa: BLE001 - one bad mesh, not the run
+            # A publisher's answer is data, and data surprises. Whatever one
+            # place's figures do to the arithmetic, the other twelve hundred
+            # have already been fetched and the run is worth finishing: the
+            # place is named as missed and the build carries on.
             print(f"  {code} {name}: {type(error).__name__} {error}", file=sys.stderr)
             missed.append(name)
             continue
@@ -270,6 +363,11 @@ def main(argv: list[str]) -> int:
     # for --limit, is what stops "--limit 250" asking for a country called 250.
     wanted: list[str] = []
     limit: int | None = None
+    # A country already fetched is skipped, which is what makes a long build
+    # resumable. When the reader itself changes, as it did when J-SHIS turned
+    # out to publish the frequent end of its curve as well, the stored points
+    # are the old shape and skipping them keeps the old answer.
+    refresh = False
     rest = list(argv)
     while rest:
         arg = rest.pop(0)
@@ -278,6 +376,8 @@ def main(argv: list[str]) -> int:
                 print("--limit wants a number after it", file=sys.stderr)
                 return 2
             limit = int(rest.pop(0))
+        elif arg == "--refresh":
+            refresh = True
         elif arg.startswith("-"):
             print(f"no such option: {arg}", file=sys.stderr)
             return 2
@@ -289,7 +389,7 @@ def main(argv: list[str]) -> int:
         if code not in SOURCES:
             print(f"no published model wired for {code}", file=sys.stderr)
             continue
-        so_far = dict(have.get(code) or {})
+        so_far = {} if refresh else dict(have.get(code) or {})
 
         def save(rows: list[dict[str, Any]], _code: str = code,
                  _missed: list[str] = list(so_far.get("missed") or [])) -> None:
@@ -334,9 +434,7 @@ def curves() -> tuple[dict[str, Any], ...]:
     out: list[dict[str, Any]] = []
     for code, country in sorted(doc.items()):
         for row in country.get("points", []):
-            curve = tuple(sorted((mmi_from_pgv(float(x)), float(y))
-                                 for x, y in row.get("curve", [])
-                                 if float(y) > 0 and mmi_from_pgv(float(x)) >= LEAST_INTENSITY))
+            curve = _read_curve(row.get("curve", []))
             if len(curve) < 2:
                 continue
             out.append({
@@ -348,6 +446,28 @@ def curves() -> tuple[dict[str, Any], ...]:
                 "conversion": country.get("conversion", ""),
                 "version": country.get("version", ""),
             })
+    return tuple(out)
+
+
+def _read_curve(stored: Any) -> tuple[tuple[float, float], ...]:
+    """A stored curve as the runtime wants it: intensity, falling, no flat steps.
+
+    Hygiene at reading rather than at building, so the file keeps everything the
+    publisher said and a file built by an older version is cleaned all the same.
+    Two points at the same rate are a flat step in the axis the site term map is
+    read along, and they happen honestly: at Tokyo an intensity threshold
+    converts to within a fifth of a percent of a published velocity, because the
+    conversion runs through the very pairs that velocity belongs to. They are one
+    point measured twice.
+    """
+    out: list[tuple[float, float]] = []
+    last = float("inf")
+    for level, rate in sorted((mmi_from_pgv(float(x)), float(y)) for x, y in stored
+                              if float(y) > 0 and mmi_from_pgv(float(x)) >= LEAST_INTENSITY):
+        if rate >= last:
+            continue
+        out.append((level, rate))
+        last = rate
     return tuple(out)
 
 

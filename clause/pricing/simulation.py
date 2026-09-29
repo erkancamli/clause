@@ -486,8 +486,13 @@ def _settle_shaking(
                         shared.append((trial, d, magnitude))
         local_part, below = "background", None
 
+    # Through the same map the price is read through. The shared half of the
+    # hazard used to skip it, which left the price and the capital model
+    # answering differently wherever the map does anything: a Tokyo policy
+    # settled at a tenth where its own price assumed a fifth. It was invisible
+    # while the correction was a single number that happened to be zero there.
     for trial, d, magnitude in shared:
-        value = sh.mmi(magnitude, d) + own.gauss(0.0, sh.IPE_SIGMA)
+        value = sh.theirs_at(subject, sh.mmi(magnitude, d) + own.gauss(0.0, sh.IPE_SIGMA))
         if value > strongest[trial]:
             strongest[trial] = value
     for trial in range(trials):

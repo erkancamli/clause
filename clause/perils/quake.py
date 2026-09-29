@@ -47,7 +47,8 @@ from .geo import (
     site_at,
 )
 from .places import PLACES, find_place
-from ..hazard.model import HazardModel, model_for, models, priced_countries
+from ..hazard.model import (HazardModel, model_at, model_for, models,
+                           priced_countries, published_countries)
 
 # Rates are quoted at this magnitude and projected with the b value.
 ANCHOR_MAGNITUDE = 4.0
@@ -240,7 +241,42 @@ class Earthquake(Peril):
     # passing its model, and removed by failing it.
     @property
     def territory(self) -> frozenset[str]:  # type: ignore[override]
-        return frozenset({"TR"}) | priced_countries()
+        return frozenset({"TR"}) | priced_countries() | self.published_territory()
+
+    @staticmethod
+    def published_territory() -> frozenset[str]:
+        """Countries opened by their own authority's published hazard, not ours.
+
+        Our catalogue model for the United States does not pass its own test:
+        around 296 American cities it expected 27.5 earthquakes of magnitude 5.5
+        and 10 happened, so its level is not fit to price against. The USGS
+        publishes the level for that country itself, and where one of its curves
+        covers an address the level is theirs and our model is only supplying
+        the events. That is a better basis than our own failed backtest, not a
+        worse one, so it opens the country -- at those addresses. Whether a
+        particular address is one of them is the point level question below.
+        """
+        have = models()
+        return frozenset(code for code in published_countries() if code in have)
+
+    def priced_at(self, latitude: float, longitude: float) -> HazardModel | None:
+        """The model that may price this point, and what entitles it to.
+
+        Either our own model passed for this country, or a national authority
+        publishes the hazard at this address and our model supplies the events.
+        """
+        # Whether a published curve is near enough, and nothing more. Asking the
+        # shaking layer for its site term here would be asking it to build a map
+        # out of rates that this very function is being called to supply, so the
+        # disagreement is checked by the caller below rather than here.
+        from ..hazard.published import nearest
+
+        passed = model_for(latitude, longitude)
+        if passed is not None:
+            return passed
+        if nearest(round(latitude, 4), round(longitude, 4)) is None:
+            return None
+        return model_at(latitude, longitude)
 
     @staticmethod
     def in_turkey(latitude: float, longitude: float) -> bool:
@@ -260,7 +296,7 @@ class Earthquake(Peril):
         latitude, longitude = float(subject["latitude"]), float(subject["longitude"])
         if self.in_turkey(latitude, longitude):
             return None
-        return model_for(latitude, longitude)
+        return self.priced_at(latitude, longitude)
 
     def risk_country(self, subject: dict[str, Any]) -> str | None:
         try:
@@ -269,7 +305,7 @@ class Earthquake(Peril):
             return "TR"   # a named Turkish place, before validation
         if self.in_turkey(latitude, longitude):
             return "TR"
-        model = model_for(latitude, longitude)
+        model = self.priced_at(latitude, longitude)
         return model.code if model else None
 
     def validate_subject(self, subject: dict[str, Any]) -> dict[str, Any]:
@@ -301,8 +337,42 @@ class Earthquake(Peril):
                 )
             latitude, longitude, label = place.latitude, place.longitude, place.name
 
-        if not self.in_turkey(latitude, longitude) and model_for(latitude, longitude) is None:
+        if not self.in_turkey(latitude, longitude):
+            from ..perils import shaking as sh
+
+            # The one check that has to come after the model is in hand: where a
+            # national authority publishes the hazard at this address and our own
+            # events cannot be brought within a factor of two of it, there is no
+            # price worth quoting. It is measured, it is often large, and it is
+            # nearly always our model that is light.
+            if (self.priced_at(latitude, longitude) is not None
+                    and sh.beyond_reconciling({"latitude": latitude, "longitude": longitude})):
+                near = sh.site_term({"latitude": latitude, "longitude": longitude}) or {}
+                raise ValueError(
+                    f"this address cannot be priced: {near.get('publisher', 'the national model')} "
+                    f"and our own earthquake model disagree by a factor of "
+                    f"{near.get('worst_ratio', 0):.0f} about how often the ground here "
+                    f"shakes, and a premium from the smaller of the two is not "
+                    f"cover. Somewhere else nearby will price"
+                )
+        if not self.in_turkey(latitude, longitude) and self.priced_at(latitude, longitude) is None:
             priced = ", ".join(sorted(self.territory))
+            here = model_at(latitude, longitude)
+            # Only where that country really is open on its authority's hazard.
+            # Greece's model failed too, and nobody publishes a curve we hold
+            # for Greece, so telling a buyer in Athens that cover is written
+            # there would be an invitation to nothing.
+            if here is not None and not here.passed and here.code in self.published_territory():
+                # The country is open, this address is not, and the difference
+                # is worth stating rather than answering with a country list the
+                # buyer can see their own country in.
+                raise ValueError(
+                    f"no tested earthquake model reaches this address. Cover in "
+                    f"{here.name} is written where its own authority publishes the "
+                    f"hazard, because our model for the country did not pass its "
+                    f"backtest, and the nearest published figure is more than "
+                    f"60 km away. A larger city nearby will have one"
+                )
             raise ValueError(
                 f"no tested earthquake model covers this location yet; cover is "
                 f"written only where one does ({priced})"

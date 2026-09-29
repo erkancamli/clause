@@ -59,3 +59,26 @@ def test_the_hazard_endpoint_publishes_the_shaking_curve() -> None:
     assert len(shaking["levels"]) == len(shaking["annual_probability"])
     probs = shaking["annual_probability"]
     assert all(a >= b for a, b in zip(probs, probs[1:]))
+
+
+OSAKA = {"latitude": 34.6937, "longitude": 135.5023, "radius_km": 50.0, "index": "shaking"}
+
+
+def test_both_halves_of_the_hazard_go_through_the_published_map() -> None:
+    """The price and the capital model must answer the same question.
+
+    Shaking at an address comes from two places: large events drawn once for the
+    country and shared by every policy in it, and small local ones drawn per
+    address. Where a national model corrects our intensities, both halves have
+    to carry that correction. The shared half did not, and the error hid behind
+    a correction that was zero at the one place this was measured.
+    """
+    subject = EARTHQUAKE.validate_subject(dict(OSAKA))
+    exposure = Exposure("s", "earthquake", subject, EARTHQUAKE.curve_for(subject), 1000.0, 365.25)
+    losses = settle(exposure, WorldDraws.draw(trials=8000, years=1.0, seed=11))
+    observed = sum(1 for x in losses if x > 0) / len(losses)
+    modelled = EARTHQUAKE.exceedance(subject, 365.25)(exposure.curve.attachment)
+    # Osaka's map moves intensities by more than an intensity unit, so an
+    # unmapped shared half shows up here as a large shortfall.
+    assert sh.site_term(subject)["shift"] > 0.5
+    assert abs(observed - modelled) < 0.25 * modelled + 0.005, (observed, modelled)

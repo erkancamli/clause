@@ -94,9 +94,20 @@ class HazardModel:
         for ring in self.outline:
             if _inside(ring, longitude, latitude):
                 return True
+        # Just off the coast is measured to the coast, not to the corners of it.
+        # These outlines are simplified, so two vertices can be a hundred
+        # kilometres apart along a straight stretch of shore, and a point a
+        # kilometre outside the middle of that stretch is far from both. Niigata
+        # fell out of Japan that way: a city of eight hundred thousand that this
+        # product offered and could not price, because the nearest corner of the
+        # polygon was too far even though the edge was right there.
         for ring in self.outline:
-            for x, y in ring:
-                if abs(y - latitude) < 0.2 and haversine_km(latitude, longitude, y, x) <= COAST_TOLERANCE_KM:
+            for i in range(len(ring)):
+                x1, y1 = ring[i - 1]
+                x2, y2 = ring[i]
+                if min(y1, y2) - 0.3 > latitude or max(y1, y2) + 0.3 < latitude:
+                    continue
+                if _to_segment_km(latitude, longitude, y1, x1, y2, x2) <= COAST_TOLERANCE_KM:
                     return True
         return False
 
@@ -166,6 +177,23 @@ class HazardModel:
         }
 
 
+def _to_segment_km(latitude: float, longitude: float,
+                   lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """How far a point is from a piece of coastline, in kilometres.
+
+    Flat earth over the length of one simplified edge, with longitude squeezed
+    by the latitude, which is accurate to well under the tolerance it is
+    compared against.
+    """
+    scale = math.cos(math.radians(latitude))
+    px, py = (longitude - lon1) * scale, latitude - lat1
+    qx, qy = (lon2 - lon1) * scale, lat2 - lat1
+    length = qx * qx + qy * qy
+    along = 0.0 if length <= 0 else max(0.0, min(1.0, (px * qx + py * qy) / length))
+    dx, dy = px - along * qx, py - along * qy
+    return 111.195 * math.sqrt(dx * dx + dy * dy)
+
+
 def _inside(ring: list[list[float]], x: float, y: float) -> bool:
     inside = False
     j = len(ring) - 1
@@ -218,6 +246,32 @@ def model_for(latitude: float, longitude: float, *, include_turkey: bool = False
         if model.passed and model.contains(latitude, longitude):
             return model
     return None
+
+
+def model_at(latitude: float, longitude: float, *, include_turkey: bool = False
+             ) -> HazardModel | None:
+    """The model whose country this point is in, whether or not it passed.
+
+    A model that failed its own backtest cannot set the level of the hazard,
+    and it is still the only thing that knows which earthquakes happen where:
+    the magnitudes, the distances, and which neighbours one event shakes at the
+    same moment. Where a national authority publishes the level, that is worth
+    having on its own, so it is reachable separately from ``model_for``, which
+    remains the question "may this country's own figure price a policy".
+    """
+    for code, model in models().items():
+        if code == "TR" and not include_turkey:
+            continue
+        if model.contains(latitude, longitude):
+            return model
+    return None
+
+
+def published_countries() -> frozenset[str]:
+    """Countries a national authority's own hazard curves are held for."""
+    from .published import curves
+
+    return frozenset(row["country"] for row in curves())
 
 
 @lru_cache(maxsize=1)
