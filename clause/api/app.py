@@ -1340,6 +1340,7 @@ def create_app(
     async def places(
         query: str | None = Query(None, max_length=64),
         country: str | None = Query(None, min_length=2, max_length=2),
+        peril: str | None = Query(None, max_length=24),
     ) -> dict[str, Any]:
         """Names to coordinates, so a buyer never has to know their own.
 
@@ -1356,7 +1357,8 @@ def create_app(
         if not query:
             return {"places": [{**place.to_dict(), "country": "TR", "priced": True} for place in PLACES],
                     "count": len(PLACES)}
-        found = search_world(query, limit=12, country=country.upper() if country else None)
+        found = search_world(query, limit=12, country=country.upper() if country else None,
+                             peril=peril)
         return {"places": found, "count": len(found),
                 "attribution": world_places().get("attribution", "")}
 
@@ -1499,9 +1501,13 @@ def create_app(
         except ValueError as error:
             raise HTTPException(400, str(error)) from error
         place, _ = nearest(latitude, longitude)
+        # The card is the model that priced it, which is the model of the
+        # country the nearest fitted place stands in and not always Türkiye's.
         return {"subject": subject, "levels": VEHICLE_FLOOD.levels(subject),
                 "gumbel": place["gumbel"], "largest_mm": place["largest_mm"],
-                "validation": rain_model()["validation"], "basis_risk": VEHICLE_FLOOD.basis_risk}
+                "country": place["country"],
+                "validation": rain_model(place["country"])["validation"],
+                "basis_risk": VEHICLE_FLOOD.basis_risk}
 
     @app.get("/api/storm")
     async def storm_levels(
@@ -1522,7 +1528,9 @@ def create_app(
         place, _ = nearest(latitude, longitude)
         return {"subject": subject, "levels": STORM.levels(subject),
                 "gumbel": place["gumbel"], "largest_kmh": place.get("largest_kmh"),
-                "validation": wind_model()["validation"], "basis_risk": STORM.basis_risk}
+                "country": place["country"],
+                "validation": wind_model(place["country"])["validation"],
+                "basis_risk": STORM.basis_risk}
 
     @app.get("/api/models")
     async def hazard_models() -> dict[str, Any]:

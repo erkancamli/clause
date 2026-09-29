@@ -16,7 +16,12 @@ def test_the_rainfall_model_passed_and_says_what_changed() -> None:
     v = model()["validation"]
     assert v["passed"] and v["tested_from"] == v["fitted_until"] + 1
     assert v["changes_after_first_run"], "a change made after seeing a result is recorded"
-    assert VEHICLE_FLOOD.territory == frozenset({"TR"})
+    # Every country whose own rainfall model passed, and no others.
+    from clause.perils.daily import models, passed
+    assert VEHICLE_FLOOD.territory == passed("rain")
+    assert "TR" in VEHICLE_FLOOD.territory
+    for code, doc in models("rain").items():
+        assert (code in VEHICLE_FLOOD.territory) == bool(doc["validation"]["passed"]), code
 
 
 def test_each_place_pays_on_what_is_extreme_there() -> None:

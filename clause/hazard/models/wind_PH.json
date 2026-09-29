@@ -1,0 +1,1401 @@
+{
+ "code": "PH",
+ "name": "Philippines",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 216.0,
+   "observed": 353,
+   "place_years": 1080,
+   "dispersion": 18.23,
+   "p_at_most_observed": 0.9741,
+   "p_at_least_observed": 0.0266
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Quezon City",
+   "latitude": 14.6488,
+   "longitude": 121.0509,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Davao",
+   "latitude": 7.0731,
+   "longitude": 125.6128,
+   "gumbel": {
+    "mu": 22.186,
+    "beta": 4.323
+   },
+   "levels_kmh": {
+    "2": 23.8,
+    "5": 28.7,
+    "10": 31.9,
+    "25": 36.0,
+    "50": 39.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.2
+  },
+  {
+   "name": "Caloocan",
+   "latitude": 14.6495,
+   "longitude": 120.9679,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Manila",
+   "latitude": 14.6042,
+   "longitude": 120.9822,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Taguig",
+   "latitude": 14.5243,
+   "longitude": 121.0792,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Budta",
+   "latitude": 7.2042,
+   "longitude": 124.4397,
+   "gumbel": {
+    "mu": 25.962,
+    "beta": 2.696
+   },
+   "levels_kmh": {
+    "2": 27.0,
+    "5": 30.0,
+    "10": 32.0,
+    "25": 34.6,
+    "50": 36.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.9
+  },
+  {
+   "name": "Malingao",
+   "latitude": 7.1608,
+   "longitude": 124.475,
+   "gumbel": {
+    "mu": 25.962,
+    "beta": 2.696
+   },
+   "levels_kmh": {
+    "2": 27.0,
+    "5": 30.0,
+    "10": 32.0,
+    "25": 34.6,
+    "50": 36.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.9
+  },
+  {
+   "name": "Zamboanga",
+   "latitude": 6.9103,
+   "longitude": 122.0739,
+   "gumbel": {
+    "mu": 36.634,
+    "beta": 3.631
+   },
+   "levels_kmh": {
+    "2": 38.0,
+    "5": 42.1,
+    "10": 44.8,
+    "25": 48.2,
+    "50": 50.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 51.1
+  },
+  {
+   "name": "Cebu City",
+   "latitude": 10.3167,
+   "longitude": 123.8907,
+   "gumbel": {
+    "mu": 40.686,
+    "beta": 6.728
+   },
+   "levels_kmh": {
+    "2": 43.2,
+    "5": 50.8,
+    "10": 55.8,
+    "25": 62.2,
+    "50": 66.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.5
+  },
+  {
+   "name": "Antipolo",
+   "latitude": 14.6258,
+   "longitude": 121.1225,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Pasig City",
+   "latitude": 14.5869,
+   "longitude": 121.0614,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Cagayan de Oro",
+   "latitude": 8.4822,
+   "longitude": 124.6472,
+   "gumbel": {
+    "mu": 36.405,
+    "beta": 4.364
+   },
+   "levels_kmh": {
+    "2": 38.0,
+    "5": 43.0,
+    "10": 46.2,
+    "25": 50.4,
+    "50": 53.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.7
+  },
+  {
+   "name": "Valenzuela",
+   "latitude": 14.7,
+   "longitude": 120.9667,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "General Santos",
+   "latitude": 6.1128,
+   "longitude": 125.1717,
+   "gumbel": {
+    "mu": 32.485,
+    "beta": 2.766
+   },
+   "levels_kmh": {
+    "2": 33.5,
+    "5": 36.6,
+    "10": 38.7,
+    "25": 41.3,
+    "50": 43.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 40.7
+  },
+  {
+   "name": "Paranaque City",
+   "latitude": 14.4816,
+   "longitude": 121.0175,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Las Piñas",
+   "latitude": 14.4506,
+   "longitude": 120.9828,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Calamba",
+   "latitude": 14.2117,
+   "longitude": 121.1653,
+   "gumbel": {
+    "mu": 29.268,
+    "beta": 6.818
+   },
+   "levels_kmh": {
+    "2": 31.8,
+    "5": 39.5,
+    "10": 44.6,
+    "25": 51.1,
+    "50": 55.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.5
+  },
+  {
+   "name": "Muntinlupa",
+   "latitude": 14.3903,
+   "longitude": 121.0475,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Makati City",
+   "latitude": 14.5503,
+   "longitude": 121.0327,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Lapu-Lapu City",
+   "latitude": 10.3103,
+   "longitude": 123.9494,
+   "gumbel": {
+    "mu": 40.686,
+    "beta": 6.728
+   },
+   "levels_kmh": {
+    "2": 43.2,
+    "5": 50.8,
+    "10": 55.8,
+    "25": 62.2,
+    "50": 66.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.5
+  },
+  {
+   "name": "Angeles City",
+   "latitude": 15.15,
+   "longitude": 120.5833,
+   "gumbel": {
+    "mu": 45.361,
+    "beta": 8.593
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 58.2,
+    "10": 64.7,
+    "25": 72.8,
+    "50": 78.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.8
+  },
+  {
+   "name": "Imus",
+   "latitude": 14.4297,
+   "longitude": 120.9367,
+   "gumbel": {
+    "mu": 52.535,
+    "beta": 8.263
+   },
+   "levels_kmh": {
+    "2": 55.6,
+    "5": 64.9,
+    "10": 71.1,
+    "25": 79.0,
+    "50": 84.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.4
+  },
+  {
+   "name": "Iloilo",
+   "latitude": 10.6969,
+   "longitude": 122.5644,
+   "gumbel": {
+    "mu": 44.925,
+    "beta": 6.59
+   },
+   "levels_kmh": {
+    "2": 47.3,
+    "5": 54.8,
+    "10": 59.8,
+    "25": 66.0,
+    "50": 70.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 80.8
+  },
+  {
+   "name": "Marikina City",
+   "latitude": 14.6481,
+   "longitude": 121.1133,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Mandaluyong City",
+   "latitude": 14.5832,
+   "longitude": 121.0409,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Bacolod City",
+   "latitude": 10.6667,
+   "longitude": 122.95,
+   "gumbel": {
+    "mu": 39.222,
+    "beta": 5.937
+   },
+   "levels_kmh": {
+    "2": 41.4,
+    "5": 48.1,
+    "10": 52.6,
+    "25": 58.2,
+    "50": 62.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.3
+  },
+  {
+   "name": "Mansilingan",
+   "latitude": 10.6311,
+   "longitude": 122.9789,
+   "gumbel": {
+    "mu": 39.222,
+    "beta": 5.937
+   },
+   "levels_kmh": {
+    "2": 41.4,
+    "5": 48.1,
+    "10": 52.6,
+    "25": 58.2,
+    "50": 62.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.3
+  },
+  {
+   "name": "Dasmariñas",
+   "latitude": 14.3294,
+   "longitude": 120.9367,
+   "gumbel": {
+    "mu": 52.535,
+    "beta": 8.263
+   },
+   "levels_kmh": {
+    "2": 55.6,
+    "5": 64.9,
+    "10": 71.1,
+    "25": 79.0,
+    "50": 84.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.4
+  },
+  {
+   "name": "Pasay",
+   "latitude": 14.5375,
+   "longitude": 121.0014,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Tarlac City",
+   "latitude": 15.4802,
+   "longitude": 120.5979,
+   "gumbel": {
+    "mu": 40.735,
+    "beta": 9.948
+   },
+   "levels_kmh": {
+    "2": 44.4,
+    "5": 55.7,
+    "10": 63.1,
+    "25": 72.6,
+    "50": 79.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 83.6
+  },
+  {
+   "name": "Cotabato",
+   "latitude": 7.2236,
+   "longitude": 124.2464,
+   "gumbel": {
+    "mu": 25.962,
+    "beta": 2.696
+   },
+   "levels_kmh": {
+    "2": 27.0,
+    "5": 30.0,
+    "10": 32.0,
+    "25": 34.6,
+    "50": 36.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.9
+  },
+  {
+   "name": "Malabon",
+   "latitude": 14.6733,
+   "longitude": 120.9397,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "San Jose del Monte",
+   "latitude": 14.8139,
+   "longitude": 121.0453,
+   "gumbel": {
+    "mu": 31.866,
+    "beta": 6.488
+   },
+   "levels_kmh": {
+    "2": 34.2,
+    "5": 41.6,
+    "10": 46.5,
+    "25": 52.6,
+    "50": 57.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.0
+  },
+  {
+   "name": "Bacoor",
+   "latitude": 14.459,
+   "longitude": 120.9385,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "San Pedro",
+   "latitude": 14.3595,
+   "longitude": 121.0473,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Cabanatuan City",
+   "latitude": 15.4859,
+   "longitude": 120.9665,
+   "gumbel": {
+    "mu": 33.338,
+    "beta": 7.594
+   },
+   "levels_kmh": {
+    "2": 36.1,
+    "5": 44.7,
+    "10": 50.4,
+    "25": 57.6,
+    "50": 63.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.3
+  },
+  {
+   "name": "Iligan",
+   "latitude": 8.2289,
+   "longitude": 124.2434,
+   "gumbel": {
+    "mu": 31.887,
+    "beta": 4.252
+   },
+   "levels_kmh": {
+    "2": 33.4,
+    "5": 38.3,
+    "10": 41.5,
+    "25": 45.5,
+    "50": 48.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.0
+  },
+  {
+   "name": "Mandaue City",
+   "latitude": 10.3236,
+   "longitude": 123.9222,
+   "gumbel": {
+    "mu": 40.686,
+    "beta": 6.728
+   },
+   "levels_kmh": {
+    "2": 43.2,
+    "5": 50.8,
+    "10": 55.8,
+    "25": 62.2,
+    "50": 66.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.5
+  },
+  {
+   "name": "Iligan City",
+   "latitude": 8.25,
+   "longitude": 124.4,
+   "gumbel": {
+    "mu": 36.405,
+    "beta": 4.364
+   },
+   "levels_kmh": {
+    "2": 38.0,
+    "5": 43.0,
+    "10": 46.2,
+    "25": 50.4,
+    "50": 53.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.7
+  },
+  {
+   "name": "Butuan",
+   "latitude": 8.9492,
+   "longitude": 125.5436,
+   "gumbel": {
+    "mu": 19.421,
+    "beta": 2.627
+   },
+   "levels_kmh": {
+    "2": 20.4,
+    "5": 23.4,
+    "10": 25.3,
+    "25": 27.8,
+    "50": 29.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.9
+  },
+  {
+   "name": "Cabuyao",
+   "latitude": 14.2726,
+   "longitude": 121.1262,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "San Pablo",
+   "latitude": 14.0683,
+   "longitude": 121.3256,
+   "gumbel": {
+    "mu": 29.268,
+    "beta": 6.818
+   },
+   "levels_kmh": {
+    "2": 31.8,
+    "5": 39.5,
+    "10": 44.6,
+    "25": 51.1,
+    "50": 55.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.5
+  },
+  {
+   "name": "Biñan",
+   "latitude": 14.3427,
+   "longitude": 121.0807,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Santol",
+   "latitude": 15.1622,
+   "longitude": 120.5675,
+   "gumbel": {
+    "mu": 45.361,
+    "beta": 8.593
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 58.2,
+    "10": 64.7,
+    "25": 72.8,
+    "50": 78.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.8
+  },
+  {
+   "name": "Cainta",
+   "latitude": 14.5786,
+   "longitude": 121.1222,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Baguio",
+   "latitude": 16.4164,
+   "longitude": 120.5931,
+   "gumbel": {
+    "mu": 49.653,
+    "beta": 10.005
+   },
+   "levels_kmh": {
+    "2": 53.3,
+    "5": 64.7,
+    "10": 72.2,
+    "25": 81.7,
+    "50": 88.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.7
+  },
+  {
+   "name": "Malolos",
+   "latitude": 14.8443,
+   "longitude": 120.8104,
+   "gumbel": {
+    "mu": 45.361,
+    "beta": 8.593
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 58.2,
+    "10": 64.7,
+    "25": 72.8,
+    "50": 78.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.8
+  },
+  {
+   "name": "Mantampay",
+   "latitude": 8.1667,
+   "longitude": 124.2167,
+   "gumbel": {
+    "mu": 31.887,
+    "beta": 4.252
+   },
+   "levels_kmh": {
+    "2": 33.4,
+    "5": 38.3,
+    "10": 41.5,
+    "25": 45.5,
+    "50": 48.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.0
+  },
+  {
+   "name": "Bagong Silang",
+   "latitude": 14.7783,
+   "longitude": 121.0449,
+   "gumbel": {
+    "mu": 31.866,
+    "beta": 6.488
+   },
+   "levels_kmh": {
+    "2": 34.2,
+    "5": 41.6,
+    "10": 46.5,
+    "25": 52.6,
+    "50": 57.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.0
+  },
+  {
+   "name": "Marawi City",
+   "latitude": 8.0034,
+   "longitude": 124.284,
+   "gumbel": {
+    "mu": 31.887,
+    "beta": 4.252
+   },
+   "levels_kmh": {
+    "2": 33.4,
+    "5": 38.3,
+    "10": 41.5,
+    "25": 45.5,
+    "50": 48.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.0
+  },
+  {
+   "name": "Tacloban",
+   "latitude": 11.2433,
+   "longitude": 125.0047,
+   "gumbel": {
+    "mu": 39.404,
+    "beta": 7.677
+   },
+   "levels_kmh": {
+    "2": 42.2,
+    "5": 50.9,
+    "10": 56.7,
+    "25": 64.0,
+    "50": 69.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.9
+  },
+  {
+   "name": "San Fernando",
+   "latitude": 15.0343,
+   "longitude": 120.6844,
+   "gumbel": {
+    "mu": 45.361,
+    "beta": 8.593
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 58.2,
+    "10": 64.7,
+    "25": 72.8,
+    "50": 78.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.8
+  },
+  {
+   "name": "Libertad",
+   "latitude": 8.9442,
+   "longitude": 125.5019,
+   "gumbel": {
+    "mu": 19.421,
+    "beta": 2.627
+   },
+   "levels_kmh": {
+    "2": 20.4,
+    "5": 23.4,
+    "10": 25.3,
+    "25": 27.8,
+    "50": 29.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 42.9
+  },
+  {
+   "name": "Navotas",
+   "latitude": 14.6667,
+   "longitude": 120.95,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Ormoc",
+   "latitude": 11.0064,
+   "longitude": 124.6075,
+   "gumbel": {
+    "mu": 46.908,
+    "beta": 9.862
+   },
+   "levels_kmh": {
+    "2": 50.5,
+    "5": 61.7,
+    "10": 69.1,
+    "25": 78.5,
+    "50": 85.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 93.4
+  },
+  {
+   "name": "Batangas",
+   "latitude": 13.7567,
+   "longitude": 121.0584,
+   "gumbel": {
+    "mu": 29.268,
+    "beta": 6.818
+   },
+   "levels_kmh": {
+    "2": 31.8,
+    "5": 39.5,
+    "10": 44.6,
+    "25": 51.1,
+    "50": 55.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.5
+  },
+  {
+   "name": "Magugpo Poblacion",
+   "latitude": 7.4475,
+   "longitude": 125.8046,
+   "gumbel": {
+    "mu": 16.542,
+    "beta": 2.037
+   },
+   "levels_kmh": {
+    "2": 17.3,
+    "5": 19.6,
+    "10": 21.1,
+    "25": 23.1,
+    "50": 24.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 31.2
+  },
+  {
+   "name": "Taytay",
+   "latitude": 14.5588,
+   "longitude": 121.1329,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Lucena",
+   "latitude": 13.9314,
+   "longitude": 121.6172,
+   "gumbel": {
+    "mu": 38.029,
+    "beta": 7.229
+   },
+   "levels_kmh": {
+    "2": 40.7,
+    "5": 48.9,
+    "10": 54.3,
+    "25": 61.2,
+    "50": 66.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 68.3
+  },
+  {
+   "name": "Meycauayan",
+   "latitude": 14.7369,
+   "longitude": 120.9608,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "NIA Valencia",
+   "latitude": 7.9064,
+   "longitude": 125.0942,
+   "gumbel": {
+    "mu": 30.388,
+    "beta": 3.851
+   },
+   "levels_kmh": {
+    "2": 31.8,
+    "5": 36.2,
+    "10": 39.1,
+    "25": 42.7,
+    "50": 45.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.0
+  },
+  {
+   "name": "Puerto Princesa",
+   "latitude": 9.7392,
+   "longitude": 118.7353,
+   "gumbel": {
+    "mu": 46.049,
+    "beta": 5.651
+   },
+   "levels_kmh": {
+    "2": 48.1,
+    "5": 54.5,
+    "10": 58.8,
+    "25": 64.1,
+    "50": 68.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.8
+  },
+  {
+   "name": "Olongapo",
+   "latitude": 14.8292,
+   "longitude": 120.2828,
+   "gumbel": {
+    "mu": 52.685,
+    "beta": 8.766
+   },
+   "levels_kmh": {
+    "2": 55.9,
+    "5": 65.8,
+    "10": 72.4,
+    "25": 80.7,
+    "50": 86.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 99.8
+  },
+  {
+   "name": "Binangonan",
+   "latitude": 14.4646,
+   "longitude": 121.1929,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Santa Rosa",
+   "latitude": 14.3122,
+   "longitude": 121.1114,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Commonwealth",
+   "latitude": 14.6969,
+   "longitude": 121.0801,
+   "gumbel": {
+    "mu": 30.551,
+    "beta": 5.54
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 38.9,
+    "10": 43.0,
+    "25": 48.3,
+    "50": 52.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 50.0
+  },
+  {
+   "name": "Lipa City",
+   "latitude": 13.9411,
+   "longitude": 121.1631,
+   "gumbel": {
+    "mu": 29.268,
+    "beta": 6.818
+   },
+   "levels_kmh": {
+    "2": 31.8,
+    "5": 39.5,
+    "10": 44.6,
+    "25": 51.1,
+    "50": 55.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.5
+  },
+  {
+   "name": "Panabo",
+   "latitude": 7.3081,
+   "longitude": 125.6842,
+   "gumbel": {
+    "mu": 16.542,
+    "beta": 2.037
+   },
+   "levels_kmh": {
+    "2": 17.3,
+    "5": 19.6,
+    "10": 21.1,
+    "25": 23.1,
+    "50": 24.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 31.2
+  },
+  {
+   "name": "Kabankalan",
+   "latitude": 9.9839,
+   "longitude": 122.8142,
+   "gumbel": {
+    "mu": 42.62,
+    "beta": 5.732
+   },
+   "levels_kmh": {
+    "2": 44.7,
+    "5": 51.2,
+    "10": 55.5,
+    "25": 61.0,
+    "50": 65.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 85.1
+  },
+  {
+   "name": "Toledo",
+   "latitude": 10.3773,
+   "longitude": 123.6386,
+   "gumbel": {
+    "mu": 40.686,
+    "beta": 6.728
+   },
+   "levels_kmh": {
+    "2": 43.2,
+    "5": 50.8,
+    "10": 55.8,
+    "25": 62.2,
+    "50": 66.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 86.5
+  },
+  {
+   "name": "Pagadian",
+   "latitude": 7.8257,
+   "longitude": 123.437,
+   "gumbel": {
+    "mu": 33.36,
+    "beta": 2.828
+   },
+   "levels_kmh": {
+    "2": 34.4,
+    "5": 37.6,
+    "10": 39.7,
+    "25": 42.4,
+    "50": 44.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.9
+  },
+  {
+   "name": "Koronadal",
+   "latitude": 6.5031,
+   "longitude": 124.8469,
+   "gumbel": {
+    "mu": 28.042,
+    "beta": 2.081
+   },
+   "levels_kmh": {
+    "2": 28.8,
+    "5": 31.2,
+    "10": 32.7,
+    "25": 34.7,
+    "50": 36.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 36.8
+  }
+ ]
+}

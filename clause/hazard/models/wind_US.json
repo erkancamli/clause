@@ -1,0 +1,2617 @@
+{
+ "code": "US",
+ "name": "United States",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 408.0,
+   "observed": 459,
+   "place_years": 2040,
+   "dispersion": 7.45,
+   "p_at_most_observed": 0.8267,
+   "p_at_least_observed": 0.1776
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "New York City",
+   "latitude": 40.7143,
+   "longitude": -74.006,
+   "gumbel": {
+    "mu": 63.04,
+    "beta": 6.825
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 73.3,
+    "10": 78.4,
+    "25": 84.9,
+    "50": 89.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 95.8
+  },
+  {
+   "name": "Los Angeles",
+   "latitude": 34.0522,
+   "longitude": -118.2437,
+   "gumbel": {
+    "mu": 42.388,
+    "beta": 4.182
+   },
+   "levels_kmh": {
+    "2": 43.9,
+    "5": 48.7,
+    "10": 51.8,
+    "25": 55.8,
+    "50": 58.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.6
+  },
+  {
+   "name": "Brooklyn",
+   "latitude": 40.6501,
+   "longitude": -73.9496,
+   "gumbel": {
+    "mu": 63.04,
+    "beta": 6.825
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 73.3,
+    "10": 78.4,
+    "25": 84.9,
+    "50": 89.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 95.8
+  },
+  {
+   "name": "Chicago",
+   "latitude": 41.85,
+   "longitude": -87.65,
+   "gumbel": {
+    "mu": 61.265,
+    "beta": 3.954
+   },
+   "levels_kmh": {
+    "2": 62.7,
+    "5": 67.2,
+    "10": 70.2,
+    "25": 73.9,
+    "50": 76.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.9
+  },
+  {
+   "name": "Queens",
+   "latitude": 40.6815,
+   "longitude": -73.8365,
+   "gumbel": {
+    "mu": 63.04,
+    "beta": 6.825
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 73.3,
+    "10": 78.4,
+    "25": 84.9,
+    "50": 89.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 95.8
+  },
+  {
+   "name": "Houston",
+   "latitude": 29.7633,
+   "longitude": -95.3633,
+   "gumbel": {
+    "mu": 37.128,
+    "beta": 3.977
+   },
+   "levels_kmh": {
+    "2": 38.6,
+    "5": 43.1,
+    "10": 46.1,
+    "25": 49.8,
+    "50": 52.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.8
+  },
+  {
+   "name": "Phoenix",
+   "latitude": 33.4484,
+   "longitude": -112.074,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Philadelphia",
+   "latitude": 39.9524,
+   "longitude": -75.1636,
+   "gumbel": {
+    "mu": 46.055,
+    "beta": 4.871
+   },
+   "levels_kmh": {
+    "2": 47.8,
+    "5": 53.4,
+    "10": 57.0,
+    "25": 61.6,
+    "50": 65.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.7
+  },
+  {
+   "name": "San Antonio",
+   "latitude": 29.4241,
+   "longitude": -98.4936,
+   "gumbel": {
+    "mu": 47.378,
+    "beta": 3.667
+   },
+   "levels_kmh": {
+    "2": 48.7,
+    "5": 52.9,
+    "10": 55.6,
+    "25": 59.1,
+    "50": 61.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.4
+  },
+  {
+   "name": "Manhattan",
+   "latitude": 40.7834,
+   "longitude": -73.9663,
+   "gumbel": {
+    "mu": 42.327,
+    "beta": 4.725
+   },
+   "levels_kmh": {
+    "2": 44.1,
+    "5": 49.4,
+    "10": 53.0,
+    "25": 57.4,
+    "50": 60.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.4
+  },
+  {
+   "name": "San Diego",
+   "latitude": 32.7157,
+   "longitude": -117.1647,
+   "gumbel": {
+    "mu": 45.51,
+    "beta": 4.934
+   },
+   "levels_kmh": {
+    "2": 47.3,
+    "5": 52.9,
+    "10": 56.6,
+    "25": 61.3,
+    "50": 64.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.5
+  },
+  {
+   "name": "The Bronx",
+   "latitude": 40.8499,
+   "longitude": -73.8664,
+   "gumbel": {
+    "mu": 42.327,
+    "beta": 4.725
+   },
+   "levels_kmh": {
+    "2": 44.1,
+    "5": 49.4,
+    "10": 53.0,
+    "25": 57.4,
+    "50": 60.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.4
+  },
+  {
+   "name": "Dallas",
+   "latitude": 32.7831,
+   "longitude": -96.8067,
+   "gumbel": {
+    "mu": 48.618,
+    "beta": 2.811
+   },
+   "levels_kmh": {
+    "2": 49.6,
+    "5": 52.8,
+    "10": 54.9,
+    "25": 57.6,
+    "50": 59.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.4
+  },
+  {
+   "name": "Jacksonville",
+   "latitude": 30.3322,
+   "longitude": -81.6556,
+   "gumbel": {
+    "mu": 26.743,
+    "beta": 5.054
+   },
+   "levels_kmh": {
+    "2": 28.6,
+    "5": 34.3,
+    "10": 38.1,
+    "25": 42.9,
+    "50": 46.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 47.3
+  },
+  {
+   "name": "Fort Worth",
+   "latitude": 32.7254,
+   "longitude": -97.3208,
+   "gumbel": {
+    "mu": 48.835,
+    "beta": 3.541
+   },
+   "levels_kmh": {
+    "2": 50.1,
+    "5": 54.1,
+    "10": 56.8,
+    "25": 60.2,
+    "50": 62.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.9
+  },
+  {
+   "name": "San Jose",
+   "latitude": 37.3394,
+   "longitude": -121.895,
+   "gumbel": {
+    "mu": 40.799,
+    "beta": 4.166
+   },
+   "levels_kmh": {
+    "2": 42.3,
+    "5": 47.0,
+    "10": 50.2,
+    "25": 54.1,
+    "50": 57.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 58.7
+  },
+  {
+   "name": "Austin",
+   "latitude": 30.2672,
+   "longitude": -97.7431,
+   "gumbel": {
+    "mu": 46.801,
+    "beta": 2.858
+   },
+   "levels_kmh": {
+    "2": 47.8,
+    "5": 51.1,
+    "10": 53.2,
+    "25": 55.9,
+    "50": 58.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.0
+  },
+  {
+   "name": "Columbus",
+   "latitude": 39.9612,
+   "longitude": -82.9988,
+   "gumbel": {
+    "mu": 55.149,
+    "beta": 3.683
+   },
+   "levels_kmh": {
+    "2": 56.5,
+    "5": 60.7,
+    "10": 63.4,
+    "25": 66.9,
+    "50": 69.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.0
+  },
+  {
+   "name": "Charlotte",
+   "latitude": 35.2271,
+   "longitude": -80.8431,
+   "gumbel": {
+    "mu": 29.078,
+    "beta": 2.308
+   },
+   "levels_kmh": {
+    "2": 29.9,
+    "5": 32.5,
+    "10": 34.3,
+    "25": 36.5,
+    "50": 38.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.0
+  },
+  {
+   "name": "Indianapolis",
+   "latitude": 39.7684,
+   "longitude": -86.158,
+   "gumbel": {
+    "mu": 54.973,
+    "beta": 3.938
+   },
+   "levels_kmh": {
+    "2": 56.4,
+    "5": 60.9,
+    "10": 63.8,
+    "25": 67.6,
+    "50": 70.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 75.4
+  },
+  {
+   "name": "San Francisco",
+   "latitude": 37.7749,
+   "longitude": -122.4194,
+   "gumbel": {
+    "mu": 41.345,
+    "beta": 5.021
+   },
+   "levels_kmh": {
+    "2": 43.2,
+    "5": 48.9,
+    "10": 52.6,
+    "25": 57.4,
+    "50": 60.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.9
+  },
+  {
+   "name": "Seattle",
+   "latitude": 47.6062,
+   "longitude": -122.3321,
+   "gumbel": {
+    "mu": 29.422,
+    "beta": 3.272
+   },
+   "levels_kmh": {
+    "2": 30.6,
+    "5": 34.3,
+    "10": 36.8,
+    "25": 39.9,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.6
+  },
+  {
+   "name": "Denver",
+   "latitude": 39.7392,
+   "longitude": -104.9847,
+   "gumbel": {
+    "mu": 51.941,
+    "beta": 4.869
+   },
+   "levels_kmh": {
+    "2": 53.7,
+    "5": 59.2,
+    "10": 62.9,
+    "25": 67.5,
+    "50": 70.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.8
+  },
+  {
+   "name": "Washington",
+   "latitude": 38.8951,
+   "longitude": -77.0364,
+   "gumbel": {
+    "mu": 51.838,
+    "beta": 4.497
+   },
+   "levels_kmh": {
+    "2": 53.5,
+    "5": 58.6,
+    "10": 62.0,
+    "25": 66.2,
+    "50": 69.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.6
+  },
+  {
+   "name": "Nashville",
+   "latitude": 36.1659,
+   "longitude": -86.7844,
+   "gumbel": {
+    "mu": 42.772,
+    "beta": 3.364
+   },
+   "levels_kmh": {
+    "2": 44.0,
+    "5": 47.8,
+    "10": 50.3,
+    "25": 53.5,
+    "50": 55.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.3
+  },
+  {
+   "name": "Oklahoma City",
+   "latitude": 35.4676,
+   "longitude": -97.5164,
+   "gumbel": {
+    "mu": 53.63,
+    "beta": 2.612
+   },
+   "levels_kmh": {
+    "2": 54.6,
+    "5": 57.5,
+    "10": 59.5,
+    "25": 62.0,
+    "50": 63.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.5
+  },
+  {
+   "name": "El Paso",
+   "latitude": 31.7587,
+   "longitude": -106.4869,
+   "gumbel": {
+    "mu": 56.111,
+    "beta": 5.399
+   },
+   "levels_kmh": {
+    "2": 58.1,
+    "5": 64.2,
+    "10": 68.3,
+    "25": 73.4,
+    "50": 77.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.9
+  },
+  {
+   "name": "Boston",
+   "latitude": 42.3584,
+   "longitude": -71.0598,
+   "gumbel": {
+    "mu": 31.863,
+    "beta": 2.54
+   },
+   "levels_kmh": {
+    "2": 32.8,
+    "5": 35.7,
+    "10": 37.6,
+    "25": 40.0,
+    "50": 41.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 38.9
+  },
+  {
+   "name": "Portland",
+   "latitude": 45.5234,
+   "longitude": -122.6762,
+   "gumbel": {
+    "mu": 29.59,
+    "beta": 3.005
+   },
+   "levels_kmh": {
+    "2": 30.7,
+    "5": 34.1,
+    "10": 36.4,
+    "25": 39.2,
+    "50": 41.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.4
+  },
+  {
+   "name": "Detroit",
+   "latitude": 42.3314,
+   "longitude": -83.0457,
+   "gumbel": {
+    "mu": 58.712,
+    "beta": 3.847
+   },
+   "levels_kmh": {
+    "2": 60.1,
+    "5": 64.5,
+    "10": 67.4,
+    "25": 71.0,
+    "50": 73.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.8
+  },
+  {
+   "name": "Las Vegas",
+   "latitude": 36.175,
+   "longitude": -115.1372,
+   "gumbel": {
+    "mu": 52.649,
+    "beta": 3.973
+   },
+   "levels_kmh": {
+    "2": 54.1,
+    "5": 58.6,
+    "10": 61.6,
+    "25": 65.4,
+    "50": 68.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.7
+  },
+  {
+   "name": "New South Memphis",
+   "latitude": 35.0868,
+   "longitude": -90.0568,
+   "gumbel": {
+    "mu": 50.132,
+    "beta": 3.958
+   },
+   "levels_kmh": {
+    "2": 51.6,
+    "5": 56.1,
+    "10": 59.0,
+    "25": 62.8,
+    "50": 65.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.5
+  },
+  {
+   "name": "Memphis",
+   "latitude": 35.1495,
+   "longitude": -90.049,
+   "gumbel": {
+    "mu": 50.132,
+    "beta": 3.958
+   },
+   "levels_kmh": {
+    "2": 51.6,
+    "5": 56.1,
+    "10": 59.0,
+    "25": 62.8,
+    "50": 65.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.5
+  },
+  {
+   "name": "Louisville",
+   "latitude": 38.2542,
+   "longitude": -85.7594,
+   "gumbel": {
+    "mu": 44.281,
+    "beta": 3.393
+   },
+   "levels_kmh": {
+    "2": 45.5,
+    "5": 49.4,
+    "10": 51.9,
+    "25": 55.1,
+    "50": 57.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.5
+  },
+  {
+   "name": "Baltimore",
+   "latitude": 39.2904,
+   "longitude": -76.6122,
+   "gumbel": {
+    "mu": 51.528,
+    "beta": 4.11
+   },
+   "levels_kmh": {
+    "2": 53.0,
+    "5": 57.7,
+    "10": 60.8,
+    "25": 64.7,
+    "50": 67.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.9
+  },
+  {
+   "name": "South Boston",
+   "latitude": 42.3334,
+   "longitude": -71.0495,
+   "gumbel": {
+    "mu": 31.863,
+    "beta": 2.54
+   },
+   "levels_kmh": {
+    "2": 32.8,
+    "5": 35.7,
+    "10": 37.6,
+    "25": 40.0,
+    "50": 41.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 38.9
+  },
+  {
+   "name": "Albuquerque",
+   "latitude": 35.0845,
+   "longitude": -106.6511,
+   "gumbel": {
+    "mu": 52.386,
+    "beta": 3.785
+   },
+   "levels_kmh": {
+    "2": 53.8,
+    "5": 58.1,
+    "10": 60.9,
+    "25": 64.5,
+    "50": 67.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.7
+  },
+  {
+   "name": "Milwaukee",
+   "latitude": 43.0389,
+   "longitude": -87.9065,
+   "gumbel": {
+    "mu": 59.073,
+    "beta": 3.932
+   },
+   "levels_kmh": {
+    "2": 60.5,
+    "5": 65.0,
+    "10": 67.9,
+    "25": 71.7,
+    "50": 74.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.2
+  },
+  {
+   "name": "Tucson",
+   "latitude": 32.2217,
+   "longitude": -110.9265,
+   "gumbel": {
+    "mu": 48.865,
+    "beta": 2.793
+   },
+   "levels_kmh": {
+    "2": 49.9,
+    "5": 53.1,
+    "10": 55.1,
+    "25": 57.8,
+    "50": 59.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 58.5
+  },
+  {
+   "name": "Fresno",
+   "latitude": 36.7477,
+   "longitude": -119.7724,
+   "gumbel": {
+    "mu": 40.095,
+    "beta": 3.442
+   },
+   "levels_kmh": {
+    "2": 41.4,
+    "5": 45.3,
+    "10": 47.8,
+    "25": 51.1,
+    "50": 53.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.7
+  },
+  {
+   "name": "Sacramento",
+   "latitude": 38.5816,
+   "longitude": -121.4944,
+   "gumbel": {
+    "mu": 48.897,
+    "beta": 7.161
+   },
+   "levels_kmh": {
+    "2": 51.5,
+    "5": 59.6,
+    "10": 65.0,
+    "25": 71.8,
+    "50": 76.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.7
+  },
+  {
+   "name": "Atlanta",
+   "latitude": 33.749,
+   "longitude": -84.388,
+   "gumbel": {
+    "mu": 34.16,
+    "beta": 2.803
+   },
+   "levels_kmh": {
+    "2": 35.2,
+    "5": 38.4,
+    "10": 40.5,
+    "25": 43.1,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.7
+  },
+  {
+   "name": "Miami",
+   "latitude": 25.7743,
+   "longitude": -80.1937,
+   "gumbel": {
+    "mu": 52.553,
+    "beta": 12.602
+   },
+   "levels_kmh": {
+    "2": 57.2,
+    "5": 71.5,
+    "10": 80.9,
+    "25": 92.9,
+    "50": 101.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 115.4
+  },
+  {
+   "name": "Omaha",
+   "latitude": 41.2563,
+   "longitude": -95.9404,
+   "gumbel": {
+    "mu": 57.593,
+    "beta": 3.694
+   },
+   "levels_kmh": {
+    "2": 58.9,
+    "5": 63.1,
+    "10": 65.9,
+    "25": 69.4,
+    "50": 72.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.0
+  },
+  {
+   "name": "Raleigh",
+   "latitude": 35.7721,
+   "longitude": -78.6386,
+   "gumbel": {
+    "mu": 28.478,
+    "beta": 2.917
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.9,
+    "10": 35.0,
+    "25": 37.8,
+    "50": 39.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.2
+  },
+  {
+   "name": "Kansas City",
+   "latitude": 39.0997,
+   "longitude": -94.5786,
+   "gumbel": {
+    "mu": 53.718,
+    "beta": 3.371
+   },
+   "levels_kmh": {
+    "2": 55.0,
+    "5": 58.8,
+    "10": 61.3,
+    "25": 64.5,
+    "50": 66.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 68.9
+  },
+  {
+   "name": "Long Beach",
+   "latitude": 33.767,
+   "longitude": -118.1892,
+   "gumbel": {
+    "mu": 42.388,
+    "beta": 4.182
+   },
+   "levels_kmh": {
+    "2": 43.9,
+    "5": 48.7,
+    "10": 51.8,
+    "25": 55.8,
+    "50": 58.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.6
+  },
+  {
+   "name": "Mesa",
+   "latitude": 33.4223,
+   "longitude": -111.8226,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Staten Island",
+   "latitude": 40.5623,
+   "longitude": -74.1399,
+   "gumbel": {
+    "mu": 39.941,
+    "beta": 4.187
+   },
+   "levels_kmh": {
+    "2": 41.5,
+    "5": 46.2,
+    "10": 49.4,
+    "25": 53.3,
+    "50": 56.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.9
+  },
+  {
+   "name": "Colorado Springs",
+   "latitude": 38.8339,
+   "longitude": -104.8214,
+   "gumbel": {
+    "mu": 56.623,
+    "beta": 4.346
+   },
+   "levels_kmh": {
+    "2": 58.2,
+    "5": 63.1,
+    "10": 66.4,
+    "25": 70.5,
+    "50": 73.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.2
+  },
+  {
+   "name": "Virginia Beach",
+   "latitude": 36.8529,
+   "longitude": -75.978,
+   "gumbel": {
+    "mu": 58.091,
+    "beta": 6.76
+   },
+   "levels_kmh": {
+    "2": 60.6,
+    "5": 68.2,
+    "10": 73.3,
+    "25": 79.7,
+    "50": 84.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 93.9
+  },
+  {
+   "name": "Oakland",
+   "latitude": 37.8044,
+   "longitude": -122.2708,
+   "gumbel": {
+    "mu": 41.345,
+    "beta": 5.021
+   },
+   "levels_kmh": {
+    "2": 43.2,
+    "5": 48.9,
+    "10": 52.6,
+    "25": 57.4,
+    "50": 60.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.9
+  },
+  {
+   "name": "Tampa",
+   "latitude": 27.9475,
+   "longitude": -82.4584,
+   "gumbel": {
+    "mu": 46.619,
+    "beta": 8.843
+   },
+   "levels_kmh": {
+    "2": 49.9,
+    "5": 59.9,
+    "10": 66.5,
+    "25": 74.9,
+    "50": 81.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 97.2
+  },
+  {
+   "name": "Tulsa",
+   "latitude": 36.154,
+   "longitude": -95.9928,
+   "gumbel": {
+    "mu": 52.706,
+    "beta": 3.485
+   },
+   "levels_kmh": {
+    "2": 54.0,
+    "5": 57.9,
+    "10": 60.5,
+    "25": 63.9,
+    "50": 66.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.3
+  },
+  {
+   "name": "Minneapolis",
+   "latitude": 44.98,
+   "longitude": -93.2638,
+   "gumbel": {
+    "mu": 50.215,
+    "beta": 3.366
+   },
+   "levels_kmh": {
+    "2": 51.4,
+    "5": 55.3,
+    "10": 57.8,
+    "25": 61.0,
+    "50": 63.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.2
+  },
+  {
+   "name": "Wichita",
+   "latitude": 37.6922,
+   "longitude": -97.3375,
+   "gumbel": {
+    "mu": 54.243,
+    "beta": 3.399
+   },
+   "levels_kmh": {
+    "2": 55.5,
+    "5": 59.3,
+    "10": 61.9,
+    "25": 65.1,
+    "50": 67.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 69.3
+  },
+  {
+   "name": "Arlington",
+   "latitude": 32.7357,
+   "longitude": -97.1081,
+   "gumbel": {
+    "mu": 48.011,
+    "beta": 2.773
+   },
+   "levels_kmh": {
+    "2": 49.0,
+    "5": 52.2,
+    "10": 54.3,
+    "25": 56.9,
+    "50": 58.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.7
+  },
+  {
+   "name": "Bakersfield",
+   "latitude": 35.3733,
+   "longitude": -119.0187,
+   "gumbel": {
+    "mu": 41.586,
+    "beta": 3.697
+   },
+   "levels_kmh": {
+    "2": 42.9,
+    "5": 47.1,
+    "10": 49.9,
+    "25": 53.4,
+    "50": 56.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.6
+  },
+  {
+   "name": "Cleveland",
+   "latitude": 41.4995,
+   "longitude": -81.6954,
+   "gumbel": {
+    "mu": 61.429,
+    "beta": 5.209
+   },
+   "levels_kmh": {
+    "2": 63.3,
+    "5": 69.2,
+    "10": 73.1,
+    "25": 78.1,
+    "50": 81.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 80.7
+  },
+  {
+   "name": "New Orleans",
+   "latitude": 29.9547,
+   "longitude": -90.0751,
+   "gumbel": {
+    "mu": 49.76,
+    "beta": 11.176
+   },
+   "levels_kmh": {
+    "2": 53.9,
+    "5": 66.5,
+    "10": 74.9,
+    "25": 85.5,
+    "50": 93.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 91.3
+  },
+  {
+   "name": "Aurora",
+   "latitude": 39.7294,
+   "longitude": -104.8319,
+   "gumbel": {
+    "mu": 51.941,
+    "beta": 4.869
+   },
+   "levels_kmh": {
+    "2": 53.7,
+    "5": 59.2,
+    "10": 62.9,
+    "25": 67.5,
+    "50": 70.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.8
+  },
+  {
+   "name": "Honolulu",
+   "latitude": 21.3069,
+   "longitude": -157.8583,
+   "gumbel": {
+    "mu": 47.375,
+    "beta": 3.482
+   },
+   "levels_kmh": {
+    "2": 48.7,
+    "5": 52.6,
+    "10": 55.2,
+    "25": 58.5,
+    "50": 61.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 76.4
+  },
+  {
+   "name": "Anaheim",
+   "latitude": 33.8353,
+   "longitude": -117.9145,
+   "gumbel": {
+    "mu": 42.388,
+    "beta": 4.182
+   },
+   "levels_kmh": {
+    "2": 43.9,
+    "5": 48.7,
+    "10": 51.8,
+    "25": 55.8,
+    "50": 58.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.6
+  },
+  {
+   "name": "West Raleigh",
+   "latitude": 35.7868,
+   "longitude": -78.6639,
+   "gumbel": {
+    "mu": 28.478,
+    "beta": 2.917
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.9,
+    "10": 35.0,
+    "25": 37.8,
+    "50": 39.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.2
+  },
+  {
+   "name": "Orlando",
+   "latitude": 28.5383,
+   "longitude": -81.3792,
+   "gumbel": {
+    "mu": 45.355,
+    "beta": 9.84
+   },
+   "levels_kmh": {
+    "2": 49.0,
+    "5": 60.1,
+    "10": 67.5,
+    "25": 76.8,
+    "50": 83.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 93.3
+  },
+  {
+   "name": "Lexington",
+   "latitude": 37.9887,
+   "longitude": -84.4777,
+   "gumbel": {
+    "mu": 46.327,
+    "beta": 3.647
+   },
+   "levels_kmh": {
+    "2": 47.7,
+    "5": 51.8,
+    "10": 54.5,
+    "25": 58.0,
+    "50": 60.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.5
+  },
+  {
+   "name": "Riverside",
+   "latitude": 33.9534,
+   "longitude": -117.3962,
+   "gumbel": {
+    "mu": 42.505,
+    "beta": 3.551
+   },
+   "levels_kmh": {
+    "2": 43.8,
+    "5": 47.8,
+    "10": 50.5,
+    "25": 53.9,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.3
+  },
+  {
+   "name": "Corpus Christi",
+   "latitude": 27.8006,
+   "longitude": -97.3964,
+   "gumbel": {
+    "mu": 48.679,
+    "beta": 4.154
+   },
+   "levels_kmh": {
+    "2": 50.2,
+    "5": 54.9,
+    "10": 58.0,
+    "25": 62.0,
+    "50": 64.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.3
+  },
+  {
+   "name": "Lexington-Fayette",
+   "latitude": 38.0498,
+   "longitude": -84.4586,
+   "gumbel": {
+    "mu": 46.327,
+    "beta": 3.647
+   },
+   "levels_kmh": {
+    "2": 47.7,
+    "5": 51.8,
+    "10": 54.5,
+    "25": 58.0,
+    "50": 60.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.5
+  },
+  {
+   "name": "Cincinnati",
+   "latitude": 39.1271,
+   "longitude": -84.5144,
+   "gumbel": {
+    "mu": 30.202,
+    "beta": 2.178
+   },
+   "levels_kmh": {
+    "2": 31.0,
+    "5": 33.5,
+    "10": 35.1,
+    "25": 37.2,
+    "50": 38.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 36.4
+  },
+  {
+   "name": "Santa Ana",
+   "latitude": 33.7456,
+   "longitude": -117.8678,
+   "gumbel": {
+    "mu": 46.198,
+    "beta": 4.898
+   },
+   "levels_kmh": {
+    "2": 48.0,
+    "5": 53.5,
+    "10": 57.2,
+    "25": 61.9,
+    "50": 65.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.6
+  },
+  {
+   "name": "Stockton",
+   "latitude": 37.9577,
+   "longitude": -121.2908,
+   "gumbel": {
+    "mu": 45.173,
+    "beta": 6.109
+   },
+   "levels_kmh": {
+    "2": 47.4,
+    "5": 54.3,
+    "10": 58.9,
+    "25": 64.7,
+    "50": 69.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.9
+  },
+  {
+   "name": "Pittsburgh",
+   "latitude": 40.4406,
+   "longitude": -79.9959,
+   "gumbel": {
+    "mu": 27.849,
+    "beta": 2.245
+   },
+   "levels_kmh": {
+    "2": 28.7,
+    "5": 31.2,
+    "10": 32.9,
+    "25": 35.0,
+    "50": 36.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 36.1
+  },
+  {
+   "name": "Saint Paul",
+   "latitude": 44.9444,
+   "longitude": -93.0933,
+   "gumbel": {
+    "mu": 50.215,
+    "beta": 3.366
+   },
+   "levels_kmh": {
+    "2": 51.4,
+    "5": 55.3,
+    "10": 57.8,
+    "25": 61.0,
+    "50": 63.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.2
+  },
+  {
+   "name": "Lincoln",
+   "latitude": 40.8,
+   "longitude": -96.667,
+   "gumbel": {
+    "mu": 57.311,
+    "beta": 3.863
+   },
+   "levels_kmh": {
+    "2": 58.7,
+    "5": 63.1,
+    "10": 66.0,
+    "25": 69.7,
+    "50": 72.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.9
+  },
+  {
+   "name": "Anchorage",
+   "latitude": 61.2181,
+   "longitude": -149.9003,
+   "gumbel": {
+    "mu": 43.811,
+    "beta": 5.638
+   },
+   "levels_kmh": {
+    "2": 45.9,
+    "5": 52.3,
+    "10": 56.5,
+    "25": 61.8,
+    "50": 65.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.7
+  },
+  {
+   "name": "Meads",
+   "latitude": 38.4126,
+   "longitude": -82.7091,
+   "gumbel": {
+    "mu": 24.51,
+    "beta": 2.31
+   },
+   "levels_kmh": {
+    "2": 25.4,
+    "5": 28.0,
+    "10": 29.7,
+    "25": 31.9,
+    "50": 33.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 30.8
+  },
+  {
+   "name": "Henderson",
+   "latitude": 36.0397,
+   "longitude": -114.9819,
+   "gumbel": {
+    "mu": 52.649,
+    "beta": 3.973
+   },
+   "levels_kmh": {
+    "2": 54.1,
+    "5": 58.6,
+    "10": 61.6,
+    "25": 65.4,
+    "50": 68.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.7
+  },
+  {
+   "name": "Greensboro",
+   "latitude": 36.0726,
+   "longitude": -79.792,
+   "gumbel": {
+    "mu": 44.08,
+    "beta": 3.616
+   },
+   "levels_kmh": {
+    "2": 45.4,
+    "5": 49.5,
+    "10": 52.2,
+    "25": 55.6,
+    "50": 58.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.4
+  },
+  {
+   "name": "Plano",
+   "latitude": 33.0198,
+   "longitude": -96.6989,
+   "gumbel": {
+    "mu": 48.618,
+    "beta": 2.811
+   },
+   "levels_kmh": {
+    "2": 49.6,
+    "5": 52.8,
+    "10": 54.9,
+    "25": 57.6,
+    "50": 59.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.4
+  },
+  {
+   "name": "Newark",
+   "latitude": 40.7357,
+   "longitude": -74.1724,
+   "gumbel": {
+    "mu": 39.941,
+    "beta": 4.187
+   },
+   "levels_kmh": {
+    "2": 41.5,
+    "5": 46.2,
+    "10": 49.4,
+    "25": 53.3,
+    "50": 56.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.9
+  },
+  {
+   "name": "Madison",
+   "latitude": 43.0731,
+   "longitude": -89.4012,
+   "gumbel": {
+    "mu": 56.87,
+    "beta": 4.432
+   },
+   "levels_kmh": {
+    "2": 58.5,
+    "5": 63.5,
+    "10": 66.8,
+    "25": 71.0,
+    "50": 74.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 72.4
+  },
+  {
+   "name": "St. Louis",
+   "latitude": 38.6273,
+   "longitude": -90.1979,
+   "gumbel": {
+    "mu": 45.721,
+    "beta": 3.34
+   },
+   "levels_kmh": {
+    "2": 46.9,
+    "5": 50.7,
+    "10": 53.2,
+    "25": 56.4,
+    "50": 58.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.5
+  },
+  {
+   "name": "Chula Vista",
+   "latitude": 32.6401,
+   "longitude": -117.0842,
+   "gumbel": {
+    "mu": 45.51,
+    "beta": 4.934
+   },
+   "levels_kmh": {
+    "2": 47.3,
+    "5": 52.9,
+    "10": 56.6,
+    "25": 61.3,
+    "50": 64.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.5
+  },
+  {
+   "name": "Toledo",
+   "latitude": 41.6639,
+   "longitude": -83.5552,
+   "gumbel": {
+    "mu": 59.008,
+    "beta": 4.364
+   },
+   "levels_kmh": {
+    "2": 60.6,
+    "5": 65.6,
+    "10": 68.8,
+    "25": 73.0,
+    "50": 76.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 77.8
+  },
+  {
+   "name": "Jersey City",
+   "latitude": 40.7282,
+   "longitude": -74.0776,
+   "gumbel": {
+    "mu": 39.941,
+    "beta": 4.187
+   },
+   "levels_kmh": {
+    "2": 41.5,
+    "5": 46.2,
+    "10": 49.4,
+    "25": 53.3,
+    "50": 56.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.9
+  },
+  {
+   "name": "Reno",
+   "latitude": 39.5296,
+   "longitude": -119.8138,
+   "gumbel": {
+    "mu": 41.335,
+    "beta": 3.449
+   },
+   "levels_kmh": {
+    "2": 42.6,
+    "5": 46.5,
+    "10": 49.1,
+    "25": 52.4,
+    "50": 54.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 52.7
+  },
+  {
+   "name": "Chandler",
+   "latitude": 33.3062,
+   "longitude": -111.8413,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Fort Wayne",
+   "latitude": 41.1306,
+   "longitude": -85.1289,
+   "gumbel": {
+    "mu": 57.827,
+    "beta": 3.853
+   },
+   "levels_kmh": {
+    "2": 59.2,
+    "5": 63.6,
+    "10": 66.5,
+    "25": 70.1,
+    "50": 72.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 78.4
+  },
+  {
+   "name": "Buffalo",
+   "latitude": 42.8865,
+   "longitude": -78.8784,
+   "gumbel": {
+    "mu": 47.062,
+    "beta": 3.819
+   },
+   "levels_kmh": {
+    "2": 48.5,
+    "5": 52.8,
+    "10": 55.7,
+    "25": 59.3,
+    "50": 62.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.8
+  },
+  {
+   "name": "Durham",
+   "latitude": 35.994,
+   "longitude": -78.8986,
+   "gumbel": {
+    "mu": 28.478,
+    "beta": 2.917
+   },
+   "levels_kmh": {
+    "2": 29.5,
+    "5": 32.9,
+    "10": 35.0,
+    "25": 37.8,
+    "50": 39.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 39.2
+  },
+  {
+   "name": "St. Petersburg",
+   "latitude": 27.7709,
+   "longitude": -82.6793,
+   "gumbel": {
+    "mu": 46.619,
+    "beta": 8.843
+   },
+   "levels_kmh": {
+    "2": 49.9,
+    "5": 59.9,
+    "10": 66.5,
+    "25": 74.9,
+    "50": 81.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 97.2
+  },
+  {
+   "name": "Irvine",
+   "latitude": 33.6695,
+   "longitude": -117.8231,
+   "gumbel": {
+    "mu": 46.198,
+    "beta": 4.898
+   },
+   "levels_kmh": {
+    "2": 48.0,
+    "5": 53.5,
+    "10": 57.2,
+    "25": 61.9,
+    "50": 65.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.6
+  },
+  {
+   "name": "Laredo",
+   "latitude": 27.5064,
+   "longitude": -99.5075,
+   "gumbel": {
+    "mu": 47.983,
+    "beta": 3.003
+   },
+   "levels_kmh": {
+    "2": 49.1,
+    "5": 52.5,
+    "10": 54.7,
+    "25": 57.6,
+    "50": 59.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 60.3
+  },
+  {
+   "name": "Lubbock",
+   "latitude": 33.5779,
+   "longitude": -101.8552,
+   "gumbel": {
+    "mu": 57.034,
+    "beta": 4.906
+   },
+   "levels_kmh": {
+    "2": 58.8,
+    "5": 64.4,
+    "10": 68.1,
+    "25": 72.7,
+    "50": 76.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 73.3
+  },
+  {
+   "name": "Gilbert",
+   "latitude": 33.3528,
+   "longitude": -111.789,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Tri-Cities",
+   "latitude": 46.2454,
+   "longitude": -119.1962,
+   "gumbel": {
+    "mu": 51.673,
+    "beta": 4.086
+   },
+   "levels_kmh": {
+    "2": 53.2,
+    "5": 57.8,
+    "10": 60.9,
+    "25": 64.7,
+    "50": 67.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 79.9
+  },
+  {
+   "name": "Winston-Salem",
+   "latitude": 36.0999,
+   "longitude": -80.2442,
+   "gumbel": {
+    "mu": 44.08,
+    "beta": 3.616
+   },
+   "levels_kmh": {
+    "2": 45.4,
+    "5": 49.5,
+    "10": 52.2,
+    "25": 55.6,
+    "50": 58.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.4
+  },
+  {
+   "name": "Glendale",
+   "latitude": 33.5386,
+   "longitude": -112.186,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Norfolk",
+   "latitude": 36.8468,
+   "longitude": -76.2852,
+   "gumbel": {
+    "mu": 58.091,
+    "beta": 6.76
+   },
+   "levels_kmh": {
+    "2": 60.6,
+    "5": 68.2,
+    "10": 73.3,
+    "25": 79.7,
+    "50": 84.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 93.9
+  },
+  {
+   "name": "Hialeah",
+   "latitude": 25.8576,
+   "longitude": -80.2781,
+   "gumbel": {
+    "mu": 52.553,
+    "beta": 12.602
+   },
+   "levels_kmh": {
+    "2": 57.2,
+    "5": 71.5,
+    "10": 80.9,
+    "25": 92.9,
+    "50": 101.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 115.4
+  },
+  {
+   "name": "Garland",
+   "latitude": 32.9126,
+   "longitude": -96.6389,
+   "gumbel": {
+    "mu": 48.618,
+    "beta": 2.811
+   },
+   "levels_kmh": {
+    "2": 49.6,
+    "5": 52.8,
+    "10": 54.9,
+    "25": 57.6,
+    "50": 59.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.4
+  },
+  {
+   "name": "Scottsdale",
+   "latitude": 33.5092,
+   "longitude": -111.899,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Irving",
+   "latitude": 32.814,
+   "longitude": -96.9489,
+   "gumbel": {
+    "mu": 48.618,
+    "beta": 2.811
+   },
+   "levels_kmh": {
+    "2": 49.6,
+    "5": 52.8,
+    "10": 54.9,
+    "25": 57.6,
+    "50": 59.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 61.4
+  },
+  {
+   "name": "Boise",
+   "latitude": 43.6135,
+   "longitude": -116.2035,
+   "gumbel": {
+    "mu": 43.132,
+    "beta": 4.265
+   },
+   "levels_kmh": {
+    "2": 44.7,
+    "5": 49.5,
+    "10": 52.7,
+    "25": 56.8,
+    "50": 59.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.9
+  },
+  {
+   "name": "Chesapeake",
+   "latitude": 36.819,
+   "longitude": -76.2749,
+   "gumbel": {
+    "mu": 58.091,
+    "beta": 6.76
+   },
+   "levels_kmh": {
+    "2": 60.6,
+    "5": 68.2,
+    "10": 73.3,
+    "25": 79.7,
+    "50": 84.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 93.9
+  },
+  {
+   "name": "North Las Vegas",
+   "latitude": 36.1989,
+   "longitude": -115.1175,
+   "gumbel": {
+    "mu": 52.649,
+    "beta": 3.973
+   },
+   "levels_kmh": {
+    "2": 54.1,
+    "5": 58.6,
+    "10": 61.6,
+    "25": 65.4,
+    "50": 68.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.7
+  },
+  {
+   "name": "Fremont",
+   "latitude": 37.5483,
+   "longitude": -121.9886,
+   "gumbel": {
+    "mu": 40.799,
+    "beta": 4.166
+   },
+   "levels_kmh": {
+    "2": 42.3,
+    "5": 47.0,
+    "10": 50.2,
+    "25": 54.1,
+    "50": 57.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 58.7
+  },
+  {
+   "name": "Spokane",
+   "latitude": 47.6597,
+   "longitude": -117.4291,
+   "gumbel": {
+    "mu": 44.633,
+    "beta": 4.216
+   },
+   "levels_kmh": {
+    "2": 46.2,
+    "5": 51.0,
+    "10": 54.1,
+    "25": 58.1,
+    "50": 61.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.5
+  },
+  {
+   "name": "Baton Rouge",
+   "latitude": 30.4433,
+   "longitude": -91.1875,
+   "gumbel": {
+    "mu": 38.356,
+    "beta": 5.773
+   },
+   "levels_kmh": {
+    "2": 40.5,
+    "5": 47.0,
+    "10": 51.3,
+    "25": 56.8,
+    "50": 60.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 63.0
+  },
+  {
+   "name": "Upper West Side",
+   "latitude": 40.7871,
+   "longitude": -73.9754,
+   "gumbel": {
+    "mu": 42.327,
+    "beta": 4.725
+   },
+   "levels_kmh": {
+    "2": 44.1,
+    "5": 49.4,
+    "10": 53.0,
+    "25": 57.4,
+    "50": 60.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.4
+  },
+  {
+   "name": "Richmond",
+   "latitude": 37.5538,
+   "longitude": -77.4603,
+   "gumbel": {
+    "mu": 31.501,
+    "beta": 2.968
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.0,
+    "10": 38.2,
+    "25": 41.0,
+    "50": 43.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 43.0
+  },
+  {
+   "name": "Paradise",
+   "latitude": 36.0972,
+   "longitude": -115.1467,
+   "gumbel": {
+    "mu": 52.649,
+    "beta": 3.973
+   },
+   "levels_kmh": {
+    "2": 54.1,
+    "5": 58.6,
+    "10": 61.6,
+    "25": 65.4,
+    "50": 68.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 64.7
+  },
+  {
+   "name": "Tacoma",
+   "latitude": 47.2529,
+   "longitude": -122.4443,
+   "gumbel": {
+    "mu": 29.422,
+    "beta": 3.272
+   },
+   "levels_kmh": {
+    "2": 30.6,
+    "5": 34.3,
+    "10": 36.8,
+    "25": 39.9,
+    "50": 42.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 41.6
+  },
+  {
+   "name": "Jamaica",
+   "latitude": 40.6915,
+   "longitude": -73.8057,
+   "gumbel": {
+    "mu": 63.04,
+    "beta": 6.825
+   },
+   "levels_kmh": {
+    "2": 65.5,
+    "5": 73.3,
+    "10": 78.4,
+    "25": 84.9,
+    "50": 89.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 95.8
+  },
+  {
+   "name": "San Bernardino",
+   "latitude": 34.1083,
+   "longitude": -117.2898,
+   "gumbel": {
+    "mu": 42.505,
+    "beta": 3.551
+   },
+   "levels_kmh": {
+    "2": 43.8,
+    "5": 47.8,
+    "10": 50.5,
+    "25": 53.9,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.3
+  },
+  {
+   "name": "Salt Lake City",
+   "latitude": 40.7608,
+   "longitude": -111.8911,
+   "gumbel": {
+    "mu": 34.48,
+    "beta": 4.127
+   },
+   "levels_kmh": {
+    "2": 36.0,
+    "5": 40.7,
+    "10": 43.8,
+    "25": 47.7,
+    "50": 50.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.4
+  },
+  {
+   "name": "Huntsville",
+   "latitude": 34.7304,
+   "longitude": -86.5859,
+   "gumbel": {
+    "mu": 33.733,
+    "beta": 3.994
+   },
+   "levels_kmh": {
+    "2": 35.2,
+    "5": 39.7,
+    "10": 42.7,
+    "25": 46.5,
+    "50": 49.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 47.3
+  },
+  {
+   "name": "Des Moines",
+   "latitude": 41.6005,
+   "longitude": -93.6091,
+   "gumbel": {
+    "mu": 56.278,
+    "beta": 4.21
+   },
+   "levels_kmh": {
+    "2": 57.8,
+    "5": 62.6,
+    "10": 65.8,
+    "25": 69.7,
+    "50": 72.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 71.6
+  },
+  {
+   "name": "Fontana",
+   "latitude": 34.0922,
+   "longitude": -117.4351,
+   "gumbel": {
+    "mu": 42.505,
+    "beta": 3.551
+   },
+   "levels_kmh": {
+    "2": 43.8,
+    "5": 47.8,
+    "10": 50.5,
+    "25": 53.9,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.3
+  },
+  {
+   "name": "Modesto",
+   "latitude": 37.6391,
+   "longitude": -120.9969,
+   "gumbel": {
+    "mu": 41.881,
+    "beta": 4.645
+   },
+   "levels_kmh": {
+    "2": 43.6,
+    "5": 48.8,
+    "10": 52.3,
+    "25": 56.7,
+    "50": 60.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.6
+  },
+  {
+   "name": "Rochester",
+   "latitude": 43.1548,
+   "longitude": -77.6156,
+   "gumbel": {
+    "mu": 35.605,
+    "beta": 3.352
+   },
+   "levels_kmh": {
+    "2": 36.8,
+    "5": 40.6,
+    "10": 43.1,
+    "25": 46.3,
+    "50": 48.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 45.2
+  },
+  {
+   "name": "Maryvale",
+   "latitude": 33.502,
+   "longitude": -112.1776,
+   "gumbel": {
+    "mu": 40.536,
+    "beta": 4.075
+   },
+   "levels_kmh": {
+    "2": 42.0,
+    "5": 46.6,
+    "10": 49.7,
+    "25": 53.6,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.6
+  },
+  {
+   "name": "Arlington",
+   "latitude": 38.881,
+   "longitude": -77.1043,
+   "gumbel": {
+    "mu": 51.838,
+    "beta": 4.497
+   },
+   "levels_kmh": {
+    "2": 53.5,
+    "5": 58.6,
+    "10": 62.0,
+    "25": 66.2,
+    "50": 69.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 66.6
+  },
+  {
+   "name": "Oxnard",
+   "latitude": 34.1975,
+   "longitude": -119.177,
+   "gumbel": {
+    "mu": 43.536,
+    "beta": 4.206
+   },
+   "levels_kmh": {
+    "2": 45.1,
+    "5": 49.8,
+    "10": 53.0,
+    "25": 57.0,
+    "50": 59.9
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.0
+  },
+  {
+   "name": "Columbus",
+   "latitude": 32.461,
+   "longitude": -84.9877,
+   "gumbel": {
+    "mu": 22.817,
+    "beta": 2.674
+   },
+   "levels_kmh": {
+    "2": 23.8,
+    "5": 26.8,
+    "10": 28.8,
+    "25": 31.4,
+    "50": 33.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 35.5
+  },
+  {
+   "name": "Worcester",
+   "latitude": 42.2626,
+   "longitude": -71.8023,
+   "gumbel": {
+    "mu": 27.441,
+    "beta": 1.878
+   },
+   "levels_kmh": {
+    "2": 28.1,
+    "5": 30.3,
+    "10": 31.7,
+    "25": 33.4,
+    "50": 34.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 34.1
+  },
+  {
+   "name": "Moreno Valley",
+   "latitude": 33.9375,
+   "longitude": -117.2306,
+   "gumbel": {
+    "mu": 42.505,
+    "beta": 3.551
+   },
+   "levels_kmh": {
+    "2": 43.8,
+    "5": 47.8,
+    "10": 50.5,
+    "25": 53.9,
+    "50": 56.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 57.3
+  },
+  {
+   "name": "Little Rock",
+   "latitude": 34.7465,
+   "longitude": -92.2896,
+   "gumbel": {
+    "mu": 25.332,
+    "beta": 2.174
+   },
+   "levels_kmh": {
+    "2": 26.1,
+    "5": 28.6,
+    "10": 30.2,
+    "25": 32.3,
+    "50": 33.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 36.1
+  },
+  {
+   "name": "Fayetteville",
+   "latitude": 35.0527,
+   "longitude": -78.8784,
+   "gumbel": {
+    "mu": 50.349,
+    "beta": 6.965
+   },
+   "levels_kmh": {
+    "2": 52.9,
+    "5": 60.8,
+    "10": 66.0,
+    "25": 72.6,
+    "50": 77.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 80.4
+  },
+  {
+   "name": "Huntington Beach",
+   "latitude": 33.6603,
+   "longitude": -117.9992,
+   "gumbel": {
+    "mu": 46.198,
+    "beta": 4.898
+   },
+   "levels_kmh": {
+    "2": 48.0,
+    "5": 53.5,
+    "10": 57.2,
+    "25": 61.9,
+    "50": 65.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 67.6
+  },
+  {
+   "name": "Tallahassee",
+   "latitude": 30.4383,
+   "longitude": -84.2807,
+   "gumbel": {
+    "mu": 22.183,
+    "beta": 3.744
+   },
+   "levels_kmh": {
+    "2": 23.6,
+    "5": 27.8,
+    "10": 30.6,
+    "25": 34.2,
+    "50": 36.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 36.9
+  },
+  {
+   "name": "Yonkers",
+   "latitude": 40.9304,
+   "longitude": -73.8979,
+   "gumbel": {
+    "mu": 42.327,
+    "beta": 4.725
+   },
+   "levels_kmh": {
+    "2": 44.1,
+    "5": 49.4,
+    "10": 53.0,
+    "25": 57.4,
+    "50": 60.8
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 59.4
+  },
+  {
+   "name": "Glendale",
+   "latitude": 34.1425,
+   "longitude": -118.2551,
+   "gumbel": {
+    "mu": 42.388,
+    "beta": 4.182
+   },
+   "levels_kmh": {
+    "2": 43.9,
+    "5": 48.7,
+    "10": 51.8,
+    "25": 55.8,
+    "50": 58.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 55.6
+  },
+  {
+   "name": "Cypress",
+   "latitude": 29.9691,
+   "longitude": -95.6972,
+   "gumbel": {
+    "mu": 37.128,
+    "beta": 3.977
+   },
+   "levels_kmh": {
+    "2": 38.6,
+    "5": 43.1,
+    "10": 46.1,
+    "25": 49.8,
+    "50": 52.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.8
+  },
+  {
+   "name": "Aurora",
+   "latitude": 41.7606,
+   "longitude": -88.3201,
+   "gumbel": {
+    "mu": 57.287,
+    "beta": 4.272
+   },
+   "levels_kmh": {
+    "2": 58.9,
+    "5": 63.7,
+    "10": 66.9,
+    "25": 71.0,
+    "50": 74.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 69.3
+  }
+ ]
+}

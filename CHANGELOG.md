@@ -1,5 +1,57 @@
 # Changelog
 
+## 1.44.0, 29 September 2026
+
+- Rain and wind were never Turkish. The build was.
+
+  The car cover pays on the largest day of rain and the storm cover on the
+  largest day of wind, and both were written only in Türkiye. Not because the
+  method is Turkish: NASA POWER is a global reanalysis and the method was global
+  all along. The build only ever fetched Türkiye's 81 provincial centres.
+
+  It fits any country now, at the places the interface offers in it, every place
+  above 200,000 people and at least 24 whatever their size. One file, one
+  backtest and one verdict per country, and which countries are sold is read off
+  those verdicts exactly as the earthquake models are gated.
+
+  Storm cover: nine of eleven countries pass. Türkiye, Chile, Italy, Japan,
+  Mexico, New Zealand, the Philippines, Taiwan and the United States.
+  Car flood: six of eleven. Türkiye, Greece, Italy, Mexico, New Zealand and
+  Taiwan.
+
+  The two lists differ, and that is the point of asking each country separately.
+  Chile's wind model passes and its rainfall model fails; Greece is the other way
+  round. Neither list is the earthquake list either, and the place search was
+  answering all three with the earthquake one, so a buyer typing Rome for a car
+  cover was told it could not be priced while Italy's rainfall model passes.
+
+- The failures, and which way they point.
+
+  Chile observed 29 extreme rain days against 72 expected: a fit on 1981 to 2010
+  over-predicting a country in drought since about 2010, which overcharges the
+  buyer. Indonesia observed 531 against 246, Japan 734 against 405, the
+  Philippines 653 against 216 and the United States failed the same way, which is
+  the same fit under-predicting by two to three times and underfunds the pool.
+  Either way the country is not sold, and the file says which test failed and by
+  how much rather than the country simply being missing.
+
+  A place from a country whose model failed is never a fallback for an address
+  near its border. The search runs over the countries that passed and no others:
+  a near miss from a model known to be wrong is not a near miss.
+
+- What the page assumed about Türkiye, and stopped assuming.
+
+  Dropping a pin outside a Türkiye shaped box was refused outright for the two
+  daily covers, so a buyer standing at their own address in Rome could not place
+  it. A typed coordinate was refused the same way. A search with nothing to go on
+  biased towards the middle of Türkiye, which put a buyer in Rome at the far end
+  of every result list. The three sentences naming Türkiye as the only country
+  are lists now, read from what the protocol says it can price.
+
+  Drought still asks for a named station, so a typed coordinate is still not a
+  subject for it, and its stations are still Turkish because those are the
+  seasons that have been measured.
+
 ## 1.43.1, 29 September 2026
 
 - Three companies in a country, one price. Again, and this time where the

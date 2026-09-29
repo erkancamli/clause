@@ -30,7 +30,9 @@ from test_api_security import Device, buy_body, buy_terms, session_for
 CANAKKALE = {"latitude": 40.15, "longitude": 26.41}
 KONYA = {"latitude": 37.87, "longitude": 32.49}
 TOKEN = "operator-token-for-tests"
-REAL = storm.MODEL
+from clause.perils import daily
+
+REAL = daily.MODELS_DIR / "wind_TR.json"
 
 
 def synthetic_model() -> dict:
@@ -56,30 +58,36 @@ def synthetic_model() -> dict:
 def wind(tmp_path, monkeypatch):
     """The committed model where it exists; a synthetic one otherwise."""
     if not REAL.exists():
-        path = tmp_path / "wind_TR.json"
-        path.write_text(json.dumps(synthetic_model()), encoding="utf-8")
-        monkeypatch.setattr(storm, "MODEL", path)
-    storm.model.cache_clear()
+        (tmp_path / "wind_TR.json").write_text(json.dumps(synthetic_model()), encoding="utf-8")
+        monkeypatch.setattr(daily, "MODELS_DIR", tmp_path)
+    daily.reload()
     yield storm.model()
-    storm.model.cache_clear()
+    daily.reload()
 
 
 @pytest.fixture
 def no_wind(tmp_path, monkeypatch):
-    monkeypatch.setattr(storm, "MODEL", tmp_path / "missing.json")
-    storm.model.cache_clear()
+    # An empty directory: no country has a wind model, so nowhere is written.
+    monkeypatch.setattr(daily, "MODELS_DIR", tmp_path)
+    daily.reload()
     yield
-    storm.model.cache_clear()
+    daily.reload()
 
 
 @pytest.mark.skipif(not REAL.exists(), reason="the wind model has not been built here")
 def test_the_committed_wind_model_passed_its_test() -> None:
-    storm.model.cache_clear()
+    daily.reload()
     v = storm.model()["validation"]
     assert v["passed"] and v["tested_from"] == v["fitted_until"] + 1
     assert storm.model()["unit"] == "km/h"
     assert all(p["fit_years"] >= 30 for p in storm.model()["places"])
-    assert STORM.territory == frozenset({"TR"})
+    # Every country whose own wind model passed, and no others. Türkiye is one
+    # of them; the list moves as countries are built and tested.
+    from clause.perils.daily import models, passed
+    assert STORM.territory == passed("wind")
+    assert "TR" in STORM.territory
+    for code, doc in models("wind").items():
+        assert (code in STORM.territory) == bool(doc["validation"]["passed"]), code
 
 
 def test_without_a_model_nothing_can_be_priced_anywhere(no_wind) -> None:
@@ -110,9 +118,20 @@ def test_the_trigger_is_about_a_one_in_twenty_five_year_day(wind) -> None:
 
 
 def test_outside_the_tested_places_is_refused(wind) -> None:
-    with pytest.raises(ValueError, match="60 km"):
-        STORM.validate_subject({"latitude": 35.68, "longitude": 139.69})
+    """Somewhere no country's wind model has been fitted and passed.
+
+    This used to be Tokyo, which stopped being outside the moment Japan's own
+    wind model was built and passed. London is in a country with no model of any
+    kind, and the middle of the South Atlantic is in no country at all.
+    """
+    for latitude, longitude in ((51.5, -0.1), (-30.0, -20.0)):
+        with pytest.raises(ValueError, match="60 km"):
+            STORM.validate_subject({"latitude": latitude, "longitude": longitude})
     assert STORM.risk_country(dict(CANAKKALE)) == "TR"
+    # And the refusal names the countries it is written in, not one of them.
+    with pytest.raises(ValueError) as caught:
+        STORM.validate_subject({"latitude": 51.5, "longitude": -0.1})
+    assert "Türkiye" in str(caught.value)
 
 
 def test_the_capital_model_agrees_with_the_price(wind) -> None:

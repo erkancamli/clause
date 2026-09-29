@@ -1,0 +1,492 @@
+{
+ "code": "IT",
+ "name": "Italy",
+ "kind": "rain_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily precipitation, NASA POWER PRECTOTCORR (MERRA-2)",
+ "unit": "mm",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 72.0,
+   "observed": 93,
+   "place_years": 360,
+   "dispersion": 2.07,
+   "p_at_most_observed": 0.9541,
+   "p_at_least_observed": 0.0532
+  },
+  "changes_after_first_run": [
+   "count test: places are not independent; negative binomial with the dispersion measured on the fitting years replaces the binomial (first run: binomial, p = 0.0027, failed)",
+   "published levels fitted on the most recent 30 years, because strong rainfall years became about a quarter more frequent from 2001"
+  ]
+ },
+ "places": [
+  {
+   "name": "Rome",
+   "latitude": 41.8919,
+   "longitude": 12.5113,
+   "gumbel": {
+    "mu": 34.901,
+    "beta": 11.81
+   },
+   "levels_mm": {
+    "2": 39.2,
+    "5": 52.6,
+    "10": 61.5,
+    "25": 72.7,
+    "50": 81.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 129.0
+  },
+  {
+   "name": "Milan",
+   "latitude": 45.4643,
+   "longitude": 9.1895,
+   "gumbel": {
+    "mu": 40.07,
+    "beta": 11.833
+   },
+   "levels_mm": {
+    "2": 44.4,
+    "5": 57.8,
+    "10": 66.7,
+    "25": 77.9,
+    "50": 86.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 154.9
+  },
+  {
+   "name": "Naples",
+   "latitude": 40.8522,
+   "longitude": 14.2681,
+   "gumbel": {
+    "mu": 29.6,
+    "beta": 9.163
+   },
+   "levels_mm": {
+    "2": 33.0,
+    "5": 43.3,
+    "10": 50.2,
+    "25": 58.9,
+    "50": 65.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 94.2
+  },
+  {
+   "name": "Turin",
+   "latitude": 45.0705,
+   "longitude": 7.6868,
+   "gumbel": {
+    "mu": 34.649,
+    "beta": 11.209
+   },
+   "levels_mm": {
+    "2": 38.8,
+    "5": 51.5,
+    "10": 59.9,
+    "25": 70.5,
+    "50": 78.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 97.7
+  },
+  {
+   "name": "Palermo",
+   "latitude": 38.1166,
+   "longitude": 13.3636,
+   "gumbel": {
+    "mu": 35.82,
+    "beta": 14.706
+   },
+   "levels_mm": {
+    "2": 41.2,
+    "5": 57.9,
+    "10": 68.9,
+    "25": 82.9,
+    "50": 93.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 123.5
+  },
+  {
+   "name": "Genoa",
+   "latitude": 44.4048,
+   "longitude": 8.9444,
+   "gumbel": {
+    "mu": 45.105,
+    "beta": 14.602
+   },
+   "levels_mm": {
+    "2": 50.5,
+    "5": 67.0,
+    "10": 78.0,
+    "25": 91.8,
+    "50": 102.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 125.7
+  },
+  {
+   "name": "Bologna",
+   "latitude": 44.4938,
+   "longitude": 11.3387,
+   "gumbel": {
+    "mu": 28.15,
+    "beta": 16.113
+   },
+   "levels_mm": {
+    "2": 34.1,
+    "5": 52.3,
+    "10": 64.4,
+    "25": 79.7,
+    "50": 91.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 192.2
+  },
+  {
+   "name": "Florence",
+   "latitude": 43.7792,
+   "longitude": 11.2463,
+   "gumbel": {
+    "mu": 28.563,
+    "beta": 14.513
+   },
+   "levels_mm": {
+    "2": 33.9,
+    "5": 50.3,
+    "10": 61.2,
+    "25": 75.0,
+    "50": 85.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 254.7
+  },
+  {
+   "name": "Bari",
+   "latitude": 41.1207,
+   "longitude": 16.8698,
+   "gumbel": {
+    "mu": 30.351,
+    "beta": 19.153
+   },
+   "levels_mm": {
+    "2": 37.4,
+    "5": 59.1,
+    "10": 73.5,
+    "25": 91.6,
+    "50": 105.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 151.9
+  },
+  {
+   "name": "Catania",
+   "latitude": 37.4922,
+   "longitude": 15.0704,
+   "gumbel": {
+    "mu": 31.649,
+    "beta": 19.922
+   },
+   "levels_mm": {
+    "2": 39.0,
+    "5": 61.5,
+    "10": 76.5,
+    "25": 95.4,
+    "50": 109.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 216.6
+  },
+  {
+   "name": "Verona",
+   "latitude": 45.4385,
+   "longitude": 10.9938,
+   "gumbel": {
+    "mu": 35.965,
+    "beta": 10.542
+   },
+   "levels_mm": {
+    "2": 39.8,
+    "5": 51.8,
+    "10": 59.7,
+    "25": 69.7,
+    "50": 77.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 104.5
+  },
+  {
+   "name": "Messina",
+   "latitude": 38.1939,
+   "longitude": 15.5526,
+   "gumbel": {
+    "mu": 32.349,
+    "beta": 16.74
+   },
+   "levels_mm": {
+    "2": 38.5,
+    "5": 57.5,
+    "10": 70.0,
+    "25": 85.9,
+    "50": 97.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 204.2
+  },
+  {
+   "name": "Trieste",
+   "latitude": 45.6495,
+   "longitude": 13.7768,
+   "gumbel": {
+    "mu": 36.211,
+    "beta": 8.996
+   },
+   "levels_mm": {
+    "2": 39.5,
+    "5": 49.7,
+    "10": 56.5,
+    "25": 65.0,
+    "50": 71.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 67.2
+  },
+  {
+   "name": "Padua",
+   "latitude": 45.408,
+   "longitude": 11.8859,
+   "gumbel": {
+    "mu": 36.532,
+    "beta": 8.127
+   },
+   "levels_mm": {
+    "2": 39.5,
+    "5": 48.7,
+    "10": 54.8,
+    "25": 62.5,
+    "50": 68.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 94.8
+  },
+  {
+   "name": "Brescia",
+   "latitude": 45.5356,
+   "longitude": 10.2147,
+   "gumbel": {
+    "mu": 38.17,
+    "beta": 17.317
+   },
+   "levels_mm": {
+    "2": 44.5,
+    "5": 64.1,
+    "10": 77.1,
+    "25": 93.6,
+    "50": 105.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 271.0
+  },
+  {
+   "name": "Taranto",
+   "latitude": 40.4644,
+   "longitude": 17.2471,
+   "gumbel": {
+    "mu": 33.919,
+    "beta": 21.637
+   },
+   "levels_mm": {
+    "2": 41.8,
+    "5": 66.4,
+    "10": 82.6,
+    "25": 103.1,
+    "50": 118.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 190.8
+  },
+  {
+   "name": "Parma",
+   "latitude": 44.7993,
+   "longitude": 10.3262,
+   "gumbel": {
+    "mu": 33.786,
+    "beta": 17.149
+   },
+   "levels_mm": {
+    "2": 40.1,
+    "5": 59.5,
+    "10": 72.4,
+    "25": 88.6,
+    "50": 100.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 183.5
+  },
+  {
+   "name": "Prato",
+   "latitude": 43.8805,
+   "longitude": 11.097,
+   "gumbel": {
+    "mu": 28.563,
+    "beta": 14.513
+   },
+   "levels_mm": {
+    "2": 33.9,
+    "5": 50.3,
+    "10": 61.2,
+    "25": 75.0,
+    "50": 85.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 254.7
+  },
+  {
+   "name": "Modena",
+   "latitude": 44.6478,
+   "longitude": 10.9254,
+   "gumbel": {
+    "mu": 29.746,
+    "beta": 31.718
+   },
+   "levels_mm": {
+    "2": 41.4,
+    "5": 77.3,
+    "10": 101.1,
+    "25": 131.2,
+    "50": 153.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 533.0
+  },
+  {
+   "name": "Reggio Calabria",
+   "latitude": 38.1105,
+   "longitude": 15.6613,
+   "gumbel": {
+    "mu": 32.349,
+    "beta": 16.74
+   },
+   "levels_mm": {
+    "2": 38.5,
+    "5": 57.5,
+    "10": 70.0,
+    "25": 85.9,
+    "50": 97.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 204.2
+  },
+  {
+   "name": "Quarto Oggiaro",
+   "latitude": 45.5131,
+   "longitude": 9.1434,
+   "gumbel": {
+    "mu": 40.07,
+    "beta": 11.833
+   },
+   "levels_mm": {
+    "2": 44.4,
+    "5": 57.8,
+    "10": 66.7,
+    "25": 77.9,
+    "50": 86.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 154.9
+  },
+  {
+   "name": "Reggio nell'Emilia",
+   "latitude": 44.6983,
+   "longitude": 10.6312,
+   "gumbel": {
+    "mu": 29.746,
+    "beta": 31.718
+   },
+   "levels_mm": {
+    "2": 41.4,
+    "5": 77.3,
+    "10": 101.1,
+    "25": 131.2,
+    "50": 153.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 533.0
+  },
+  {
+   "name": "Livorno",
+   "latitude": 43.5443,
+   "longitude": 10.3262,
+   "gumbel": {
+    "mu": 28.923,
+    "beta": 9.92
+   },
+   "levels_mm": {
+    "2": 32.6,
+    "5": 43.8,
+    "10": 51.2,
+    "25": 60.7,
+    "50": 67.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 128.9
+  },
+  {
+   "name": "Cagliari",
+   "latitude": 39.2305,
+   "longitude": 9.1192,
+   "gumbel": {
+    "mu": 33.473,
+    "beta": 51.188
+   },
+   "levels_mm": {
+    "2": 52.2,
+    "5": 110.3,
+    "10": 148.7,
+    "25": 197.2,
+    "50": 233.2
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_mm": 737.0
+  }
+ ]
+}

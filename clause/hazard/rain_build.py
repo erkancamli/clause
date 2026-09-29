@@ -63,17 +63,42 @@ SPEC = Spec(
         f"published levels fitted on the most recent {RECENT_YEARS} years, because "
         "strong rainfall years became about a quarter more frequent from 2001",
     ),
+    stem="rain",
     user_agent="Clause rain build",
 )
 
 SOURCES = [{"name": "NASA POWER", "url": "https://power.larc.nasa.gov", "licence": "public domain"}]
 
+#: The countries the place index covers, which is where this can be fitted.
+EVERY_COUNTRY = ("CL", "GR", "ID", "IT", "JP", "MX", "NZ", "PH", "TR", "TW", "US")
+
 __all__ = ["CACHE", "FIT_UNTIL", "OUT", "SPEC", "main"]
 
 
 def main(argv: list[str]) -> None:
-    del argv
-    build(SPEC, sources=SOURCES)
+    """Build one country's model per code given, or Türkiye's when none is.
+
+        python -m clause.hazard.rain_build
+        python -m clause.hazard.rain_build JP US MX
+        python -m clause.hazard.rain_build --all
+    """
+    from ..countries import NAMES
+    from .daily_extremes import world_places
+
+    codes = [a.upper() for a in argv if not a.startswith("-")]
+    if "--all" in argv:
+        codes = ["TR"] + sorted(c for c in EVERY_COUNTRY if c != "TR")
+    for code in codes or ["TR"]:
+        name = NAMES.get(code, code)
+        where = None if code == "TR" else world_places(code)
+        if where is not None and len(where) < 2:
+            print(f"{code}: no places to fit on", file=sys.stderr)
+            continue
+        print(f"\n== {code} {name} ==", flush=True)
+        doc = build(SPEC, sources=SOURCES, code=code, name=name, where=where)
+        v = doc["validation"]
+        print(f"{code}: {len(doc['places'])} places -> {SPEC.file_for(code).name}  "
+              + ("passed" if v["passed"] else "FAILED: " + ", ".join(v["failed"])), flush=True)
 
 
 if __name__ == "__main__":

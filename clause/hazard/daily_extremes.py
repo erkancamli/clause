@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ..perils.places import PLACES
+from ..perils.places import PLACES, Place
 
 POWER = ("https://power.larc.nasa.gov/api/temporal/daily/point?parameters={parameter}"
          "&community=AG&longitude={lon}&latitude={lat}&start=19810101&end={end}&format=JSON")
@@ -49,6 +49,40 @@ MODELS = Path(__file__).resolve().parent / "models"
 FIT_UNTIL = 2010
 RECENT_YEARS = 30
 EULER = 0.5772156649
+
+
+#: How many people a place needs before its own daily record is fitted, and how
+#: many places a country gets whatever their size. The first keeps the build to
+#: the places people actually live; the second keeps a country with two large
+#: cities from having a model fitted on two places, which is not a model.
+LEAST_PEOPLE = 200_000
+LEAST_PLACES = 24
+
+
+def world_places(code: str) -> list[tuple[str, float, float]]:
+    """The places one country's daily model is fitted at, largest first.
+
+    Read from the same index the interface searches, so what is fitted is where
+    a buyer can actually ask for cover rather than a grid of ocean.
+    """
+    data = json.loads((MODELS / "places.json").read_text(encoding="utf-8"))
+    rows = [(str(r[0]), float(r[4]), float(r[5]), int(r[6]))
+            for r in data.get("places", []) if len(r) >= 7 and r[2] == code]
+    rows.sort(key=lambda r: -r[3])
+    keep = [r for r in rows if r[3] >= LEAST_PEOPLE]
+    if len(keep) < LEAST_PLACES:
+        keep = rows[:LEAST_PLACES]
+    # One place per coordinate, rounded the way the cache keys it, so a city and
+    # its own district do not become two fits of one series.
+    seen: set[tuple[float, float]] = set()
+    out = []
+    for name, latitude, longitude, _people in keep:
+        key = (round(latitude, 2), round(longitude, 2))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((name, latitude, longitude))
+    return out
 
 
 @dataclass(frozen=True)
@@ -60,13 +94,20 @@ class Spec:
     index: str                     # the index, in words, for the model file
     unit: str                      # mm, km/h
     cache: Path                    # where the fetched series are kept
-    out: Path                      # the model file written
+    out: Path                      # the model file written, for Türkiye
+    stem: str = ""                 # rain, wind: names the file for any country
     scale: float = 1.0             # applied to every value: m/s to km/h is 3.6
     version: str = "2026.1"
     # Recorded in the model file when something was changed after a result
     # was seen; empty for a build whose first run passed as fixed.
     changes_after_first_run: tuple[str, ...] = ()
     user_agent: str = "Clause hazard build"
+
+    def file_for(self, code: str) -> Path:
+        """Where one country's model is written."""
+        if not self.stem:
+            return self.out
+        return MODELS / f"{self.stem}_{code.upper()}.json"
 
     @property
     def levels_key(self) -> str:
@@ -141,12 +182,22 @@ def nb_cdf(k: int, mean: float, dispersion: float) -> float:
 
 
 def build(spec: Spec, *, sources: list[dict[str, Any]], code: str = "TR", name: str = "Türkiye",
-          today: dt.date | None = None, echo: bool = True) -> dict[str, Any]:
-    """Fetch, fit, test and write the model file. Returns what was written."""
+          today: dt.date | None = None, echo: bool = True,
+          where: list[tuple[str, float, float]] | None = None) -> dict[str, Any]:
+    """Fetch, fit, test and write one country's model file. Returns what it wrote.
+
+    Türkiye is fitted at its eighty one provincial centres, which is the list
+    this build started from. Any other country is fitted at the places the
+    interface offers in it, because that is where a buyer can ask.
+    """
     today = today or dt.date.today()
     last_year = today.year - 1
     end = f"{last_year}1231"
-    provinces = [p for p in PLACES if p.kind == "province"]
+    if where is None:
+        where = ([(p.name, p.latitude, p.longitude) for p in PLACES if p.kind == "province"]
+                 if code == "TR" else world_places(code))
+    provinces = [Place(name=n, latitude=la, longitude=lo, region="", kind="province")
+                 for n, la, lo in where]
     places, exceed, trials = [], 0, 0
     fit_counts: dict[int, int] = {}
     for i, place in enumerate(provinces):
@@ -199,7 +250,7 @@ def build(spec: Spec, *, sources: list[dict[str, Any]], code: str = "TR", name: 
         },
         "places": places,
     }
-    spec.out.write_text(json.dumps(doc, ensure_ascii=False, indent=1))
+    spec.file_for(code).write_text(json.dumps(doc, ensure_ascii=False, indent=1))
     if echo:
         print(json.dumps(doc["validation"], indent=1))
     return doc

@@ -37,10 +37,10 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .base import DataSource, Direction, PayoutCurve, Peril, Shape, curve_from_spec
-from .geo import distance_km
+from . import daily
 
 MODEL = Path(__file__).resolve().parents[1] / "hazard" / "models" / "wind_TR.json"
-MAX_DISTANCE_KM = 60.0
+MAX_DISTANCE_KM = daily.MAX_DISTANCE_KM
 # One step rarer than the car cover's 10, 25 and 50. A 1 in 10 year wind day
 # is one most homes see within a decade and one that takes tiles rather than
 # roofs; paying a quarter of the rebuild cost on it made the cover cost about
@@ -50,20 +50,22 @@ MAX_DISTANCE_KM = 60.0
 LEVELS = ((25, 0.25), (50, 0.60), (100, 1.00))
 
 
-@lru_cache(maxsize=1)
-def model() -> dict[str, Any]:
-    if not MODEL.exists():
+def model(code: str = "TR") -> dict[str, Any]:
+    """One country's wind model, or an empty one where it was never built."""
+    have = daily.models("wind").get(code.upper())
+    if have is None:
         return {"places": [], "validation": {"passed": False, "failed": ["not built"]}}
-    return json.loads(MODEL.read_text(encoding="utf-8"))
+    return have
 
 
 def nearest(latitude: float, longitude: float) -> tuple[dict[str, Any] | None, float]:
-    best, best_km = None, float("inf")
-    for place in model()["places"]:
-        km = distance_km((latitude, longitude), (place["latitude"], place["longitude"]))
-        if km < best_km:
-            best, best_km = place, km
-    return best, best_km
+    """The nearest fitted place in any country this cover is written in.
+
+    Every country with a model of its own is searched, and only the ones whose
+    model passed its own backtest, which is why the answer carries the country
+    it came from: the licence, the law and the model card all follow it.
+    """
+    return daily.nearest("wind", round(latitude, 4), round(longitude, 4))
 
 
 def level_kmh(place: dict[str, Any], years: float) -> float:
@@ -98,12 +100,22 @@ class Storm(Peril):
     # the news.
     waiting_days = 10.0
 
+    # Read from the models on disk, not written here: a country is added by
+    # building and passing its model, and removed by failing it. The same rule
+    # the earthquake models are sold under.
     @property
     def territory(self) -> frozenset[str]:  # type: ignore[override]
-        return frozenset({"TR"}) if model()["validation"].get("passed") else frozenset()
+        return daily.passed("wind")
 
     def risk_country(self, subject: dict[str, Any]) -> str | None:
-        return "TR"
+        said = subject.get("country")
+        if said:
+            return str(said)
+        try:
+            place, _ = nearest(float(subject["latitude"]), float(subject["longitude"]))
+        except (KeyError, TypeError, ValueError):
+            return None
+        return place.get("country") if place else None
 
     def validate_subject(self, subject: dict[str, Any]) -> dict[str, Any]:
         try:
@@ -113,10 +125,17 @@ class Storm(Peril):
             raise ValueError("give where the home stands, as a latitude and longitude") from error
         place, km = nearest(latitude, longitude)
         if place is None or km > MAX_DISTANCE_KM:
-            raise ValueError("storm cover is written only within 60 km of a Türkiye "
-                             "provincial centre, where the wind model is tested")
+            from ..countries import NAMES
+
+            where = ", ".join(sorted(NAMES.get(c, c) for c in self.territory)) or "nowhere yet"
+            raise ValueError(
+                f"storm cover is written within 60 km of a place whose daily wind "
+                f"record has been fitted and tested. That is {where}, and the "
+                f"nearest such place to this one is further than that"
+            )
         out = {"latitude": round(latitude, 4), "longitude": round(longitude, 4),
-               "station": place["name"], "distance_km": round(km, 1)}
+               "station": place["name"], "country": place["country"],
+               "distance_km": round(km, 1)}
         label = str(subject.get("place", "") or "")[:60]
         if label:
             out["place"] = label

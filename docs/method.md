@@ -265,8 +265,8 @@ arrival distributions show.
 Two covers pay on the largest day of a term: the car cover on rain, the
 storm cover on wind, each where the thing insured is kept. Both are built
 the same way, offline, from NASA POWER's daily series (MERRA-2: PRECTOTCORR
-for rain, WS10M_MAX for wind, the latter in km/h) at the nearest of Türkiye's
-81 provincial centres: the largest value in each calendar year, and a Gumbel
+for rain, WS10M_MAX for wind, the latter in km/h) at the nearest fitted place:
+the largest value in each calendar year, and a Gumbel
 distribution fitted to those maxima by probability weighted moments. The
 exceedance over a term of `t` years is `1 - (1 - p)^t` with `p` the annual
 exceedance, and the steps of the curve are the place's own return levels, so
@@ -281,16 +281,42 @@ of it. At 25/50/100 the expected loss is 2.1% of the limit. The 1 in 100
 level is an extrapolation of a thirty year fit, one step beyond the levels
 the build tests, and the basis risk says so.
 
-The test is fixed before the first run and identical for both: fitted on
-1981 to 2010, tested on 2011 onward; the count of test years above each
-place's 1 in 5 year level is judged against what the fit implies, with the
-year to year dispersion measured on the fitting years, because one storm
-raises several neighbouring provinces in the same year and the 81 places are
-not independent. A model that fails its test is written with its failure and
-the peril refuses to price anywhere; where no file has been built at all,
-the same. The rain model's file records the two changes made after its
-first run; the wind model is built by `python -m clause.hazard.wind_build`
-on a machine with network access.
+#### One model per country, and its own verdict
+
+Both covers were written only in Türkiye, and not because the method is
+Turkish. NASA POWER is a global reanalysis; the build only ever fetched
+Türkiye's 81 provincial centres. It now fits any country at the places the
+interface offers in it, every place above 200,000 people and at least
+24 whatever their size, one file and one backtest per country.
+
+Which countries are sold is read off those verdicts, exactly as the earthquake
+models are gated, and the answer is not a majority. Rain passes in six of
+eleven: Türkiye, Greece, Italy, Mexico, New Zealand and Taiwan. It fails in
+Chile, Indonesia, Japan, the Philippines and the United States.
+
+The failures are worth reading, because they do not all point the same way.
+Chile observed 29 extreme days against 72 expected, which is a fit on 1981 to
+2010 over-predicting a country that has been in drought since about 2010: that
+error overcharges the buyer. Indonesia observed 531 against 246, Japan 734
+against 405 and the Philippines 653 against 216, which is the same fit
+*under*-predicting by two to three times, and that error underfunds the pool.
+Either way the country is not sold, and the file says which test failed and by
+how much rather than the country simply being absent.
+
+The test itself is fixed before the first run and identical for both covers:
+fitted on 1981 to 2010, tested on 2011 onward; the count of test years above
+each place's 1 in 5 year level is judged against what the fit implies, with the
+year to year dispersion measured on the fitting years, because one storm raises
+several neighbouring places in the same year and they are not independent.
+Where no file has been built at all, the same refusal.
+
+A place from a country whose model failed is never a fallback for an address
+near its border. The search for the nearest fitted place runs over the countries
+that passed and no others, because a near miss from a model known to be wrong is
+not a near miss.
+
+    python -m clause.hazard.rain_build --all
+    python -m clause.hazard.wind_build JP US MX
 
 In the capital model the same regional factor makes the day that floods one
 province flood the next (`RAIN_EXTREME_CORRELATION = 0.35`), and the front

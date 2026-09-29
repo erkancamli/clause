@@ -1,0 +1,489 @@
+{
+ "code": "CL",
+ "name": "Chile",
+ "kind": "wind_extreme",
+ "version": "2026.1",
+ "built": "2026-09-29",
+ "index": "largest daily maximum wind speed at 10 m, NASA POWER WS10M_MAX (MERRA-2), in km/h",
+ "unit": "km/h",
+ "sources": [
+  {
+   "name": "NASA POWER",
+   "url": "https://power.larc.nasa.gov",
+   "licence": "public domain"
+  }
+ ],
+ "validation": {
+  "passed": true,
+  "failed": [],
+  "fitted_until": 2010,
+  "tested_from": 2011,
+  "count": {
+   "expected": 72.0,
+   "observed": 72,
+   "place_years": 360,
+   "dispersion": 4.63,
+   "p_at_most_observed": 0.5409,
+   "p_at_least_observed": 0.4808
+  },
+  "changes_after_first_run": []
+ },
+ "places": [
+  {
+   "name": "Santiago",
+   "latitude": -33.4569,
+   "longitude": -70.6483,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "Puente Alto",
+   "latitude": -33.6117,
+   "longitude": -70.5758,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "Maipú",
+   "latitude": -33.5142,
+   "longitude": -70.7651,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "Antofagasta",
+   "latitude": -23.6509,
+   "longitude": -70.3975,
+   "gumbel": {
+    "mu": 32.737,
+    "beta": 1.495
+   },
+   "levels_kmh": {
+    "2": 33.3,
+    "5": 35.0,
+    "10": 36.1,
+    "25": 37.5,
+    "50": 38.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 37.8
+  },
+  {
+   "name": "Viña del Mar",
+   "latitude": -33.0246,
+   "longitude": -71.5518,
+   "gumbel": {
+    "mu": 37.238,
+    "beta": 4.682
+   },
+   "levels_kmh": {
+    "2": 39.0,
+    "5": 44.3,
+    "10": 47.8,
+    "25": 52.2,
+    "50": 55.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 53.5
+  },
+  {
+   "name": "Valparaíso",
+   "latitude": -33.036,
+   "longitude": -71.6296,
+   "gumbel": {
+    "mu": 50.6,
+    "beta": 5.42
+   },
+   "levels_kmh": {
+    "2": 52.6,
+    "5": 58.7,
+    "10": 62.8,
+    "25": 67.9,
+    "50": 71.7
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 70.4
+  },
+  {
+   "name": "Ñuñoa",
+   "latitude": -33.4474,
+   "longitude": -70.5828,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "San Bernardo",
+   "latitude": -33.5922,
+   "longitude": -70.6996,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "Puerto Montt",
+   "latitude": -41.4693,
+   "longitude": -72.9424,
+   "gumbel": {
+    "mu": 27.615,
+    "beta": 1.795
+   },
+   "levels_kmh": {
+    "2": 28.3,
+    "5": 30.3,
+    "10": 31.7,
+    "25": 33.4,
+    "50": 34.6
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 34.9
+  },
+  {
+   "name": "Arica",
+   "latitude": -18.4755,
+   "longitude": -70.3006,
+   "gumbel": {
+    "mu": 27.666,
+    "beta": 0.734
+   },
+   "levels_kmh": {
+    "2": 27.9,
+    "5": 28.8,
+    "10": 29.3,
+    "25": 30.0,
+    "50": 30.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 30.2
+  },
+  {
+   "name": "Peñalolén",
+   "latitude": -33.4684,
+   "longitude": -70.5341,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "Temuco",
+   "latitude": -38.7363,
+   "longitude": -72.5974,
+   "gumbel": {
+    "mu": 39.472,
+    "beta": 3.537
+   },
+   "levels_kmh": {
+    "2": 40.8,
+    "5": 44.8,
+    "10": 47.4,
+    "25": 50.8,
+    "50": 53.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.7
+  },
+  {
+   "name": "Concepción",
+   "latitude": -36.827,
+   "longitude": -73.0498,
+   "gumbel": {
+    "mu": 35.12,
+    "beta": 2.87
+   },
+   "levels_kmh": {
+    "2": 36.2,
+    "5": 39.4,
+    "10": 41.6,
+    "25": 44.3,
+    "50": 46.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.3
+  },
+  {
+   "name": "Rancagua",
+   "latitude": -34.1691,
+   "longitude": -70.7405,
+   "gumbel": {
+    "mu": 30.067,
+    "beta": 3.43
+   },
+   "levels_kmh": {
+    "2": 31.3,
+    "5": 35.2,
+    "10": 37.8,
+    "25": 41.0,
+    "50": 43.5
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 46.9
+  },
+  {
+   "name": "Quilicura",
+   "latitude": -33.368,
+   "longitude": -70.7139,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "La Pintana",
+   "latitude": -33.5833,
+   "longitude": -70.6342,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  },
+  {
+   "name": "Iquique",
+   "latitude": -20.2133,
+   "longitude": -70.1503,
+   "gumbel": {
+    "mu": 25.302,
+    "beta": 1.034
+   },
+   "levels_kmh": {
+    "2": 25.7,
+    "5": 26.9,
+    "10": 27.6,
+    "25": 28.6,
+    "50": 29.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 28.5
+  },
+  {
+   "name": "Talca",
+   "latitude": -35.4232,
+   "longitude": -71.6497,
+   "gumbel": {
+    "mu": 36.727,
+    "beta": 4.006
+   },
+   "levels_kmh": {
+    "2": 38.2,
+    "5": 42.7,
+    "10": 45.7,
+    "25": 49.5,
+    "50": 52.4
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 54.1
+  },
+  {
+   "name": "Calama",
+   "latitude": -22.4567,
+   "longitude": -68.9237,
+   "gumbel": {
+    "mu": 51.818,
+    "beta": 3.71
+   },
+   "levels_kmh": {
+    "2": 53.2,
+    "5": 57.4,
+    "10": 60.2,
+    "25": 63.7,
+    "50": 66.3
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 65.5
+  },
+  {
+   "name": "Coquimbo",
+   "latitude": -29.9533,
+   "longitude": -71.3395,
+   "gumbel": {
+    "mu": 35.981,
+    "beta": 4.875
+   },
+   "levels_kmh": {
+    "2": 37.8,
+    "5": 43.3,
+    "10": 47.0,
+    "25": 51.6,
+    "50": 55.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.4
+  },
+  {
+   "name": "La Serena",
+   "latitude": -29.9059,
+   "longitude": -71.2501,
+   "gumbel": {
+    "mu": 35.981,
+    "beta": 4.875
+   },
+   "levels_kmh": {
+    "2": 37.8,
+    "5": 43.3,
+    "10": 47.0,
+    "25": 51.6,
+    "50": 55.0
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 56.4
+  },
+  {
+   "name": "Talcahuano",
+   "latitude": -36.7249,
+   "longitude": -73.1168,
+   "gumbel": {
+    "mu": 44.523,
+    "beta": 4.242
+   },
+   "levels_kmh": {
+    "2": 46.1,
+    "5": 50.9,
+    "10": 54.1,
+    "25": 58.1,
+    "50": 61.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 62.0
+  },
+  {
+   "name": "Chillán",
+   "latitude": -36.6066,
+   "longitude": -72.1034,
+   "gumbel": {
+    "mu": 26.762,
+    "beta": 2.398
+   },
+   "levels_kmh": {
+    "2": 27.6,
+    "5": 30.4,
+    "10": 32.2,
+    "25": 34.4,
+    "50": 36.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 38.0
+  },
+  {
+   "name": "Renca",
+   "latitude": -33.4019,
+   "longitude": -70.7062,
+   "gumbel": {
+    "mu": 31.256,
+    "beta": 3.549
+   },
+   "levels_kmh": {
+    "2": 32.6,
+    "5": 36.6,
+    "10": 39.2,
+    "25": 42.6,
+    "50": 45.1
+   },
+   "record_years": 45,
+   "fit_years": 30,
+   "largest_kmh": 44.1
+  }
+ ]
+}
