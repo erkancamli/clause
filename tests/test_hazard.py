@@ -62,9 +62,35 @@ def test_a_country_on_its_own_authority_is_sold_only_where_that_reaches() -> Non
     grid = EARTHQUAKE.grid_model(near)
     assert grid is not None and grid.code == "US" and not grid.passed
 
-    # Open country, and nothing published within sixty kilometres of this field.
+    # Open country, and nothing published within sixty kilometres of this point.
+    #
+    # The point is found rather than written down. It used to be a field
+    # outside Bozeman, which was sixty kilometres from any published curve
+    # until the build reached Montana, and then this test failed for the best
+    # possible reason: the address it called unreachable had become buyable.
+    # A test that has to be edited every time the data improves is a test that
+    # will be edited without being read.
+    from clause.hazard import published as pub
+    from clause.hazard.model import models as all_models
+
+    outline = all_models()["US"]
+    far = None
+    for latitude in range(25, 50):
+        for longitude in range(-124, -67):
+            if not outline.contains(latitude + 0.5, longitude + 0.5):
+                continue
+            if pub.nearest(latitude + 0.5, longitude + 0.5) is None:
+                far = (latitude + 0.5, longitude + 0.5)
+                break
+        if far:
+            break
+    assert far is not None, (
+        "every point on a one degree grid inside the United States now has a "
+        "published curve within sixty kilometres, so this rule has nothing "
+        "left to bite on and the test should be retired rather than loosened"
+    )
     with pytest.raises(ValueError, match="no tested earthquake model reaches this address"):
-        EARTHQUAKE.validate_subject({"latitude": 45.6770, "longitude": -111.0429,
+        EARTHQUAKE.validate_subject({"latitude": far[0], "longitude": far[1],
                                      "radius_km": 50.0})
 
     # And a country whose model failed and whose authority publishes nothing we
