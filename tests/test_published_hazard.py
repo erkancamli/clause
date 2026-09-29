@@ -461,6 +461,15 @@ def test_a_point_no_model_covers_is_not_asked_of_one(monkeypatch) -> None:
     assert pub.usgs_curve(0.0, 0.0) is None
     # Guam, which this product does not offer and which no box claims.
     assert pub.usgs_model(13.4443, 144.7937) is None
+    # San Juan. The United States, three million people, and a seismic hazard
+    # higher than most of the mainland's, so this is the point where asking the
+    # wrong model would be worth something to somebody. The conterminous model
+    # answers for it with a status of success, six hundred kilometres outside
+    # its own mesh; the box is what stops it being asked. Puerto Rico has its
+    # own published model and it is not read here, because it publishes no peak
+    # ground velocity and every curve this product holds is peak ground
+    # velocity. Opening it is a second conversion, not a fourth box.
+    assert pub.usgs_model(18.4655, -66.1057) is None
 
 
 def test_a_curve_says_which_revision_drew_it() -> None:

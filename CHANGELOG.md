@@ -49,6 +49,38 @@
   at zero. It is real only in the band where the measured marginal is
   superlinear, and it is still open there.
 
+- The American model holds 1,418 published curves, up from 1,240.
+
+  CONUS 1,404, Hawaii 13, Alaska 1. The depth it declares is the 1,300 largest
+  American places, of which 8 are still without a curve: Morris Heights,
+  Peachtree Corners, Huntsville, Warren, Amherst, Lancaster, Gainesville and
+  Montclair. The USGS hazard service refused most of what it was asked for
+  today, answering about one request in six and, for one whole pass over the
+  gaps, one in eighty three. A limit is a throttle on the asking and not a
+  decision about what to keep, so every curve already fetched is still in the
+  file; what the smaller number changes is the scope the model claims to
+  cover, which is now the scope it actually reaches.
+
+  Anchorage and Hilo are sold. Fairbanks and Juneau are still refused, because
+  nothing published sits within sixty kilometres of either; they open when the
+  build reaches them.
+
+  Puerto Rico is not covered, and it is worth saying why rather than leaving it
+  as a gap somebody fills carelessly. The USGS does publish a model for it,
+  `prvi-2025.R1`, NSHM Puerto Rico and U.S. Virgin Islands 2025, bounded
+  15.0 to 21.2 north and -70.95 to -61.7 east. It publishes peak ground
+  acceleration and twenty one spectral accelerations, and no peak ground
+  velocity. Every curve this product holds is peak ground velocity turned into
+  intensity by Worden, Gerstenberger, Rhoades and Wald (2012), and one country
+  file carries one measure and one conversion. Opening Puerto Rico means a
+  second conversion, from acceleration, with its own scatter, and a model file
+  that can say which of the two a point was built with. That is a change to
+  make deliberately, not a fourth line in a table of model names.
+
+  Nothing prices there meanwhile: the box check refuses San Juan rather than
+  asking the conterminous model, which answers for a point six hundred
+  kilometres outside its own mesh with a status of success.
+
 - Two passengers on one aeroplane were delayed by different amounts.
 
   The same seed, in the same place: a flight's delay came from a stream keyed
