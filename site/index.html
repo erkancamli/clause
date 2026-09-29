@@ -7756,10 +7756,20 @@ function plainSentence(){
 function payRows(){
   var c=structure(),l=flow.limit,rows=[];
   if(flow.peril==="quake"&&shakingIndex()){
-    rows.push([t("Shaking below intensity VI"),0,null]);
-    rows.push([t("Intensity VI: strong, light damage"),shareAt(c,6)*l,6]);
-    rows.push([t("Intensity VII: very strong, damage to ordinary buildings"),shareAt(c,7)*l,7]);
-    rows.push([t("Intensity VIII or more: severe"),l,8]);
+    /* The steps this contract is written on, not the round numbers they sit
+       near. An older building pays at a lower shaking than a new one, and the
+       policy carries that: in Istanbul the first step is 6.25, in New York
+       6.62. This table read the curve at VI, VII and VIII instead, so it said
+       intensity VI pays nothing -- true of 6.0 and false of the policy, whose
+       first step is below 6.5 -- and that intensity VII pays 35 per cent,
+       which is the first step's share at the second step's name. The car and
+       storm rows below have always been built from the curve's own points;
+       this one now is too. */
+    var qp=c.pts;
+    rows.push([t("Shaking below intensity {level}",{level:f1.format(qp[0][0])}),0,null]);
+    rows.push([t("Intensity {level} or more: strong, light damage",{level:f1.format(qp[0][0])}),shareAt(c,qp[0][0])*l,qp[0][0]]);
+    rows.push([t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:f1.format(qp[1][0])}),shareAt(c,qp[1][0])*l,qp[1][0]]);
+    rows.push([t("Intensity {level} or more: severe",{level:f1.format(qp[2][0])}),l,qp[2][0]]);
   } else if(flow.peril==="quake"){
     rows.push([t("Nothing above magnitude 5.5 happens"),0,null]);
     rows.push([t("A magnitude 5.5 to 6.5"),shareAt(c,5.5)*l,5.5]);
@@ -8785,13 +8795,22 @@ function bindIndexToggle(){
   });
 }
 function shakingHtml(){
-  var sk=flow.shaking, P=sk.annual_probability, L=sk.levels;
-  function at(level){ var i=L.indexOf(level); return i>=0?P[i]:0; }
+  /* Every figure here comes from the policy: the levels it is written on, the
+     share it pays at each, and the frequency of that level rather than of the
+     round number beside it. All three were written down here instead -- VI,
+     VII, VIII at 25, 60 and 100 per cent -- and all three were wrong. The
+     contract pays 35, 75 and 100, and it pays them at 6.25 in Istanbul and
+     6.62 in New York, because an older building is damaged by less shaking.
+     Read at VI a New York policy looked as though it paid once in 1,788
+     years; it pays once in about 3,100. */
+  var sk=flow.shaking, qp=structure().pts, exc=shakingExc(365.25);
   function every(p){ return p>0?f0.format(Math.round(1/(-Math.log(1-p)))):"–"; }
   return '<p class="hint">'+esc(t("Pays on how hard the ground shook at the address itself, as the seismic networks' shaking maps record it, not on how large a distant earthquake was."))+'</p>'+
     '<div class="tbl-wrap" style="margin-top:10px"><table class="tbl" style="min-width:0"><tbody>'+
-    [[6,t("Intensity VI: strong, light damage"),0.25],[7,t("Intensity VII: very strong, damage to ordinary buildings"),0.6],[8,t("Intensity VIII or more: severe"),1]].map(function(r){
-      return '<tr><td>'+esc(r[1])+'</td><td class="num">'+esc(t("about once in {n} years",{n:every(at(r[0]))}))+'</td><td class="num">'+pct(r[2],0)+'</td></tr>';
+    [[qp[0][0],t("Intensity {level} or more: strong, light damage",{level:f1.format(qp[0][0])}),qp[0][1]],
+     [qp[1][0],t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:f1.format(qp[1][0])}),qp[1][1]],
+     [qp[2][0],t("Intensity {level} or more: severe",{level:f1.format(qp[2][0])}),qp[2][1]]].map(function(r){
+      return '<tr><td>'+esc(r[1])+'</td><td class="num">'+esc(t("about once in {n} years",{n:every(exc(r[0]))}))+'</td><td class="num">'+pct(r[2],0)+'</td></tr>';
     }).join("")+'</tbody></table></div>'+
     '<p class="fine" style="margin-top:8px">'+esc(shakingSource())+'</p>';
 }
@@ -9041,8 +9060,17 @@ function rungWords(level){
     // The unit, then the reading, as the index itself is written: M5.5 for a
     // magnitude and MMI VII for shaking. A roman numeral on its own beside a
     // sum of money says nothing about what was measured.
-    return shakingIndex() ? "MMI "+(ROMAN[Math.round(level)]||String(level))
-                          : "M"+level.toFixed(1);
+    /* A roman numeral is a whole number and these steps are not. An older
+       building pays at less shaking, so the first step sits at 6.25 in
+       Istanbul and 6.62 in New York, and rounding it to the nearest numeral
+       moved the threshold the buyer reads by up to half an intensity unit --
+       New York's 6.62 was printed as VII, which is a level that happens half
+       as often as the one the policy is written on. The numeral is kept where
+       the step really is one, which is a building of the current code, and the
+       number itself is printed otherwise. */
+    return shakingIndex()
+      ? "MMI "+(level === Math.round(level) ? (ROMAN[level]||String(level)) : f1.format(level))
+      : "M"+level.toFixed(1);
   if(flow.peril==="storm")return f0.format(Math.round(level))+" km/h";
   if(flow.peril==="car"||flow.peril==="drought")return f0.format(Math.round(level))+" mm";
   return level>=1440 ? t("cancelled") : t("{n}h late",{n:Math.round(level/60)});

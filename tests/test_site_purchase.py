@@ -321,3 +321,52 @@ def test_the_model_card_a_buyer_opens_is_the_model_that_priced_them() -> None:
     assert "modelCardLink(g.region||g.country)" in body.replace(" ", ""), (
         "the card is still opened by the country rather than the model"
     )
+
+
+def test_the_payout_table_is_the_policy_and_not_the_round_numbers_near_it() -> None:
+    """Three answers to one question, on one policy, and none of them the contract's.
+
+    An older building is damaged by less shaking, and the policy carries that:
+    in Istanbul the steps are 6.25, 7.25 and 8.25, in New York 6.62, 7.62 and
+    8.62, and they pay 35, 75 and 100 per cent. Neither table on this page said
+    so.
+
+    The table on the second step wrote all three levels and all three shares
+    down by hand -- VI, VII and VIII at 25, 60 and 100 -- and read the hazard at
+    those round numbers. A New York policy looked as though it paid once in
+    1,788 years; it pays once in about 3,100, because 6.62 is a level that
+    happens half as often as 6.0.
+
+    The table on the confirm step read the policy's own curve, which is right,
+    but at VI, VII and VIII, which is not: at 6.0 an Istanbul policy pays
+    nothing, so the first row said zero, and the second row showed the first
+    step's share under the second step's name.
+
+    Both are built from the curve's own points now, as the car and storm rows
+    always have been.
+    """
+    for name in ("payRows", "shakingHtml"):
+        body = _function(name)
+        block = body[body.index("shakingIndex()"):] if name == "payRows" else body
+        block = block[: block.index("else if")] if "else if" in block else block
+
+        assert "Intensity {level} or more" in block, f"{name} still names a fixed level"
+        for fixed in ("Intensity VI:", "Intensity VII:", "Intensity VIII"):
+            assert fixed not in block, f"{name} still writes {fixed!r} down"
+        # And the shares come from the curve rather than from this file.
+        for share in ("0.25", "0.6,", "),0.25", ",0.6"):
+            assert share not in block.replace(" ", ""), f"{name} still writes a share down"
+
+
+def test_a_roman_numeral_is_a_whole_number_and_these_steps_are_not() -> None:
+    """MMI VII for a step at 6.62 is a level that happens half as often.
+
+    The price bar names each rung of the ladder. It rounded the level to the
+    nearest numeral, so New York's first step, 6.62, was printed as VII. The
+    numeral is kept where the step really is a whole number, which is a
+    building of the current code, and the number itself is printed otherwise.
+    """
+    packed = _function("rungWords").replace(" ", "")
+    assert "ROMAN[Math.round(level)]" not in packed, "the level is still rounded to a numeral"
+    assert "level===Math.round(level)" in packed, "there is no test for a whole number"
+    assert "f1.format(level)" in packed, "a step that is not whole is not printed as a number"

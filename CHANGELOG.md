@@ -43,6 +43,37 @@
   | Los Angeles | 883.37 | 883.37 | unchanged |
   | Kadıköy | 10,010.33 | 10,010.33 | unchanged |
 
+- Three answers to "what does this pay, and how often", on one policy.
+
+  An older building is damaged by less shaking, and the policy carries that: in
+  İstanbul the steps are 6.25, 7.25 and 8.25, in New York 6.62, 7.62 and 8.62,
+  and they pay 35, 75 and 100 per cent of the limit. Neither table on the page
+  said so, and they did not agree with each other either.
+
+  | | first step | second | third |
+  |---|---|---|---|
+  | the contract | 35% at 6.25 | 75% at 7.25 | 100% at 8.25 |
+  | the page, step two | 25% at VI | 60% at VII | 100% at VIII |
+  | the page, confirm step | 0% at VI | 35% at VII | 100% at VIII |
+
+  The table on the second step had all three levels and all three shares
+  written down by hand, and read the hazard at those round numbers: a New York
+  policy looked as though it paid once in 1,788 years, when it pays once in
+  about 3,100, because 6.62 is a level that happens half as often as 6.0. The
+  table on the confirm step read the policy's own curve, which is right, at VI,
+  VII and VIII, which is not: at 6.0 an İstanbul policy pays nothing, so its
+  first row said zero and its second showed the first step's share under the
+  second step's name.
+
+  Both are built from the curve's own points now, which is what the car and
+  storm rows beside them have always done.
+
+  The price bar had the same fault in one line: it named each rung by rounding
+  its level to the nearest roman numeral, so New York's 6.62 was printed as
+  VII. A numeral is a whole number and these steps are not. It is kept where
+  the step really is one, which is a building of the current code, and the
+  number itself is printed otherwise.
+
 - A rare risk knows its own capital without drawing for it.
 
   The floor rests on standalone capital, so that had to be a number the
