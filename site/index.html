@@ -4830,7 +4830,7 @@ var ROUTES={
   "LH-FRA-IST":{carrier:"Lufthansa",from:"Frankfurt",to:"Istanbul",cancel:.011,late:.221,median:38},
   "BA-LHR-IST":{carrier:"British Airways",from:"London",to:"Istanbul",cancel:.016,late:.254,median:46}};
 var ANCHOR=4,BG_MAX=6.6,REF_R=50,CHAR_HALF=.25,CANCEL_MIN=1440,LOG_SIGMA=.86;
-var SOLVENCY=.995,COST_OF_CAPITAL=.12,EXPENSE=.08,REINSURANCE_MULTIPLE=3;
+var SOLVENCY=.995,COST_OF_CAPITAL=.12,EXPENSE=.08;
 
 function droughtExc(code){var s=STATIONS[code],shape=1/(s.cv*s.cv),scale=s.normal/shape;
   return function(mm){return mm<=0?0:gammaCdf(mm,shape,scale);};}
@@ -4878,10 +4878,13 @@ function priceIt(curve,exc,limit,days){
   var integral=0;prev=v;
   for(i=0;i<N;i++){if(ys[i]<=v)continue;integral+=S[i]*(ys[i]-prev);prev=ys[i];}
   var tvar=Math.min(limit,v+integral/q),capital=Math.max(0,tvar-el);
-  // The cheaper of holding capital and passing the risk to a reinsurer, as
-  // the protocol prices it.
+  /* The cost of holding the capital, and nothing cheaper. This used to take
+     the lesser of that and a reinsurer's price at three times expected loss,
+     which for a catastrophe always won and capped every premium at 3.08 times
+     expected loss. The protocol stopped doing that -- no treaty exists, so
+     there is nothing to cede to and no cheaper branch to take -- and this line
+     went on doing it, which is a second reason the two numbers differed. */
   var years=days/365.25,rl=capital*COST_OF_CAPITAL*years,ex=el*EXPENSE;
-  if(el>0)rl=Math.min(rl,(REINSURANCE_MULTIPLE-1)*el);
   return {el:el,capital:capital,riskLoad:rl,expenses:ex,premium:el+rl+ex,trigger:S[0]};
 }
 
@@ -7609,19 +7612,36 @@ function priced(){
 
 
 function refreshQuote(){
-  // Asked once on arrival at the confirm step. The local figure is already on
-  // screen, so this either confirms it or replaces it; the panel is never empty
-  // while it waits, and a buyer who moves on is not overwritten by a late reply.
-  flow.quoted=null;
+  /* Asked once on arrival at the confirm step, and whenever what is being
+     bought changes. Until it answers there is no price on the screen at all,
+     because this page's own model prices the capital one policy needs on its
+     own while the protocol prices the capital this policy adds to a book of a
+     hundred thousand others, and those are different numbers -- far enough
+     apart that showing the first and then replacing it with the second is
+     quoting a price that was never on offer. A buyer who moves on is still
+     not overwritten by a late reply.
+
+     What is already in hand is kept while this runs. It used to be thrown
+     away first, which meant the confirm step -- the page somebody signs on --
+     opened on the browser's own figure for as long as the round trip took,
+     even though the protocol had already answered for exactly this policy one
+     step earlier. priced() checks that an answer belongs to what is on the
+     screen before it uses it, so nothing stale can be shown by keeping it. */
+  flow.refusal=null;
   var atConfirm=flow.step===CONFIRM_STEP, done=atConfirm?renderPrice:updatePriceBar;
   if(!link.live){done();return;}
   // Nor until the subject is whole. A flight without its number is refused
   // every time -- the protocol answers "that cover cannot be priced" -- and
   // asking anyway spends a call to be told what this page already knows: the
-  // same four checks the Continue button reads to say what is missing. The
-  // page's own figure is on screen either way, so nothing waits on this.
+  // same four checks the Continue button reads to say what is missing. Nothing
+  // waits on this: an answer refused every time is not an answer worth waiting
+  // for, and the page already says which question is unfinished.
   if(!flightReady()||!quakeReady()||!stormReady()||!carReady()){done();return;}
-  var seq=++flow.seq, key=quoteKey();
+  /* The key is taken once the company is known, not before. The offers come
+     back first and name the company the price will be struck on, and the key
+     carries that company; keying on the empty choice made the answer stale the
+     moment it arrived, and cost a second round trip to say the same number. */
+  var seq=++flow.seq, key=null;
   flow.pricing=true;
   api("/api/offers?country="+encodeURIComponent(flow.interest.country||"")+"&professional="+(flow.interest.professional?"true":"false"),{method:"POST",timeout:25000,body:{
     peril:PERIL_KEYS[flow.peril], subject:subjectPayload(),
@@ -7632,6 +7652,7 @@ function refreshQuote(){
     flow.heldBack=offers.held_back||[];
     if(!flow.carrier||!flow.offers.some(function(o){return o.carrier_id===flow.carrier;}))
       flow.carrier=flow.offers.length?flow.offers[0].carrier_id:null;
+    key=quoteKey();
     return api("/api/quote",{method:"POST",timeout:25000,body:{
       peril:PERIL_KEYS[flow.peril], subject:subjectPayload(),
       limit:flow.limit, term_days:PERILS[flow.peril].term,
@@ -8149,7 +8170,9 @@ function setNextLabel(){
   }
   var ruling=localRuling();
   var carried=!(flow.quoted&&flow.quoted.can_write===false);
-  var priced=!link.live||!!flow.quoted;
+  // The same test the bar and the panel use: an answer to a different question
+  // is not an answer to this one, and while it is outstanding this says so.
+  var priced=!link.live||!!(flow.quoted&&flow.quotedFor===quoteKey());
   var proved=verified();
   var accepted=!link.live||(CONTRACT.hash&&CONTRACT.key===contractKey()&&$("accept").checked);
   // Not yet accepted is not a dead end: the button is live and takes the
@@ -8185,9 +8208,10 @@ function setBusy(text){
 }
 
 /* ---- the confirm panel ----
-   Drawn from priced(), which is the protocol's own figure once it has answered
-   and this page's model until then. Both are the same mathematics; the bar at
-   the top says which one you are reading. */
+   Drawn from priced(), which on this step is always the protocol's own figure:
+   the panel is not drawn at all until the protocol has answered for exactly
+   this policy. The page's own model still runs, and still answers the slider
+   on the steps before this one, but it never reaches a page anybody signs. */
 /* The confirm step opens with what was chosen, line by line, each with its
    way back (WCAG 3.3.4: a purchase can be reviewed and corrected before it
    is made). The peril's name is the card's own, so it reads the same here. */
@@ -8220,9 +8244,14 @@ function renderAnswers(){
   if(startsOn)rows.push(row(t("Cover starts"),
     esc(startsOn.toLocaleDateString(LANG))+(why?'<br><small>'+esc(why)+'</small>':""),0));
   if(offer)rows.push(row(t("Company"),esc(ts(offer.name)),CONFIRM_STEP,"offers-box"));
-  var total=offer?q.premium+offer.fee:q.premium, price=money(total)+" USDC";
-  if(offer&&offer.fee>0)price+=' <small>'+esc(t("includes the company's fee of {fee}",{fee:money(offer.fee)}))+'</small>';
-  if(flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
+  // The same rule as everywhere else: this row carries a figure only when it
+  // is the figure that will be charged.
+  var settled=!link.live||!!(flow.quoted&&flow.quotedFor===quoteKey());
+  var total=offer?q.premium+offer.fee:q.premium;
+  var price=settled?money(total)+" USDC"
+    :esc(flow.refusal?t("The protocol did not price this"):t("working out your price"));
+  if(settled&&offer&&offer.fee>0)price+=' <small>'+esc(t("includes the company's fee of {fee}",{fee:money(offer.fee)}))+'</small>';
+  if(settled&&flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
     price+=' <small>'+esc(t("{n} payments of {amount}",{n:flow.instalments,amount:money(total*(1+pl.surcharge)/flow.instalments)}))+'</small>'; }
   rows.push(row(t("Price"),price,flow.instalments>1||($("plan-box")&&!$("plan-box").hidden)?CONFIRM_STEP:0,"plan-box"));
   box.innerHTML=rows.join("");
@@ -8280,7 +8309,31 @@ function confirmUnshowable(){
   if(button){ button.disabled=true; button.setAttribute("aria-disabled","true");
               button.textContent=t("This cover cannot be shown"); }
 }
+/* The confirm step with nothing to confirm yet. Every figure below is drawn
+   from a price, and this page's own price is not the one that will be charged,
+   so while the protocol is still answering none of them is drawn: the step
+   says it is waiting, the button says it too, and renderPrice comes back here
+   the moment the answer lands. */
+function confirmPricing(){
+  flow.unshowable=false;
+  var said=$("confirm-broken"); if(said)said.hidden=true;
+  var blanks=["pay-rows","market-box","offers","contract-text","curve"];
+  for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
+  var cap=$("curve-cap"); if(cap)cap.textContent="";
+  var plain=$("plain");
+  if(plain)plain.innerHTML='<p class="prompt">'+
+    esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
+  CONTRACT={key:"",text:"",hash:""};
+  if($("accept"))$("accept").checked=false;
+  // What was chosen is still shown: it is what the buyer answered, not what
+  // the protocol said, and it is the one thing on this step that is already
+  // known. Its price row waits with everything else.
+  renderAnswers();
+  setNextLabel();
+  updatePriceBar();
+}
 function renderPriceBody(){
+  if(link.live&&!(flow.quoted&&flow.quotedFor===quoteKey())){ confirmPricing(); return; }
   flow.unshowable=false;
   var said=$("confirm-broken"); if(said)said.hidden=true;
   var q=priced(),total=Math.max(q.premium,1e-9);
@@ -8913,6 +8966,13 @@ function tweenAmount(el,value){
   }
   requestAnimationFrame(frame);
 }
+/* The bar with no figure in it. The last figure is forgotten as well as
+   erased: tweenAmount counts from whatever was there last, and a bar that has
+   stood down and come back was counting down from the price of a policy
+   nobody is buying any more -- 1,283 sweeping to 517 over four hundred
+   milliseconds, which to anyone glancing at it is the price changing while
+   they watch. It is the thing this bar was just taught not to do. */
+function noAmount(el){ if(!el)return; delete el.dataset.v; el.textContent="—"; }
 function skeleton(n){
   var out='<div class="skel" aria-busy="true" aria-label="'+esc(t("Reading…"))+'">'; for(var i=0;i<(n||3);i++)out+='<i></i>'; return out+'</div>';
 }
@@ -9093,13 +9153,21 @@ function updateRunRail(){
   var q=priced(), current=flow.quoted&&flow.quotedFor===quoteKey();
   var offer=(current&&(flow.offers||[]).length)
     ? flow.offers.slice().sort(function(a,b){return a.fee-b.fee;})[0] : null;
-  var total=offer?q.premium+offer.fee:q.premium;
   var days=PERILS[flow.peril].term;
+  // The same rule as the bar, written the same way: a figure here is the one
+  // that will be charged, so it waits for the quote and for the fee both.
+  var settled=!link.live||(current&&!!offer);
+  if(!settled){
+    foot.innerHTML='<p class="prompt">'+
+      esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
+    return;
+  }
+  var total=q.premium+(offer?offer.fee:0);
   foot.innerHTML='<div class="amt">'+esc(money(total))+'<small>'+esc(t("USDC"))+'</small></div>'+
-    '<div class="prompt" style="font-style:normal">'+
-      esc(t("for {days} days",{days:days}))+
+    '<div class="prompt" style="font-style:normal">'+esc(t("for {days} days",{days:days}))+
       (offer?"":" · "+esc(t("before the company's fee")))+'</div>'+
-    '<span class="runrail-chip">'+esc(t("A price is a quote until the protocol answers for it."))+'</span>';
+    (offer?'<span class="runrail-chip">'+
+      esc(t("This is the protocol's own price, including the company's fee."))+'</span>':'');
 }
 
 function updatePriceBar(){
@@ -9112,14 +9180,14 @@ function updatePriceBar(){
   var bar=$("pricebar");
   function saying(price){ if(bar) bar.classList.toggle("empty",!price); }
   if(flow.peril==="quake"&&flow.subject&&!quakeReady()){
-    $("pb-amt").textContent="—";
+    noAmount($("pb-amt"));
     $("pb-cap").textContent=flow.gridError?t("cannot be priced here"):t("asking the protocol");
     // Waiting on a price is something to say: the bar stays.
     saying(true);
     return;
   }
   if(!flow.peril||!flow.subject||!flow.limit){
-    $("pb-amt").textContent="—";
+    noAmount($("pb-amt"));
     $("pb-cap").textContent=t("choose a place to see the price");
     saying(false);
     return;
@@ -9131,7 +9199,35 @@ function updatePriceBar(){
   // Before the confirm step the cheapest company stands in for the one not yet
   // chosen, so the figure is the whole price: premium and fee, nothing to add later.
   var offer=flow.step===CONFIRM_STEP?chosenOffer():(current&&(flow.offers||[]).length?flow.offers.slice().sort(function(a,b){return a.fee-b.fee;})[0]:null);
-  var total=offer?q.premium+offer.fee:q.premium, days=PERILS[flow.peril].term;
+  var days=PERILS[flow.peril].term;
+  /* A figure appears when it is the figure that will be charged, and not
+     before. This page can compute a premium of its own in a millisecond, and
+     for a while it showed that while the protocol worked: captioned as
+     provisional, and 70 per cent away from the answer. A buyer who glances at
+     it and taps Continue has been quoted a price that was never on offer. The
+     page cannot close that gap either, because the protocol prices the capital
+     this policy adds to a book of a hundred thousand others and the browser
+     does not have the book. So it waits, for the premium and for the company's
+     fee both, because either arriving late moves the number.
+
+     Not connected is the one case where the page's own figure is the price:
+     the banner at the top says in so many words that everything below is
+     computed in the browser and that nothing here is real, so there is no
+     answer coming to replace it and nothing to wait for. */
+  var settled=!link.live||(current&&!!offer);
+  if(!settled){
+    noAmount($("pb-amt"));
+    $("pb-cap").textContent=ladderSaid()+" · "+
+      t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days})+" · "+
+      (flow.refusal?t("The protocol did not price this"):t("working out your price"));
+    var waiting=$("pb-pays");
+    if(waiting){ waiting.hidden=!flow.limit;
+      waiting.innerHTML=esc(t("you receive up to"))+' <b>'+esc(money(flow.limit))+'</b>'; }
+    saying(true);
+    if(flow.step!==CONFIRM_STEP)scheduleQuote();
+    return;
+  }
+  var total=q.premium+(offer?offer.fee:0);
   tweenAmount($("pb-amt"),total);
   var pays=$("pb-pays");
   if(pays){
@@ -9144,12 +9240,12 @@ function updatePriceBar(){
   var starts=coverStartSaid();
   if(starts)cap+=" · "+starts;
   if(flow.step!==CONFIRM_STEP){
-    if(offer){
-      cap+=" · "+(days>=60?t("all in, about {monthly} a month",{monthly:money(total*30/days)}):t("all in, nothing to add"));
-      if(offer.fee>0)cap+=" · "+t("includes the company's fee of {fee}",{fee:money(offer.fee)});
-    } else cap+=" · "+(link.live?t("before the company's fee; the whole price follows in a moment"):t("before the company's fee"));
+    cap+=" · "+(!offer?t("before the company's fee")
+      :days>=60?t("all in, about {monthly} a month",{monthly:money(total*30/days)})
+      :t("all in, nothing to add"));
     scheduleQuote();
-  } else if(offer&&offer.fee>0)cap+=" · "+t("includes the company's fee of {fee}",{fee:money(offer.fee)});
+  }
+  if(offer&&offer.fee>0)cap+=" · "+t("includes the company's fee of {fee}",{fee:money(offer.fee)});
   if(flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
     cap+=" · "+t("{n} payments of {amount}",{n:flow.instalments,amount:money((q.premium+(offer?offer.fee:0))*(1+pl.surcharge)/flow.instalments)}); }
   var lock=flow.quoted&&flow.quoted.lock;
