@@ -56396,311 +56396,7 @@
   "code": "US",
   "conversion": "Worden, Gerstenberger, Rhoades and Wald (2012), peak ground velocity to modified Mercalli intensity",
   "measure": "PGV, cm/s, at a reference site of 760 m/s",
-  "missed": [
-   "Temple",
-   "West Ridge",
-   "Apple Valley",
-   "Lynwood",
-   "Waukesha",
-   "Canton",
-   "Gulfport",
-   "Pawtucket",
-   "Lauderhill",
-   "Rock Hill",
-   "Silver Spring",
-   "West Gulfport",
-   "Flower Mound",
-   "Centreville",
-   "Lafayette",
-   "Passaic",
-   "Riverview",
-   "Redlands",
-   "Missoula",
-   "Rancho Cordova",
-   "Wilmington",
-   "New Braunfels",
-   "Cherry Hill",
-   "Flagstaff",
-   "Muncie",
-   "Mira Mesa",
-   "Woodland Hills",
-   "Georgetown",
-   "Alpharetta",
-   "Lorain",
-   "Bowling Green",
-   "Flatlands",
-   "Dundalk",
-   "Eden Prairie",
-   "North Bergen",
-   "Florence-Graham",
-   "Waltham",
-   "West Hartford",
-   "Rogers",
-   "Carol City",
-   "Encinitas",
-   "East Village",
-   "Haverhill",
-   "Jupiter",
-   "Council Bluffs",
-   "West Coon Rapids",
-   "Lake Elsinore",
-   "Carmichael",
-   "Burnsville",
-   "Monterey Park",
-   "Castro Valley",
-   "Irvington",
-   "Rocklin",
-   "Utica",
-   "Malden",
-   "National City",
-   "Financial District",
-   "Springfield",
-   "Bethesda",
-   "Terre Haute",
-   "San Marcos",
-   "Brentwood",
-   "Lakeville",
-   "West Allis",
-   "Lakewood",
-   "Springfield",
-   "Lancaster",
-   "South Whittier",
-   "Tinley Park",
-   "Pflugerville",
-   "New Brunswick",
-   "Grand Forks",
-   "Fountain Valley",
-   "North Hills",
-   "Diamond Bar",
-   "Taunton",
-   "Oak Lawn",
-   "Union",
-   "Ankeny",
-   "Chicopee",
-   "Irving Park",
-   "Berwyn",
-   "Kendale Lakes",
-   "Smyrna",
-   "Dearborn Heights",
-   "Porterville",
-   "Piscataway",
-   "Hendersonville",
-   "Morningside Heights",
-   "Rocky Mount",
-   "Corvallis",
-   "Olympia",
-   "Valdosta",
-   "Hanford",
-   "Castle Rock",
-   "Greenwood",
-   "Chicago Lawn",
-   "Hempstead",
-   "Novato",
-   "Kettering",
-   "Bellevue",
-   "Shoreline",
-   "Decatur",
-   "Paramount",
-   "Port Arthur",
-   "Abington",
-   "Anderson",
-   "Tamiami",
-   "Towson",
-   "North Chicopee",
-   "Uptown",
-   "Sarasota",
-   "Cypress Hills",
-   "West Haven",
-   "Rosemead",
-   "Jackson",
-   "Lakewood",
-   "Perth Amboy",
-   "Sherman Oaks",
-   "Southaven",
-   "Saint Peters",
-   "Downtown DC",
-   "Harrisonburg",
-   "Peabody",
-   "Placentia",
-   "Lenexa",
-   "DeSoto",
-   "Burlington",
-   "South Hill",
-   "Elkhart",
-   "Caldwell",
-   "Minnetonka",
-   "Pinellas Park",
-   "Battle Creek",
-   "Casa Grande",
-   "South Shore",
-   "Mott Haven",
-   "The Villages",
-   "Grand Island",
-   "Grapevine",
-   "Stratford",
-   "Kentwood",
-   "City of Milford (balance)",
-   "Tigard",
-   "East Hartford",
-   "Apple Valley",
-   "Plainfield",
-   "Leesburg",
-   "Parsippany",
-   "Coral Gables",
-   "The Trails of Frisco",
-   "The Hammocks",
-   "Buckeye",
-   "Flagami",
-   "Catalina Foothills",
-   "Lakewood",
-   "North La Crosse",
-   "Burien",
-   "Havertown",
-   "Logan",
-   "South Peabody",
-   "Aliso Viejo",
-   "Galveston",
-   "Poway",
-   "Edina",
-   "Minnetonka Mills",
-   "Cerritos",
-   "Redford",
-   "Sunnyside",
-   "Glenview",
-   "East Providence",
-   "Palm Springs",
-   "San Luis Obispo",
-   "Mission District",
-   "Country Club",
-   "Gwynn Oak",
-   "Winnetka",
-   "Madison",
-   "Jeffersonville",
-   "San Jacinto",
-   "Mentor",
-   "Charleston",
-   "Mansfield",
-   "Hattiesburg",
-   "Draper",
-   "Middletown",
-   "Wylie",
-   "Columbus",
-   "Laguna",
-   "Smyrna",
-   "Littleton",
-   "Jefferson City",
-   "Henrietta",
-   "Rockwall",
-   "Plainfield",
-   "Burlington",
-   "Rohnert Park",
-   "Urbana",
-   "Southglenn",
-   "Midland",
-   "Prescott Valley",
-   "State College",
-   "Kearny",
-   "El Dorado Hills",
-   "Danville",
-   "Belleville",
-   "Linden",
-   "Moorhead",
-   "Woodside",
-   "Brea",
-   "Riverton",
-   "Prescott",
-   "Mount Laurel",
-   "Hutchinson",
-   "Leominster",
-   "Catonsville",
-   "West Hills",
-   "Edmonds",
-   "Marana",
-   "New City",
-   "Morris Heights",
-   "Peachtree Corners",
-   "Huntsville",
-   "Warren",
-   "Amherst",
-   "Lancaster",
-   "Gainesville",
-   "Montclair",
-   "Westerville",
-   "Little Elm",
-   "Hanover Park",
-   "Hillsborough",
-   "Channelview",
-   "Panama City",
-   "Florence",
-   "Wake Forest",
-   "Huber Heights",
-   "Martinez",
-   "East Meadow",
-   "Hanover",
-   "Wheeling",
-   "Apache Junction",
-   "Pleasant Grove",
-   "Brookfield",
-   "Columbia Heights",
-   "Delaware",
-   "Roy",
-   "Valley Stream",
-   "Spanish Fork",
-   "Keizer",
-   "Woodlawn",
-   "Lima",
-   "Spartanburg",
-   "Hermitage",
-   "Park Ridge",
-   "Fenway/Kenmore",
-   "Winter Haven",
-   "Aventura",
-   "Severna Park",
-   "Royal Palm Beach",
-   "Brighton",
-   "Phenix City",
-   "Milton",
-   "Sun City",
-   "Lake Worth Beach",
-   "Kew Gardens Hills",
-   "Jamaica Plain",
-   "Monrovia",
-   "Hollister",
-   "Los Banos",
-   "Sewell",
-   "Plant City",
-   "Greenfield",
-   "Marion",
-   "Braintree",
-   "Newnan",
-   "Texarkana",
-   "Addison",
-   "Reynoldsburg",
-   "South Jordan Heights",
-   "Odenton",
-   "Mableton",
-   "Hilton Head",
-   "Grants Pass",
-   "Indian Trail",
-   "Calumet City",
-   "Lincoln Park",
-   "Lynnwood",
-   "Whitestone",
-   "Beloit",
-   "Belleville",
-   "Longview",
-   "Columbia",
-   "Goldsboro",
-   "Manhattan Beach",
-   "East Florence",
-   "Kyle",
-   "Kearns",
-   "Linton Hall",
-   "Tupelo",
-   "Hot Springs",
-   "Glendale Heights",
-   "Butte"
-  ],
+  "missed": [],
   "points": [
    {
     "curve": [
@@ -162037,6 +161733,270 @@
     "longitude": -121.2258,
     "model": "CONUS 2023 R2",
     "name": "Orangevale"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.017945431
+     ],
+     [
+      0.355,
+      0.012722737
+     ],
+     [
+      0.532,
+      0.0089680339
+     ],
+     [
+      0.798,
+      0.0062648577
+     ],
+     [
+      1.19,
+      0.0043338085
+     ],
+     [
+      1.8,
+      0.0028868683
+     ],
+     [
+      2.69,
+      0.0018878098
+     ],
+     [
+      4.04,
+      0.0011811428
+     ],
+     [
+      6.06,
+      0.0006991191
+     ],
+     [
+      9.09,
+      0.00038182152
+     ],
+     [
+      13.6,
+      0.00018849679
+     ],
+     [
+      20.5,
+      7.960312e-05
+     ],
+     [
+      30.7,
+      2.8408229e-05
+     ],
+     [
+      46.0,
+      8.1619603e-06
+     ],
+     [
+      69.0,
+      1.8306438e-06
+     ],
+     [
+      103.0,
+      3.3089047e-07
+     ],
+     [
+      155.0,
+      5.2983048e-08
+     ],
+     [
+      233.0,
+      1.1209852e-08
+     ],
+     [
+      349.0,
+      2.3440359e-09
+     ],
+     [
+      525.0,
+      3.8778829e-10
+     ]
+    ],
+    "latitude": 31.0982,
+    "longitude": -97.3428,
+    "model": "CONUS 2023 R2",
+    "name": "Temple"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.032324312
+     ],
+     [
+      0.355,
+      0.022143842
+     ],
+     [
+      0.532,
+      0.015026588
+     ],
+     [
+      0.798,
+      0.010135804
+     ],
+     [
+      1.19,
+      0.0068561824
+     ],
+     [
+      1.8,
+      0.0045395946
+     ],
+     [
+      2.69,
+      0.0029881185
+     ],
+     [
+      4.04,
+      0.0019036252
+     ],
+     [
+      6.06,
+      0.0011698433
+     ],
+     [
+      9.09,
+      0.00068085186
+     ],
+     [
+      13.6,
+      0.00036823843
+     ],
+     [
+      20.5,
+      0.00017618274
+     ],
+     [
+      30.7,
+      7.3060151e-05
+     ],
+     [
+      46.0,
+      2.4791444e-05
+     ],
+     [
+      69.0,
+      6.6509998e-06
+     ],
+     [
+      103.0,
+      1.4381665e-06
+     ],
+     [
+      155.0,
+      2.5358305e-07
+     ],
+     [
+      233.0,
+      5.0876863e-08
+     ],
+     [
+      349.0,
+      1.1013585e-08
+     ],
+     [
+      525.0,
+      1.8944584e-09
+     ]
+    ],
+    "latitude": 41.9997,
+    "longitude": -87.6928,
+    "model": "CONUS 2023 R2",
+    "name": "West Ridge"
+   },
+   {
+    "curve": [
+     [
+      0.237,
+      0.85958064
+     ],
+     [
+      0.355,
+      0.6646098
+     ],
+     [
+      0.532,
+      0.49451755
+     ],
+     [
+      0.798,
+      0.35300458
+     ],
+     [
+      1.19,
+      0.24276379
+     ],
+     [
+      1.8,
+      0.15720124
+     ],
+     [
+      2.69,
+      0.098054808
+     ],
+     [
+      4.04,
+      0.057482639
+     ],
+     [
+      6.06,
+      0.031793829
+     ],
+     [
+      9.09,
+      0.016552243
+     ],
+     [
+      13.6,
+      0.0080685583
+     ],
+     [
+      20.5,
+      0.0034904337
+     ],
+     [
+      30.7,
+      0.0013094094
+     ],
+     [
+      46.0,
+      0.00039986276
+     ],
+     [
+      69.0,
+      9.4095188e-05
+     ],
+     [
+      103.0,
+      1.6180597e-05
+     ],
+     [
+      155.0,
+      1.8928787e-06
+     ],
+     [
+      233.0,
+      1.8305338e-07
+     ],
+     [
+      349.0,
+      1.1024668e-08
+     ],
+     [
+      525.0,
+      4.3299951e-11
+     ]
+    ],
+    "latitude": 34.5008,
+    "longitude": -117.1859,
+    "model": "CONUS 2023 R2",
+    "name": "Apple Valley"
    }
   ],
   "publisher": "USGS National Seismic Hazard Model",
