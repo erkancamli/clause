@@ -394,4 +394,32 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
 .op-acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .op-trail{font-size:12.5px;color:var(--ink-3);font-family:var(--mono);line-height:1.7}
 
+/* Screen rhythm and forms. */
+.view.on{animation:fade var(--motion-screen) var(--ease-enter)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.reveal{transition-duration:var(--motion-screen)!important;
+  transition-timing-function:var(--ease-enter)!important}
+.tburst{display:none}
+.btn.fired::after,.mainnav a.fired::after{display:none}
+.pad{padding-block:clamp(64px,7vw,96px)}
+.searchbox input,.dlg-input,#country,.field select,.rider .ask input{
+  min-height:50px;border-radius:10px}
+.field{gap:9px}
+.field .label{font-size:14px}
+.figures{border-radius:12px;background:transparent;gap:0}
+.figures > div{padding:20px;border-right:1px solid var(--edge)}
+.figures > div:last-child{border-right:0}
+.figures b{font-size:clamp(28px,3vw,40px);font-weight:600}
+.register,.holding{box-shadow:none}
+.stat{border-radius:12px}
+.stats-lg .stat::before{height:2px;background:var(--signal)}
+.stats-lg .stat:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}
+.rider-open{min-height:44px;box-shadow:var(--lift-2)}
+@media (max-width:760px){
+  .pad{padding-block:48px 72px}
+  .figures{grid-template-columns:1fr}
+  .figures > div{border-right:0;border-bottom:1px solid var(--edge)}
+  .figures > div:last-child{border-bottom:0}
+}
+
 

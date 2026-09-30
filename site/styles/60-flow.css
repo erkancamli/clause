@@ -467,3 +467,59 @@ tr:last-child td{border-bottom:0}
 .policy-card .body{padding:16px;display:grid;gap:14px}
 .right{margin-left:auto}
 
+/* ---------------- purchase flow ---------------- */
+.q{max-width:640px}
+.q h2{font-size:clamp(28px,3vw,32px);line-height:1.14}
+.q > p.hint{font-size:16px;line-height:1.55;margin-top:12px}
+.q-body{margin-top:32px;gap:14px}
+.steps{margin-bottom:40px;min-height:28px}
+.step-dot{font-size:13px}
+.step-dot i{width:28px;height:28px}
+.step-dot.now i{animation:none}
+.runrail{border-radius:12px;box-shadow:none;padding:20px}
+.runrail-foot .amt{font-size:32px;font-weight:600}
+.opt{min-height:64px;border-radius:12px;padding:16px;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter)}
+.opt:hover{transform:translateY(-1px);box-shadow:none;border-color:var(--ink-3)}
+.amount{border-radius:16px;padding:24px;box-shadow:none}
+.amount .big{font-size:clamp(32px,5vw,40px);font-weight:600}
+.plain{position:relative;border:0;border-left:3px solid var(--signal);border-radius:0;
+  padding:20px 24px;background:var(--sunk);font-size:18px;line-height:1.5}
+.plain b{color:var(--ink);font-weight:600}
+
+/* The payout ladder reads from maximum at the top to no payout at the foot.
+   Each rung carries its threshold and amount, so it needs no legend. */
+.pay-rows{display:flex;flex-direction:column-reverse;align-items:flex-end;gap:0;
+  background:transparent;border:0;border-right:2px solid var(--signal);
+  border-radius:0;overflow:visible;padding-block:4px}
+.pay-row{width:100%;min-height:64px;border-bottom:1px solid var(--edge);
+  border-left:4px solid var(--signal);background:var(--panel);
+  padding:14px 18px;align-items:center}
+.pay-row:nth-last-child(2){width:88%}
+.pay-row:nth-last-child(3){width:76%}
+.pay-row:nth-last-child(4),.pay-row:nth-last-child(5){width:64%}
+.pay-row:last-child{border-top:1px solid var(--edge)}
+.pay-row.none{border-left-color:var(--edge-2);background:var(--sunk)}
+.pay-row .amt{font-family:var(--display);font-size:20px;font-weight:600;
+  color:var(--ink);font-variant-numeric:tabular-nums}
+.pay-row .often{font-size:13px}
+.pricebar{border-radius:12px;box-shadow:0 -8px 24px -22px rgba(12,17,22,.5);
+  backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--panel)}
+.pricebar .amt{font-size:32px;font-weight:600}
+details.more{box-shadow:none}
+details.more summary{min-height:52px}
+details.more .inner{padding:4px 20px 20px}
+@media (max-width:760px){
+  .steps{margin-bottom:32px}
+  .q-body{margin-top:24px}
+  .pay-row,.pay-row:nth-last-child(2),.pay-row:nth-last-child(3),
+  .pay-row:nth-last-child(4),.pay-row:nth-last-child(5){width:100%}
+  .pay-rows{border-right:0}
+  .pay-row{grid-template-columns:minmax(0,1fr);gap:6px}
+  .pay-row .amt{font-size:18px}
+  .pricebar{margin-inline:-8px;padding:12px;bottom:70px}
+  .pricebar .grow{width:100%}
+  .pricebar .grow .btn-primary{flex:1}
+}
+

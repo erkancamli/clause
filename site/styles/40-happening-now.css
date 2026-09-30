@@ -80,3 +80,21 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
   .band-one .band-label span{font-size:12.5px;line-height:1.2}
 }
 
+/* A live register, not a ticker-tape decoration. */
+section.now{background:var(--sunk)}
+.now-head{margin-bottom:16px}
+.now-head b{font-size:16px}
+.now-head .pip{animation:none}
+.band{border-radius:12px;box-shadow:none;transition:border-color var(--motion-hover) var(--ease-enter)}
+.band:hover{box-shadow:none;border-color:var(--edge-2)}
+.band-track{overflow-x:auto;scrollbar-width:thin;-webkit-mask-image:none;mask-image:none}
+.band-run{animation:none;padding:10px 12px}
+.band-run .dup{display:none}
+.chip{min-height:44px;padding:8px 12px;background:var(--panel)}
+.now-top{padding-top:12px}
+.band-one{background:var(--panel)}
+@media (max-width:640px){
+  .band-one{grid-template-columns:112px minmax(0,1fr)}
+  .band-label{padding:10px 12px}
+}
+

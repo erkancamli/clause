@@ -27,3 +27,29 @@
 .sig .t{margin-top:5px;font-size:12.5px;color:var(--ink-2);line-height:1.4}
 @media (max-width:760px){.sig{grid-template-columns:1fr 1fr}}
 
+/* The process is one connected sequence, not four unrelated cards. */
+.flowline{gap:0;background:transparent;border:0;border-top:1px solid var(--edge);
+  border-bottom:1px solid var(--edge);border-radius:0;overflow:visible}
+.flowline > div{position:relative;padding:28px 24px;background:transparent;
+  border-right:1px solid var(--edge);transition:background var(--motion-hover) var(--ease-enter)}
+.flowline > div:last-child{border-right:0}
+.flowline > div:hover{background:var(--sunk)}
+.flowline .n{width:auto;height:auto;border:0;border-radius:0;justify-content:flex-start;
+  color:var(--signal-ink);font-size:12px}
+.flowline h2{font-size:20px;margin-top:18px}
+.flowline p{font-size:14px;line-height:1.55;margin-top:8px}
+.card{padding:24px;border-radius:12px;box-shadow:none;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter)}
+.card:hover{transform:translateY(-2px);box-shadow:none;border-color:var(--edge-2)}
+.sig{border-radius:12px}
+@media (max-width:820px){
+  .flowline > div:nth-child(2n){border-right:0}
+  .flowline > div:nth-child(n+3){border-top:1px solid var(--edge)}
+}
+@media (max-width:520px){
+  .flowline{grid-template-columns:1fr}
+  .flowline > div{border-right:0;border-top:1px solid var(--edge)}
+  .flowline > div:first-child{border-top:0}
+}
+

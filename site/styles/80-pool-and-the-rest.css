@@ -491,3 +491,35 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
   box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
 .drop:focus-within{outline:none;
   box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+
+/* ---------------- secondary screens and finishing pass ---------------- */
+.sec{gap:16px;margin-top:clamp(72px,9vw,120px)}
+.sec:first-child{margin-top:0}
+.sec > h2{font-size:clamp(40px,4vw,52px);line-height:1.08}
+.sec > p.lead{font-size:17px;line-height:1.6}
+.panel,.chainfig{box-shadow:none;border-radius:12px}
+.readouts{border-radius:12px;background:transparent;gap:0}
+.readout{padding:22px}
+.readout .v{font-size:clamp(28px,3vw,40px);font-weight:600}
+.cap-row .track{height:16px;border-radius:8px}
+.cap-row.hot .fill{background:var(--signal);background-image:none}
+.total{font-size:clamp(32px,4vw,40px);font-weight:600}
+.ev{min-height:44px}
+.map-wrap{gap:24px}
+.diagram,.chart-box{border-radius:12px}
+.chainfig{padding:clamp(20px,3vw,32px)}
+.cf-b,.cf-source,.cf-note{border-radius:8px}
+.whomenu{box-shadow:var(--lift-2)}
+.choice,.offer{min-height:52px;border-radius:12px}
+.offer{transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter)}
+.offer:hover{transform:translateY(-1px);box-shadow:none}
+.nft img{box-shadow:none}
+.nft:hover img{transform:translateY(-2px)}
+footer{padding-block:48px 72px;margin-top:clamp(96px,12vw,160px)}
+@media (max-width:760px){
+  .sec{margin-top:72px}
+  .sec > h2{font-size:36px}
+  .map-wrap{gap:16px}
+  footer{margin-top:96px;padding-block:40px 112px}
+}

@@ -136,3 +136,27 @@ details.orig summary{cursor:pointer;color:var(--ink-3)}
 :root[data-theme="light"] .sun{display:block}
 :root[data-theme="dark"] .moon{display:block}
 
+/* Quiet product chrome: one precise bar, no frosted-glass treatment. */
+header.top{background:var(--ground);backdrop-filter:none;-webkit-backdrop-filter:none}
+.top-in{height:68px;gap:10px}
+.brand{font-size:19px;min-height:44px;margin-right:20px}
+.brand svg{width:24px;height:24px}
+.mainnav{gap:4px}
+.mainnav a{min-height:44px;display:inline-flex;align-items:center;padding:10px 12px;
+  font-size:14px;border-radius:10px;transition:background var(--motion-hover) var(--ease-enter),
+  color var(--motion-hover) var(--ease-enter)}
+.mainnav a[aria-current="page"]{background:transparent;color:var(--ink);
+  box-shadow:inset 0 -2px 0 var(--signal)}
+.icon-btn{width:44px;height:44px;border-color:var(--edge-ctl);border-radius:10px}
+.langsel{height:44px;border-color:var(--edge-ctl);border-radius:10px;padding-inline:11px}
+.langsel select{min-height:42px;font-size:14px}
+.who{min-height:44px}
+header.top.is-scrolled{box-shadow:0 8px 24px -22px rgba(12,17,22,.45);
+  border-bottom-color:var(--edge)}
+@media (max-width:760px){
+  .top-in{height:60px}
+  .brand{margin-right:auto}
+  .mainnav{padding:6px 20px calc(6px + env(safe-area-inset-bottom,0px))}
+  .mainnav a{min-height:44px}
+}
+

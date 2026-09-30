@@ -374,3 +374,48 @@ h1 span{color:var(--signal-ink)}
   .pick .banner svg{height:132px;width:100%}}
 .pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
+/* ---------------- home, composed as a financial product ---------------- */
+.home-hero{padding-block:clamp(52px,7vw,96px) clamp(96px,11vw,144px)}
+.hero-fx-clip::before,.hero-fx-clip::after{display:none}
+.home-hero .hero-text h1{font-size:clamp(64px,6vw,80px);line-height:.98;
+  letter-spacing:-.045em;max-width:11ch}
+.home-hero p{font-size:17px;line-height:1.55;max-width:var(--measure)}
+.hero-text{gap:20px}
+.hero-cta{gap:12px}
+.trust{gap:10px}
+.trust>span{min-height:36px;padding:7px 11px;border-radius:8px;background:transparent}
+.beats{margin-top:clamp(88px,10vw,136px)}
+.beat{padding-block:clamp(38px,5vw,64px)}
+.beat h2{font-size:clamp(24px,2.4vw,32px)}
+.beat p{font-size:16px;line-height:1.55}
+.beat .said{font-size:13px;background:transparent;border-left:2px solid var(--signal);
+  border-radius:0;padding:7px 0 7px 14px}
+.stage{border-radius:16px;box-shadow:none}
+.phone{box-shadow:none}
+.pick{border-radius:12px;box-shadow:none;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter),
+  background var(--motion-hover) var(--ease-enter)}
+.pick::after{display:none}
+.pick:hover{transform:translateY(-2px);box-shadow:none;border-color:var(--edge-2)}
+.pick:hover .banner svg{transform:none}
+.pick[aria-pressed="true"]{background:var(--signal-wash)}
+@media (min-width:1300px){
+  .hero-text{grid-template-columns:minmax(390px,.9fr) minmax(0,1.1fr);
+    column-gap:clamp(64px,7vw,112px)}
+  .choose .picks{gap:0;border-block:1px solid var(--edge)}
+  .choose .pick{border:0;border-bottom:1px solid var(--edge);border-radius:0;
+    background:transparent;padding:13px 4px}
+  .choose .pick:last-child{border-bottom:0}
+  .choose .pick .banner{width:112px;height:44px}
+}
+@media (max-width:760px){
+  .home-hero{padding-block:48px 96px}
+  .home-hero .hero-text h1{font-size:clamp(42px,13vw,52px);max-width:10ch}
+  .home-hero p{font-size:16px}
+  .hero-cta{width:100%}
+  .hero-cta .btn{flex:1 1 100%}
+  .beats{margin-top:80px}
+  .beat{padding-block:36px}
+}
+
