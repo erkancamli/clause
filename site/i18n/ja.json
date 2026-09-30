@@ -72,7 +72,7 @@
     "Armed on chain": "オンチェーンで待機中",
     "USDC": "USDC",
     "Back": "戻る",
-    "Nobody decides whether you get paid.": "支払うかどうかを誰かが決めることはありません。",
+    "A measurement decides what you are paid, not an assessor.": "支払額を決めるのは鑑定人ではなく計測値です。",
     "Ordinary insurance pays after a person agrees that it should. This pays when a measurement crosses a number that was written into your policy the day you bought it.": "通常の保険は、人が支払うべきだと認めてから支払われます。これは、ご購入日に保険契約に書き込まれた数値を測定値が超えたときに支払われます。",
     "You choose the number": "数値はお客様が選びます",
     "A magnitude, a rainfall total, a delay in minutes. It goes into the policy in plain sight.": "マグニチュード、累積降水量、遅延時間（分）。その数値は誰にでも見える形で保険契約に記載されます。",

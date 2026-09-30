@@ -19,4 +19,23 @@ _none_
 
 ## From the other side
 
-_none_
+Found while reviewing, measured, and left here rather than fixed, because these
+files are yours.
+
+1. **The rule about overrides was stated as three examples and taken as three
+   files.** That was badly put and it is the reviewer's fault, not yours. The
+   rule: a selector should be written once per level in a file, so that reading
+   the file top to bottom leaves the reader right. Counted at the top level of
+   each file, ignoring media queries, which are a different thing. You cleared
+   `10-header.css`, `20-controls.css` and `50-home.css`. Six files still carry
+   it, and four of them worse than the three that were named:
+
+        80-pool-and-the-rest.css      7 before,   34 now
+        60-flow.css                   3 before,   28 now
+        30-views.css                  4 before,   25 now
+        40-happening-now.css          1 before,   12 now
+        70-how.css                    1 before,   10 now
+        00-tokens.css                 2 before,    8 now
+
+   Ninety-nine repeats added in all. Fold each one into the rule it overrides,
+   as you did for the first three.

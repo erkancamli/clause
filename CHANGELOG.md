@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- "Nobody decides whether you get paid" was the largest line on How it works,
+  and the page's own questions page said otherwise four screens away.
+
+  A licensed company decides whether to issue the policy: the premium is held
+  and not taken while it screens the buyer against sanctions lists, confirms
+  who they are above a certain size, and confirms the thing is theirs.
+  Validators decide what reading reaches the chain, and the page says in the
+  same breath that disagreeing is possible and only expensive. Both are
+  decisions, and both are somebody's.
+
+  What nobody does is look at the damage afterwards and form an opinion about
+  what it was worth. That is the thing the product actually removes and the
+  thing worth saying, so the line is "A measurement decides what you are paid,
+  not an assessor", in six languages. The paragraph under it already said as
+  much and did not need changing.
+
 - The line the three deferrable surfaces sit behind, drawn where it can hold.
 
   A company's desk with the operator's screens, the proof register with the
