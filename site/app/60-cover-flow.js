@@ -1222,6 +1222,7 @@ function confirmUnshowable(){
   // setNextLabel, which half a dozen other things call, so disabling it here
   // lasts only until the next of them runs. The gate has to know.
   flow.unshowable=true;
+  partsWaiting(false);
   var blanks=["plain","pay-rows","market-box","offers","contract-text","curve","basis-box"];
   for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
   var cap=$("curve-cap"); if(cap)cap.textContent="";
@@ -1237,6 +1238,54 @@ function confirmUnshowable(){
    so while the protocol is still answering none of them is drawn: the step
    says it is waiting, the button says it too, and renderPrice comes back here
    the moment the answer lands. */
+/* What the step shows while the protocol is still answering.
+
+   Six headings over six empty parts, each with a rule above it, reads as a
+   page that failed to load rather than one that is working. Each part carries
+   a slot the shape of what will land in it -- four steps of a ladder, two
+   sentences of basis risk, three lines of a company card -- so the wait shows
+   the document arriving rather than an outline of one that never did. Part
+   one says in words what is happening, because a shape cannot say "working
+   out your price", and the parts below it are shapes, because five more lines
+   of the same sentence would say nothing five more times. */
+function partFilled(part){
+  // Anything in the part that is not its heading and not the waiting shape.
+  return Array.prototype.some.call(part.children,function(child){
+    // A disclosure is a control, not content: the curve's summary line is the
+    // same height whether the drawing behind it has been made or not.
+    if(child.tagName==="DETAILS")return false;
+    if(child.classList.contains("part-t")||child.classList.contains("part-wait"))return false;
+    if(child.hidden||getComputedStyle(child).display==="none")return false;
+    // Asked of the box, not of its geometry. The empty ladder is 8px tall
+    // because .pay-rows carries 4px of padding either side, so a height test
+    // called it full and the payout part, alone of the six, never showed what
+    // it was waiting for. What is being asked is whether there is anything in
+    // it, and that is a question about its contents.
+    return child.childElementCount>0||child.textContent.trim()!=="";
+  });
+}
+function partsWaiting(waiting){
+  Array.prototype.forEach.call(document.querySelectorAll("#s4 .part"),function(part){
+    var slot=part.querySelector(".part-wait"); if(!slot)return;
+    // Not every part waits for the price. The screening panel is drawn from
+    // who the buyer is and lands seconds before the protocol answers, so this
+    // one measured a heading, three grey bars and the real panel underneath
+    // them, at once, for the rest of the wait. A part that already has
+    // something to show never shows a shape instead.
+    var show=waiting&&!partFilled(part);
+    slot.hidden=!show;
+    slot.innerHTML=show?skeleton(+slot.dataset.bars||3):"";
+    if(!show)return;
+    // And it stops the moment its own content lands, rather than at the moment
+    // the price does: the two are not the same moment for every part.
+    if(slot.watching)return;
+    slot.watching=new MutationObserver(function(){
+      if(!slot.hidden&&partFilled(part)){ slot.hidden=true; slot.innerHTML=""; }
+    });
+    slot.watching.observe(part,{childList:true,subtree:true,attributes:true,
+      attributeFilter:["hidden","style","class"]});
+  });
+}
 function confirmPricing(){
   flow.unshowable=false;
   var said=$("confirm-broken"); if(said)said.hidden=true;
@@ -1247,6 +1296,7 @@ function confirmPricing(){
   var plain=$("plain");
   if(plain)plain.innerHTML='<p class="prompt">'+
     esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
+  partsWaiting(true);
   CONTRACT={key:"",text:"",hash:""};
   if($("accept"))$("accept").checked=false;
   // What was chosen is still shown: it is what the buyer answered, not what
@@ -1259,6 +1309,7 @@ function confirmPricing(){
 function renderPriceBody(){
   if(link.live&&!(flow.quoted&&flow.quotedFor===quoteKey())){ confirmPricing(); return; }
   flow.unshowable=false;
+  partsWaiting(false);
   var said=$("confirm-broken"); if(said)said.hidden=true;
   var q=priced(),total=Math.max(q.premium,1e-9);
   renderAnswers();

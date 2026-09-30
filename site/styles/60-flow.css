@@ -545,3 +545,7 @@ tr:last-child td{border-bottom:0}
   .part-n{width:21px;height:21px;font-size:10.5px}
   .part + .part{padding-top:16px}
 }
+/* The waiting shape sits where the content will, so nothing moves when it
+   arrives. It is a grid item of the part like everything else. */
+.part-wait{display:block}
+.part-wait[hidden]{display:none}
