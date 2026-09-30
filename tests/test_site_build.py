@@ -306,7 +306,11 @@ def test_the_script_is_joined_in_the_order_the_page_lists_it(build) -> None:
     """
     site = pathlib.Path(__file__).resolve().parent.parent / "site"
     page = (site / "index.html").read_text(encoding="utf-8")
-    listed = re.findall(r'<script data-part="(app/[^"]+)"></script>', page)
+    # As the build reads them, other attributes and all: the desk's part is
+    # marked data-desk, and a pattern that stops at the quote silently finds
+    # one part fewer. That is exactly how the marker broke the build, which
+    # now refuses rather than shipping a page short of a screen.
+    listed = re.findall(r'<script data-part="(app/[^"]+)"[^>]*></script>', page)
 
     assert listed, "the page lists no script part"
     assert listed == sorted(listed), f"the parts are not listed in name order: {listed}"

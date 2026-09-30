@@ -4,6 +4,34 @@ var VIEWS={"/":"view-home","/cover":"view-cover","/mine":"view-mine","/profile":
            "/insurers":"view-insurers","/privacy":"view-privacy","/faq":"view-faq","/rules":"view-rules",
            "/company":"view-company","/admin":"view-admin","/ask":"view-ask"};
 function currentRoute(){return (location.hash||"#/").replace(/^#/,"")||"/";}
+/* The three screens an insurer runs its book on are a second page.
+
+   They are not deferred inside the closure. The whole script is one closure
+   and the desk's part reads fifty-one names out of it; those fifty-one pull
+   in 563 declarations between them, 77% of the script, so a self-contained
+   desk chunk would be the whole thing twice over. Handing the fifty-one
+   across a boundary would leave a list to keep by hand, and the day someone
+   adds a fifty-second the desk breaks on the route an insurer uses to run
+   their book, with nothing to say so until somebody goes there.
+
+   So the desk is built from these same parts with nothing taken out, and the
+   buyer's page is built without them: 82,632 B smaller built, 22,078 B
+   smaller on the wire, 12.7% of what a buyer downloads to look at a screen
+   they cannot open.
+
+   Which page this is, is asked of the page rather than of its address, so a
+   copy served from anywhere still answers correctly. */
+var DESK_ROUTES={"/company":1,"/insurers":1,"/admin":1};
+function deskIsHere(){ return !!document.getElementById("view-company"); }
+function goToTheDesk(route){
+  // The query string comes too. The page reads ?api= from it to be pointed at
+  // a protocol other than the live one, and the first version of this dropped
+  // it: the desk arrived asking the wrong host and answered every screen with
+  // a 404. Anything else a link carries is equally not ours to discard.
+  // Replace rather than push: Back should return where the reader came from,
+  // not to the page that sent them on.
+  location.replace("desk.html" + location.search + "#" + route);
+}
 function show(route, moved){
   // A proof link carries the policy it is about: #/proof/CLS-XXXX
   var proof = route.match(/^\/proof(?:\/(.+))?$/);
@@ -20,11 +48,16 @@ function show(route, moved){
   if (route === "/rules") renderRules();
   if (route === "/ask") renderAskForm();
   if(!VIEWS[route])route="/";
+  if(DESK_ROUTES[route]&&!deskIsHere()){ goToTheDesk(route); return; }
   // Which screen, if any, the stylesheet showed before this script was read.
   var already=document.documentElement.getAttribute("data-first");
   document.documentElement.removeAttribute("data-first");
   Object.keys(VIEWS).forEach(function(k){
-    var view=$(VIEWS[k]);
+    // Three of these are on the desk's page and not on the buyer's, so the
+    // table names screens this page does not have. It is one table because it
+    // is one router: which page it is running on is a fact about the document,
+    // and asking the document is cheaper than keeping two tables in step.
+    var view=$(VIEWS[k]); if(!view)return;
     view.classList.toggle("settled",k===already&&k===route);
     view.classList.toggle("on",k===route);
   });

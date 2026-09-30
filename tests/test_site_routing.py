@@ -33,7 +33,12 @@ SWITCHER = "Language. Choosing one changes the page at once"
 def views() -> dict[str, str]:
     """Each routed screen's markup, by element id."""
     found = {}
-    for match in re.finditer(r'<section class="view" id="(view-[a-z]+)">', PAGE):
+    # The pattern takes other attributes, because three of these screens carry
+    # data-desk: they are the desk an insurer runs its book on, and the build
+    # leaves them out of the page a buyer downloads. Written without that, this
+    # found twelve screens of the fifteen and said the other three were routed
+    # and missing, which is the fault the marker caused in the build itself.
+    for match in re.finditer(r'<section class="view" id="(view-[a-z]+)"[^>]*>', PAGE):
         start = match.end()
         end = PAGE.index("\n</section>", start)
         found[match.group(1)] = PAGE[start:end]
