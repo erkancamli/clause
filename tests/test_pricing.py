@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from clause.perils import DROUGHT, EARTHQUAKE, FLIGHT_DELAY
+from clause.perils import DROUGHT, EARTHQUAKE, FLIGHT_DELAY, get_peril
 from clause.pricing import (
     SOLVENCY_LEVEL,
     Exposure,
@@ -462,23 +462,38 @@ def test_a_risk_the_book_never_feels_is_still_charged_for(engine: PricingEngine)
     assert quote.expected_loss / quote.premium < 0.6
 
 
-def test_the_same_cover_costs_the_same_split_or_whole(engine: PricingEngine) -> None:
-    """Ten policies of a hundred thousand, or one of a million.
+def test_where_the_floor_sets_the_price_the_price_is_proportional(engine: PricingEngine) -> None:
+    """The floor is linear in the limit, so splitting cannot get under it.
 
     On the live book a million of New York cover in one policy measured 8,845
     of capital and cost 1,198.55, while the same million split into ten
     policies measured zero and cost 137.90: the same risk, split ten ways, for
-    a ninth of the price. Anyone wanting a million simply bought ten.
+    a ninth of the price. Zero is what the floor replaces, and standalone
+    capital is proportional to the limit, so wherever the floor is what sets
+    the price, ten policies of a hundred thousand cost exactly what one of a
+    million costs.
 
-    Standalone capital is proportional to the limit, so a floor written against
-    it cannot be arbitraged by splitting.
+    That is not the whole of it, and this test does not pretend otherwise. Once
+    the exposure is large enough that the book's own tail moves, the measured
+    marginal takes over, and it is superlinear: on the live book the floor sets
+    New York's price to about 200,000 of cover, and above that a policy costs
+    29.02 per hundred thousand split and up to 135.28 whole. Splitting is
+    cheaper there, and what stops it being free is that binding one policy puts
+    it in the book and re-prices the next. What does not stop it is a set of
+    quotes locked at the same moment, which is a real gap and is written down
+    in the changelog rather than claimed shut.
     """
     book = _istanbul_book(engine)
-    one = engine.quote(peril_key="earthquake", subject=_new_york(),
-                       limit=1_000_000.0, term_days=365.0, book=book)
-    ten = engine.quote(peril_key="earthquake", subject=_new_york(),
-                       limit=100_000.0, term_days=365.0, book=book)
-    assert one.premium == pytest.approx(ten.premium * 10, rel=1e-6), (one.premium, ten.premium)
+    small = engine.quote(peril_key="earthquake", subject=_new_york(),
+                         limit=100_000.0, term_days=365.0, book=book)
+    large = engine.quote(peril_key="earthquake", subject=_new_york(),
+                         limit=200_000.0, term_days=365.0, book=book)
+    # Both are set by the floor, which is the regime this is about.
+    for quote in (small, large):
+        assert quote.marginal_capital == pytest.approx(
+            0.05 * quote.standalone_capital, rel=1e-6), quote.marginal_capital
+    assert large.premium == pytest.approx(small.premium * 2, rel=1e-6), (
+        small.premium, large.premium)
 
 
 def test_a_rare_risk_knows_its_own_capital_without_drawing_for_it() -> None:
@@ -527,3 +542,187 @@ def test_the_floor_leaves_a_real_marginal_charge_alone(engine: PricingEngine) ->
                          limit=100_000.0, term_days=365.0, book=book)
     assert quote.marginal_capital > 0.05 * quote.standalone_capital * 5
     assert quote.diversification_ratio > 0.35
+
+
+def test_a_faraway_policy_is_not_called_a_concentration(engine: PricingEngine) -> None:
+    """The sentence about neighbours has to be about neighbours.
+
+    The note counting earthquake policies "at this location" compared
+    subject["location"], the place code the buyer typed. The peril resolves
+    that to a point and drops the key before the engine ever sees it, so the
+    comparison was None against None and matched every pair of earthquake
+    policies on earth. A New York quote was told the pool already held two
+    hundred policies at its location while all two hundred were in Istanbul,
+    and the sentence written for a policy that really does spread the book
+    could never be reached.
+
+    Both branches are asserted here, because the bug was that only one of them
+    was ever taken.
+    """
+    book = _istanbul_book(engine)
+    far = engine.quote(peril_key="earthquake", subject=_new_york(),
+                       limit=100_000.0, term_days=365.0, book=book)
+    said = " ".join(far.notes)
+    assert "deepens" not in said, said
+    assert "spreads the book" in said, said
+
+    near = engine.quote(
+        peril_key="earthquake",
+        subject=EARTHQUAKE.validate_subject(
+            {"latitude": 41.02, "longitude": 28.95, "radius_km": 50, "index": "shaking"}),
+        limit=100_000.0, term_days=365.0, book=book)
+    told = " ".join(near.notes)
+    assert "deepens that exposure" in told, told
+    # Every policy in this book is within a hundred kilometres of the quote, so
+    # the count is the whole book rather than a subset of it.
+    assert f"holds {len(book)} earthquake policies" in told, told
+
+
+def test_the_count_of_neighbours_stops_at_the_ones_that_pay_together(
+        engine: PricingEngine) -> None:
+    """Two circles are neighbours when one earthquake can pay both.
+
+    The book here is half in Istanbul and half in Los Angeles, and an Istanbul
+    quote must count the Istanbul half only. A comparison that matched on
+    anything coarser than distance would count all of them.
+    """
+    book = list(_istanbul_book(engine, count=10))
+    for index in range(10):
+        subject = EARTHQUAKE.validate_subject(
+            {"latitude": 34.05, "longitude": -118.24, "radius_km": 50, "index": "shaking"})
+        book.append(Exposure(policy_id=f"us-{index}", peril_key="earthquake",
+                             subject=subject, curve=EARTHQUAKE.curve_for(subject),
+                             limit=100_000.0, term_days=365.0))
+    quote = engine.quote(
+        peril_key="earthquake",
+        subject=EARTHQUAKE.validate_subject(
+            {"latitude": 41.02, "longitude": 28.95, "radius_km": 50, "index": "shaking"}),
+        limit=100_000.0, term_days=365.0, book=book)
+    assert "holds 10 earthquake policies" in " ".join(quote.notes), quote.notes
+
+
+def test_two_covers_on_one_building_feel_one_earthquake_once(
+        engine: PricingEngine) -> None:
+    """The scatter is a fact about the ground, not about the contract.
+
+    The intensity equation predicts the shaking a magnitude produces at a
+    distance, and the scatter around it is the difference between that
+    prediction and what the ground actually does. It was drawn from a stream
+    seeded by the policy id, so two covers written on the same building felt
+    the same earthquake as two different intensities: of the trials where
+    either was paid, one in four paid only one of them.
+
+    That is not a small mispricing. It is the concentration the capital model
+    exists to price, drawn away: splitting one policy into ten made the
+    modelled risk genuinely smaller, because the ten pieces settled as ten
+    independent sites.
+    """
+    subject = EARTHQUAKE.validate_subject(
+        {"location": "IST-KADIKOY", "radius_km": 50.0, "index": "shaking"})
+    made = [
+        Exposure(policy_id=name, peril_key="earthquake", subject=dict(subject),
+                 curve=EARTHQUAKE.curve_for(subject), limit=100_000.0, term_days=365.0)
+        for name in ("one", "two")
+    ]
+    first, second = (engine.losses_of(made[0]), engine.losses_of(made[1]))
+    assert first == second, "one address, one earthquake, one intensity"
+    assert any(value > 0 for value in first), "the test needs a trial that pays"
+
+    # And the scatter is still scatter: a different address does not copy it.
+    elsewhere = EARTHQUAKE.validate_subject(
+        {"latitude": 41.02, "longitude": 28.95, "radius_km": 50.0, "index": "shaking"})
+    other = Exposure(policy_id="three", peril_key="earthquake", subject=elsewhere,
+                     curve=EARTHQUAKE.curve_for(elsewhere), limit=100_000.0,
+                     term_days=365.0)
+    assert engine.losses_of(other) != first
+
+
+def test_splitting_one_policy_does_not_shrink_the_risk(engine: PricingEngine) -> None:
+    """Ten pieces of one cover lose exactly what the whole cover loses.
+
+    This is the arithmetic the marginal capital allocation rests on. While the
+    pieces settled independently it did not hold, and the book's capital fell
+    when a buyer split a policy it had already agreed to carry whole.
+    """
+    subject = EARTHQUAKE.validate_subject(
+        {"location": "IST-KADIKOY", "radius_km": 50.0, "index": "shaking"})
+    curve = EARTHQUAKE.curve_for(subject)
+    whole = Exposure(policy_id="whole", peril_key="earthquake", subject=dict(subject),
+                     curve=curve, limit=1_000_000.0, term_days=365.0)
+    pieces = [
+        Exposure(policy_id=f"piece-{index}", peril_key="earthquake",
+                 subject=dict(subject), curve=curve, limit=100_000.0, term_days=365.0)
+        for index in range(10)
+    ]
+    together = [sum(values) for values in zip(*(engine.losses_of(p) for p in pieces))]
+    for mine, ours in zip(engine.losses_of(whole), together):
+        assert mine == pytest.approx(ours, rel=1e-9)
+
+
+def test_two_passengers_on_one_aeroplane_are_late_together(
+        engine: PricingEngine) -> None:
+    """One aeroplane lands at one time.
+
+    The delay was drawn from a stream seeded by the policy, so two covers on
+    the same flight were delayed by different amounts and a book written on one
+    aeroplane looked like a book spread across a timetable. The carrier's bad
+    day was already shared, which is the correlation between different flights
+    of one airline and a weaker thing than this.
+    """
+    subject = FLIGHT_DELAY.validate_subject({
+        "origin": "IST", "destination": "LHR", "flight_number": "TK1979",
+        "departure_date": FLIGHT_DATE, "departure_time": "07:45",
+    })
+    curve = FLIGHT_DELAY.curve_for(subject)
+    mine, yours = (
+        Exposure(policy_id=name, peril_key="flight_delay", subject=dict(subject),
+                 curve=curve, limit=2_000.0, term_days=2.0)
+        for name in ("seat-1a", "seat-22f")
+    )
+    ours = engine.losses_of(mine)
+    assert ours == engine.losses_of(yours)
+    assert any(value > 0 for value in ours), "the test needs a trial that pays"
+
+    # A different flight on the same day is a different aeroplane.
+    other = FLIGHT_DELAY.validate_subject({
+        "origin": "IST", "destination": "LHR", "flight_number": "TK1971",
+        "departure_date": FLIGHT_DATE, "departure_time": "07:45",
+    })
+    theirs = Exposure(policy_id="seat-3c", peril_key="flight_delay", subject=other,
+                      curve=FLIGHT_DELAY.curve_for(other), limit=2_000.0, term_days=2.0)
+    assert engine.losses_of(theirs) != ours
+
+
+
+def test_a_storm_quote_says_what_it_sits_beside(engine: PricingEngine) -> None:
+    """Wind and rain accumulate on a station the way shaking does on a fault.
+
+    An earthquake quote and a drought quote each said what the pool already
+    held near them. A storm or a car quote said nothing at all, which is the
+    same price explained to one buyer and withheld from another. Both carry a
+    shared regional factor in the simulation, so the accumulation is real and
+    the sentence is about something.
+    """
+    storm = get_peril("storm")
+    here = {"latitude": 40.15, "longitude": 26.41, "place": "Çanakkale"}
+
+    def cover(index: str, raw: dict) -> Exposure:
+        subject = storm.validate_subject(dict(raw))
+        return Exposure(policy_id=index, peril_key="storm", subject=subject,
+                        curve=storm.curve_for(subject), limit=80_000.0,
+                        term_days=365.0)
+
+    book = [cover(f"st-{i}", here) for i in range(3)]
+    beside = engine.quote(peril_key="storm", subject=storm.validate_subject(dict(here)),
+                          limit=100_000.0, term_days=365.0, book=book)
+    said = " ".join(beside.notes)
+    assert "3 other policies already settle on this station's reading" in said, said
+
+    far = engine.quote(
+        peril_key="storm",
+        subject=storm.validate_subject(
+            {"latitude": 41.00, "longitude": 39.72, "place": "Trabzon"}),
+        limit=100_000.0, term_days=365.0, book=book)
+    told = " ".join(far.notes)
+    assert "No other policy the pool holds settles on this station's reading" in told, told
+    assert "spreads the book" in told, told

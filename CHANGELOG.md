@@ -1,5 +1,254 @@
 # Changelog
 
+## 1.47.0, 29 September 2026
+
+- Two covers on one building felt the same earthquake as two different
+  earthquakes, and splitting a policy made the risk smaller.
+
+  The intensity equation says what shaking a magnitude produces at a distance,
+  and the scatter around it is the difference between that prediction and what
+  the ground actually does. The scatter was drawn from a stream seeded by the
+  policy identifier. So the earthquake was shared, as it should be, and then
+  each policy was told a different intensity for it: of the trials where either
+  of two covers on one address was paid, one in four paid only one of them.
+
+  The comment above the line said two houses on the same street feel the same
+  earthquake a little differently, which is true and is what the scatter is
+  for. It is a fact about the ground under an address, not about the contract
+  written on it, and the seed did not know the difference.
+
+  What followed is worse than a mispriced policy. Ten pieces of one cover
+  settled as ten independent sites, so the book's own arithmetic stopped
+  holding: a million of Kadıköy cover split ten ways measured less risk than
+  the same million whole, and the pool's capital fell when a buyer split cover
+  it had already agreed to carry. This was the real engine of the splitting
+  arbitrage recorded in 1.46.0. The floor added there was a bound on the
+  symptom; this is the cause.
+
+  | a million of Kadıköy cover | was | now |
+  |---|---:|---:|
+  | in one policy | 108,249.23 | 112,134.92 |
+  | ten bought one after another | 103,418.90 | 112,134.92 |
+  | ten locked at the same moment | 107,460.44 | 112,134.92 |
+
+  Seeded by the address, the three are the same figure to the cent, which is
+  what marginal allocation requires and what it could never deliver while the
+  pieces settled apart. A hundred thousand of Kadıköy cover moves from
+  11,289.31 to 11,213.49 against a book of two hundred İstanbul policies, and
+  New York is unchanged at 29.02.
+
+  The same seed was thinning background events for a circle smaller than the
+  reference catalogue's, so two covers on one address with one radius kept
+  different events. That is now keyed to the address and the radius too.
+
+  A change that makes co-located cover settle together raises the capital a
+  book needs, and a pool whose requirement jumps past its own funds stops
+  writing business, which is the failure a buyer sees as the site refusing to
+  sell. Measured before shipping, on a book of two hundred policies across five
+  Turkish locations carrying 20,502,714 of cover, the requirement moves from
+  10,694,951.84 to 10,710,991.28. That is a seventh of one per cent. The book's
+  worst half per cent is already dominated by ruptures that pay almost every
+  policy in it at its top band, and the scatter this corrects was never what
+  put them there; what it was distorting is the marginal reading of one more
+  policy at an address the book already holds, which is a price rather than a
+  solvency position.
+
+  What this does not close is the last line of 1.46.0: quotes locked at the
+  same moment, each priced against the book as it was. Where the floor sets the
+  price that gap is nothing, because the floor is proportional to the limit;
+  where the measured marginal is linear in the limit, as it is at an address
+  the book already holds, it is also nothing, and the table above measures it
+  at zero. It is real only in the band where the measured marginal is
+  superlinear, and it is still open there.
+
+- 2,859 of the 3,408 American places this product offers can be bought today.
+
+  The count that was being reported was curves fetched, and it answers the wrong
+  question. A place is sellable when a published curve sits within sixty
+  kilometres of it, not when it has one of its own, so most of the places no
+  build has reached are already priced from a neighbour's curve. What a buyer
+  cares about is whether their address is one of them.
+
+  | | places | share |
+  |---|---:|---:|
+  | sold today | 2,859 | 83.9% |
+  | refused: our model and the published one disagree | 382 | 11.2% |
+  | refused: nothing published within sixty kilometres | 167 | 4.9% |
+
+  The 382 are the guard on that disagreement doing what the note beside it says
+  it does: "about one place in nine is refused by this, in both countries."
+  Measured here at 11.2%, which is that figure. So the guard is not news. Where
+  it fires is.
+
+  Three hundred and seventy one of them, 97%, lie between longitude -100 and
+  -80: the central and eastern United States. Across that whole band our own
+  model reads intensity VII at between once in 85,726 years and once in 164,848
+  years, a spread under a factor of two over a thousand kilometres, while the
+  published model runs from once in 477 years at Memphis to once in 7,357 at
+  Jacksonville, a spread of fifteen. Ours is not disagreeing about the level. It
+  has no spatial resolution there at all: it is reading a regional floor and
+  calling it an answer.
+
+  | | published | ours | factor left after the map |
+  |---|---:|---:|---:|
+  | Memphis | 1 in 477 | 1 in 129,275 | 39 |
+  | Nashville | 1 in 1,375 | 1 in 146,520 | 5 |
+  | St. Louis | 1 in 1,113 | 1 in 85,726 | 4 |
+  | Atlanta | 1 in 3,274 | 1 in 155,063 | 4 |
+  | Jacksonville | 1 in 7,357 | 1 in 164,848 | 2 |
+
+  Memphis is the case that makes it plain. It is the most exposed large city in
+  the eastern United States and our model cannot tell it from Jacksonville, six
+  hundred miles away. Which sources the published model carries there is not
+  measured here and is not guessed at; what is measured is that ours carries
+  none of them.
+
+  Three hundred and thirteen of the 382 sit within a factor of four of the line,
+  155 of them at two and 61 at three, so moving the guard would open most of
+  them. That is the wrong repair: it would sell a price two, three or four times
+  light in the places our model understands least. The repair is the model.
+
+  The 167 are the ones a deeper build closes, and they are the smaller half.
+  Smaller than they look, too: the last fifty curves this release fetched moved
+  the sold count by nothing at all. One place crossed over, and it crossed from
+  one refusal to the other rather than into being sold, because a curve arriving
+  near it only exposed that the two models disagree there. Depth buys precision
+  at addresses already covered by a neighbour's curve; it does not buy reach.
+
+  Behind that, the curve count went from 1,240 to 1,500: CONUS 1,486, Hawaii 13,
+  Alaska 1. Of the 1,500 largest American places three are still without a curve
+  of their own, Hot Springs, Glendale Heights and Butte, and each gap is named
+  with its coordinate.
+
+  The USGS hazard service was up and down throughout. One pass took the file
+  from 1,240 to 1,318 and named 182 places it could not reach, a later one
+  reached 1,410 with nothing missed, a pass over what was left returned a single
+  curve out of eighty three, and the next morning it answered six probes out of
+  six. A deeper run was then started and stopped rather than waited out: it was
+  managing about one place a minute, with no open socket and flat CPU between
+  fetches while three probes of the same service from the same container
+  answered at once, so the remaining five hundred places were eight hours away
+  and every figure written about the file went stale while it moved. A limit is
+  a throttle on the asking and not a decision about what to keep, so every curve
+  already fetched is still in the file, and the depth the model declares is
+  settled against a run that finished.
+
+  Anchorage and Hilo are sold. Fairbanks and Juneau are still refused, because
+  nothing published sits within sixty kilometres of either; they open when the
+  build reaches them.
+
+  Puerto Rico is not covered, and it is worth saying why rather than leaving it
+  as a gap somebody fills carelessly. The USGS does publish a model for it,
+  `prvi-2025.R1`, NSHM Puerto Rico and U.S. Virgin Islands 2025, bounded
+  15.0 to 21.2 north and -70.95 to -61.7 east. It publishes peak ground
+  acceleration and twenty one spectral accelerations, and no peak ground
+  velocity. Every curve this product holds is peak ground velocity turned into
+  intensity by Worden, Gerstenberger, Rhoades and Wald (2012), and one country
+  file carries one measure and one conversion. Opening Puerto Rico means a
+  second conversion, from acceleration, with its own scatter, and a model file
+  that can say which of the two a point was built with. That is a change to
+  make deliberately, not a fourth line in a table of model names.
+
+  Nothing prices there meanwhile: the box check refuses San Juan rather than
+  asking the conterminous model, which answers for a point six hundred
+  kilometres outside its own mesh with a status of success.
+
+- A storm or a car quote says what it sits beside, as an earthquake quote does.
+
+  Wind and rain settle on a station's reading, and both carry a shared factor
+  across a region in the simulation: a front is hundreds of kilometres wide and
+  one storm system floods several provinces in the same year. So cover on one
+  station accumulates the way cover on one fault does, and the capital charge
+  already reflected it.
+
+  What the quote said about it was nothing. An earthquake quote named the
+  policies near it and a drought quote named the ones on its station, while a
+  storm or a vehicle quote explained its price with silence. That is the same
+  price shown to one buyer with its reason and to another without. Both now
+  count the cover already settling on their station and say what one bad day
+  does to it, or say that nothing else settles there.
+
+- A gap in the published coverage says which place it is.
+
+  The list of places a build could not reach held bare names. Three hundred and
+  eight American names repeat, covering seven hundred and sixty nine of the
+  places this product offers, so a list holding "Warren" did not say which
+  Warren had no curve. That is the same lesson the already-fetched set learned
+  when keying it by name silently skipped the second of every pair, and the gap
+  list was the one place it had not been applied.
+
+  It cost a wrong answer while settling this release's declared depth: reading
+  the gaps as though a name were a key put some of them at ranks past 1,500 in
+  a run that only asked for the first 1,500. Each entry now carries its
+  coordinate.
+
+- Two passengers on one aeroplane were delayed by different amounts.
+
+  The same seed, in the same place: a flight's delay came from a stream keyed
+  to the policy, so every cover written on one aeroplane landed at a different
+  time. The carrier's bad day was already shared across the book, which is the
+  correlation between different flights of one airline and a weaker thing than
+  this one. It is now keyed to the flight: the number, the date and the two
+  airports. Covers on one flight are paid or not paid together, and covers on
+  the next flight out are still their own.
+
+- Every earthquake quote was told it deepened a concentration, wherever it was.
+
+  The sentence a quote carries about its neighbours counted the policies the
+  pool already holds "at this location" by comparing `subject["location"]`, the
+  place code the buyer typed. The peril resolves that code to a latitude and a
+  longitude and drops the key before the engine ever sees the subject, so the
+  comparison was `None` against `None`: true for every pair of earthquake
+  policies on earth.
+
+  A New York quote was therefore told the pool already held two hundred
+  policies at its location while every one of them was in İstanbul, on the same
+  screen that priced it as diversifying. The two sentences contradicted each
+  other and the wrong one was the confident one. The other branch, written for
+  a policy that really does spread the book, could never be reached at all.
+
+  Neighbours are now counted by distance: two policies are near enough that one
+  earthquake can pay both exactly when their circles overlap, which is when the
+  centres are no further apart than the two radii added together. Against a
+  book of two hundred İstanbul policies, a Kadıköy quote now counts 88 of them
+  and New York counts none, and each is told which.
+
+  The price did not change. Only what the quote says about itself did, and it
+  was saying something untrue.
+
+- One quote, two amounts: 49,228 USDC on one screen and 49,227 on the next.
+
+  What a home is worth to rebuild is a float. The line a buyer reads on the "at
+  risk" step printed it through `money()`, which rounds to the nearest whole
+  number above a thousand. The same float became the cover ceiling, the top
+  preset and the figure in the contract through `Math.floor`. A 120 m² İstanbul
+  flat built in 2005 lands between two whole numbers, so the buyer was shown one
+  amount, agreed to it, and then saw a different one on every screen after it,
+  on the desktop and on the phone, in one uninterrupted session.
+
+  Neither number was wrong by much and that is what made it bad: nothing looked
+  broken, so nothing would have been reported. The value is rounded down once
+  now, where it is worked out, and everything downstream carries that same whole
+  number.
+
+- The button said three steps and the flow has five.
+
+  "Get cover in three steps" is the most clicked thing on the site, and it was
+  wrong about the only thing it promises. The stepper names its own steps, What,
+  Where, At risk, How much, Confirm, and the routes run from `#/cover` to
+  `#/cover/5`. The test reads the count off the stepper, so the button and the
+  flow cannot drift apart again.
+
+- The showcase policy on the home page was written on two measurements at once.
+
+  "if shaking ≥ M5.5 within 50 km" names a magnitude threshold and calls it
+  shaking. Magnitude is the size of the earthquake at its source, one number for
+  the whole event; shaking is what arrives at an address and is different at
+  every address. Both are real products here, and the picture was of neither.
+  The beat below it settles the rule with an M7.2 reading, which is a magnitude
+  reading, so the rule is the magnitude one now, all the way through, in all six
+  languages.
+
 ## 1.46.0, 29 September 2026
 
 - A risk the book never feels was written for nothing.
@@ -30,11 +279,23 @@
 
   A policy is charged for at least a twentieth of the capital it would need
   standing alone, however well it sits against today's book, because today's
-  book is not tomorrow's. Standalone capital is proportional to the limit, so
-  the floor cannot be arbitraged by splitting. Ninety five per cent
-  diversification credit is generous by any capital model's standard, so this is
-  a floor rather than a charge: it binds only where the measured marginal was
-  near zero, and every price with a real marginal charge is untouched.
+  book is not tomorrow's. Ninety five per cent diversification credit is
+  generous by any capital model's standard, so this is a floor rather than a
+  charge: it binds only where the measured marginal was near zero, and every
+  price with a real marginal charge is untouched.
+
+  Standalone capital is proportional to the limit, so wherever the floor is
+  what sets the price, splitting cannot get under it: ten policies of a hundred
+  thousand cost exactly what one of a million costs. That is not the whole of
+  the splitting question and it should not be read as though it were. Above the
+  floor the measured marginal takes over and it is superlinear: on the live
+  book the floor sets New York's price up to about 200,000 of cover, and beyond
+  that the same cover costs 29.02 per hundred thousand split and up to 135.28
+  whole. What stops that being free is that binding a policy puts it in the
+  book and re-prices the next one. What does not stop it is a set of quotes
+  locked at the same moment, each holding its price for ten minutes against the
+  book as it was. That gap is open, and it is written here rather than left to
+  be discovered.
 
   | | was | now | loss ratio |
   |---|---:|---:|---|

@@ -2622,7 +2622,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
         convince.
       </p>
       <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" href="#/cover" data-i18n>Get cover in three steps</a>
+        <a class="btn btn-primary btn-lg" href="#/cover" data-i18n>Get cover in five steps</a>
         <a class="btn btn-line btn-lg" href="#/how" data-i18n>See how it pays</a>
       </div>
       <div class="trust">
@@ -2749,7 +2749,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <div class="phone-app label">CLAUSE</div>
           <div class="layer l-clause ph-card ph-rule">
             <div class="ph-id mono">CLS-7F42</div>
-            <p class="mono" data-i18n>if shaking ≥ M5.5 within 50 km of 40.99, 29.03</p>
+            <p class="mono" data-i18n>if magnitude ≥ 5.5 within 50 km of 40.99, 29.03</p>
             <p class="mono ph-then" data-i18n>then pay 25,000</p>
           </div>
           <div class="layer l-payout ph-card ph-paid">
@@ -2783,7 +2783,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
           <p data-i18n>You write the condition when you buy it: the peril, the place, and
             the figure that has to be reached. It goes onto the chain as written, and
             after that neither side can change it.</p>
-          <div class="said" data-i18n>if shaking is M5.5 or more within 50 km of 40.99, 29.03 → pay 25,000</div>
+          <div class="said" data-i18n>if magnitude is 5.5 or more within 50 km of 40.99, 29.03 → pay 25,000</div>
         </article>
 
         <article class="beat" data-beat="2" data-live="off">
@@ -9673,6 +9673,10 @@ function carCap(year){
   var v=VALUATION.vehicle_age||{per_year:.85,floor:.2};
   return (VALUATION.vehicle_new_cap||250000)*Math.max(v.floor,Math.pow(v.per_year,Math.max(0,2026-year)));
 }
+/* Whole USDC, rounded down, once and here. Everything downstream carries this
+   same number: the figure shown on the "at risk" line, the cover ceiling, the
+   top preset and the contract. Rounding twice is how one quote came to read
+   49,228 on one screen and 49,227 on the next. */
 function sizeValue(){
   var z=sizeState(), v=VALUATION, area=parseFloat(String(z.area).replace(",", "."));
   z.valid=false; z.basis=""; z.problem="";
@@ -9688,7 +9692,7 @@ function sizeValue(){
     var f=homeAge(built, riskCountry());
     z.valid=true; z.area_m2=area; z.builtYear=built; z.hazard=f.hazard;
     z.basis=t("{area} m² × {rate} per m² to rebuild, × {share} for a building of {year}",{area:f0.format(area),rate:f0.format(rate),share:pct(f.ceiling,0),year:built});
-    return area*rate*f.ceiling;
+    return Math.floor(area*rate*f.ceiling);
   }
   var ha=area*AREA_UNITS[z.unit];
   if(ha<v.area_ha[0]||ha>v.area_ha[1]){ z.problem=t("The area must be between {min} and {max} hectares.",{min:f2.format(v.area_ha[0]),max:f0.format(v.area_ha[1])}); return 0; }
@@ -9696,7 +9700,7 @@ function sizeValue(){
   if(!(per>0)){ z.problem=t("There is no published price for this crop here yet."); return 0; }
   z.valid=true; z.area_ha=Math.round(ha*10000)/10000;
   z.basis=t("{area} hectares × {rate} expected revenue per hectare",{area:f2.format(z.area_ha),rate:f0.format(per)});
-  return z.area_ha*per;
+  return Math.floor(z.area_ha*per);
 }
 /* Where the per square metre or per hectare figure came from. Asked once by
    someone who wanted to know why a flat in Istanbul was capped where it was,
@@ -9767,7 +9771,7 @@ function renderSize(){
   box.innerHTML=html;
   function update(){
     var value=sizeValue();
-    flow.interest.value=Math.floor(value);
+    flow.interest.value=value;
     if(z.valid) clampLimit();
     var min=PERILS[flow.peril].limits[0];
     var out=$("size-worth");

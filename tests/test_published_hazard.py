@@ -461,6 +461,15 @@ def test_a_point_no_model_covers_is_not_asked_of_one(monkeypatch) -> None:
     assert pub.usgs_curve(0.0, 0.0) is None
     # Guam, which this product does not offer and which no box claims.
     assert pub.usgs_model(13.4443, 144.7937) is None
+    # San Juan. The United States, three million people, and a seismic hazard
+    # higher than most of the mainland's, so this is the point where asking the
+    # wrong model would be worth something to somebody. The conterminous model
+    # answers for it with a status of success, six hundred kilometres outside
+    # its own mesh; the box is what stops it being asked. Puerto Rico has its
+    # own published model and it is not read here, because it publishes no peak
+    # ground velocity and every curve this product holds is peak ground
+    # velocity. Opening it is a second conversion, not a fourth box.
+    assert pub.usgs_model(18.4655, -66.1057) is None
 
 
 def test_a_curve_says_which_revision_drew_it() -> None:
@@ -750,3 +759,34 @@ def test_a_repeated_name_does_not_skip_the_second_place(monkeypatch, tmp_path) -
     ])
     shrunk = pub.build("JP", keep=built["points"])
     assert [r["latitude"] for r in shrunk["points"]] == [37.22], shrunk["points"]
+
+
+def test_a_gap_says_which_place_it_is(monkeypatch, tmp_path) -> None:
+    """Two places of one name are two gaps, and the list has to tell them apart.
+
+    The missed list held bare names. Three hundred and eight American names
+    repeat, covering seven hundred and sixty nine of the places this product
+    offers, so a list holding "Warren" did not say which Warren had no curve.
+    That is the same reason the already-fetched set is keyed by coordinate
+    rather than by name, and the gap list was the one place the lesson had not
+    been applied. Reading it as though a name were a key gave a wrong answer to
+    how deep the delivered coverage goes.
+    """
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+
+    def nothing(_latitude, _longitude):
+        raise pub.Busy("the publisher is not answering")
+
+    places = [("Warren", 42.4775, -83.0277, 139_000),
+              ("Warren", 41.2375, -80.8184, 39_000)]
+    monkeypatch.setattr(pub, "places_of", lambda _code: places)
+    monkeypatch.setitem(pub.SOURCES["JP"], "fetch", nothing)
+    monkeypatch.setitem(pub.SOURCES["JP"], "pause", 0.0)
+
+    built = pub.build("JP")
+    assert len(built["points"]) == 0
+    assert len(built["missed"]) == 2
+    assert len(set(built["missed"])) == 2, built["missed"]
+    for entry in built["missed"]:
+        assert entry.startswith("Warren (")
+    assert "Warren (42.4775, -83.0277)" in built["missed"], built["missed"]

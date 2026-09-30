@@ -11,6 +11,8 @@ stopped it was the page's own doing.
 
 from __future__ import annotations
 
+import json
+import math
 import re
 from pathlib import Path
 
@@ -393,3 +395,89 @@ def test_the_sentence_a_buyer_reads_is_the_policy_they_are_buying() -> None:
     assert ".25*l" not in body.replace(" ", ""), "a payout share is still written down"
     for share in ("qc[0][1]*l", "mc[0][1]*l", "cc[0][1]*l", "sc[0][1]*l"):
         assert share in body.replace(" ", ""), f"{share} does not come from the curve"
+
+
+def test_one_quote_names_one_amount() -> None:
+    """The at-risk line said 49,228 and every screen after it said 49,227.
+
+    One float, two roundings. What a buyer reads on the "at risk" step went
+    through money(), which rounds to the nearest whole number above a thousand;
+    what became the cover ceiling, the top preset and the figure in the
+    contract went through Math.floor. A quote for an Istanbul flat of 120 m²
+    built in 2005 lands between two whole numbers, so the two disagreed by one
+    USDC, on desktop and on the phone, in the same session.
+
+    The value is rounded down once now, inside sizeValue, and everything
+    downstream carries that same whole number.
+    """
+    from clause.protocol.valuation import schedule
+
+    # The scenario is not hypothetical: with today's published rate the two
+    # roundings still disagree, so this test would fail if the second one came
+    # back.
+    rate = schedule()["rebuild_per_m2"]["TR"]["flat"]
+    ceiling = max(0.55, 1 - 0.01 * (2026 - 2005))
+    raw = 120 * rate * ceiling
+    assert math.floor(raw) != round(raw), (
+        f"120 m², built 2005, at {rate} per m² gives {raw}, which rounds the same "
+        "either way; pick a scenario that does not"
+    )
+
+    body = _function("sizeValue")
+    for produced in ("Math.floor(area*rate*f.ceiling)", "Math.floor(z.area_ha*per)"):
+        assert produced in body.replace(" ", ""), f"{produced} is not rounded where it is made"
+
+    # And the one caller does not round it a second time.
+    assert "flow.interest.value=value;" in PAGE.replace(" ", ""), "the caller no longer takes the value as made"
+    assert "flow.interest.value=Math.floor(value)" not in PAGE.replace(" ", ""), "the second rounding is back"
+
+
+def test_the_home_page_counts_the_steps_the_stepper_counts() -> None:
+    """The button said three and the stepper drew five.
+
+    "Get cover in three steps" is the most clicked thing on the site and it was
+    wrong about the only thing it promises. The stepper names its steps out
+    loud, What, Where, At risk, How much, Confirm, and the routes run from
+    #/cover to #/cover/5. A buyer who takes the button at its word is surprised
+    twice before the price.
+
+    The count is read off the stepper here, so the two cannot drift apart
+    again without this failing.
+    """
+    names = re.findall(r't\("([^"]+)"\)', _function("stepsBar").split("]", 1)[0])
+    assert names == ["What", "Where", "At risk", "How much", "Confirm"], names
+
+    words = {3: "three", 4: "four", 5: "five", 6: "six"}
+    said = f"Get cover in {words[len(names)]} steps"
+    assert said in PAGE, f"the home page does not say {said!r}"
+
+    for wrong in (w for n, w in words.items() if n != len(names)):
+        assert f"Get cover in {wrong} steps" not in PAGE, f"it still also says {wrong}"
+
+    # And every language says the same number, not the number it was translated from.
+    for path in sorted((ROOT / "site" / "i18n").glob("*.json")):
+        book = json.loads(path.read_text(encoding="utf-8"))
+        book = book.get("strings", book)
+        assert said in book, f"{path.name} has no line for {said!r}"
+
+
+def test_the_showcase_policy_is_written_on_one_index() -> None:
+    """"if shaking >= M5.5" names two different measurements at once.
+
+    Magnitude is the size of the earthquake at its source, one number for the
+    whole event. Shaking is what arrives at an address, and it is a different
+    number at every address. The hero wrote a magnitude threshold and called it
+    shaking, and then the beat below it measured the event at M7.2, which is a
+    magnitude reading. Both of the site's earthquake products are real, and the
+    showcase was a picture of neither.
+
+    It is the magnitude product now, all the way through: the rule, the caption
+    under the drawing and the reading that settles it.
+    """
+    hero = PAGE[PAGE.index('class="phone"') : PAGE.index('id="hero-beats"')]
+    assert "magnitude ≥ 5.5 within 50 km" in PAGE, "the rule is not a magnitude rule"
+    assert "TRIGGER  M5.5" in hero, "the caption no longer names the trigger"
+
+    # Nothing anywhere pairs the word shaking with a magnitude threshold.
+    for near in re.findall(r"shaking[^<>]{0,60}", PAGE):
+        assert not re.search(r"\bM\d", near), f"shaking is still measured in magnitude: {near!r}"

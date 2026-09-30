@@ -330,17 +330,20 @@ class WorldDraws:
 def settle(exposure: Exposure, draws: WorldDraws) -> list[float]:
     """The loss this policy takes in each trial.
 
-    Idiosyncratic randomness comes from a stream seeded by the policy's own
-    identifier, so it is the same whatever else the pool holds.
+    Every stream here is seeded by the thing the randomness belongs to: the
+    address, the radius, the station, the flight. None is seeded by the policy
+    identifier, because nothing about what the world does to a building depends
+    on how many contracts have been written on it. Two policies on one address
+    or one aeroplane therefore settle identically, which is what lets the
+    marginal capital of a split policy add up to the marginal capital of the
+    whole.
     """
-    own = random.Random(f"{draws.seed}:{exposure.policy_id}")
-
     if exposure.peril_key == EARTHQUAKE.key:
-        return _settle_earthquake(exposure, draws, own)
+        return _settle_earthquake(exposure, draws)
     if exposure.peril_key == DROUGHT.key:
         return _settle_drought(exposure, draws)
     if exposure.peril_key == FLIGHT_DELAY.key:
-        return _settle_flight(exposure, draws, own)
+        return _settle_flight(exposure, draws)
     if exposure.peril_key == "vehicle_flood":
         return _settle_vehicle(exposure, draws)
     if exposure.peril_key == "storm":
@@ -348,9 +351,7 @@ def settle(exposure: Exposure, draws: WorldDraws) -> list[float]:
     raise ValueError(f"no settlement rule for peril {exposure.peril_key!r}")
 
 
-def _settle_earthquake(
-    exposure: Exposure, draws: WorldDraws, own: random.Random
-) -> list[float]:
+def _settle_earthquake(exposure: Exposure, draws: WorldDraws) -> list[float]:
     """The largest magnitude this circle saw, trial by trial.
 
     Two sources, and they correlate differently. Ruptures come from the shared
@@ -379,6 +380,9 @@ def _settle_earthquake(
 
     # Seeded by the place, not the policy, so co-located cover shares its world.
     local = random.Random(f"{draws.seed}:bg:{latitude:.2f}:{longitude:.2f}")
+    # And so does the thinning that decides which of those events fall inside a
+    # circle smaller than the reference: same address, same radius, same events.
+    thin = random.Random(f"{draws.seed}:bg-keep:{latitude:.4f}:{longitude:.4f}:{radius:g}")
     expected = site.background_rate * draws.years
 
     losses: list[float] = []
@@ -386,7 +390,7 @@ def _settle_earthquake(
         largest = 0.0
         for _ in range(_poisson_draw(local, expected)):
             magnitude = _truncated_gr_magnitude(local, site.b_value)
-            if (keep >= 1.0 or own.random() <= keep) and magnitude > largest:
+            if (keep >= 1.0 or thin.random() <= keep) and magnitude > largest:
                 largest = magnitude
 
         for series in draws.ruptures.values():
@@ -459,7 +463,15 @@ def _settle_shaking(
     from ..perils import shaking as sh
 
     subject = {"latitude": latitude, "longitude": longitude}
-    own = random.Random(f"{draws.seed}:shake:{exposure.policy_id}")
+    # The scatter around the intensity equation is a fact about the ground under
+    # an address, not about a contract written on it. Seeded by the policy, two
+    # covers on the same building felt the same earthquake as two different
+    # intensities: of the trials where either was paid, one in four paid only
+    # one of them. That is the concentration the capital model exists to price,
+    # drawn away. Seeded by the address, co-located cover settles together and
+    # two houses a street apart still feel the same event differently, which is
+    # what the scatter is for.
+    own = random.Random(f"{draws.seed}:shake:{latitude:.4f}:{longitude:.4f}")
     local = random.Random(f"{draws.seed}:shake-bg:{latitude:.2f}:{longitude:.2f}")
     trials = draws.trials
     strongest = [0.0] * trials
@@ -573,9 +585,25 @@ def _settle_drought(exposure: Exposure, draws: WorldDraws) -> list[float]:
     return [curve.payout(series[trial], exposure.limit) for trial in range(draws.trials)]
 
 
-def _settle_flight(
-    exposure: Exposure, draws: WorldDraws, own: random.Random
-) -> list[float]:
+def _settle_flight(exposure: Exposure, draws: WorldDraws) -> list[float]:
+    """How late this flight lands, trial by trial.
+
+    Seeded by the flight rather than the policy. One aeroplane lands at one
+    time, so every cover written on it is paid or not paid together; seeded by
+    the policy, two passengers on the same flight were delayed by different
+    amounts, and a book of covers on one aeroplane looked like a book spread
+    across a timetable. The carrier's bad day is already shared through
+    draws.carrier_shock, which is the correlation between different flights of
+    one airline and a weaker thing than this.
+    """
+    subject = exposure.subject
+    own = random.Random(":".join((
+        f"{draws.seed}", "flight",
+        str(subject.get("flight_number", "")),
+        str(subject.get("departure_date", "")),
+        str(subject.get("origin", "")),
+        str(subject.get("destination", "")),
+    )))
     stats = FLIGHT_DELAY.statistics(exposure.subject)
     shock = draws.carrier_shock.get(stats.carrier)
     common_weight = math.sqrt(CARRIER_SHOCK_WEIGHT)
