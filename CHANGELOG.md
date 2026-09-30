@@ -94,6 +94,20 @@
   asking the conterminous model, which answers for a point six hundred
   kilometres outside its own mesh with a status of success.
 
+- A gap in the published coverage says which place it is.
+
+  The list of places a build could not reach held bare names. Three hundred and
+  eight American names repeat, covering seven hundred and sixty nine of the
+  places this product offers, so a list holding "Warren" did not say which
+  Warren had no curve. That is the same lesson the already-fetched set learned
+  when keying it by name silently skipped the second of every pair, and the gap
+  list was the one place it had not been applied.
+
+  It cost a wrong answer while settling this release's declared depth: reading
+  the gaps as though a name were a key put some of them at ranks past 1,500 in
+  a run that only asked for the first 1,500. Each entry now carries its
+  coordinate.
+
 - Two passengers on one aeroplane were delayed by different amounts.
 
   The same seed, in the same place: a flight's delay came from a stream keyed

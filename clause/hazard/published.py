@@ -355,6 +355,15 @@ def build(code: str, *, limit: int | None = None,
         return (round(float(latitude), 4), round(float(longitude), 4))
 
     already = {where(row["latitude"], row["longitude"]) for row in rows}
+
+    # A gap is named by its coordinate as well as its name, for the reason the
+    # already-fetched set is keyed by coordinate: three hundred and eight
+    # American names repeat. A list holding "Warren" does not say which Warren
+    # is missing, and reading it as though it did gave a wrong answer to the
+    # question of how deep the delivered coverage actually goes.
+    def gap(name: str, latitude: float, longitude: float) -> str:
+        return f"{name} ({latitude:.4f}, {longitude:.4f})"
+
     missed: list[str] = []
     offered = places_of(code)
     # What this run asks for, and what the file keeps, are different things. A
@@ -376,7 +385,7 @@ def build(code: str, *, limit: int | None = None,
             curve = fetch(latitude, longitude)
         except (urllib.error.URLError, TimeoutError, Busy) as error:
             print(f"  {code} {name}: {type(error).__name__} {error}", file=sys.stderr)
-            missed.append(name)
+            missed.append(gap(name, latitude, longitude))
             continue
         except Exception as error:      # noqa: BLE001 - one bad mesh, not the run
             # A publisher's answer is data, and data surprises. Whatever one
@@ -384,11 +393,11 @@ def build(code: str, *, limit: int | None = None,
             # have already been fetched and the run is worth finishing: the
             # place is named as missed and the build carries on.
             print(f"  {code} {name}: {type(error).__name__} {error}", file=sys.stderr)
-            missed.append(name)
+            missed.append(gap(name, latitude, longitude))
             continue
         if not curve:
             print(f"  {code} {name}: no curve", file=sys.stderr)
-            missed.append(name)
+            missed.append(gap(name, latitude, longitude))
             continue
         row = {"name": name, "latitude": round(latitude, 4),
                "longitude": round(longitude, 4), "curve": curve}

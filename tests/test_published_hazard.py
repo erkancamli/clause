@@ -759,3 +759,34 @@ def test_a_repeated_name_does_not_skip_the_second_place(monkeypatch, tmp_path) -
     ])
     shrunk = pub.build("JP", keep=built["points"])
     assert [r["latitude"] for r in shrunk["points"]] == [37.22], shrunk["points"]
+
+
+def test_a_gap_says_which_place_it_is(monkeypatch, tmp_path) -> None:
+    """Two places of one name are two gaps, and the list has to tell them apart.
+
+    The missed list held bare names. Three hundred and eight American names
+    repeat, covering seven hundred and sixty nine of the places this product
+    offers, so a list holding "Warren" did not say which Warren had no curve.
+    That is the same reason the already-fetched set is keyed by coordinate
+    rather than by name, and the gap list was the one place the lesson had not
+    been applied. Reading it as though a name were a key gave a wrong answer to
+    how deep the delivered coverage goes.
+    """
+    monkeypatch.setattr(pub, "OUT", tmp_path / "published.json")
+
+    def nothing(_latitude, _longitude):
+        raise pub.Busy("the publisher is not answering")
+
+    places = [("Warren", 42.4775, -83.0277, 139_000),
+              ("Warren", 41.2375, -80.8184, 39_000)]
+    monkeypatch.setattr(pub, "places_of", lambda _code: places)
+    monkeypatch.setitem(pub.SOURCES["JP"], "fetch", nothing)
+    monkeypatch.setitem(pub.SOURCES["JP"], "pause", 0.0)
+
+    built = pub.build("JP")
+    assert len(built["points"]) == 0
+    assert len(built["missed"]) == 2
+    assert len(set(built["missed"])) == 2, built["missed"]
+    for entry in built["missed"]:
+        assert entry.startswith("Warren (")
+    assert "Warren (42.4775, -83.0277)" in built["missed"], built["missed"]
