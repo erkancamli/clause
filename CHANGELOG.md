@@ -216,6 +216,39 @@
   The price did not change. Only what the quote says about itself did, and it
   was saying something untrue.
 
+- One quote, two amounts: 49,228 USDC on one screen and 49,227 on the next.
+
+  What a home is worth to rebuild is a float. The line a buyer reads on the "at
+  risk" step printed it through `money()`, which rounds to the nearest whole
+  number above a thousand. The same float became the cover ceiling, the top
+  preset and the figure in the contract through `Math.floor`. A 120 m² İstanbul
+  flat built in 2005 lands between two whole numbers, so the buyer was shown one
+  amount, agreed to it, and then saw a different one on every screen after it,
+  on the desktop and on the phone, in one uninterrupted session.
+
+  Neither number was wrong by much and that is what made it bad: nothing looked
+  broken, so nothing would have been reported. The value is rounded down once
+  now, where it is worked out, and everything downstream carries that same whole
+  number.
+
+- The button said three steps and the flow has five.
+
+  "Get cover in three steps" is the most clicked thing on the site, and it was
+  wrong about the only thing it promises. The stepper names its own steps, What,
+  Where, At risk, How much, Confirm, and the routes run from `#/cover` to
+  `#/cover/5`. The test reads the count off the stepper, so the button and the
+  flow cannot drift apart again.
+
+- The showcase policy on the home page was written on two measurements at once.
+
+  "if shaking ≥ M5.5 within 50 km" names a magnitude threshold and calls it
+  shaking. Magnitude is the size of the earthquake at its source, one number for
+  the whole event; shaking is what arrives at an address and is different at
+  every address. Both are real products here, and the picture was of neither.
+  The beat below it settles the rule with an M7.2 reading, which is a magnitude
+  reading, so the rule is the magnitude one now, all the way through, in all six
+  languages.
+
 ## 1.46.0, 29 September 2026
 
 - A risk the book never feels was written for nothing.
