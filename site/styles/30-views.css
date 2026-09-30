@@ -1,0 +1,425 @@
+/* ---------------- views ---------------- */
+.view{display:none}
+.view.on{display:block;animation:fade .38s cubic-bezier(.2,.7,.2,1)}
+/* Except the opening one, which the stylesheet below already put on the
+   screen. Fading in something the reader has been looking at for a second
+   is a blink, not an entrance. */
+.view.on.settled{animation:none}
+/* Every screen is display:none until the router has run, and the router is
+   at the bottom of a page that is most of a megabyte: on a throttled phone
+   the headline arrived four seconds after the html did, and the browser
+   took the connection strip for the largest thing on the page because it
+   was the only thing on it. The route is in the address from the first byte, so
+   the opening screen is chosen here, by the stylesheet, and is painted while
+   the script is still being read. show() drops the attribute on its first run. */
+html[data-first="/"] #view-home,
+html[data-first="/cover"] #view-cover,
+html[data-first="/mine"] #view-mine,
+html[data-first="/profile"] #view-profile,
+html[data-first="/how"] #view-how,
+html[data-first="/pool"] #view-pool,
+html[data-first="/proof"] #view-proof,
+html[data-first="/insurers"] #view-insurers,
+html[data-first="/privacy"] #view-privacy,
+html[data-first="/faq"] #view-faq,
+html[data-first="/rules"] #view-rules,
+html[data-first="/company"] #view-company,
+html[data-first="/admin"] #view-admin{display:block}
+@media (prefers-reduced-motion:no-preference){
+  /* An entrance is 300ms and the queue behind it is three, not six. At 600
+     with a 70ms stagger the sixth card in a row finished a full second after
+     it came into view, which is not an arrival, it is a wait: Material's own
+     duration tokens put an element entering a screen at 400 to 500ms at the
+     outside, and this is smaller than the things those were written for. */
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .3s cubic-bezier(.2,.7,.2,1),transform .3s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--i,0)*50ms)}
+  .reveal.in{opacity:1;transform:none}
+  /* The step cards are cells of one joined block, and that block clips its
+     own corners. A cell sliding up inside it arrives with its bottom cut
+     off, which is worse than not sliding, so here they only fade. */
+  .flowline > .reveal{transform:none}
+  html{scroll-behavior:smooth}
+}
+header.top{transition:box-shadow .25s,border-color .25s}
+header.top.is-scrolled{box-shadow:0 8px 24px -16px rgba(12,17,22,.35);border-bottom-color:transparent}
+::selection{background:var(--signal);color:#fff}
+/* The trigger, on every press that moves you on: rings spread from the
+   point pressed the way they spread from an epicentre on the home page, and a
+   light crosses the button. Nothing of it for anyone who asked for less motion. */
+.tburst{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;z-index:200}
+.tburst i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;border:2px solid var(--signal);opacity:0;
+  animation:tbRing .8s cubic-bezier(.15,.7,.2,1) forwards}
+.tburst i:nth-child(2){animation-delay:.11s}
+.tburst i:nth-child(3){animation-delay:.22s;border-color:var(--settled)}
+.tburst b{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--signal);
+  box-shadow:0 0 12px 2px var(--signal);animation:tbDot .55s ease-out forwards}
+@keyframes tbRing{0%{transform:scale(.3);opacity:.95}100%{transform:scale(7);opacity:0}}
+@keyframes tbDot{0%{transform:scale(1);opacity:1}100%{transform:scale(2.4);opacity:0}}
+.btn-primary,.mainnav a,.pick{position:relative;overflow:hidden}
+.btn.fired::after,.mainnav a.fired::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.45) 50%,transparent 75%);
+  transform:translateX(-100%);animation:tbSweep .65s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes tbSweep{to{transform:translateX(100%)}}
+input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0 4px var(--signal-wash)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pad{padding-block:clamp(34px,5vw,58px)}
+
+/* Whether this page is talking to a live protocol or running on its own. Said
+   plainly, because a demonstration presented as a live system is a lie. */
+.linkstate{padding:6px var(--gutter);font-size:12.5px;line-height:19px;display:flex;gap:9px;
+  align-items:center;border-bottom:1px solid var(--edge);background:var(--sunk);color:var(--ink-2)}
+/* The strip cannot say whether the protocol is live until it has asked, and
+   the asking takes a moment. Its one line is held open from the first paint
+   so that the answer arrives into a space rather than pushing the page down:
+   6 + 19 + 6 and the rule underneath. */
+.statusdock{min-height:32px}
+.linkstate b{color:var(--ink);font-weight:600}
+/* On a phone the state bar is one line, cut short with an ellipsis, rather
+   than three lines above the headline. */
+@media (max-width:640px){.linkstate:not(.langnote){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}}
+.linkstate .pip{width:7px;height:7px;border-radius:50%;flex:none;background:var(--hold)}
+.linkstate.live .pip{background:var(--settled);animation:blink 2.2s infinite}
+.linkstate.offline .pip{background:var(--ink-3)}
+
+/* search */
+.searchbox{position:relative}
+.searchbox input{width:100%;padding:13px 15px;border-radius:var(--r);border:1px solid var(--edge-2);
+  background:var(--panel);color:var(--ink);font-family:var(--sans);font-size:15.5px}
+.results{display:grid;gap:8px;margin-top:10px}
+.empty{padding:14px 2px;font-size:14px;color:var(--ink-3)}
+
+/* my cover */
+.holding{border-radius:12px;overflow:hidden;box-shadow:var(--lift-1),var(--hairline);display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r);overflow:hidden}
+.holding > div{background:var(--panel);padding:16px}
+.hrow{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  background:var(--panel);padding:15px 16px}
+.hrow .who{font-weight:600;font-size:15px}
+.hrow .sub{font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.pill{padding:3px 9px;border-radius:999px;font-size:11px;font-family:var(--mono);
+  letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.pill.active{background:var(--hold-wash);color:var(--hold)}
+.pill.paid{background:var(--settled-wash);color:var(--settled)}
+.pill.lapsed,.pill.cancelled{background:var(--sunk);color:var(--ink-3)}
+.pill.expired{background:var(--signal-wash);color:var(--signal-ink)}
+.pill.ok,.pill.agreed{background:var(--settled-wash);color:var(--settled)}
+.pill.no,.pill.disputed,.pill.no_quorum{background:var(--signal-wash);color:var(--signal-ink)}
+
+/* declaring what is at risk */
+.field{display:grid;gap:8px}
+.field .label{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.field .label .val{font-family:var(--mono);font-size:13px;color:var(--ink);
+  letter-spacing:0;text-transform:none}
+.dlg-input,#country,.field select{width:100%;padding:13px 15px;border-radius:12px;
+  box-shadow:var(--sunk-in);transition:border-color .18s,box-shadow .18s,background .18s;
+  border:1px solid var(--edge-2);background-color:var(--panel);color:var(--ink);
+  font:inherit;font-size:15px;appearance:none;-webkit-appearance:none}
+.dlg-input::placeholder{color:var(--ink-3);font-style:italic}
+.dlg-input:hover,#country:hover,.field select:hover{border-color:var(--edge-2)}
+.dlg-input:focus,#country:focus,.field select:focus{outline:none;border-color:var(--signal-ink);
+  box-shadow:var(--sunk-in),0 0 0 4px var(--signal-wash)}
+.dlg-input:focus-visible,#country:focus-visible,.field select:focus-visible{outline:none}
+#country,.field select{background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+  linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 19px) calc(50% + 1px),calc(100% - 14px) calc(50% + 1px);
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:40px}
+
+/* proof */
+/* The register: what the chain decided last, in the order it decided it. The
+   page used to open with an empty box asking for a policy id, which only
+   somebody who already had one could answer. A row is a card on a phone and a
+   line in a ledger on a desk, because four cards in a three column grid leave
+   one of them standing alone and a register is a list, not a gallery. */
+.register{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
+.reg{display:grid;gap:11px;padding:16px 18px;align-content:start}
+.reg + .reg{border-top:1px solid var(--edge)}
+.reg-who{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  flex-wrap:wrap}
+/* A policy id is a link of its own in its row, not one inside a sentence,
+   so it has to be big enough to hit: WCAG 2.5.8 wants 24 by 24. */
+/* The register's two halves, and the button that chooses between them. Not a
+   tab bar: a tab bar says these are different places, and these are the same
+   place read two ways. The count sits on the button so that choosing one half
+   never hides how large the other is. */
+.sieve{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.sv{display:inline-flex;align-items:baseline;gap:8px;cursor:pointer;
+  font:inherit;font-size:13.5px;color:var(--ink-2);background:var(--panel);
+  border:1px solid var(--edge-ctl);border-radius:999px;padding:8px 15px;
+  min-height:36px;transition:color .16s ease,border-color .16s ease,background .16s ease}
+.sv:hover{color:var(--ink);border-color:var(--ink-3)}
+.sv .n{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sv.on{color:var(--signal-on-fill);background:var(--signal-fill);border-color:var(--signal-fill)}
+.sv.on .n{color:var(--signal-on-fill);opacity:.82}
+.sv:focus-visible{outline:2px solid var(--signal-line);outline-offset:2px}
+.reg-id{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none;
+  display:inline-flex;align-items:center;min-height:24px}
+.reg-id:hover{text-decoration:underline}
+.reg-what{display:grid;gap:8px;min-width:0}
+.reg-where{font-size:14px;color:var(--ink-2)}
+.reg-rule{font-family:var(--mono);font-size:12px;color:var(--ink-3);background:var(--sunk);
+  border:1px solid var(--edge);border-radius:var(--r-sm);padding:8px 10px;
+  line-height:1.7;overflow-wrap:anywhere}
+.reg-out{display:grid;gap:2px;min-width:0}
+.reg-out b{font-family:var(--display);font-size:19px;font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.reg-out span{font-size:12.5px;color:var(--ink-3)}
+/* A payment is the loud figure in its row; "nothing paid" sits in the same
+   place and the same size, so the column still reads as one column, but it
+   does not shout. On a page where most rows did not pay, it otherwise does
+   all the shouting. */
+.reg-out.quiet b{color:var(--ink-2);font-weight:600}
+.reg-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  border-top:1px solid var(--edge);padding-top:11px;flex-wrap:wrap}
+.reg-foot .mono{font-size:11.5px;color:var(--ink-3)}
+@media (min-width:900px){
+  .reg{grid-template-columns:150px minmax(0,1fr) 200px 182px;gap:24px;
+    align-items:center;padding:18px 20px}
+  .reg-who{flex-direction:column;align-items:flex-start;gap:7px}
+  .reg-foot{border-top:0;padding-top:0;flex-direction:column;align-items:flex-end;gap:8px}
+}
+.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--edge);border:1px solid var(--edge);border-radius:var(--r);
+  overflow:hidden}
+.figures > div{background:var(--panel);padding:16px 18px;display:grid;gap:3px;min-width:0}
+/* Two columns on a phone and a figure that can run to ten digits: the type
+   has to come down with the column or the number leaves the cell. */
+.figures b{font-family:var(--display);font-size:clamp(17px,4.4vw,28px);font-weight:700;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;overflow-wrap:anywhere}
+.figures span{font-size:13px;color:var(--ink-3)}
+.lookup{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r);
+  padding:16px 18px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;
+  justify-content:space-between}
+.lookup .txt{display:grid;gap:2px;min-width:0}
+.lookup .txt b{font-family:var(--display);font-size:15px;font-weight:600}
+.lookup .txt span{font-size:13px;color:var(--ink-3)}
+.lookup .go{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lookup input{font:inherit;font-family:var(--mono);font-size:13.5px;padding:9px 12px;
+  border-radius:var(--r-sm);background:var(--panel);color:var(--ink);
+  border:1px solid var(--edge-ctl);width:160px;min-width:0}
+.proof-open{display:grid;gap:18px}
+/* The three questions. Somebody deciding whether to trust this asks them in a
+   fixed order -- is there money, who decides, has it paid anyone -- and the
+   page answers in that order, one band each, rather than opening with the
+   answer the protocol finds most interesting. The number is a counter, not
+   decoration: it tells you there are three and which one you are in. */
+.qband{display:grid;gap:14px;padding-top:26px;border-top:1px solid var(--edge)}
+.qband:first-child{padding-top:0;border-top:0}
+.qhead{display:flex;gap:14px;align-items:center}
+.qnum{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink-3);
+  width:28px;height:28px;border:1px solid var(--edge);border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  background:var(--panel)}
+.qhead h2{font-size:clamp(19px,2.6vw,23px);line-height:1.25;letter-spacing:-.01em;margin:0}
+.qlead{font-size:14.5px;line-height:1.6;color:var(--ink-2);max-width:var(--measure);margin:-4px 0 0}
+.qbody{display:grid;gap:14px}
+/* The counter hangs in the margin on a desk, where there is a margin to hang
+   it in. On a phone that indent costs the sentence beside it a tenth of the
+   screen, so there the text starts at the gutter like everything else. */
+@media (min-width:720px){.qbody,.qlead{margin-left:42px}}
+/* A figure whose meaning is the comparison, not the number: capital against
+   what the standard asks of it. */
+.ratio{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.ratio b{font-family:var(--display);font-size:clamp(28px,5vw,40px);font-weight:700;
+  letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.ratio span{font-size:14px;color:var(--ink-2)}
+.vrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+  padding:11px 14px;background:var(--panel);font-family:var(--mono);font-size:12px}
+.vrow .key{color:var(--ink-3);font-size:10.5px}
+.vrow .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+/* A banner is exempt from the reading measure only while it is one line an
+   eye can take in. This one held two sentences and twenty three words across
+   154 characters, which is not a banner; it is a paragraph that had been
+   told not to wrap. Left alone in 1.32.3 on the first half of that rule
+   without measuring the second. */
+.verdict{padding:14px 16px;border-radius:var(--r);font-size:14px;line-height:1.5}
+.verdict > p{max-width:var(--measure)}
+.verdict.agreed{background:var(--settled-wash);box-shadow:inset 3px 0 0 var(--settled)}
+.verdict.disputed{background:var(--signal-wash);box-shadow:inset 3px 0 0 var(--signal)}
+.verdict.no_quorum{background:var(--hold-wash);box-shadow:inset 3px 0 0 var(--hold)}
+.verdict.ok{background:var(--settled-wash);box-shadow:inset 3px 0 0 var(--settled)}
+.verdict.no{background:var(--signal-wash);box-shadow:inset 3px 0 0 var(--signal)}
+.verdict p{margin-top:9px}
+.verdict p:first-child{margin-top:0}
+.verdict .vrow{background:none;padding:0;margin-bottom:10px;
+  grid-template-columns:auto 1fr;font-family:var(--sans);font-size:13px;color:var(--ink-2)}
+/* The quietest ink is for what is genuinely incidental. This class is not:
+   it carries "the English text is the binding one", "anything wrong can be
+   changed before you pay", what the company will ask to see. A hundred and
+   eighty-two places, and it was the smallest text on the site set in the
+   faintest of three tiers — the worst pairing available. Measured at 4.86:1
+   in light, which clears AA and is the floor of it. The tiers themselves are
+   unchanged; this stops using the third one for sentences that carry
+   obligations. 4.86 → 6.32 in light, 5.49 → 6.57 in dark. */
+/* The explaining voice of the whole site -- 188 places -- so its size is the
+   single measurement that moves the most text. 12.5px was under every
+   reading tier APCA defines; 13.5 with a longer line is not the standard's
+   ideal either (secondary prose at this size wants a near-black ink) but it
+   is a measured step toward it rather than away. */
+.fine,.verdict .fine{font-size:13.5px;color:var(--ink-2);line-height:1.6}
+#country-why{margin-top:8px}
+.lamp.off{background:var(--ink-3);animation:none}
+
+/* Rider */
+.mascot{width:34px;height:27px;flex:none;color:var(--signal-ink);overflow:visible}
+.mascot .figure{color:var(--settled)}
+/* The assistant sits above the price bar rather than on top of the button
+   that buys the cover; the flow raises it while that bar is on screen. */
+body.has-pricebar .rider-open{bottom:calc(20px + var(--pricebar-h,0px))}
+body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:min(660px,calc(100vh - 60px - var(--pricebar-h,0px)))}
+.rider-open{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;gap:10px;
+  transition:bottom .25s cubic-bezier(.2,.7,.2,1);
+  align-items:center;padding:10px 16px 10px 12px;border-radius:999px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--edge-2);box-shadow:var(--shadow);
+  color:var(--ink);font:inherit;font-size:14px;font-weight:500}
+.rider-open:hover{border-color:var(--signal-ink)}
+.rider-open .mascot{width:30px;height:24px}
+/* Rider is alive: a pulse runs the line, the figure rides it, and the
+   header carries a wave that quickens while Rider is thinking. All of it
+   is CSS, none of it blocks anything, and it stops for anyone who asked
+   the browser for less motion. */
+.mascot .pulse{fill:none;stroke:var(--signal);stroke-dasharray:14 100;stroke-dashoffset:114;animation:ride 2.6s linear infinite}
+@keyframes ride{to{stroke-dashoffset:0}}
+.mascot .figure{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}40%{transform:translateY(-1.4px)}60%{transform:translateY(.7px)}}
+.rider-open:hover .pulse,.rider.thinking .pulse{animation-duration:.9s}
+.rider-open:hover .figure,.rider.thinking .figure{animation-duration:.9s}
+.rider header .wave{position:relative;flex:0 0 auto;margin-left:auto;height:30px;width:96px;opacity:.55;pointer-events:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
+.rider header .tag{margin-left:0}
+.rider header .wave i{display:block;position:absolute;bottom:3px;width:2px;height:26px;background:var(--signal);border-radius:1px;
+  transform-origin:bottom;transform:scaleY(.2);animation:swell 2.6s ease-in-out infinite}
+@keyframes swell{0%,100%{transform:scaleY(.15)}50%{transform:scaleY(1)}}
+.rider.thinking header .wave i{animation-duration:.85s}
+.rider.thinking header .wave{opacity:.85}
+@media (max-width:760px){.rider-open{bottom:calc(64px + env(safe-area-inset-bottom,0px));right:12px;padding:9px 12px 9px 10px}
+  .rider-open span{display:none}
+  body.has-pricebar .rider-open{bottom:calc(64px + var(--pricebar-h,0px) + env(safe-area-inset-bottom,0px))}}
+.rider{position:fixed;right:20px;bottom:20px;z-index:90;width:min(430px,calc(100vw - 32px));
+  max-height:min(660px,calc(100vh - 40px));display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--edge-2);border-radius:16px;
+  box-shadow:var(--shadow)}
+.rider header{display:flex;gap:12px;align-items:center;padding:14px 14px 12px 16px;
+  border-bottom:1px solid var(--edge)}
+.rider header .who{display:flex;gap:9px;align-items:center;font-family:var(--display);
+  font-size:16px}
+.rider header .tag{font-size:11px;color:var(--ink-3);margin-left:auto;text-align:right;
+  max-width:16ch;line-height:1.3}
+.rider .thread{flex:1;overflow-y:auto;padding:16px;display:grid;gap:14px;
+  align-content:start;font-size:14.5px;line-height:1.6}
+.rider .msg{max-width:92%}
+.rider .msg.me{justify-self:end;background:var(--sunk);border:1px solid var(--edge);
+  padding:9px 13px;border-radius:12px 14px 3px 14px}
+.rider .msg.it{color:var(--ink-2)}
+.rider .msg.it b{color:var(--ink)}
+.rider .msg.note{font-size:12.5px;color:var(--ink-3);border-left:2px solid var(--edge-2);
+  padding-left:11px}
+.rider .used{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:7px}
+.rider .ask{display:flex;gap:8px;padding:12px;border-top:1px solid var(--edge)}
+.rider .ask input{flex:1;padding:10px 13px;border-radius:8px;border:1px solid var(--edge-2);
+  background:var(--ground);color:var(--ink);font:inherit;font-size:14px}
+.rider .ask input:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+.rider .foot{padding:0 14px 12px;font-size:11.5px;color:var(--ink-3);line-height:1.5}
+@media (max-width:760px){.rider{right:8px;left:8px;bottom:8px;width:auto;
+  max-height:calc(100vh - 16px)}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.two{grid-template-columns:1fr}}
+.verify{padding:18px;display:grid;gap:12px}
+.vrule{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+  padding:12px 0;border-top:1px solid var(--edge)}
+.vrule:first-of-type{border-top:0}
+.vrule .mark{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  font-size:12px;background:var(--sunk);color:var(--ink-3);flex:none}
+.vrule.done .mark{background:var(--settled-wash);color:var(--settled)}
+.vrule .t{display:block;font-size:14.5px;font-weight:500}
+.vrule .s{display:block;font-size:12.5px;color:var(--ink-3);margin-top:3px;
+  max-width:52ch;line-height:1.5}
+/* Looking a policy up and the state of the public chain are peers, not a
+   sequence, so on a wide screen they sit side by side. Stacked, each in a
+   560px column, they left the right half of the page empty. */
+.proof-landing{display:grid;gap:18px;align-items:start;max-width:640px}
+@media (min-width:1000px){.proof-landing{grid-template-columns:minmax(0,1fr) minmax(0,1fr);max-width:none}}
+
+.cov{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r);overflow:hidden}
+/* minmax(0,…) rather than a bare fr: a grid track sized in fr still keeps
+   an automatic minimum of its content, so one long line of company names
+   pushed the track past the table's edge and squeezed the country column
+   down to a word a line. With the floor at zero the text wraps instead. */
+.cov > div{background:var(--panel);padding:14px 16px;display:grid;
+  grid-template-columns:minmax(0,2.2fr) minmax(0,2fr) minmax(0,1.4fr) auto;
+  gap:14px;align-items:center;font-size:13.5px}
+.cov > div > *{min-width:0}
+.cov .head{background:var(--sunk);font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.cov b{font-weight:600}
+/* Not .who: that is the sign-in pill in the header, a 34px inline-flex
+   capsule, and this cell was inheriting its whole shape, so a list of
+   company names could neither wrap nor stay inside its own column. */
+.cov .licensed{color:var(--ink-2)}
+@media (max-width:700px){.cov > div{grid-template-columns:1fr auto}
+  .cov .licensed,.cov .auth{display:none}}
+.co-card{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.co-card > div{background:var(--panel);padding:14px 16px}
+.co-head{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.co-head .nm{font-family:var(--display);font-size:16.5px;font-weight:600}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.stat{padding:14px 16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+.stat b{display:block;font-size:20px;font-family:var(--display);color:var(--ink)}
+.stat span{font-size:12.5px;color:var(--ink-3)}
+.stats-lg .stat{padding:18px 20px;position:relative;overflow:hidden;transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s}
+.stats-lg .stat::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--signal),var(--settled))}
+.stats-lg .stat b{font-size:clamp(24px,2.6vw,32px);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-bottom:4px}
+.stats-lg .stat b small{font-size:.5em;color:var(--ink-3);font-weight:600}
+.stats-lg .stat:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px}
+.tbl th{text-align:left;font-weight:600;font-size:12px;color:var(--ink-3);padding:10px 12px;border-bottom:1px solid var(--edge);white-space:nowrap}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--edge);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--edge);margin:6px 0 18px;overflow-x:auto}
+.tabs button{border:0;background:none;font:inherit;font-size:14.5px;font-weight:500;color:var(--ink-2);
+  padding:10px 14px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--signal-ink)}
+.op-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:13px 16px;
+  border:1px solid var(--edge);border-radius:var(--r);background:var(--sunk);
+  font-size:13.5px;margin-bottom:16px}
+.op-bar .who{font-weight:600}
+.op-bar .sp{margin-left:auto}
+.op-check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;
+  color:var(--ink-2);line-height:1.5;cursor:pointer}
+.op-check input{margin-top:3px;width:16px;height:16px;flex:none;accent-color:var(--signal-ink)}
+.op-acts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.op-trail{font-size:12.5px;color:var(--ink-3);font-family:var(--mono);line-height:1.7}
+
+/* Screen rhythm and forms. */
+.view.on{animation:fade var(--motion-screen) var(--ease-enter)}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.reveal{transition-duration:var(--motion-screen)!important;
+  transition-timing-function:var(--ease-enter)!important}
+.tburst{display:none}
+.btn.fired::after,.mainnav a.fired::after{display:none}
+.pad{padding-block:clamp(64px,7vw,96px)}
+.searchbox input,.dlg-input,#country,.field select,.rider .ask input{
+  min-height:50px;border-radius:10px}
+.field{gap:9px}
+.field .label{font-size:14px}
+.figures{border-radius:12px;background:transparent;gap:0}
+.figures > div{padding:20px;border-right:1px solid var(--edge)}
+.figures > div:last-child{border-right:0}
+.figures b{font-size:clamp(28px,3vw,40px);font-weight:600}
+.register,.holding{box-shadow:none}
+.stat{border-radius:12px}
+.stats-lg .stat::before{height:2px;background:var(--signal)}
+.stats-lg .stat:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}
+.rider-open{min-height:44px;box-shadow:var(--lift-2)}
+@media (max-width:760px){
+  .pad{padding-block:48px 72px}
+  .figures{grid-template-columns:1fr}
+  .figures > div{border-right:0;border-bottom:1px solid var(--edge)}
+  .figures > div:last-child{border-bottom:0}
+}
+
+

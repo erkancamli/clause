@@ -1,0 +1,411 @@
+/* ---------------- home ---------------- */
+.home-hero{position:relative;padding-block:clamp(52px,7vw,96px) clamp(96px,11vw,144px)}
+.hero-fx-clip{position:absolute;inset:0 0 auto 0;height:min(100svh,900px);
+  overflow:hidden;pointer-events:none;z-index:0}
+.hero-fx-clip::before{content:"";display:none;position:absolute;inset:-140px -12% 0;pointer-events:none;
+  background:radial-gradient(52% 55% at 22% 4%,var(--signal-wash),transparent 70%),
+             radial-gradient(40% 50% at 82% 22%,var(--settled-wash),transparent 72%),
+             radial-gradient(34% 40% at 58% 78%,var(--hold-wash),transparent 74%)}
+@media (prefers-reduced-motion:no-preference){
+  .hero-fx-clip::before{animation:heroDrift 18s ease-in-out infinite alternate}
+  @keyframes heroDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-2%,1.5%,0) scale(1.06)}}
+}
+.home-hero .hero-text h1{font-size:clamp(64px,6vw,80px);letter-spacing:-.045em;
+  line-height:.98;max-width:11ch}
+.stage .phone{filter:none}
+/* The hero arrives in order: the headline, the sentence, the buttons, the marks. */
+@media (prefers-reduced-motion:no-preference){
+  .home-hero .hero-text>*{animation:fadeUp .7s cubic-bezier(.2,.7,.2,1) both}
+  .home-hero .hero-text>*:nth-child(2){animation-delay:.08s}
+  .home-hero .hero-text>*:nth-child(3){animation-delay:.16s}
+  .home-hero .hero-text>*:nth-child(4){animation-delay:.24s}
+  /* The headline rises but does not fade. There is nothing on the screen for
+     it to fade in from, it is the first thing a reader wants, and a browser
+     measuring how soon a page shows its largest thing refuses to count
+     anything first painted at zero opacity: the fade cost the reading and
+     the measurement both, and bought a seventh of a second of elegance. */
+  .home-hero .hero-text>h1{animation-name:riseUp}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes riseUp{from{transform:translateY(14px)}to{transform:none}}
+}
+.hero-fx-clip::after{content:"";display:none;position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:54px 54px;
+  -webkit-mask-image:radial-gradient(760px 380px at 28% 12%,#000,transparent 74%);
+  mask-image:radial-gradient(760px 380px at 28% 12%,#000,transparent 74%)}
+.home-hero .wrap{position:relative;z-index:1}
+/* Readings arriving: small clusters of marks that appear, drift and
+   dissolve behind the hero, the way data reaches the protocol. Drawn on a
+   canvas, a dozen at a time, paused when unseen, absent for anyone who
+   asked the browser for less motion. */
+.home-hero>.wrap{position:relative;z-index:1}
+.hero-fx-clip .readings{display:none;position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr;align-items:start;gap:clamp(20px,4vw,48px)}
+.hero-text{display:grid;gap:20px;justify-items:start;text-align:left}
+.hero-text h1{max-width:13ch}
+.hero-text .hero-cta,.hero-text .trust{justify-content:flex-start}
+@media (max-width:860px){
+  .hero-text{justify-items:center;text-align:center}
+  .hero-text .hero-cta,.hero-text .trust{justify-content:center}
+}
+@media (min-width:861px){
+  .hero-grid{grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"text" "art" "beats"}
+  @media (min-width:1300px){
+    /* The reading is upright again and it stays while the steps go past it.
+       A row played once and then held the whole picture, which is a picture of
+       the end; upright and pinned it answers whichever step is being read, and
+       the reader moves it. */
+    .hero-grid{grid-template-columns:minmax(0,1fr) minmax(300px,380px);
+      grid-template-areas:"text text" "beats art";
+      column-gap:clamp(28px,3vw,56px)}
+  }
+  /* Past a point the words stop getting wider -- a heading is capped at 13ch
+     and a paragraph at 52ch -- and stretching the instrument to fill the rest
+     only made it emptier inside, because its drawing has a fixed frame. So
+     the hero stops growing and centres itself, and the width the page gained
+     goes to what below it can actually use: the cards, the registers, the
+     tables. A section is not better for being wider; a grid of five is. */
+  /* The words stop widening at about 52 characters, because past that a line
+     is harder to read rather than easier. The instrument does not: it is a
+     reading taken over time and time is the long axis, so it takes the row. */
+  .hero-text{max-width:none}
+  @media (min-width:1300px){
+    /* The choosing goes where the space was. The heading is two lines and the
+       column under it was empty all the way down, while the five covers this
+       page exists to sell sat in a band below the fold. Stacked beside the
+       words they are the first thing on the screen and the heading has
+       something under it. */
+    /* Three rows, and the last one takes the slack. The covers are taller than
+       the words beside them, and without somewhere for that height to go it
+       landed between the buttons and the marks under them -- 370px of nothing
+       in the middle of the one column that had something to say. */
+    .hero-text{display:grid;grid-template-columns:minmax(360px,.92fr) minmax(0,1.08fr);
+      grid-template-rows:auto auto 1fr;
+      column-gap:clamp(32px,4vw,72px);align-items:start}
+    .hero-text h1{grid-column:1;grid-row:1;margin:0}
+    .hero-text .choose{grid-column:1;grid-row:2 / span 2;margin-top:clamp(18px,2.4vw,30px)}
+    /* Centred in the column it is given. Left against its edge, the buttons
+       took 409px of a 678px column and the marks under them 328, so a third of
+       the column stood empty beside both and the block read as pushed aside
+       rather than placed. */
+    .hero-text > p{grid-column:2;grid-row:1;max-width:46ch;margin:0 auto;text-align:center}
+    .hero-text .hero-cta{grid-column:2;grid-row:2;align-self:start;justify-self:center;
+      justify-content:center;margin:clamp(18px,2.4vw,30px) 0 0}
+    .hero-text .trust{grid-column:2;grid-row:3;margin-top:14px;align-self:start;
+      justify-self:center;justify-content:center}
+
+    /* One under another, and each one a row rather than a card: the picture
+       becomes a thumbnail, the name and the line it pays on sit beside it. A
+       card with a banner across it is 200px tall and five of them is a
+       thousand, which is not a column, it is a page. */
+    .choose h2{font-size:clamp(15px,1.1vw,17px);margin-bottom:10px;color:var(--ink-2)}
+    .choose .picks{grid-template-columns:minmax(0,1fr);gap:8px}
+    .choose .pick{flex-direction:row;align-items:center;gap:14px;padding:10px 14px}
+    .choose .pick .banner{flex:none;width:96px;height:36px;max-height:none;
+      border-radius:6px;overflow:hidden;margin:0}
+    .choose .pick .banner svg{width:100%;height:100%;display:block}
+    .choose .pick h3{font-size:15.5px;margin:0}
+    .choose .pick p{font-size:12.5px;margin:0;color:var(--ink-3)}
+    .choose .pick .from{display:none}
+    .choose .pick .txt{display:grid;gap:2px;min-width:0}
+  }
+  .hero-flow{display:contents}
+  .hero-text{grid-area:text}
+  .beats{grid-area:beats}
+  .hero-art{grid-area:art}
+}
+
+/* ---------------- one policy, all the way through ----------------
+   The home page used to run a six second loop: it told the whole story and
+   then forgot it, every six seconds, whether or not anybody was looking.
+   Now the reader moves it. Each step adds to the picture instead of
+   replacing it, because that is what actually happens to a policy: the rule
+   does not stop existing when the ground moves, and the reading does not
+   stop existing when it pays. The first step is drawn before any script
+   runs, so the page at rest is the hero it always was. */
+.hero-flow{min-width:0}
+.beats{display:grid;margin-top:clamp(88px,10vw,136px)}
+/* Five short blocks in one column left the other half of a wide screen
+   watching them. They are five, they are short, and they are steps -- which is
+   a row of columns, not a stack. The rule down the side of the one being read
+   moves to the top of it, because a column's edge is not where an eye looks. */
+@media (min-width:1300px){
+  /* Five rows, not five columns. Side by side each step had about 250px to say
+     itself in and the block ran 1328px wide, so the words broke into short
+     stacks and the row was wide without being full. Across, a step is one line
+     of reading: what it is called, what happens, and the line the protocol
+     wrote, left to right -- and the block stops at a width a sentence can be
+     read across rather than taking whatever the window has. */
+  .beats{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto;
+    max-width:none;margin-inline:0;row-gap:0;column-gap:0}
+  .beat{grid-template-columns:minmax(190px,.8fr) minmax(0,1.2fr);
+    grid-template-areas:"num text" "head text" "head said";
+    column-gap:clamp(20px,2.2vw,40px);row-gap:8px;
+    align-items:start;align-content:start;
+    padding:clamp(20px,2.2vw,30px) 0 clamp(20px,2.2vw,30px);
+    border-top:1px solid var(--edge)}
+  .beat::before{left:0;right:0;top:0;bottom:auto;width:auto;height:2px}
+  .beat .num{grid-area:num}
+  .beat h2{grid-area:head;margin:0}
+  .beat > p{grid-area:text;max-width:52ch;margin:0}
+  .beat .said{grid-area:said;max-width:none;align-self:start;margin:0}
+}
+.beat{display:grid;gap:10px;align-content:center;padding-block:clamp(38px,5vw,64px);
+  position:relative;padding-left:14px;transition:border-color .4s}
+.beat + .beat{border-top:1px solid var(--edge)}
+.beat h2{font-size:clamp(24px,2.4vw,32px);font-family:var(--display);font-weight:600;
+  letter-spacing:-.024em;line-height:1.15;text-wrap:balance}
+.beat p{color:var(--ink-2);max-width:52ch;font-size:16px;line-height:1.55}
+.beat .num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3)}
+.beat .num b{color:var(--ink-3);font-weight:500}
+.beat[data-live="on"] .num b{color:var(--signal-ink)}
+.beat .said{font-family:var(--mono);font-size:13px;color:var(--ink-3);
+  background:transparent;border:1px solid var(--edge);border-left:2px solid var(--signal);
+  border-radius:0;padding:7px 0 7px 14px;line-height:1.75;
+  overflow-wrap:anywhere;max-width:52ch}
+/* The step being read is marked, and the others are left alone.
+   It used to be the other way round: the step being read was in full ink and
+   the rest were faded to half. Measured, that fade put every word in them at
+   about 2 to 1 against the page, which is not legible and not lawful, and no
+   amount of fading fixes it — at 0.85 the worst of them is still 3.5 to 1,
+   against the 4.5 the rule asks for. So the emphasis is added to one rather
+   than taken from four: a rule down its side and its number in the signal
+   colour, with the mark and the colour saying it together, since colour on
+   its own says nothing to somebody who cannot see that colour. */
+.beat::before{content:"";position:absolute;left:0;top:.2em;bottom:.2em;width:2px;
+  border-radius:2px;background:var(--edge);transition:background .4s}
+.beat[data-live="on"]::before{background:var(--signal)}
+
+.hero-art{max-width:none;margin:clamp(16px,3vw,26px) 0 0;width:100%;
+  /* The header stays at the top and is 61px tall, so the stage stops
+     below it rather than sliding half under it. */
+  position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 8px);z-index:2;
+  background:var(--ground);padding-block:8px 12px}
+@media (min-width:861px){
+  /* Centred in the viewport rather than pinned under the header. Pinned, a
+     395px panel in a 900px window left 429px empty beneath it the whole way
+     down the steps, and that gap is most of what reads as an unfinished page.
+     Centred it has about 250px above and below, which is a composition.
+     The header is 61px and the panel is far shorter than the window, so
+     nothing slides under it; on a window short enough for that to matter the
+     rule stands down. */
+  /* Not pinned any more. Pinned, it had to be short enough to sit in a window
+     beside five steps of text, which is what made it a tall box with a small
+     drawing in it. As a row it is as wide as the page and as tall as it needs
+     to be. */
+  .hero-art{margin:0 auto;max-width:1180px;width:100%;align-self:stretch;background:none;
+    padding-block:0;position:static;transform:none}
+  @media (min-width:1300px){
+    .hero-art{max-width:380px;align-self:start;position:sticky;
+      top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 18px)}
+  }
+}
+.stage{background:var(--panel);border:1px solid var(--edge);border-radius:16px;
+  box-shadow:none;overflow:hidden}
+.stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);
+  gap:clamp(12px,2vw,26px);padding:clamp(12px,1.6vw,20px);align-items:center}
+.stage-body > svg{display:block;width:100%;height:auto;min-width:0}
+/* Two drawings of one instrument, and the screen chooses. The row is seven to
+   one, which is the shape a reading taken over time actually has and what lets
+   the hero be a row at all -- and on a 390px phone it renders 51px tall, which
+   is a hairline nobody can read. The tall one is the same instrument in the
+   shape a phone has. Neither is a scaled copy of the other; a drawing stretched
+   to a frame it was not drawn for is what made the panel hollow in the first
+   place. */
+.stage-body > svg.art-tall{display:none}
+@media (max-width:860px),(min-width:1300px){
+  .stage-body > svg.art:not(.art-tall){display:none}
+  .stage-body > svg.art-tall{display:block}
+}
+@media (min-width:1300px){
+  /* Upright in a column, the rule it wrote goes under the drawing rather than
+     beside it: 220px of card next to a portrait leaves neither room. */
+  /* Stacked, the card's height is the drawing plus the handset plus the chrome
+     between them, so the chrome is where the slack is: 20px of padding and
+     26px of gap around two pictures that are each as small as they can be read
+     at. And the drawing is never given a frame larger than itself -- blown up
+     to fill 340px of column it was a 1.06x enlargement of a 320px drawing,
+     which is how a panel ends up looking bigger than what is in it. */
+  .stage-body{grid-template-columns:minmax(0,1fr);gap:16px;padding:14px}
+  .stage-body > svg.art-tall{max-width:320px;margin-inline:auto}
+}
+/* The handset is written, not drawn. A label in an SVG is one line at a fixed
+   size that cannot wrap, so the policy's own sentence ran out of the card and
+   over the bezel the moment it was not English. */
+.phone{border:1px solid var(--edge);border-radius:16px;background:var(--panel);
+  padding:10px 10px 8px;display:grid;gap:8px;align-content:start;min-width:0;
+  box-shadow:none}
+.phone-bar{width:34px;height:4px;border-radius:2px;background:var(--sunk);margin:0 auto}
+.phone-app{font-size:9px;letter-spacing:.16em}
+.ph-card{border-radius:8px;padding:9px 10px;display:grid;gap:5px;min-width:0}
+.ph-rule{background:var(--sunk);border:1px solid var(--edge)}
+.ph-rule .ph-id{font-size:10px;color:var(--ink-3)}
+.ph-rule p{font-size:10px;line-height:1.5;color:var(--ink-2);overflow-wrap:anywhere}
+.ph-rule .ph-then{color:var(--ink);font-weight:500}
+.ph-paid{background:var(--settled-wash);border:1px solid var(--settled);
+  grid-template-columns:auto minmax(0,1fr);align-items:start;gap:8px}
+.ph-tick{width:20px;height:20px;border-radius:50%;background:var(--settled);
+  color:var(--panel);display:grid;place-items:center}
+.ph-tick svg{width:12px;height:12px}
+.ph-paid-text{display:grid;gap:2px;min-width:0}
+.ph-paid-text .label{font-size:8.5px;color:var(--ink-2)}
+.ph-paid-text b{font-family:var(--display);font-size:17px;font-weight:700;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ph-paid-text span:last-child{font-size:9.5px;color:var(--ink-2);overflow-wrap:anywhere}
+.phone-foot{display:flex;gap:8px;align-items:baseline;justify-content:space-between;
+  border-top:1px solid var(--edge);padding-top:7px;font-size:9px;color:var(--ink-3);
+  flex-wrap:wrap}
+.phone-foot b{font-size:9px;font-weight:500;color:var(--ink-2);font-variant-numeric:tabular-nums}
+/* A layer that is off takes no room, so the card below it does not sit on a
+   gap where the other card used to be. */
+.stage .layer{display:none}
+@media (max-width:430px){
+  .stage-body{grid-template-columns:1fr;gap:10px}
+}
+.stage-foot{display:flex;gap:10px;align-items:center;justify-content:space-between;
+  padding:9px 13px;border-top:1px solid var(--edge);background:var(--sunk)}
+.ticks{display:flex;gap:5px}
+.ticks i{display:block;width:20px;height:3px;border-radius:2px;background:var(--edge-2);
+  transition:background .25s}
+.ticks i.lit{background:var(--signal)}
+.stage-foot .cap{font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  text-align:right;overflow-wrap:anywhere}
+
+/* Layers arrive in order and stay. Nothing is removed except the rule card,
+   which the payout notice replaces on the same phone.
+   Two of them are not events, though. The validators are there before
+   anything happens, and the line the rule was written on exists from the
+   moment the policy is bought; both rest at a fraction of their weight rather
+   than at nothing, so the first beat is an instrument with a scale on it
+   instead of an empty box. What they have not done yet stays hidden: no
+   validator has attested anything at beat one, so no tick is drawn. The
+   ground layer keeps starting at nothing, because a trace of a quake that
+   has not happened would be a lie however faint it was drawn. */
+.stage svg .layer{display:revert;opacity:0;transition:opacity .5s ease}
+.stage svg .l-validators,.stage svg .l-trigger{opacity:.17}
+.stage.on-2 svg .l-ground,.stage.on-3 svg .l-validators,
+.stage.on-4 svg .l-trigger{opacity:1}
+.stage svg .hx-attest{opacity:0;transition:opacity .4s ease .12s}
+.stage.on-3 svg .hx-attest{opacity:1}
+.stage.on-1 .l-clause,.stage.on-5 .l-payout,.stage.on-4 .cap.l-trigger{display:revert}
+.stage.on-5 .l-clause{display:none}
+.stage .cap.l-trigger{color:var(--signal-ink)}
+/* The resting trace belongs to the first beat only. It is not a .layer,
+   because a layer starts hidden and this one has to be there before anything
+   else is. The beat classes accumulate -- on-1 is still set at beat five --
+   so it stands down on on-2, not on the absence of on-1. */
+.stage .l-rest{opacity:1;transition:opacity .45s ease}
+.stage.on-2 .l-rest{opacity:0}
+.stage .hx-trace{stroke-dasharray:var(--len,1100);stroke-dashoffset:var(--len,1100);
+  transition:stroke-dashoffset 1.9s cubic-bezier(.3,.6,.35,1)}
+.stage.on-2 .hx-trace{stroke-dashoffset:0}
+.stage .hx-trigger{stroke-width:1;opacity:.55;transition:stroke-width .3s,opacity .3s}
+.stage.on-4 .hx-trigger{stroke-width:2.4;opacity:1}
+.stage .ph-paid{transform:scale(.96);transition:transform .45s cubic-bezier(.2,.9,.3,1)}
+.stage.on-5 .ph-paid{transform:scale(1)}
+.stage .hx-check{stroke-dasharray:22;stroke-dashoffset:22;
+  transition:stroke-dashoffset .5s linear .25s}
+.stage.on-5 .hx-check{stroke-dashoffset:0}
+@media (prefers-reduced-motion:reduce){
+  .stage .layer,.stage .hx-trace,.stage .hx-trigger,.stage .ph-paid,.stage .hx-check,
+  .stage .l-rest,.ticks i,.beat{transition:none}
+  /* Still, but not blank: the resting trace stands as a drawing. */
+  .stage .hx-rest,.stage .hx-rest-dot{animation:none}
+  .stage .hx-trace{stroke-dashoffset:0}
+  .stage .ph-paid{transform:none}
+  .stage .hx-check{stroke-dashoffset:0}
+  .beat[data-live="off"]{opacity:1}
+}
+h1{font-size:clamp(28px,4vw,46px);line-height:1.05;font-weight:700;max-width:16ch}
+h1 span{color:var(--signal-ink)}
+.home-hero p{max-width:var(--measure);color:var(--ink-2);font-size:17px;line-height:1.55}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.trust{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+/* Four claims in a column that fits three: laid out three and one, it
+   reads as an accident. Two and two reads as a decision. */
+@media (min-width:861px){.hero-text .trust{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:start}}
+.trust>span{display:inline-flex;align-items:center;gap:7px;min-height:36px;
+  padding:7px 11px;border-radius:8px;border:1px solid var(--edge);
+  background:transparent;font-size:12.5px;color:var(--ink-2)}
+.trust svg{width:12px;height:12px;color:var(--settled);flex:none}
+.rialo-mark{display:inline-block;width:1em;height:1em;vertical-align:-.15em;margin-right:.35em;background:url(../vendor/rialo-mark.png) center/contain no-repeat;filter:invert(var(--mark-invert));flex:none}
+.trust .rialo-mark{width:13px;height:13px;margin-right:0}
+
+/* The five perils in one row wherever a row can hold them, shrinking before
+   they wrap; on a tablet three and two, on a phone two, then one. */
+.picks{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media (min-width:901px) and (max-width:1180px){.picks{gap:10px}.pick{padding:12px 13px;gap:6px}.pick h3{font-size:15.5px}.pick p{font-size:12.5px}.pick .from{font-size:11px}}
+@media (min-width:1181px){.pick h3{font-size:17px}.pick p{font-size:13px}.pick{padding:14px 15px}}
+@media (max-width:900px){.picks{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:760px){.picks{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.picks{grid-template-columns:1fr}}
+@media (min-width:641px) and (max-width:900px){.picks{gap:10px}.pick h3{font-size:16px}.pick p{font-size:13px}}
+.pick{display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;
+  padding:16px 18px;border-radius:12px;border:1px solid var(--edge);background:var(--panel);
+  box-shadow:none;cursor:pointer;width:100%;position:relative;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter),
+  background var(--motion-hover) var(--ease-enter)}
+.pick::after{content:"";display:none;position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .28s;
+  background:radial-gradient(240px 120px at 50% 0%,var(--signal-wash),transparent 70%)}
+.pick:hover{border-color:var(--edge-2);transform:translateY(-2px);box-shadow:none}
+.pick:hover::after{opacity:1}
+.pick .banner svg{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.pick:hover .banner svg{transform:none}
+.pick[aria-pressed="true"]{border-color:var(--signal-ink);background:var(--signal-wash)}
+.pick .ico{width:30px;height:30px;color:var(--signal-ink)}
+.pick h3{font-size:18px}
+.pick p{font-size:13.5px;color:var(--ink-2);line-height:1.4}
+.pick .banner{margin:0 0 2px;max-height:88px;overflow:hidden}
+/* The picture is capped harder on a phone, not released. It used to be the
+   other way round -- max-height:none below 640px -- so the small screen got
+   the big illustration: the art ran to about 240px, a home card filled 28% of
+   an iPhone viewport, and the first screen of a five way choice showed one of
+   the five. What a person is doing here is choosing, and the thing they are
+   choosing between is the words. */
+@media (max-width:640px){.pick .banner{max-height:72px}
+  /* Fitted, not clipped. A cap on the container alone cuts the drawing off
+     wherever 72px happens to land -- through the roof of the house, as it
+     did -- so the drawing is given the height and scales itself into it,
+     which is what a viewBox is for. */
+  .pick .banner svg{height:72px;width:100%}}
+/* And released again on a wide screen, where the argument for the cap does
+   not hold: the five cards sit side by side, so a taller picture costs
+   nobody a scroll to see the fifth choice, and at 88px in a 215px column the
+   drawing was a letterbox. Fitted rather than clipped, the same way the
+   phone does it, so the cap never lands through the roof of the house. */
+@media (min-width:1181px){.pick .banner{max-height:132px}
+  .pick .banner svg{height:132px;width:100%}}
+.pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+
+.home-hero .choose .picks{gap:0;border-block:1px solid var(--edge)}
+.home-hero .choose .pick{flex-direction:row;align-items:center;gap:14px;border:0;
+  border-bottom:1px solid var(--edge);border-radius:0;background:transparent;
+  padding:13px 4px}
+.home-hero .choose .pick:last-child{border-bottom:0}
+.home-hero .choose .pick .banner{flex:none;width:96px;height:44px;max-height:none;margin:0}
+.home-hero .choose .pick .banner svg{width:100%;height:100%}
+.home-hero .choose .pick .txt{display:grid;gap:2px;min-width:0}
+.home-hero .choose .pick h3{font-size:15.5px;margin:0}
+.home-hero .choose .pick p{font-size:12.5px;margin:0}
+.home-hero .choose .pick .from{display:none}
+@media (min-width:1300px){
+  .hero-text{grid-template-columns:minmax(390px,.9fr) minmax(0,1.1fr);
+    column-gap:clamp(64px,7vw,112px)}
+  .choose .pick .banner{width:112px;height:44px}
+}
+@media (max-width:760px){
+  .home-hero{padding-block:48px 96px}
+  .home-hero .hero-text h1{font-size:clamp(42px,13vw,52px);max-width:10ch}
+  .home-hero p{font-size:16px}
+  .hero-cta{width:100%}
+  .hero-cta .btn{flex:1 1 100%}
+  .home-hero .choose{width:100%}
+  .home-hero .choose .pick{padding-block:12px}
+  .home-hero .choose .pick .banner{width:88px;height:44px}
+  .beats{margin-top:80px}
+  .beat{padding-block:36px}
+}
+

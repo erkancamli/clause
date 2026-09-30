@@ -13,8 +13,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import page_assembled
+
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 
 VIEW = PAGE[PAGE.index('<section class="view" id="view-ask">'):]
 VIEW = VIEW[: VIEW.index("\n</section>")]

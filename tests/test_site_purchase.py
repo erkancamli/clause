@@ -16,8 +16,10 @@ import math
 import re
 from pathlib import Path
 
+from conftest import page_assembled
+
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 
 
 def _function(name: str) -> str:
@@ -412,15 +414,18 @@ def test_one_quote_names_one_amount() -> None:
     """
     from clause.protocol.valuation import schedule
 
-    # The scenario is not hypothetical: with today's published rate the two
-    # roundings still disagree, so this test would fail if the second one came
-    # back.
+    # Whether one area happens to land between two whole numbers depends on a
+    # rate that moves with the exchange rate, so the scenario is found rather
+    # than written down: the first written-down one, 120 m² at 519.29, stopped
+    # splitting the day the rate reached 519.33 and this test would have gone
+    # quiet rather than red.
     rate = schedule()["rebuild_per_m2"]["TR"]["flat"]
     ceiling = max(0.55, 1 - 0.01 * (2026 - 2005))
-    raw = 120 * rate * ceiling
-    assert math.floor(raw) != round(raw), (
-        f"120 m², built 2005, at {rate} per m² gives {raw}, which rounds the same "
-        "either way; pick a scenario that does not"
+    splits = [a for a in range(15, 3001)
+              if math.floor(a * rate * ceiling) != round(a * rate * ceiling)]
+    assert splits, (
+        f"at {rate} per m² no allowed floor area falls between two whole numbers, "
+        "so nothing here would show the two roundings apart"
     )
 
     body = _function("sizeValue")
@@ -481,3 +486,32 @@ def test_the_showcase_policy_is_written_on_one_index() -> None:
     # Nothing anywhere pairs the word shaking with a magnitude threshold.
     for near in re.findall(r"shaking[^<>]{0,60}", PAGE):
         assert not re.search(r"\bM\d", near), f"shaking is still measured in magnitude: {near!r}"
+
+
+def test_the_page_does_not_say_that_nobody_decides() -> None:
+    """The most prominent line on How it works was not true.
+
+    "Nobody decides whether you get paid." A licensed company decides whether
+    to issue the policy, and the page's own FAQ says so: the premium is held
+    and not taken while it screens the buyer and confirms the thing is theirs.
+    Validators decide what reading reaches the chain, and they can disagree.
+    What nobody does is value the damage afterwards and form an opinion about
+    what the loss was worth, and that is the thing worth saying.
+
+    A buyer who reads the headline and then reads the FAQ finds the site
+    contradicting itself on the question the whole product turns on.
+    """
+    assert "Nobody decides whether you get paid" not in PAGE, (
+        "the page claims nobody decides, which its own FAQ contradicts"
+    )
+    said = "A measurement decides what you are paid, not an assessor."
+    assert said in PAGE, f"the page does not say {said!r}"
+
+    # And it says it in every language, not only in English.
+    for path in sorted((ROOT / "site" / "i18n").glob("*.json")):
+        book = json.loads(path.read_text(encoding="utf-8"))
+        book = book.get("strings", book)
+        assert said in book, f"{path.name} has no line for it"
+        assert "Nobody decides whether you get paid." not in book, (
+            f"{path.name} still carries the old claim"
+        )

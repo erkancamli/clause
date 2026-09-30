@@ -18,8 +18,10 @@ import json
 import re
 from pathlib import Path
 
+from conftest import page_assembled
+
 SITE = Path(__file__).resolve().parent.parent / "site"
-PAGE = (SITE / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 LANGS = ["tr", "es", "fr", "de", "ru", "ja"]
 
 #: The switcher applies the reader's choice the moment it is made, which 3.2.2

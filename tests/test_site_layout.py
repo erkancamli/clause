@@ -17,8 +17,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import page_assembled, stylesheet
+
 SITE = Path(__file__).resolve().parent.parent / "site"
-PAGE = (SITE / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
+STYLES = stylesheet()
 
 #: The class the flow puts on the wrap when it takes the rail away.
 MARK = "no-rail"
@@ -42,9 +45,9 @@ def test_the_rail_and_its_track_are_taken_away_together() -> None:
 
 def test_the_marked_wrap_gives_up_the_second_column() -> None:
     """The mark has to actually collapse the grid, in the query that made it."""
-    two = PAGE.index("#view-cover > .wrap{display:grid")
+    two = STYLES.index("#view-cover > .wrap{display:grid")
     rule = re.search(
-        r"#view-cover > \.wrap\." + MARK + r"\{[^}]*grid-template-columns:([^;}]+)", PAGE
+        r"#view-cover > \.wrap\." + MARK + r"\{[^}]*grid-template-columns:([^;}]+)", STYLES
     )
     assert rule, f"no rule collapses a {MARK!r} wrap"
     # One track, counted outside the brackets: minmax(0,1fr) is a single
@@ -62,8 +65,8 @@ def test_the_marked_wrap_gives_up_the_second_column() -> None:
     )
     # Both rules have to live under the same breakpoint, or the collapse
     # applies where there was never a second column to give up.
-    assert PAGE.rindex("@media (min-width:", 0, two) == \
-           PAGE.rindex("@media (min-width:", 0, rule.start()), (
+    assert STYLES.rindex("@media (min-width:", 0, two) == \
+           STYLES.rindex("@media (min-width:", 0, rule.start()), (
         "the collapse is not in the media query that opened the second column"
     )
 
@@ -78,7 +81,7 @@ def test_the_step_keeps_a_measure_when_it_has_the_whole_page() -> None:
     rule = re.search(
         r"#view-cover > \.wrap\." + MARK + r" > \.q,\s*"
         r"#view-cover > \.wrap\." + MARK + r" > \.done\{([^}]*)\}",
-        PAGE,
+        STYLES,
     )
     assert rule, "the freed step is given no measure of its own"
     body = rule.group(1)
@@ -101,7 +104,9 @@ def test_a_reading_measure_is_written_in_characters_and_not_in_zeroes() -> None:
     was measured rather than reasoned about. A number written straight into a
     rule is how the two drifted apart in the first place.
     """
-    page = (SITE / "index.html").read_text(encoding="utf-8")
+    # Both, because the measure is set in the stylesheet and reached for
+    # again in the markup's own style attributes.
+    page = STYLES + PAGE
 
     assert re.search(r"--measure:\s*\d+ch", page), "the site has no one definition of a measure"
     uses = page.count("max-width:var(--measure)")
@@ -131,7 +136,7 @@ def test_the_map_frame_clips_the_tiles_it_draws() -> None:
     .where-map and a buyer on a phone can scroll the whole page sideways into
     empty map.
     """
-    rule = re.search(r"\.where-map\{([^}]*)\}", PAGE)
+    rule = re.search(r"\.where-map\{([^}]*)\}", STYLES)
     assert rule, "the map has no frame of its own"
     assert "overflow:hidden" in rule.group(1), (
         "the map frame no longer clips its tiles; the phone will scroll sideways"
@@ -147,7 +152,7 @@ def test_the_ceiling_says_what_it_leaves_out() -> None:
     site works" -- and the page was carrying that note in its payload and
     keeping it to itself.
     """
-    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
+    page = PAGE
     # The schedule's own words, wherever the figure came from.
     assert "if(from.figure.note) said.push(from.figure.note);" in page
     # And the plain sentence, on the home valuation only: a field's revenue and

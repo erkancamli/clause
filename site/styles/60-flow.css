@@ -1,0 +1,525 @@
+/* ---------------- flow ---------------- */
+/* The height of one dot, held whether or not the script has drawn them yet,
+   so the question below does not step down 22 pixels as they appear. */
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:nowrap;min-height:22px}
+.step-dot{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3);flex:none;white-space:nowrap}
+.step-dot i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--edge-2);font-family:var(--mono);font-size:11px;font-style:normal;flex:none}
+.step-dot.done i{background:var(--settled);border-color:var(--settled);color:var(--ground)}
+.step-dot.now i{background:var(--signal);border-color:var(--signal-ink);color:#0B0D11}
+:root[data-theme="light"] .step-dot.now i{color:#fff}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .step-dot.now i{color:#fff}}
+:root[data-theme="dark"] .step-dot.now i{color:#0B0D11}
+.step-dot.now{color:var(--ink);font-weight:500}
+.step-line{flex:1;height:2px;background:var(--edge);min-width:8px;border-radius:2px;position:relative;overflow:hidden}
+.step-line::after{content:"";position:absolute;inset:0;background:var(--settled);transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.step-line.done::after{transform:scaleX(1)}
+.step-dot i{transition:background .3s,border-color .3s,transform .3s}
+@media (prefers-reduced-motion:no-preference){
+  .step-dot.now i{animation:stepPulse 2.4s ease-out infinite}
+  @keyframes stepPulse{0%{box-shadow:0 0 0 0 var(--signal-wash)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+}
+@media (max-width:700px){.step-dot span{display:none}}
+
+.q{max-width:720px}
+/* Two columns from 1180 up: the question on the left, the running summary on
+   the right, and both of them under one stepper. Every .q shares the same
+   cell because only one is ever shown -- a hidden step is display:none and
+   takes no room -- so the rail keeps its place as the reader moves through. */
+/* The mechanism, under the choice. Four cells of the same component the
+   how-it-works page uses, at the size this column can afford, and one line
+   under them that says the thing an advertisement would leave out. */
+.mech{margin-top:26px;display:grid;gap:12px}
+/* Two up, not four: .flowline is four across and is declared later in this
+   sheet, so at equal specificity it wins and the cells came out 130px wide
+   with a two word heading broken over two lines. Named with both classes so
+   the override is the specific one. */
+.flowline.mechline{grid-template-columns:repeat(2,1fr)}
+@media (min-width:1640px){.flowline.mechline{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:560px){.flowline.mechline{grid-template-columns:1fr}}
+.flowline.mechline > div{padding:15px 16px}
+.flowline.mechline h3{font-size:15px;margin-top:7px;line-height:1.3}
+.flowline.mechline p{font-size:13px;color:var(--ink-2);margin-top:6px;line-height:1.5}
+.flowline.mechline .n{font-family:var(--mono);font-size:11px;color:var(--signal-ink);letter-spacing:0}
+/* The companies that are not the chosen one, named and priced, so that a
+   buyer can see there is a choice without the page becoming six cards. */
+.alts{margin-top:10px;display:grid;gap:1px;background:var(--edge);
+  border:1px solid var(--edge);border-radius:var(--r-sm);overflow:hidden}
+.alts .label{background:var(--sunk);padding:7px 12px}
+.alt{display:flex;gap:12px;align-items:baseline;justify-content:space-between;
+  width:100%;text-align:left;background:var(--panel);border:0;cursor:pointer;
+  padding:10px 12px;font:inherit;color:inherit;min-height:24px}
+.alt:hover{background:var(--sunk)}
+.alt .nm{font-size:13.5px;overflow-wrap:anywhere}
+.alt .pr{font-family:var(--mono);font-size:13px;color:var(--ink-2);
+  font-variant-numeric:tabular-nums;flex:none}
+.runrail{display:none}
+@media (min-width:1180px){
+  #view-cover > .wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;
+    column-gap:36px;align-items:start}
+  #view-cover > .wrap > h1.sr,
+  #view-cover > .wrap > .steps{grid-column:1 / -1}
+  #view-cover > .wrap > .q,
+  #view-cover > .wrap > .done{grid-column:1;grid-row:3;max-width:none}
+  /* The words keep their measure even though the column grew. */
+  #view-cover > .wrap > .q > h2,
+  #view-cover > .wrap > .q > .hint{max-width:var(--measure)}
+  #view-cover > .wrap > .runrail{display:grid;grid-column:2;grid-row:3;
+    position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 35px)}
+  /* A hidden rail still holds its track open. The confirm step is the one
+     step that does not want a rail -- it is itself the summary -- so it was
+     laid out in 952px of a 1440px page with a 340px column and its gap, 376px
+     in all, reserved for nothing and left blank down the whole of the longest
+     page in the product. The track goes when its occupant does, and the step
+     keeps a measure of its own rather than spreading to the full width. */
+  #view-cover > .wrap.no-rail{grid-template-columns:minmax(0,1fr)}
+  #view-cover > .wrap.no-rail > .q,
+  #view-cover > .wrap.no-rail > .done{max-width:1200px;margin-inline:auto}
+  /* The bar at the bottom of the screen carries two things: the price, and
+     the only way forward. The rail makes the price a duplicate; the buttons
+     are not a duplicate of anything, and hiding the bar wholesale took the
+     Continue button off the page and stranded the reader on step one. So the
+     readout stands down and the bar stays, as a slim row of actions. */
+  /* Row four, named rather than left to auto-placement. The page's own
+     heading is screen-reader-only and therefore absolutely positioned, so it
+     is not in the grid at all; that leaves row two empty, and the bar -- the
+     only child without an explicit row -- was placed into it and rendered
+     above the question it belongs under. */
+  #view-cover > .wrap > .pricebar{grid-column:1 / -1;grid-row:4}
+  #view-cover > .wrap > .pricebar > #pb-live{display:none}
+  #view-cover > .wrap > .pricebar.empty{display:flex}
+  #view-cover > .wrap > .pricebar .grow{margin-left:auto}
+  /* The rail takes 340 of the row, so the question's own column is no longer
+     the viewport and the choice grid cannot be sized off the viewport either.
+     Five cards in what is left at 1180 is 132px each, which wraps "My
+     harvest" onto two lines and turns a 132px picture into a square. Three
+     across until the column can afford five. */
+  #view-cover .picks{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #view-cover .pick .banner,#view-cover .pick .banner svg{max-height:112px;height:auto}
+}
+@media (min-width:1640px){
+  #view-cover .picks{grid-template-columns:repeat(5,minmax(0,1fr))}
+  #view-cover .pick .banner{max-height:126px}
+  #view-cover .pick .banner svg{height:126px}
+}
+.runrail{gap:10px;padding:16px 18px;border:1px solid var(--edge);
+  border-radius:var(--r);background:var(--panel);box-shadow:var(--lift-1),var(--hairline)}
+.runrail dl{display:grid;gap:0;margin:0}
+.runrail .row{display:grid;gap:2px;padding:9px 0;border-top:1px solid var(--edge)}
+.runrail .row:first-child{border-top:0;padding-top:2px}
+.runrail dt{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3)}
+.runrail dd{margin:0;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+/* Not yet answered. Italic and quiet, so the rail reads as a form being
+   filled rather than as a summary with holes in it. */
+.runrail dd.waiting{font-style:italic;color:var(--ink-3)}
+.runrail-foot{border-top:1px solid var(--edge);padding-top:11px;display:grid;gap:4px}
+.runrail-foot .amt{font-family:var(--display);font-size:25px;font-weight:700;
+  letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.runrail-foot .amt small{font-family:var(--mono);font-size:11.5px;font-weight:400;
+  color:var(--ink-3);margin-left:6px;letter-spacing:0}
+.runrail-foot .prompt{font-size:13px;line-height:1.5;color:var(--ink-3);font-style:italic}
+/* The qualification travels with the number it qualifies rather than sitting
+   in a row of its own at the bottom of the page. */
+.runrail-chip{justify-self:start;background:var(--sunk);color:var(--ink-2);
+  font-size:12px;line-height:1.4;border-radius:999px;padding:5px 11px;
+  border:1px solid var(--edge)}
+/* 720px is a reading measure, right for a question and its hint and wrong
+   for a row of five cards, which were being squeezed into 133px each while
+   half the page stayed empty. The step that holds the chooser gets the
+   width its content needs; its prose keeps the measure. */
+#s1{max-width:min(100%,1120px)}
+#s1 > h2,#s1 > p.hint{max-width:720px}
+/* Choosing a place is a search and a map, and they belong beside each
+   other: stacked in a reading column the map was 720px wide with 400px of
+   empty page next to it, and the list of matches sat below the fold. The
+   map holds the right column and grows with whatever the left one needs.
+   Leaflet tracks window resizes itself, so crossing this breakpoint
+   redraws the tiles without any help. */
+/* The last step is the longest page in the product and it was a 720px
+   column with half the window empty beside it: the summary, the sentence,
+   the payout chart and table, the company, what is checked before issue,
+   how to pay, and the whole contract, one under the other. The summary is
+   what a buyer keeps glancing back at while reading the rest, so it holds
+   a column of its own and stays in view, which is how every checkout that
+   works is built. Everything else keeps its reading measure. */
+@media (min-width:1120px){
+  #s4{max-width:min(100%,1200px)}
+  #s4 > h2,#s4 > p.hint{max-width:760px}
+  #s4 > .q-body{grid-template-columns:minmax(0,1fr) 360px;gap:14px 32px;align-items:start}
+  #s4 > .q-body > *{grid-column:1}
+  #s4 > .q-body > #answers{grid-column:2;grid-row:1 / span 99;position:sticky;top:calc(var(--header-h) + 35px);
+    max-height:calc(100vh - 130px - var(--pricebar-h,0px));overflow:auto}
+}
+
+@media (min-width:1000px){
+  #s2{max-width:min(100%,1120px)}
+  #s2 > h2,#s2 > p.hint{max-width:720px}
+  #s2 > .q-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 28px;
+    align-items:start;
+    grid-template-areas:"chips chips" "search map" "locate map" "results map" "note map" ". map"}
+  #asset-chips{grid-area:chips}
+  #s2-search{grid-area:search}
+  #s2-locate{grid-area:locate}
+  #s2-opts{grid-area:results}
+  #map-note{grid-area:note}
+  /* The list of matches is long, so the map does not stretch to it: it
+     keeps a size of its own and stays in view while the list scrolls. */
+  #where-map{grid-area:map;align-self:start;position:sticky;top:calc(var(--header-h) + 35px);
+    height:clamp(420px,58vh,600px);margin:0}
+}
+.q h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15}
+.q > p.hint{margin-top:10px;color:var(--ink-2);max-width:var(--measure)}
+.q-body{margin-top:24px;display:grid;gap:12px}
+
+.opt.off{opacity:.55;cursor:not-allowed}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;width:100%;
+  padding:15px 17px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);
+  cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.opt{transition:border-color .18s,transform .2s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
+.opt:hover{border-color:var(--edge-2);transform:translateY(-1px);box-shadow:0 8px 20px -14px rgba(12,17,22,.4)}
+.opt[aria-pressed="true"]{border-color:var(--signal-ink);background:var(--signal-wash)}
+.opt .t{font-weight:600;font-size:15.5px}
+.opt .s{font-size:13px;color:var(--ink-2);margin-top:2px;display:block}
+.opt .tick{width:20px;height:20px;border-radius:50%;border:1px solid var(--edge-2);flex:none;display:grid;place-items:center}
+.opt[aria-pressed="true"] .tick{background:var(--signal);border-color:var(--signal-ink)}
+.opt[aria-pressed="true"] .tick svg{opacity:1}
+.opt .tick svg{width:11px;height:11px;opacity:0;color:#0B0D11}
+:root[data-theme="light"] .opt .tick svg{color:#fff}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .opt .tick svg{color:#fff}}
+:root[data-theme="dark"] .opt .tick svg{color:#0B0D11}
+.opt .lead{width:40px;height:40px;border-radius:8px;background:var(--sunk);display:grid;place-items:center;
+  font-family:var(--mono);font-size:12px;color:var(--ink-2);flex:none}
+
+.amount{padding:22px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);display:grid;gap:16px}
+.amount .big{font-family:var(--display);font-weight:700;font-size:clamp(34px,7vw,52px);line-height:1;
+  letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.amount .big small{font-size:.35em;color:var(--ink-3);margin-left:8px;letter-spacing:0;font-weight:600}
+input[type=range]{width:100%;background:transparent;height:28px;-webkit-appearance:none;appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;
+  background:linear-gradient(90deg,var(--signal) var(--fill,50%),var(--edge) var(--fill,50%))}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:var(--edge)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:var(--signal)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;
+  border-radius:50%;background:var(--signal);border:3px solid var(--panel);
+  box-shadow:0 2px 8px -2px var(--signal),0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--signal);
+  border:3px solid var(--panel);box-shadow:0 2px 8px -2px var(--signal)}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.04)}
+input[type=range]:focus-visible{outline:none}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(--signal-wash),0 2px 8px -2px var(--signal)}
+/* Choosing a file: an area to drop onto or press, and what was chosen shown
+   as rows that can be named and taken back out again. The real input is
+   still there, still reachable by keyboard; only its own control is hidden. */
+.drop{position:relative;display:grid;gap:6px;justify-items:center;text-align:center;
+  padding:22px 18px;border:1.5px dashed var(--edge-2);border-radius:12px;background:var(--sunk);
+  cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s}
+.drop:hover{border-color:var(--signal-ink);background:var(--signal-wash)}
+.drop.over{border-color:var(--signal-ink);background:var(--signal-wash);box-shadow:0 0 0 4px var(--signal-wash)}
+.drop:focus-within{outline:2px solid var(--signal);outline-offset:2px}
+.drop input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.drop .ico{width:30px;height:30px;color:var(--ink-3);transition:color .2s,transform .3s}
+.drop:hover .ico,.drop.over .ico{color:var(--signal-ink);transform:translateY(-2px)}
+.drop b{font-size:14.5px;font-weight:600}
+.drop .fine{margin:0}
+.drop u{text-decoration:none;color:var(--signal-ink);font-weight:600}
+.files{display:grid;gap:8px;margin-top:10px}
+.filerow{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;
+  padding:9px 12px;border:1px solid var(--edge);border-radius:12px;background:var(--panel)}
+.filerow .doc{width:22px;height:22px;color:var(--ink-3);flex:none}
+.filerow .nm{font-size:13.5px;overflow-wrap:anywhere;min-width:0}
+.filerow .nm small{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.filerow select{font:inherit;font-size:13px;padding:6px 8px;border-radius:8px;border:1px solid var(--edge-2);
+  background:var(--panel);color:var(--ink);max-width:200px}
+.filerow .drop-out{border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:18px;line-height:1;
+  padding:4px 8px;border-radius:8px;min-height:26px}
+.filerow .drop-out:hover{background:var(--crit-wash);color:var(--crit)}
+@media (max-width:560px){.filerow{grid-template-columns:auto 1fr auto}.filerow select{grid-column:2/-1;max-width:none}}
+.presets{display:flex;flex-wrap:wrap;gap:8px}
+.presets button{padding:7px 13px;border-radius:999px;border:1px solid var(--edge-2);background:var(--sunk);
+  color:var(--ink-2);font-size:13px;cursor:pointer}
+.presets button[aria-pressed="true"]{border-color:var(--signal-ink);color:var(--signal-ink);background:var(--signal-wash)}
+
+.plain{padding:22px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);
+  font-size:clamp(16px,2.2vw,19px);line-height:1.55}
+.plain b{color:var(--signal-ink);font-weight:600}
+.plain em{font-style:normal;color:var(--settled);font-weight:600}
+.pay-rows{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:var(--r);overflow:hidden}
+.pay-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 16px;background:var(--panel);font-size:14.5px}
+.pay-row .amt{font-family:var(--mono);color:var(--settled);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pay-row.none .amt{color:var(--ink-3)}
+/* How often that level happens here, under the words rather than beside them:
+   it is the reason for the step, not a second column of the offer. */
+.pay-row .often{display:block;margin-top:2px;color:var(--ink-3)}
+
+.pricebar{position:sticky;bottom:0;z-index:50;margin-top:24px;box-shadow:0 -14px 34px -20px rgba(12,17,22,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:color-mix(in srgb,var(--panel) 96%,transparent);backdrop-filter:blur(14px);
+  border:1px solid var(--edge);border-radius:var(--r);box-shadow:var(--shadow);
+  padding:14px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+@media (max-width:760px){.pricebar{bottom:70px}
+  /* Nothing to say, so nothing on the screen. See updatePriceBar. */
+  .pricebar.empty{display:none}}
+.pricebar .amt{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.6vw,28px);
+  line-height:1;font-variant-numeric:tabular-nums}
+.pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:600}
+/* What is paid, beside what is received. In parametric cover the ratio
+   between the two is the whole proposition, so they are never apart. */
+.pricebar .pays{display:inline-flex;align-items:baseline;gap:6px;margin-left:12px;padding-left:12px;
+  border-left:1px solid var(--edge);font-family:var(--sans);font-size:13.5px;font-weight:500;color:var(--ink-2)}
+.pricebar .pays b{font-family:var(--display);font-size:17px;font-weight:700;color:var(--settled);letter-spacing:-.02em}
+@media (max-width:640px){.pricebar .pays{display:none}}
+.pricebar .cap{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.pricebar .grow{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
+
+details.more{margin-top:16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+details.more summary{padding:14px 18px;cursor:pointer;font-size:14px;color:var(--ink-2);list-style:none;max-width:var(--measure);
+  display:flex;align-items:center;gap:9px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::before{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;
+  border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .2s;flex:none}
+details.more[open] summary::before{transform:rotate(45deg)}
+details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
+.kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+/* What the cover does not do, set apart from the rows above it: those are
+   what the buyer chose, this is what they are taking on. */
+.ans.basis{border-top:1px solid var(--edge);margin-top:4px;padding-top:12px}
+.ans.basis .v b{display:block;color:var(--ink);font-weight:600;line-height:1.45}
+.ans.basis .v small{display:block;margin-top:5px;color:var(--ink-3);line-height:1.5}
+.ans.basis .k{color:var(--signal-ink)}
+
+/* Check your answers: what was chosen, each line with its way back. */
+.answers{border:1px solid var(--edge);border-radius:12px;padding:12px 14px 4px;background:var(--panel)}
+.ans{display:grid;grid-template-columns:118px 1fr auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--edge);align-items:baseline;font-size:14px}
+.ans:first-of-type{border-top:0}
+.ans .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.ans .v{overflow-wrap:anywhere}
+.ans .v small{color:var(--ink-3)}
+@media (max-width:520px){.ans{grid-template-columns:1fr auto}.ans .k{grid-column:1/-1}}
+/* == scoped styles for #view-ask, begin ==
+   The open resolver's form and the answer it draws. A question here is four
+   fields and a verb, so it is laid out as a sentence a person reads across
+   rather than as a form they work down. */
+.askform{margin-top:26px;border:1px solid var(--edge);border-radius:14px;
+  background:var(--panel);padding:18px 20px}
+.askrow{display:flex;flex-wrap:wrap;gap:8px}
+.askrow .chip{cursor:pointer;font:inherit;font-size:13px;min-height:34px;
+  padding:6px 13px;background:var(--panel);color:var(--ink-2)}
+.askrow .chip:hover{border-color:var(--art-line);color:var(--ink)}
+.askrow .chip.on{border-color:var(--signal);background:var(--signal-wash);color:var(--ink)}
+.askfields{display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:16px;align-items:flex-end}
+.fld{display:grid;gap:5px;min-width:0}
+.fld.wide{flex:3 1 220px;max-width:34rem}
+.fld.num{flex:0 1 165px}
+.fld > span{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3)}
+.fld .in{display:flex;align-items:center;gap:9px;min-width:0}
+.fld input,.fld select{font:inherit;font-size:15px;min-height:40px;padding:8px 11px;
+  border:1px solid var(--edge);border-radius:9px;background:var(--sunk);color:var(--ink);
+  width:100%;min-width:0}
+.fld input:focus,.fld select:focus{border-color:var(--signal);outline:none}
+.fld select:disabled{color:var(--ink-3)}
+.fld i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  white-space:nowrap}
+.askgo{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;margin-top:16px}
+
+/* The answer. The verdict first, because that is what was asked; the figure
+   it was decided on right under it, because a verdict with no figure beside
+   it is an opinion wearing a number's clothes. */
+.answer{border:1px solid var(--edge);border-left:3px solid var(--ink-3);border-radius:14px;
+  background:var(--panel);padding:20px 22px}
+.answer[data-yes="1"]{border-left-color:var(--settled)}
+.answer > .vd{font-family:var(--display);font-size:clamp(26px,4vw,34px);line-height:1;
+  letter-spacing:-.02em}
+.answer[data-yes="1"] > .vd{color:var(--settled)}
+.answer > .q{margin-top:9px;font-size:16px;color:var(--ink-2);max-width:var(--measure)}
+.answer .warn{color:var(--hold);max-width:var(--measure);margin-top:10px}
+.answer .kvs{margin-top:16px}
+/* Three clocks, and confusing them is how a question gets answered against
+   the wrong one, so they are set side by side to be compared. */
+.clocks{display:grid;gap:10px;margin-top:16px;padding-top:14px;
+  border-top:1px solid var(--edge)}
+.clocks .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.clocks > div{font-size:13.5px;color:var(--ink-2)}
+@media (min-width:760px){.clocks{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+/* == scoped styles, end == */
+/* == scoped styles for #view-rules, begin ==
+   The rulebook's values are paragraphs, not figures. The shared key and value
+   grid fits as many 150px columns as it can, which is right for a name beside
+   an amount beside a date and wrong for sixty one words: on this page it made
+   thirty six columns of prose twenty two characters wide, four words to a
+   line. So the page gets a modifier of its own rather than the shared class
+   being bent to suit it, since that class is worn in thirteen other places. */
+.kvs.rulebook{grid-template-columns:minmax(0,1fr);gap:0}
+.kvs.rulebook .kv{padding:12px 0;border-top:1px solid var(--edge)}
+.kvs.rulebook .kv:first-child{border-top:0;padding-top:0}
+.kvs.rulebook .v{max-width:var(--measure)}
+@media (min-width:820px){
+  /* Label beside its paragraph, which is how a specification is read. */
+  .kvs.rulebook .kv{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr);
+    gap:4px 30px;align-items:baseline}
+  .kvs.rulebook .k{padding-top:3px}
+}
+
+/* Five perils, six thousand pixels, and the one you came for is somewhere in
+   the middle. A row of names that jumps to it. */
+.perilnav{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.perilnav a{display:inline-flex;align-items:baseline;gap:8px;min-height:34px;padding:7px 13px;
+  border:1px solid var(--edge);border-radius:999px;background:var(--panel);
+  font-size:13.5px;color:var(--ink-2);text-decoration:none;transition:border-color .15s,color .15s}
+.perilnav a:hover{border-color:var(--art-line);color:var(--ink)}
+.perilnav a .u{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+
+/* What every peril shares, said once. Set apart from the peril panels below
+   it, because a reader needs to know at a glance that this part is not one
+   peril's rule. */
+.common{border:1px solid var(--edge);border-left:2px solid var(--signal);border-radius:12px;
+  background:var(--sunk);padding:20px 22px}
+.common > h2{font-size:15px;letter-spacing:-.01em}
+.common > p.fine{margin:4px 0 14px;max-width:var(--measure)}
+
+/* The numbers that govern a claim, which were buried mid-sentence: how long
+   until the figure is final, how long before the protocol gives up, how long
+   you have to object. */
+.rulefigs{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+/* Sized to what they hold. Allowed to grow, two of these split a 1160px panel
+   between them and each becomes a 560px card around a two digit number, which
+   is the same empty card as a drawing given a frame larger than itself. */
+.rulefigs > div{flex:0 1 auto;max-width:100%;border:1px solid var(--edge);border-radius:10px;
+  padding:9px 14px;background:var(--sunk);display:flex;gap:11px;align-items:baseline}
+.rulefigs .n{font-family:var(--display);font-size:23px;line-height:1.15;letter-spacing:-.02em}
+/* Beside the number, not under it. Under it, a caption long enough to wrap
+   three times built a tall card around one digit, which is the box far larger
+   than its ink this site has made before. */
+.rulefigs .c{font-size:12.5px;line-height:1.45;color:var(--ink-3);max-width:46ch}
+
+/* The peril's own name, and under it the one line that says what is measured,
+   which is the thing a reader is scanning for. On its own line and in the
+   reading face: beside the name and in the mono face it was one unbroken
+   run of a hundred and twenty seven characters. */
+.perilhead{padding-bottom:13px;margin-bottom:4px;border-bottom:1px solid var(--edge)}
+.perilhead h2{font-size:19px;letter-spacing:-.015em}
+.perilhead .u{margin-top:6px;max-width:var(--measure);font-size:13.5px;line-height:1.5;color:var(--ink-2)}
+.perilhead .u b{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);font-weight:400;margin-right:9px}
+
+/* The six stations, as boxes that reflow rather than as a picture that
+   shrinks. One to a row on a phone, three across where there is room. */
+.rulepath{margin:26px 0 0}
+.rulepath > .label{margin-bottom:12px}
+.stations{display:grid;gap:10px;grid-template-columns:minmax(0,1fr);
+  list-style:none;margin:0;padding:0}
+.stations > li{border:1px solid var(--edge);border-radius:10px;padding:12px 14px;
+  background:var(--panel)}
+.stations .c{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--ink-3)}
+.stations .s{font-family:var(--mono);font-size:12.5px;line-height:1.35;margin-top:6px;
+  color:var(--ink-2)}
+.stations > li.on{border-color:var(--settled)}
+.stations > li.on .c,.stations > li.on .s{color:var(--settled)}
+@media (min-width:720px){.stations{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
+
+/* The three places the sequence stops rather than guesses. The drawing above
+   says what happens when nothing goes wrong; this says what happens when
+   something does, which is the part a buyer is actually reading for. */
+.stops{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:12px;overflow:hidden;margin-top:14px}
+.stops > div{background:var(--panel);padding:16px 18px}
+.stops .c{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--signal-ink)}
+.stops h3{font-size:14.5px;margin-top:7px;letter-spacing:-.01em}
+.stops p{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:6px;max-width:52ch}
+@media (min-width:860px){.stops{grid-template-columns:repeat(3,1fr)}}
+/* == scoped styles, end == */
+.kv .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+/* What a company is asked to attach, by its own country: two lines, not a
+   menu of everything any country has ever issued. */
+.asked{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px}
+.asked li{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.asked li .fine{margin:0}
+.kv{min-width:0}
+.kv .v{font-size:14.5px;font-variant-numeric:tabular-nums;margin-top:2px;overflow-wrap:anywhere}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:400;padding:7px 8px;border-bottom:1px solid var(--edge)}
+td{padding:7px 8px;border-bottom:1px solid var(--edge);color:var(--ink-2);font-variant-numeric:tabular-nums}
+td:first-child{color:var(--ink)}
+tr:last-child td{border-bottom:0}
+.code{font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--ink-2);background:var(--sunk);
+  border:1px solid var(--edge);border-radius:var(--r-sm);padding:12px;word-break:break-word}
+.code b{color:var(--signal-ink);font-weight:500}
+.code em{color:var(--settled);font-style:normal}
+.split{display:grid;gap:7px}
+.split .bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--sunk);border:1px solid var(--edge)}
+.split .bar i{display:block;transition:width .4s}
+.split .key{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:var(--ink-2)}
+.split .key span{display:inline-flex;align-items:center;gap:6px}
+.split .key i{width:8px;height:8px;border-radius:2px;flex:none}
+
+.done{max-width:640px;display:grid;gap:18px}
+.done .seal{width:58px;height:58px;border-radius:50%;background:var(--settled-wash);display:grid;place-items:center}
+.done .seal svg{width:28px;height:28px;color:var(--settled)}
+.policy-card{border:1px solid var(--edge);border-radius:var(--r);background:var(--panel);overflow:hidden}
+.policy-card .bar{padding:11px 16px;background:var(--sunk);border-bottom:1px solid var(--edge);
+  display:flex;gap:9px;align-items:center}
+.lamp{width:6px;height:6px;border-radius:50%;background:var(--settled);animation:blink 2.2s infinite;flex:none}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.policy-card .body{padding:16px;display:grid;gap:14px}
+.right{margin-left:auto}
+
+/* ---------------- purchase flow ---------------- */
+.q{max-width:640px}
+.q h2{font-size:clamp(28px,3vw,32px);line-height:1.14}
+.q > p.hint{font-size:16px;line-height:1.55;margin-top:12px}
+.q-body{margin-top:32px;gap:14px}
+.steps{margin-bottom:40px;min-height:28px}
+.step-dot{font-size:13px}
+.step-dot i{width:28px;height:28px}
+.step-dot.now i{animation:none}
+.runrail{border-radius:12px;box-shadow:none;padding:20px}
+.runrail-foot .amt{font-size:32px;font-weight:600}
+.opt{min-height:64px;border-radius:12px;padding:16px;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter)}
+.opt:hover{transform:translateY(-1px);box-shadow:none;border-color:var(--ink-3)}
+.amount{border-radius:16px;padding:24px;box-shadow:none}
+.amount .big{font-size:clamp(32px,5vw,40px);font-weight:600}
+.plain{position:relative;border:0;border-left:3px solid var(--signal);border-radius:0;
+  padding:20px 24px;background:var(--sunk);font-size:18px;line-height:1.5}
+.plain b{color:var(--ink);font-weight:600}
+
+/* The payout ladder reads from maximum at the top to no payout at the foot.
+   Each rung carries its threshold and amount, so it needs no legend. */
+.pay-rows{display:flex;flex-direction:column-reverse;align-items:flex-end;gap:0;
+  background:transparent;border:0;border-right:2px solid var(--signal);
+  border-radius:0;overflow:visible;padding-block:4px}
+.pay-row{width:100%;min-height:64px;border-bottom:1px solid var(--edge);
+  border-left:4px solid var(--signal);background:var(--panel);
+  padding:14px 18px;align-items:center}
+.pay-row:nth-last-child(2){width:88%}
+.pay-row:nth-last-child(3){width:76%}
+.pay-row:nth-last-child(4),.pay-row:nth-last-child(5){width:64%}
+.pay-row:last-child{border-top:1px solid var(--edge)}
+.pay-row.none{border-left-color:var(--edge-2);background:var(--sunk)}
+.pay-row .amt{font-family:var(--display);font-size:20px;font-weight:600;
+  color:var(--ink);font-variant-numeric:tabular-nums}
+.pay-row .often{font-size:13px}
+.pricebar{border-radius:12px;box-shadow:0 -8px 24px -22px rgba(12,17,22,.5);
+  backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--panel)}
+.pricebar .amt{font-size:32px;font-weight:600}
+details.more{box-shadow:none}
+details.more summary{min-height:52px}
+details.more .inner{padding:4px 20px 20px}
+@media (max-width:760px){
+  .steps{margin-bottom:32px}
+  .q-body{margin-top:24px}
+  .pay-row,.pay-row:nth-last-child(2),.pay-row:nth-last-child(3),
+  .pay-row:nth-last-child(4),.pay-row:nth-last-child(5){width:100%}
+  .pay-rows{border-right:0}
+  .pay-row{grid-template-columns:minmax(0,1fr);gap:6px}
+  .pay-row .amt{font-size:18px}
+  .pricebar{margin-inline:-8px;padding:12px;bottom:70px}
+  .pricebar .grow{width:100%}
+  .pricebar .grow .btn-primary{flex:1}
+}
+

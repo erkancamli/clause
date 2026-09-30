@@ -125,8 +125,84 @@ def obfuscate(code: str) -> str:
         return out.read_text(encoding="utf-8")
 
 
+def gather_styles(source: str) -> str:
+    """Put the stylesheet back together as one inlined <style>.
+
+    The visual system is nine files in the source so it can be worked on as a
+    thing of its own. A reader should not pay nine requests for that, and a
+    stylesheet fetched separately blocks the first paint on a second round
+    trip, so the published page carries it inlined exactly as it did when it
+    was one block. The run of <link> tags is replaced in place, so the styles
+    land where they were written and in the order they were written; the order
+    is load-bearing and the numbers in the file names carry it.
+    """
+    links = list(re.finditer(r'[ \t]*<link rel="stylesheet" href="(styles/[^"]+)">\n?', source))
+    if not links:
+        return source
+    joined = ""
+    for link in links:
+        part = HERE / link.group(1)
+        if not part.is_file():
+            raise SystemExit(f"{link.group(1)} is linked by the page and is not there")
+        joined += part.read_text(encoding="utf-8")
+    at = links[0].start()
+    # Take the note above them with them. It is removed from what is published
+    # either way, and swallowing it here leaves the page byte for byte what it
+    # was when the stylesheet was written inline, which is what proves this
+    # split changed nothing a browser can see.
+    while at and source[at - 1] in " \t\n":
+        at -= 1
+    if source[:at].endswith("-->"):
+        at = source.rindex("<!--", 0, at)
+        while at and source[at - 1] in " \t":
+            at -= 1
+    # A relative path in a stylesheet is read from where the stylesheet is.
+    # In the source that is site/styles/, so the parts say ../fonts/; inlined
+    # they are read from where the page is, so the ../ comes off. Without
+    # this the two halves of the arrangement disagree and one of them is
+    # always wrong: the fonts 404ed in the source before it was written.
+    joined = re.sub(r"url\(\.\./", "url(", joined)
+    return source[:at] + f"<style>{joined.lstrip()}</style>\n" + source[links[-1].end() :]
+
+
+def gather_scripts(source: str) -> str:
+    """Put the script back together as one inlined block, where it was.
+
+    Same arrangement as the styles and for the same reasons: worked on as
+    parts, served as one. A part fetched separately is a request the page did
+    not used to make, and twenty-three of them on a mid range phone is the
+    whole first second.
+
+    Order matters more here than it does for the styles. Separate files do not
+    hoist across one another, so a part that runs something at load time can
+    only run what a part before it declared. Inlining hides that: concatenated,
+    everything hoists and a wrong order still works. The order is therefore
+    held by a test against the parts as the page links them, not against what
+    the build makes of them.
+    """
+    tags = list(re.finditer(r'[ \t]*<script data-part="(app/[^"]+)"></script>\n?', source))
+    if not tags:
+        return source
+    joined = ""
+    for tag in tags:
+        part = HERE / tag.group(1)
+        if not part.is_file():
+            raise SystemExit(f"{tag.group(1)} is linked by the page and is not there")
+        joined += part.read_text(encoding="utf-8")
+    at = tags[0].start()
+    while at and source[at - 1] in " \t\n":
+        at -= 1
+    if source[:at].endswith("-->"):
+        at = source.rindex("<!--", 0, at)
+        while at and source[at - 1] in " \t":
+            at -= 1
+    return source[:at] + f"<script>{joined}</script>" + source[tags[-1].end() :]
+
+
 def build_page(source: str) -> str:
     """Minify every inline <script> and <style>, leave the markup itself."""
+    source = assemble(source)
+
     def script(match: re.Match) -> str:
         attrs, body = match.group(1), match.group(2)
         if "src=" in attrs or "type=\"application/ld+json\"" in attrs or not body.strip():
@@ -164,7 +240,37 @@ def stamp(page: str) -> tuple[str, str]:
     return page.replace("__CLAUSE_BUILD__", name), name
 
 
+def assemble(source: str) -> str:
+    """The page with its parts joined and nothing else done to it.
+
+    What `site/index.html` holds is not a page a browser can run: the styles
+    and the script are listed there, not written there, and the script's parts
+    are the inside of one closure cut into pieces, so not one of them is a
+    program on its own. Joining them is the build's first step either way. This
+    is that step with the minifier and the obfuscator left out, so the page can
+    be read and stepped through while it is being worked on, and what is looked
+    at is what is published rather than a second arrangement that drifts.
+    """
+    return gather_styles(gather_scripts(source))
+
+
 def main() -> None:
+    if "--dev" in sys.argv:
+        # Beside index.html, so fonts/, i18n/, vendor/ and app/ resolve as they
+        # do for the published page. It is ignored by git: it is a build.
+        page = assemble((HERE / "index.html").read_text(encoding="utf-8"))
+        page = page.replace("__CLAUSE_BUILD__", "development")
+        (HERE / "dev.html").write_text(page, encoding="utf-8")
+        # The open tab asks this for the name of the build it is running. In
+        # development the answer is always the same one, so the page never
+        # decides it has been replaced, and it is written rather than left to
+        # 404 because a page that is being checked for console errors should
+        # have none of its own making.
+        (HERE / "version.json").write_text(
+            json.dumps({"build": "development"}, separators=(",", ":")) + "\n", encoding="utf-8")
+        print(f"site/dev.html: {len(page.encode()):,} bytes, assembled and not minified")
+        return
+
     if DIST.exists():
         shutil.rmtree(DIST)
     DIST.mkdir()

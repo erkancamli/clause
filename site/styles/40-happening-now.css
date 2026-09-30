@@ -1,0 +1,100 @@
+/* ---------------- happening now ---------------- */
+/* section.now, not .now: the band on the home page and the current step
+   of the cover flow both carry the class, so every step chip was
+   inheriting the band's sunk fill, its rules above and below and its
+   vertical padding, which is why the step being worked on looked like
+   a box clipped by the gutter. */
+section.now{border-block:1px solid var(--edge);background:var(--ground)}
+.now-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.now-head b{font-family:var(--display);font-size:15px;font-weight:600}
+.now-head .pip{width:7px;height:7px;border-radius:50%;background:var(--settled);animation:blink 2.2s infinite;align-self:center}
+.now-where{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3)}
+.now-where select{font:inherit;color:var(--ink);background:var(--raised,var(--bg));border:1px solid var(--edge);
+  border-radius:8px;padding:4px 8px;max-width:220px}
+@media (max-width:640px){.now-where{margin-left:0;width:100%}.now-where select{flex:1;min-width:0;max-width:none}}
+.band{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:0;
+  border:1px solid var(--edge);border-radius:var(--r);background:var(--panel);overflow:hidden;margin-top:8px}
+.band-label{padding:8px 12px 8px 14px;border-right:1px solid var(--edge);display:grid;gap:2px;align-self:stretch;align-content:center;position:relative}
+.band-label::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--signal);opacity:.75}
+#band-flights .band-label::before,.band:nth-of-type(3) .band-label::before{background:var(--settled)}
+.band:nth-of-type(2) .band-label::before{background:var(--hold)}
+.band{transition:border-color .2s,box-shadow .25s}
+.band:hover{border-color:var(--edge-2);box-shadow:0 10px 24px -18px rgba(12,17,22,.4)}
+.band-label span{font-weight:600;font-size:13.5px}
+.band-label small{font-size:11px;color:var(--ink-3);line-height:1.3}
+.band-track{overflow:hidden;position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+.band-run{display:inline-flex;gap:10px;padding:9px 10px;white-space:nowrap;width:max-content;
+  animation:band var(--dur,60s) linear infinite}
+.band:hover .band-run,.band:focus-within .band-run{animation-play-state:paused}
+@keyframes band{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.chip{display:inline-flex;gap:8px;align-items:center;padding:6px 11px;border-radius:999px;
+  border:1px solid var(--edge);font-size:13px;color:var(--ink-2);text-decoration:none;background:var(--panel)}
+a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
+.chip b{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink)}
+.chip .mag{padding:1px 7px;border-radius:999px;background:var(--sunk)}
+.chip .mag.m5{background:var(--hold-wash);color:var(--hold)}
+.chip .mag.m6{background:var(--crit-wash);color:var(--crit)}
+/* A reading past a level the cover cares about colours the whole chip, so a
+   glance at the band finds it: amber for notable, red for severe, blue for cold. */
+.chip.lv-warn{border-color:var(--hold);background:var(--hold-wash)}
+.chip.lv-crit{border-color:var(--crit);background:var(--crit-wash)}
+.chip.lv-crit b,.chip.lv-crit span{color:var(--crit)}
+.chip.lv-warn b{color:var(--hold)}
+.chip.lv-cold{border-color:#4C8DFF;background:rgba(76,141,255,.12)}
+.chip.lv-cold time{color:#4C8DFF;font-weight:600}
+.chip.lv-hot time{color:var(--hold);font-weight:600}
+.chip time{font-size:11.5px;color:var(--ink-3);font-family:var(--mono)}
+.chip .flag{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--crit)}
+.band-empty{padding:12px 14px;font-size:13px;color:var(--ink-3)}
+@media (max-width:640px){.band{grid-template-columns:1fr}.band-label{border-right:0;border-bottom:1px solid var(--edge);padding:8px 12px}}
+@media (prefers-reduced-motion:reduce){.band-track{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
+  .band-run{animation:none}.band-run .dup{display:none}}
+
+/* The digest, above the hero. The three bands are the detail and they sit at
+   the foot of the home page, where a reader who never scrolls -- most of them
+   -- never learns that any of this is live. One row above the hero carries the
+   same readings. Measured before it was built: the whole section above the hero
+   would have taken 457px of a 390x844 phone, 54% of the first screen before its
+   first word; one row takes 57px. So it keeps its two columns at every width,
+   where the section below stacks, and it carries no source line -- a one-line
+   label is what holds the row to the height of a single chip. */
+.now-top{padding-top:10px;padding-bottom:0}
+.band-one{margin-top:0}
+.band-one .band-run{align-items:center}
+/* The stand-in is a chip, so the row is a chip tall whatever it says -- and what
+   it says is kept to the width there is. At 320px the track is 182px and six of
+   the seven translations wanted between 183 and 219, so a reader was shown most
+   of a sentence with a mask over the cut. It ends in an ellipsis now, which says
+   it was cut, and at 390px nothing is. The text sits in a span because the
+   ellipsis needs a block to happen in and the chip's own height comes from its
+   being a flex row -- changing that changes the height this exists to hold. */
+.band-one .band-run.one-line{width:100%}
+.band-one .chip.saying{max-width:100%;min-width:0}
+.band-one .chip.saying>span{display:block;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;min-width:0}
+@media (max-width:640px){
+  .band-one{grid-template-columns:104px 1fr}
+  .band-one .band-label{border-right:1px solid var(--edge);border-bottom:0;padding:8px 10px}
+  .band-one .band-label span{font-size:12.5px;line-height:1.2}
+}
+
+/* A live register, not a ticker-tape decoration. */
+section.now{background:var(--sunk)}
+.now-head{margin-bottom:16px}
+.now-head b{font-size:16px}
+.now-head .pip{animation:none}
+.band{border-radius:12px;box-shadow:none;transition:border-color var(--motion-hover) var(--ease-enter)}
+.band:hover{box-shadow:none;border-color:var(--edge-2)}
+.band-track{overflow-x:auto;scrollbar-width:thin;-webkit-mask-image:none;mask-image:none}
+.band-run{animation:none;padding:10px 12px}
+.band-run .dup{display:none}
+.chip{min-height:44px;padding:8px 12px;background:var(--panel)}
+.now-top{padding-top:12px}
+.band-one{background:var(--panel)}
+@media (max-width:640px){
+  .band-one{grid-template-columns:112px minmax(0,1fr)}
+  .band-label{padding:10px 12px}
+}
+

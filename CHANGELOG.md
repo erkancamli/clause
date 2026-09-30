@@ -1,5 +1,147 @@
 # Changelog
 
+## 1.48.0, 30 September 2026
+
+- "Nobody decides whether you get paid" was the largest line on How it works,
+  and the page's own questions page said otherwise four screens away.
+
+  A licensed company decides whether to issue the policy: the premium is held
+  and not taken while it screens the buyer against sanctions lists, confirms
+  who they are above a certain size, and confirms the thing is theirs.
+  Validators decide what reading reaches the chain, and the page says in the
+  same breath that disagreeing is possible and only expensive. Both are
+  decisions, and both are somebody's.
+
+  What nobody does is look at the damage afterwards and form an opinion about
+  what it was worth. That is the thing the product actually removes and the
+  thing worth saying, so the line is "A measurement decides what you are paid,
+  not an assessor", in six languages. The paragraph under it already said as
+  much and did not need changing.
+
+- The line the three deferrable surfaces sit behind, drawn where it can hold.
+
+  A company's desk with the operator's screens, the proof register with the
+  chain beside it, and the profile: 193,502 bytes of script, and a buyer walking
+  a whole purchase touches 9, 14 and 5 per cent of them. They are the three
+  worth fetching only when somebody opens one.
+
+  They could not be. Sixteen declarations written inside them were used outside
+  them, and none of the sixteen was incidental: the cover flow reads the buyer's
+  saved things through `loadAssets` and `ASSETS`, My cover draws its payout,
+  mandate and funding panels from the profile's file, signing out clears the
+  operator's session through `opSignOut`, and `downloadCsv` and `bindTokens` are
+  simply general helpers that happened to be written in a desk. Moving those
+  sixteen pulled sixteen more after them, and those settled after three rounds.
+
+  Thirty-two declarations are in `site/app/44-always-loaded.js` now, on the side
+  of the line that is always in the page. Nothing else changed: no line of the
+  script was lost or written, only moved, which is checked by comparing the
+  parts line for line before and after. Every one of the fifteen screens was
+  opened in a browser afterwards and every one of them draws, with no error
+  anywhere.
+
+  The line itself is now a test rather than an intention. One new name declared
+  on the wrong side is a file that can no longer be deferred, and until somebody
+  tried it and measured, nothing would have said so.
+
+  This does not defer anything yet. The three are still inside the one closure,
+  and taking them out of it is the next step: they reach for 66 names the rest
+  of the closure declares, of which 62 are never reassigned and can be handed
+  over by value, and four, `link`, `t`, `LANG` and `identity`, are, so they have
+  to be read through the thing that holds them rather than copied out of it.
+
+- The script is twenty-three files, and site/index.html is no longer a page.
+
+  598,208 bytes of it, 9,617 lines, in one block. It is `site/app/` now, cut at
+  the headings the script had already written for itself, and the build joins
+  the parts back where they were listed. The published page is byte for byte
+  the one published before either split, 623,103 bytes, down to the build name.
+
+  The first attempt was wrong and the browser said so in four words. The parts
+  were linked as scripts for a browser to fetch, and the first one stopped it
+  on "Unexpected end of input": the whole script is the inside of a single
+  `(function(){ ... })()`, so a part cut out of it opens braces it never
+  closes, and separate files cannot share a closure. Twenty-one of the
+  twenty-three parts parse alone and two do not, which is exactly the way for
+  an arrangement like this to look right and be broken.
+
+  So the parts are listed and not fetched, under an attribute a browser does
+  not act on, and `site/index.html` stopped being a page a browser can run.
+  `python3 site/build.py --dev` assembles it into `site/dev.html`, beside it so
+  every relative path still resolves, unminified so it can be read and stepped
+  through. What is checked in a browser is now what is published rather than a
+  second arrangement that drifts from it.
+
+  Fifty-two tests were reading the script out of `site/index.html` and would
+  have gone on passing while reading nothing at all. They read the page as a
+  browser ends up with it, markup and styles and script together, through one
+  helper.
+
+  One of those tests was mine, written earlier the same day, and it had the
+  fault it was written to prevent. It proved the rounding scenario was real by
+  checking that 120 m² at 519.29 per m² falls between two whole numbers. The
+  rate reached 519.33 and it does not any more, so the test went quiet rather
+  than red. It now looks for an area that splits instead of naming one.
+
+- Measured before deciding what to do about the weight, and the measurements
+  cancelled the plan they were taken for.
+
+  Splitting by route, which is what the weight was assumed to need, would move
+  46 KB of 598 KB. Every screen runs about the same 145 KB and differs by a
+  slice: proof 13,970 bytes, insurers 12,299, rules 7,578, and the rest under
+  three thousand each.
+
+  The plan was route-splitting because 76 per cent of the script never runs on
+  a visit. It does not follow, and the second measurement says why. Walked
+  through a whole purchase, from the home page to the signing step, a buyer
+  runs 208,921 bytes of 598,203, and 389,282 bytes, 65 per cent, never run at
+  all. What is heavy is not the screens; it is signing in, paying, and the
+  desks a company and an operator work at.
+
+  Attributed to the files the script is now cut into: a buyer touches 9 per
+  cent of the 92,666 bytes of company and operator, 14 per cent of the 57,870
+  of proof and chain, 5 per cent of the 42,966 of the profile. Emptying those
+  three and building takes the published page from 623,725 bytes to 479,626,
+  and the wire, brotli, from 137,548 to 107,531. That is the prize for
+  deferring them, measured rather than guessed: 30 KB fewer to download and
+  144 KB fewer to parse on a phone. They cannot be deferred while they are
+  inside the one closure, and that is the next piece of work rather than this
+  one.
+
+- The stylesheet is nine files and the published page is unchanged.
+
+  `site/index.html` is 897,113 bytes and 13,894 lines, and 156,879 of those
+  bytes were a single style block inside it. Nothing could be worked on in
+  there by two people at once, and nothing could be worked on in there by one
+  person without reading past the other 740,000 bytes to find it.
+
+  It is `site/styles/` now, cut at the headings the stylesheet already wrote
+  for itself: tokens, header, controls, views, the live strip, home, the
+  purchase flow, how it works, and the rest. The build concatenates them in
+  the order the page links them, so what is published is one inlined block as
+  before. It is byte for byte the page that was published before the split,
+  623,103 bytes, which is the point: this changed nothing a reader can see.
+
+  Two things had to be got right. Order is the cascade, and a stylesheet read
+  out of order fails silently, so the numbers in the file names carry it and a
+  test refuses a page that links them in another order or leaves one on disk
+  unlinked. And a relative path in a stylesheet is read from where the
+  stylesheet is: the fonts and the mark 404ed the moment they moved into
+  `styles/`, so the parts say `../fonts/` and the build takes the `../` off
+  when it puts them back in the page. Both are held by tests that fail when
+  the rule is broken.
+
+  Measured while doing it, because the figures this was planned against were
+  three days old and two of them were wrong. The script, not the markup, is
+  what a visitor pays for: 76 per cent of the page's 600,722 bytes of script
+  never runs on a visit, where an earlier count said 27 per cent, and that
+  count was reached by adding up function spans that contain one another. Of
+  the fifteen screens the document holds, five hold fewer than twenty nodes
+  each, so the operator, company and profile surfaces a reader never opens are
+  already empty shells rather than the weight they were assumed to be. The one
+  developer surface that is heavy is the chain page, at 222 nodes and 30,769
+  bytes of markup.
+
 ## 1.47.0, 29 September 2026
 
 - Two covers on one building felt the same earthquake as two different

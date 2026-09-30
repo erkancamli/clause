@@ -17,6 +17,7 @@ import pytest
 
 from clause.perils.quake import Earthquake
 from clause.protocol.valuation import ValuationError, value_of
+from conftest import page_assembled
 
 KADIKOY = {"latitude": 40.9903, "longitude": 29.0270, "radius_km": 50}
 
@@ -94,8 +95,7 @@ def test_the_page_prices_an_unsaid_year_the_same_way_the_protocol_does() -> None
 
     from clause.protocol.valuation import BUILT, schedule
 
-    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(
-        encoding="utf-8")
+    page = page_assembled()
     body = page[page.index("function structure()"):]
     body = body[:body.index("\n}\n")]
 

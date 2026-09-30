@@ -1,0 +1,333 @@
+
+/* The three Latin families, served from here.
+
+   They used to come from fonts.googleapis.com, which costs every visitor two
+   handshakes to a third party before a single word can be drawn in the right
+   face: the browser has to resolve and connect to googleapis, fetch a
+   stylesheet, parse it to learn the font URLs, and only then resolve and
+   connect to gstatic to ask for them. None of that is on the critical path any
+   more, and no visitor's address is handed to anybody to read this page.
+
+   Weights are not listed one by one on purpose. Archivo and IBM Plex Sans are
+   variable, and their whole ranges cost 34 KB and 45 KB of Latin; the four
+   weights this page sets, asked for as four static faces, cost 115 KB for Plex
+   Sans alone. Only the alphabets this site is written in are carried -- Latin,
+   its extension for Turkish and the rest, and Cyrillic for Russian -- and a
+   browser fetches only the slices the text on the screen actually needs.
+
+   Japanese is the exception and stays where it was. Its cut is a CJK family
+   that Google serves as a hundred-odd slices keyed by unicode-range, so a
+   Japanese page pulls only the characters it sets; carrying it here would mean
+   shipping megabytes to everybody for the readers of one language. It is
+   fetched on demand, after first paint, by Japanese readers only. */
+@font-face{font-family:'Archivo';font-style:normal;font-weight:100 900;font-display:swap;src:url(../fonts/archivo-100to900-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Archivo';font-style:normal;font-weight:100 900;font-display:swap;src:url(../fonts/archivo-100to900-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:100 700;font-display:swap;src:url(../fonts/ibm-plex-sans-100to700-cyrillic-ext.woff2) format('woff2');unicode-range:U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:100 700;font-display:swap;src:url(../fonts/ibm-plex-sans-100to700-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:100 700;font-display:swap;src:url(../fonts/ibm-plex-sans-100to700-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:100 700;font-display:swap;src:url(../fonts/ibm-plex-sans-100to700-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ibm-plex-mono-400-cyrillic-ext.woff2) format('woff2');unicode-range:U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ibm-plex-mono-400-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ibm-plex-mono-400-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url(../fonts/ibm-plex-mono-400-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/ibm-plex-mono-500-cyrillic-ext.woff2) format('woff2');unicode-range:U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/ibm-plex-mono-500-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/ibm-plex-mono-500-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url(../fonts/ibm-plex-mono-500-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+
+/* The Japanese cut goes in front of both stacks, but only on a Japanese page,
+   so a reader in any other language never pays for a family they cannot read. */
+html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
+  --body:"IBM Plex Sans JP","IBM Plex Sans",system-ui,sans-serif}
+:root{
+  color-scheme:dark;
+  --ground:#07090D; --panel:#0E1319; --raised:#161E27; --sunk:#0A0F14;
+  --float:#1F2832;
+  --edge:#1D2631; --edge-2:#2A3644;
+  /* Two border tiers, and they are not interchangeable. --edge draws
+     dividers and the decorative edge of a panel, where nothing depends on
+     seeing it. --edge-ctl draws the boundary of a control whose boundary is
+     the only thing saying it is one: an input, a select, an outline button.
+     Measured at 3.01:1 on the ground and 3.08:1 on a raised surface, which
+     is what WCAG 1.4.11 asks for and what --edge (1.10:1) never gave. */
+  --edge-ctl:rgba(255,255,255,.34);
+  /* The diagrams are drawn, not decorated: their lines carry the meaning,
+     so they answer to 1.4.11 as Graphical Objects and need 3:1. Drawn in
+     --edge-2 they measured 1.57:1, which is why the hero illustration read
+     as an empty panel. --art-line-soft is for the rings and haloes that
+     only set a mood. */
+  /* Measured again, with APCA beside WCAG. #5C6A78 cleared 1.4.11's 3:1 on
+     every dark surface -- 3.03 at worst -- and measured Lc 22.3, which is a
+     line you cannot see. That is not a disagreement about taste: WCAG 2's
+     formula adds 0.05 to both sides before dividing, which inflates every
+     dark pair, so a dark interface can satisfy it and still be drawn in
+     lines nobody can follow. The hero illustration reading as an empty panel
+     was this fault once before, fixed then to the 3:1 that was asked for and
+     no further. This is the same hue and saturation, lifted until it clears
+     Lc 45 on the worst surface it is drawn on (45.1 on --raised); every WCAG
+     ratio went up with it, to 5.85 at worst. */
+  --art-line:#8D9AA7; --art-line-soft:#364351;
+  --ink:#E9EFF5; --ink-2:#D2E0EE; --ink-3:#C4D2DF;
+  /* One orange, the same in both themes. It used to be #FF6A2B here and
+     #C83700 in the light theme, which measured 2.86:1 on white -- under the
+     3:1 that WCAG 1.4.11 asks of a control's own boundary -- so the light
+     theme had been forked to get legal. The fork worked and cost the brand:
+     the two are 0.05 apart in OKLab, bright orange by night and burnt brick
+     by day, which is two brands and not one.
+       #E66700 is oklch(66% 0.180 48). At that lightness one value clears 1.4.11
+     on both grounds: 3.33:1 on white, 3.11:1 on the paper ground, 5.98:1 on
+     the dark ground. Moving the hue from 40.7 to 47.9 also pulls it away from
+     --crit, which sat 14.2 degrees from it in the light theme: at 12px, on a
+     pip, the brand and the alarm were the same colour in a product whose job
+     is saying what state a policy is in. They are now 25.9 apart.
+       Three roles, because the contrast each one owes is different. --signal
+     fills and strokes (1.4.11, 3:1). --signal-line draws a control's boundary
+     and the focus ring. --signal-ink is the accent as a word (1.4.3, 4.5:1),
+     and it is the one thing here that cannot hold a single value: no colour
+     of any hue reaches 4.5:1 against both grounds. */
+  --signal:#E66700; --signal-2:#F98A32; --signal-line:#F98A32; --signal-ink:#FFCAA4;
+  --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
+  --settled:#24D3A5; --hold:#F0B429; --crit:#FF4D5E;
+  --signal-wash:rgba(230,103,0,.13); --settled-wash:rgba(36,211,165,.13);
+  --hold-wash:rgba(240,180,41,.13); --crit-wash:rgba(255,77,94,.13);
+  --grid:rgba(233,239,245,.045);
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  /* Elevation, in three steps. A surface that sits on the page, one that
+     lifts toward the pointer, and one that floats over it. The hairline is
+     the light catching a panel's top edge, which is what keeps a dark
+     interface from reading as flat paint. */
+  --lift-1:0 1px 2px rgba(0,0,0,.4),0 2px 10px -6px rgba(0,0,0,.6);
+  --lift-2:0 2px 6px rgba(0,0,0,.45),0 16px 34px -14px rgba(0,0,0,.75);
+  --hairline:inset 0 1px 0 rgba(255,255,255,.055);
+  --sunk-in:inset 0 1px 2px rgba(0,0,0,.35);
+  /* Archivo ships latin and latin-ext only. In Russian its headings were
+     falling through to whatever font the reader's system offered, which is
+     not a design decision, it is the absence of one. IBM Plex Sans has a
+     Cyrillic cut drawn by the same people as the body face, so Russian
+     headings are set in that instead, at a heavier weight. Japanese is
+     handled the same way, by a family loaded only when it is needed. */
+  --display:"Archivo","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:12px; --r-sm:8px;
+  /* How long a line of running prose may be, said once.
+
+     Not in CSS ch, which is the width of the digit zero: in this face that is
+     1.364 times the average character of a sentence, measured rather than
+     assumed. So every max-width written in ch was holding a line a third
+     longer than the number said, and 62ch meant eighty five characters and
+     not sixty two. Half the site read past the top of the band that way, and
+     the privacy page at a hundred and five characters to a line was the worst
+     of it.
+
+     55ch is about seventy five characters, which is inside the band at every
+     size the site sets type in, because ch scales with the font. */
+  --measure:55ch;
+  --gutter:clamp(16px,4vw,40px); --max:1240px; --mark-invert:1;
+}
+@media (prefers-color-scheme:light){ :root:not([data-theme="dark"]){
+  color-scheme:light; --mark-invert:0;
+  --ground:#F7F5F0; --panel:#FFFDF9; --raised:#FFFFFF; --sunk:#EFECE5;
+  --float:#FFFFFF;
+  --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
+  --art-line:#7D7C78; --art-line-soft:#A7A59F;
+  /* One ladder in both themes: secondary and tertiary have to stay a step
+     apart rather than collapse into one tier with two names, and tertiary is
+     what the 10.5px uppercase labels are set in, which is the size APCA is
+     strictest about, not the most forgiving. Measured on the sunk surface,
+     which is the worst of them: secondary Lc 84.5, tertiary Lc 76.2, a step of
+     8.3 against the dark theme's 8.6.
+
+     Warming the ink narrowed that step to 5.2 and no test noticed, because
+     both tiers still cleared the floor a word at a reading size needs and the
+     floor was the only thing held. The step is held as well now. */
+  --ink:#171512; --ink-2:#3F3B36; --ink-3:#55514B;
+  --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
+  --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
+  --settled:#007157; --hold:#855800; --crit:#B62734;
+  --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
+  --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
+  --grid:rgba(23,21,18,.045);
+  --shadow:0 18px 50px -28px rgba(31,25,17,.28);
+  --lift-1:0 1px 2px rgba(31,25,17,.06);
+  --lift-2:0 12px 32px -22px rgba(31,25,17,.3);
+  --hairline:inset 0 1px 0 rgba(255,255,255,.9);
+  --sunk-in:inset 0 1px 2px rgba(12,17,22,.06);
+}}
+:root[data-theme="light"]{
+  --mark-invert:0;
+  color-scheme:light;
+  --ground:#F7F5F0; --panel:#FFFDF9; --raised:#FFFFFF; --sunk:#EFECE5;
+  --float:#FFFFFF;
+  --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
+  --art-line:#7D7C78; --art-line-soft:#A7A59F;
+  /* One ladder in both themes: secondary and tertiary have to stay a step
+     apart rather than collapse into one tier with two names, and tertiary is
+     what the 10.5px uppercase labels are set in, which is the size APCA is
+     strictest about, not the most forgiving. Measured on the sunk surface,
+     which is the worst of them: secondary Lc 84.5, tertiary Lc 76.2, a step of
+     8.3 against the dark theme's 8.6.
+
+     Warming the ink narrowed that step to 5.2 and no test noticed, because
+     both tiers still cleared the floor a word at a reading size needs and the
+     floor was the only thing held. The step is held as well now. */
+  --ink:#171512; --ink-2:#3F3B36; --ink-3:#55514B;
+  --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
+  --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
+  --settled:#007157; --hold:#855800; --crit:#B62734;
+  --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
+  --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
+  --grid:rgba(23,21,18,.045);
+  --shadow:0 18px 50px -28px rgba(31,25,17,.28);
+  --lift-1:0 1px 2px rgba(31,25,17,.06);
+  --lift-2:0 12px 32px -22px rgba(31,25,17,.3);
+  --hairline:inset 0 1px 0 rgba(255,255,255,.9);
+  --sunk-in:inset 0 1px 2px rgba(12,17,22,.06);
+}
+
+*{box-sizing:border-box}
+/* Moving to a field scrolls it into view, and the window's own idea of
+   "in view" ends at its edges: it does not know about the header stuck to
+   the top or the price bar stuck to the bottom, so a field could take
+   focus and sit behind one of them. WCAG 2.2 calls that Focus Not
+   Obscured. Padding the scrollport takes both out of the reckoning, and
+   unlike a margin on the field it also settles whether to scroll at all,
+   which is the case a margin cannot reach. --pricebar-h is measured and
+   is 0px when no bar is up. */
+html{-webkit-text-size-adjust:100%;
+  /* The header's real height, measured, with the hand-set value as the
+     fallback for the moment before the script has run. It was 61px when
+     these offsets were written and every one of them added a margin to that
+     by hand. At 1024 the navigation wraps and the header is 89, so a panel
+     stuck at 76 sat thirteen pixels under it -- and the navigation wraps
+     sooner in a language whose words are longer, which is most of them. */
+  --header-h:61px;
+  scroll-padding-top:calc(var(--header-h) + 35px);
+  scroll-padding-bottom:calc(var(--pricebar-h,0px) + var(--tabbar-h,0px) + 24px)}
+/* A column the height of the window, so a short page keeps its footer at
+   the bottom instead of leaving it halfway up with dark ground beneath. */
+body{margin:0;min-height:100svh;display:flex;flex-direction:column;
+  background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+/* Tracking follows size, because one value cannot serve both. A display
+   line needs the letters pulled together or it reads as a row of separate
+   shapes; a 15px sub-heading at the same setting reads as cramped. The
+   curve runs from about -.035em at the top to nearly nothing at label
+   sizes, which is the shape Inter publishes as its Dynamic Metrics. */
+/* A heading breaks a word rather than running off the page. German
+   compounds are longer than a phone is wide: "Versicherungsschutz" in
+   the home page headline measured 387px in a 308px column and was only
+   ever invisible because the hero clipped whatever left it. */
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;
+  text-wrap:balance;overflow-wrap:break-word}
+h3{letter-spacing:-.018em}
+h4{letter-spacing:-.008em}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+
+/* ---------------- bands ----------------
+   A band is the full width of the window and carries one section. Its ground
+   changes from one to the next, so a 2560px screen reads as a page with parts
+   rather than a narrow column adrift in white -- which is what it was, and what
+   no amount of widening the column was going to fix. Measured against the sites
+   this one is held to: Stripe caps its column at 939px, Lemonade at 1025,
+   Hippo at 1250, Linear at 1280. None of them is wide. All of them are banded.
+   The surfaces are the ones the palette already carries and the contrast tests
+   already measure, so a band cannot introduce a pair nobody has checked. */
+/* == scoped styles for #view-rialo, begin ==
+   Three small shapes: the calls this protocol makes, the
+   figures the chain publishes about itself, and what it has written. */
+.rialo-calls{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r-sm);overflow:hidden;margin-top:16px}
+.rialo-call{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:6px 16px;
+  align-items:baseline;background:var(--panel);padding:12px 14px}
+.rialo-call code{font-size:13px;color:var(--signal-ink);overflow-wrap:anywhere}
+.rialo-call span{font-size:13.5px;color:var(--ink-2)}
+@media (max-width:560px){.rialo-call{grid-template-columns:minmax(0,1fr)}}
+.rialo-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin-top:16px}
+.rialo-figs > div{background:var(--panel);border:1px solid var(--edge);
+  border-radius:var(--r-sm);padding:14px 16px;display:grid;gap:4px}
+.rialo-figs b{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums}
+.rialo-figs span{font-size:12.5px;color:var(--ink-2);line-height:1.4}
+.pubs{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+  border-radius:var(--r-sm);overflow:hidden}
+a.pub{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;
+  background:var(--panel);padding:12px 14px;text-decoration:none;color:inherit}
+a.pub:hover{background:var(--sunk)}
+a.pub .no{font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;padding-top:3px}
+a.pub .nm{font-size:14.5px;font-weight:500;line-height:1.35}
+a.pub .wn{grid-column:2;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+a.pub .sm{grid-column:2;font-size:13px;color:var(--ink-2);line-height:1.5;margin-top:2px}
+@media (max-width:560px){
+  a.pub{grid-template-columns:minmax(0,1fr)}
+  a.pub .wn,a.pub .sm{grid-column:1}
+}
+/* == scoped styles, end == */
+.slab{width:100%;padding-block:var(--slab-y,clamp(40px,6vw,88px))}
+.slab-sunk{background:var(--sunk)}
+.slab-panel{background:var(--panel)}
+.slab-edge{border-top:1px solid var(--edge)}
+.slab-tight{--slab-y:clamp(24px,3.4vw,48px)}
+
+/* A band inside a column. Every screen but the home page is one wrap with its
+   sections stacked inside it, and rebuilding that markup to hang each section
+   off the page root would touch every line of four screens to change where a
+   background starts. This reaches the window's edges from inside the column and
+   puts its own content back where the column had it, so the ground is a band
+   and the words never move. 100% of the parent rather than 100vw, because vw
+   counts the scrollbar and a band a few pixels wider than the window is a
+   window that scrolls sideways -- which is measured, not assumed. */
+.full{margin-inline:calc(50% - 50vw);padding-inline:calc(50vw - 50%)}
+@supports (width:1svw){
+  .full{margin-inline:calc(50% - 50svw);padding-inline:calc(50svw - 50%)}
+}
+.full-sunk{background:var(--sunk)}
+.full-panel{background:var(--panel)}
+.full-edge{border-block:1px solid var(--edge)}
+.full-y{padding-block:var(--slab-y,clamp(34px,4.6vw,68px))}
+/* The page grows with the screen, in steps rather than continuously, because
+   a layout that stretches forever turns a paragraph into a line nobody can
+   track back to. On a 2560 monitor the old 1360 left six hundred empty pixels
+   down each side and the page read as a narrow card floating in a room.
+   Widening the page is safe because prose is capped separately, in ch: what
+   gets the extra width is the work -- grids, registers, tables, the
+   instrument -- and not the sentences. */
+@media (min-width:1500px){:root{--max:1360px}}
+@media (min-width:1800px){:root{--max:1440px;--gutter:56px}}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+.label{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+
+/* ---------------- 2026 visual system ----------------
+   A small, explicit scale shared by every screen. */
+:root{
+  --r:12px;--r-sm:8px;--r-lg:16px;--r-hero:24px;
+  --max:1248px;--measure:44rem;--gutter:clamp(32px,4vw,48px);
+  --ease-enter:cubic-bezier(.2,0,0,1);
+  --ease-exit:cubic-bezier(.4,0,1,1);
+  --motion-press:90ms;--motion-hover:140ms;--motion-screen:220ms;
+}
+body{line-height:1.5}
+h1{font-size:clamp(42px,5vw,64px);line-height:1.02}
+h2{font-size:clamp(40px,4vw,52px);line-height:1.08}
+h3{line-height:1.2}
+.label{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:0;
+  text-transform:none}
+@media (max-width:760px){
+  :root{--gutter:20px}
+  h1{font-size:clamp(42px,12vw,52px)}
+  h2{font-size:clamp(32px,10vw,40px)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;
+    scroll-behavior:auto!important}
+}
+
