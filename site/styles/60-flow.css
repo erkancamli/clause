@@ -487,6 +487,16 @@ tr:last-child td{border-bottom:0}
 @media (max-width:760px){
   .steps{margin-bottom:32px}
   .q-body{margin-top:24px}
+  /* On one column, the matches answer the search before the map illustrates
+     it. Once a place is chosen, keep that answer visible without making the
+     buyer pass every unchosen match again to reach the map. */
+  #asset-chips{order:1}
+  #s2-search{order:2}
+  #s2-locate{order:3}
+  #s2-opts{order:4}
+  #where-map{order:5}
+  #map-note{order:6}
+  #s2-opts:has(.opt[aria-pressed="true"]) .opt:not([aria-pressed="true"]){display:none}
   .pay-row,.pay-row:nth-last-child(2),.pay-row:nth-last-child(3),
   .pay-row:nth-last-child(4),.pay-row:nth-last-child(5){width:100%}
   .pay-rows{border-right:0}
