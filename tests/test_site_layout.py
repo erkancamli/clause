@@ -163,3 +163,47 @@ def test_the_ceiling_says_what_it_leaves_out() -> None:
     # also mentions the home kind, so a loose window passes a broken guard.
     said = page[page.index(plain) - 40:page.index(plain)]
     assert said.lstrip().startswith('(z.kind==="home"?'), said
+
+
+def test_the_live_band_moves_unless_the_reader_asked_it_not_to() -> None:
+    """A register that has stopped looks like a register that is wrong.
+
+    The three bands under the home page carry the readings the protocol
+    settles against: earthquakes in the last day, today's weather, delays at
+    the airports. They scroll because there are more of them than fit, and the
+    duplicate copy inside each one is what makes the loop seamless.
+
+    They were turned off for everybody, under a note calling them ticker-tape
+    decoration and a rule against continuous background animation. That rule is
+    about decoration behind the words. These are the words. Measured in a
+    browser afterwards, the band moved 0.0px in two and a half seconds.
+
+    Stopping was already handled where stopping is what somebody asked for:
+    prefers-reduced-motion gets no animation, no duplicate, and a track it can
+    scroll itself. Hover and focus pause it for everybody else. Turning it off
+    for everybody left both of those as rules that could never apply, which is
+    how a deliberate choice and a mistake look identical afterwards.
+
+    Measured with the animation back: 135.0px in two and a half seconds, and
+    0.0px for a context asking for less motion.
+    """
+    css = STYLES
+
+    # The rule that moves it, and the frames it moves through.
+    assert re.search(r"\.band-run\{[^}]*animation:band\s", css), (
+        "the band is not given the animation that moves it"
+    )
+    assert "@keyframes band{" in css, "the frames the band moves through are gone"
+
+    # Nothing outside a reduced-motion block may take it away again.
+    outside = re.sub(r"@media\s*\(prefers-reduced-motion:reduce\)\s*\{(?:[^{}]|\{[^{}]*\})*\}", "", css)
+    for stopped in re.finditer(r"\.band-run[^{@]*\{([^}]*)\}", outside):
+        assert "animation:none" not in stopped.group(1).replace(" ", ""), (
+            "the band is stopped for every reader, not only for one who asked"
+        )
+
+    # And the two ways it is allowed to stop are still there.
+    assert "prefers-reduced-motion:reduce" in css, "there is no reduced-motion answer at all"
+    assert re.search(r"\.band:hover \.band-run[^{]*\{[^}]*animation-play-state:paused", css), (
+        "it no longer pauses under the pointer"
+    )

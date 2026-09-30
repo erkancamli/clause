@@ -1,5 +1,72 @@
 # Changelog
 
+## Unreleased
+
+- The address a buyer types is not where the policy measures.
+
+  The place is picked on one screen and the address is typed on the next, and
+  nothing joined them. The list on the second step offers provinces, because
+  the same list serves a drought policy that settles at a named station. Pick
+  "Adana" and the point the policy measures is the middle of Adana. Type a
+  street in Ceyhan on the screen after, forty-four kilometres east, and nothing
+  moves: the address is kept as text and `flow.subject` stays where it was.
+  Driven in a browser, that purchase reaches the signing step with the address
+  reading Ceyhan and the measurement at Adana's centre.
+
+  The two are not the same risk. The model puts intensity 7 at Adana's centre
+  once in 581 years and at Ceyhan once in 305, and the expected loss on the
+  same cover is 144.76 against 224.37, half as much again.
+
+  It would be easy and wrong to call that underpaying, and the first version of
+  this note did. The premium runs the other way, 456.74 against 380.24, because
+  the middle of Adana is where the book is already concentrated and capital
+  there costs more: the risk load is 300.39 against 137.92. The model is doing
+  exactly what it should. What the interface was doing is measuring the policy
+  forty-four kilometres from the building it is written on, so a shake that
+  crosses the line over the building need not cross it where the policy is
+  looking. That is basis risk, and it was made here rather than by the model.
+
+  The address is looked up now and what came back is put in front of the buyer
+  with the distance, and one press moves the measurement and reprices. It is
+  never moved on its own, and that is not caution for its own sake: a geocoder
+  answers a street that does not exist with a street that does. "Ceyhan Caddesi
+  14, Ceyhan" comes back as an address in Ankara, 398 kilometres away, without
+  hesitating. A policy moved there unasked would be a worse defect than the one
+  this fixes. Under a kilometre nothing is said at all, because a buyer who
+  searched their own street does not need telling about it.
+
+  Measured on the way: the eight places offered before anything is typed are
+  the first eight in the index, which is alphabetical, so the most valuable
+  space on that screen holds Adana, Adıyaman and Afyonkarahisar. That is a
+  separate thing and is not fixed here.
+
+- The live bands had been stopped for every reader.
+
+  Three bands under the home page carry the readings the protocol settles
+  against: the earthquakes of the last day, today's weather, the delays at the
+  airports. They scroll because there are more of them than fit, and the
+  duplicate copy inside each is what makes the loop seamless. Four declarations
+  appended to the stylesheet turned all of that off, under a note calling them
+  ticker-tape decoration.
+
+  The rule they were written against is about decoration behind the words.
+  These are the words, and a register that has stopped looks like a register
+  that is wrong. Stopping was already handled where stopping is what somebody
+  asked for, forty lines above: a reader who sets prefers-reduced-motion gets
+  no animation, no duplicate and a track they can scroll themselves, and hover
+  or focus pauses it for everybody else. Turning it off for everybody left both
+  of those as rules that could never apply.
+
+  Measured with the movement back: 135.9px in two and a half seconds normally,
+  0.0px in a context asking for less motion. A test holds both, and fails
+  either when the band is stopped for everyone or when the pause under the
+  pointer is taken away.
+
+  The stylesheet here is the pass that stopped it putting it back, arrived at
+  independently and better than the version that replaced it: the same movement
+  restored, and the eleven declarations that had been appended folded into the
+  rules they were overriding at the same time. That version is the one kept.
+
 ## 1.48.0, 30 September 2026
 
 - "Nobody decides whether you get paid" was the largest line on How it works,
