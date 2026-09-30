@@ -2,6 +2,76 @@
 
 ## Unreleased
 
+- The paying screen reads as six named parts, and draws the payout once.
+
+  It was fifteen blocks in a row with nothing between them but a 14px gap, so
+  a reader could not tell where one subject ended and the next began, and the
+  two they most needed to find, who issues this and what it does not cover,
+  looked like everything else. It is six parts now, numbered and named: your
+  cover, when Clause pays, what this does not cover, who issues the policy,
+  documents, payment and acceptance.
+
+  It also held two drawings of the same three amounts. The payout ladder and
+  the exceedance curve are both read off the policy's own points, so the
+  figures arrived twice and the second time taught nothing; together they were
+  948px of a 4,675px step. The curve keeps what the ladder cannot carry, the
+  shape between the steps and how far the trigger sits from an ordinary
+  reading, so it is kept, behind a disclosure in the part it belongs to.
+
+  Its caption carried two sentences the ladder never had. Why the payout steps
+  now sits beside the ladder, which shows the steps and not the reason. That
+  the millimetres are a fifty kilometre grid average, which is basis risk in
+  one sentence, now sits in the part that names basis risk.
+
+  What the cover does not pay for was the last row of the summary table, under
+  a 10px uppercase label: the typography of a field name, for the one thing on
+  the screen a buyer is most likely to be wrong about. It is a part of its own
+  and reads as two sentences.
+
+- While the protocol answers, the paying screen shows the document arriving.
+
+  Six headings over six empty parts, each with a rule above it, reads as a
+  page that failed to load rather than one that is working. Each part now
+  carries a slot the shape of what will land in it, four steps of a ladder,
+  three lines of a company card. Part one keeps its sentence, because a shape
+  cannot say "working out your price".
+
+  Not every part waits for the price, and two of them were the reason to do
+  this carefully. The screening panel is drawn from who the buyer is and lands
+  seconds before the protocol answers; basis risk is read off the policy's own
+  structure and needs no price at all. A part that already has something to
+  show never shows a shape instead, and a shape stops the moment its own
+  content lands rather than when the price does.
+
+  Whether a part is filled is asked of its contents, not its geometry. An
+  empty ladder is 8px tall, because the ladder carries four pixels of padding
+  either side, and a height test called it full: the payout part, alone of the
+  six, then never showed what it was waiting for.
+
+- A protocol that says nothing is not a protocol that said no.
+
+  The page told a refusal from an answer still coming by whether the protocol
+  had sent a reason, and an answer that never arrives carries none. A quote
+  that timed out, a connection that dropped, or any error whose body has no
+  detail left the refusal empty, and every one of the five places a price goes
+  read that as "not answered yet".
+
+  Measured in a browser, holding the quote unanswered: the paying screen read
+  "Pricing…" for seventy-five seconds, which was as long as the measurement
+  was willing to look. No error, no alert, no way forward. The instrument was
+  checked first, because a held request could have been swallowing the abort
+  rather than the page ignoring it: an abort fires at 2001ms under a held
+  route, so the page's own twenty-five second timeout did fire and was thrown
+  away.
+
+  A refusal is the protocol's decision and it is final. A silence is not a
+  decision at all. They are told apart now, said differently, and the silence
+  is offered the one thing a decision cannot be offered: another go, with the
+  sentence a buyer needs first when a purchase screen goes wrong. Nothing is
+  charged and nothing is signed, and it says so. Pressing Try again against a
+  working protocol draws the ladder and returns the button to "Read and accept
+  the contract".
+
 - The address a buyer types is not where the policy measures.
 
   The place is picked on one screen and the address is typed on the next, and
