@@ -61,18 +61,44 @@
   at zero. It is real only in the band where the measured marginal is
   superlinear, and it is still open there.
 
-- The American model holds 1,418 published curves, up from 1,240.
+- 2,859 of the 3,408 American places this product offers can be bought today.
 
-  CONUS 1,404, Hawaii 13, Alaska 1. The depth it declares is the 1,300 largest
-  American places, of which 8 are still without a curve: Morris Heights,
-  Peachtree Corners, Huntsville, Warren, Amherst, Lancaster, Gainesville and
-  Montclair. The USGS hazard service was up and down all day: one pass took the
-  file from 1,240 curves to 1,318 and named 182 places it could not reach, a
-  later one reached 1,410 with nothing missed, and a pass over what was left
-  returned a single curve out of eighty three. A limit is a throttle on the
-  asking and not a decision about what to keep, so every curve already fetched
-  is still in the file; what the smaller number changes is the scope the model
-  claims to cover, which is now the scope it actually reaches.
+  The count that was being reported was curves fetched, and it answers the wrong
+  question. A place is sellable when a published curve sits within sixty
+  kilometres of it, not when it has one of its own, so most of the places no
+  build has reached are already priced from a neighbour's curve. What a buyer
+  cares about is whether their address is one of them.
+
+  | | places | share |
+  |---|---:|---:|
+  | sold today | 2,859 | 83.9% |
+  | refused: our model and the published one disagree | 381 | 11.2% |
+  | refused: nothing published within sixty kilometres | 168 | 4.9% |
+
+  The 381 are the guard on that disagreement doing exactly what the note beside
+  it says it does: "about one place in nine is refused by this, in both
+  countries." Measured here at 11.2%, which is that figure. The guard is not a
+  gap to close by loosening it. It is bound by the clamp on how far the map may
+  move an intensity, and where it binds our own event model is the thing that is
+  wrong: Jacksonville, a city of a million, gets intensity VII once in 164,848
+  years from our events and once in 7,357 from the USGS, and Atlanta once in
+  155,063 against once in 3,274. Those are parts of the country where the
+  historical record inside the circle is close to empty, so a model fitted to
+  that record reads almost no hazard while the published one still carries a
+  great deal. Which sources it carries there is not measured here and is not
+  guessed at. Refusing is right until our own model reaches the same figure.
+
+  The 168 are the ones a deeper build closes, and it is the smaller half.
+
+  Behind that, the curve count went from 1,240 to 1,500 and is still climbing:
+  CONUS 1,486, Hawaii 13, Alaska 1 at the time of writing. The USGS hazard
+  service was up and down through it. One pass took the file from 1,240 to 1,318
+  and named 182 places it could not reach, a later one reached 1,410 with
+  nothing missed, a pass over what was left returned a single curve out of
+  eighty three, and the next morning it answered six probes out of six. A limit
+  is a throttle on the asking and not a decision about what to keep, so every
+  curve already fetched is still in the file, and the depth the model declares
+  is settled against a finished run rather than a hopeful one.
 
   Anchorage and Hilo are sold. Fairbanks and Juneau are still refused, because
   nothing published sits within sixty kilometres of either; they open when the
