@@ -1,5 +1,41 @@
 # Changelog
 
+## Unreleased
+
+- The stylesheet is nine files and the published page is unchanged.
+
+  `site/index.html` is 897,113 bytes and 13,894 lines, and 156,879 of those
+  bytes were a single style block inside it. Nothing could be worked on in
+  there by two people at once, and nothing could be worked on in there by one
+  person without reading past the other 740,000 bytes to find it.
+
+  It is `site/styles/` now, cut at the headings the stylesheet already wrote
+  for itself: tokens, header, controls, views, the live strip, home, the
+  purchase flow, how it works, and the rest. The build concatenates them in
+  the order the page links them, so what is published is one inlined block as
+  before. It is byte for byte the page that was published before the split,
+  623,103 bytes, which is the point: this changed nothing a reader can see.
+
+  Two things had to be got right. Order is the cascade, and a stylesheet read
+  out of order fails silently, so the numbers in the file names carry it and a
+  test refuses a page that links them in another order or leaves one on disk
+  unlinked. And a relative path in a stylesheet is read from where the
+  stylesheet is: the fonts and the mark 404ed the moment they moved into
+  `styles/`, so the parts say `../fonts/` and the build takes the `../` off
+  when it puts them back in the page. Both are held by tests that fail when
+  the rule is broken.
+
+  Measured while doing it, because the figures this was planned against were
+  three days old and two of them were wrong. The script, not the markup, is
+  what a visitor pays for: 76 per cent of the page's 600,722 bytes of script
+  never runs on a visit, where an earlier count said 27 per cent, and that
+  count was reached by adding up function spans that contain one another. Of
+  the fifteen screens the document holds, five hold fewer than twenty nodes
+  each, so the operator, company and profile surfaces a reader never opens are
+  already empty shells rather than the weight they were assumed to be. The one
+  developer surface that is heavy is the chain page, at 222 nodes and 30,769
+  bytes of markup.
+
 ## 1.47.0, 29 September 2026
 
 - Two covers on one building felt the same earthquake as two different

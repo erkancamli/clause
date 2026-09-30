@@ -17,8 +17,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import page_with_styles
+
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+PAGE = page_with_styles()
 from clause.protocol import rulebook
 
 VIEW = PAGE[PAGE.index('<section class="view" id="view-rules">'):]

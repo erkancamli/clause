@@ -1,0 +1,138 @@
+/* ---------------- header ---------------- */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;
+  background:color-mix(in srgb,var(--ground) 90%,transparent);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--edge)}
+.top-in{display:flex;align-items:center;gap:8px;height:60px}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;font-family:var(--display);
+  font-weight:700;font-size:18px;letter-spacing:-.03em;margin-right:12px}
+.brand svg{width:22px;height:22px;flex:none}
+.mainnav{display:flex;gap:2px;margin-right:auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.mainnav::-webkit-scrollbar{display:none}
+.brand{flex:none;min-height:34px}
+.fine a.pad{display:inline-block;padding-block:5px}
+/* Longer languages: the same menu in less room, one line, scrolling if it
+   still does not fit rather than breaking a label over three lines. */
+.mainnav a{white-space:nowrap}
+html[lang=de] .mainnav a,html[lang=ru] .mainnav a,html[lang=fr] .mainnav a,
+html[lang=es] .mainnav a,html[lang=tr] .mainnav a{padding:8px 9px;font-size:13.5px}
+/* Japanese has no spaces to break at, so a heading this large broke inside a
+   word. Smaller, so it sets on fewer lines. */
+/* Japanese breaks its lines between phrases, not inside words, and Chromium
+   will do that if it is asked: the opening sentence used to break 補償の対象と
+   なった across two lines, leaving なっ hanging at the end of one and た at the
+   start of the next. Same line count, same height, nothing to pay.
+
+   Two neighbours of this line were looked at and are deliberately absent.
+   text-spacing-trim is already normal by default, so setting it does nothing.
+   And line-break:strict, which reads like the careful choice, is the wrong
+   one here: a phone gives Japanese nine to seventeen characters a line, and
+   stricter breaking on a measure that short only makes the rag worse. The
+   measure itself is already inside 1.4.8's forty — thirty-four on a desktop,
+   measured. */
+html[lang=ja] body{word-break:auto-phrase}
+html[lang=ja] .home-hero h1{font-size:clamp(30px,5.4vw,58px);line-height:1.15}
+html[lang=ja] .home-hero h1 span{display:inline-block}
+.mainnav a{padding:8px 13px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500;
+  color:var(--ink-2);transition:background .15s,color .15s}
+.mainnav a:hover{background:var(--sunk);color:var(--ink)}
+.mainnav a[aria-current="page"]{background:var(--sunk);color:var(--ink)}
+/* Tablets: the whole menu on its own row under the brand and controls, rather
+   than one row that cuts the menu off halfway through a label. */
+@media (min-width:761px) and (max-width:1180px){
+  .top-in{flex-wrap:wrap;height:auto;padding-block:8px 4px;row-gap:2px}
+  .brand{margin-right:auto}
+  .mainnav{order:10;flex:1 0 100%;margin:0 -6px;padding-bottom:2px}
+}
+@media (max-width:760px){
+  .mainnav{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--panel);
+    border-top:1px solid var(--edge);display:grid;grid-auto-flow:column;gap:0;margin:0;
+    padding:6px var(--gutter) calc(6px + env(safe-area-inset-bottom,0px))}
+  .mainnav a{text-align:center;font-size:12px;padding:9px 11px;border-radius:8px;flex:none}
+  /* One line per label, scrolled sideways, so a German or Russian label is
+     never broken in the middle of a word to fit a seventh of a phone. */
+  .mainnav{display:flex!important;overflow-x:auto;gap:2px;scroll-snap-type:x proximity}
+  .mainnav a{scroll-snap-align:start}
+  /* Sixteen pixels, or iOS Safari zooms the whole page the moment the field
+     is touched and leaves the reader to pinch their way back. The threshold
+     is the computed size, not the declared one, and eleven fields were under
+     it: the operator's two at 15, the proof search at 13.5, the country box
+     at 12.5. Typing fields only — a select opens a picker rather than a
+     caret, and the language control has eight pixels to spare at 320. */
+  input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+  textarea{font-size:16px}
+  /* The bar is fixed to the bottom of the screen, so it has to be told to
+     twice: once so the end of the page is not underneath it, and once so
+     that a control the reader tabs to is not scrolled to rest under it.
+     Only the first was said, and a sweep at 390 px found the second in five
+     languages — a summary on the questions page, a button on the operator's
+     page, a peril card. One number, both jobs. (2.4.11) */
+  :root{--tabbar-h:64px}
+  body{padding-bottom:var(--tabbar-h)}
+  /* A blurred backdrop makes the header the containing block for anything
+     fixed inside it, which pinned this bar to the header instead of the
+     bottom of the screen. Opaque on phones instead. */
+  header.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--ground)}
+  .langsel select{max-width:74px}
+}
+.icon-btn{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid var(--edge);
+  border-radius:8px;background:var(--panel);color:var(--ink-2);cursor:pointer}
+.icon-btn:hover{border-color:var(--signal-ink);color:var(--signal-ink)}
+.langsel{position:relative;display:flex;align-items:center;gap:6px;height:34px;padding:0 8px 0 9px;
+  border:1px solid var(--edge);border-radius:8px;background:var(--panel);color:var(--ink-2);flex:none;cursor:pointer}
+.langsel:hover,.langsel:focus-within{border-color:var(--signal-ink);color:var(--signal-ink)}
+.langsel svg{width:15px;height:15px;flex:none}
+.langsel select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;
+  font:inherit;font-size:13px;padding:0 2px;min-height:26px;cursor:pointer;max-width:92px}
+.langsel select:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Held blank until the dictionary has been applied, because English words
+   that turn into Turkish ones a second later are worse than a moment of
+   nothing. It is the most expensive line in this file for five readers in
+   six — the screen stays empty until then — so it has been attacked twice,
+   and the measurements are recorded here so that it is not attacked a third
+   time for the same reasons.
+
+   Asking for the dictionary in the head rather than at the foot of the
+   script: it arrives before the page does either way, so this changed
+   nothing. Applying the translation from a small script placed before the
+   eight hundred kilobyte one, so the words are on the screen before that is
+   read: also nothing, because Chromium compiles a script on a background
+   thread while the one before it runs, so there is no "before" to move into.
+   Both were measured nine times a side and both came back inside the noise
+   (tr 1984 ms against 1991 ms). Splitting the pass at the fold was worse.
+
+   What is left is the compile and run of the script itself, which nothing
+   but a smaller script will shorten. scripts/vitals.py has the numbers. */
+html.i18n-wait body{visibility:hidden}
+.langnote{background:var(--hold-wash);color:var(--ink-2);padding-block:5px;font-size:12px}
+.note-x{margin-left:auto;border:0;background:none;color:var(--ink-3);font-size:18px;line-height:1;
+  padding:4px 8px;min-width:28px;min-height:26px;cursor:pointer;border-radius:8px}
+.note-x:hover{background:var(--sunk);color:var(--ink)}
+.linkish{border:0;background:none;padding:2px 0;min-height:24px;font:inherit;color:var(--signal-ink);text-decoration:underline;cursor:pointer}
+.skip{position:absolute;left:-9999px;top:8px;z-index:100;padding:10px 14px;border-radius:8px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--signal);font-weight:600;text-decoration:none}
+.skip:focus{left:16px}
+/* Grows to fill the window on a short page, and never shrinks below its
+   content on a long one, so the price bar stuck to its bottom edge still
+   reaches the bottom of the window. A whole window of it, and not merely
+   what is left after the footer, because two of these screens are assembled
+   by the script: the footer landed halfway up the phone and then dropped
+   out of sight as the questions filled in above it, which is a third of the
+   screen moving under the reader. Below the fold is where a footer belongs. */
+main{flex:1 0 auto;min-height:100svh}
+main:focus{outline:none}
+/* The router puts focus on the heading of the screen just opened. Nobody
+   pressed Tab to get there, so no ring is drawn; somebody who does press
+   Tab to it still gets one. */
+h1[tabindex="-1"]:focus:not(:focus-visible){outline:none}
+input[type=file]{font:inherit;font-size:13.5px;padding:4px 0;min-height:28px}
+.leaflet-container .leaflet-control-attribution a{display:inline-block;padding-block:4px}
+details.orig{display:block;margin-top:6px;font-size:12.5px;color:var(--ink-3)}
+details.orig summary{cursor:pointer;color:var(--ink-3)}
+.icon-btn svg{width:15px;height:15px}
+/* The theme button shows the mode in force: the device's own, light, or dark. */
+.sun,.moon,.auto{display:none}
+:root:not([data-theme]) .auto{display:block}
+:root[data-theme="light"] .sun{display:block}
+:root[data-theme="dark"] .moon{display:block}
+

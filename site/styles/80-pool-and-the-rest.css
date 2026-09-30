@@ -1,0 +1,493 @@
+/* ---------------- pool ---------------- */
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--edge);
+  border:1px solid var(--edge);border-radius:var(--r);overflow:hidden}
+@media (max-width:760px){.readouts{grid-template-columns:1fr 1fr}}
+.readout{background:var(--panel);padding:17px 16px}
+.readout .v{font-family:var(--display);font-weight:600;font-size:clamp(19px,2.8vw,25px);line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.readout .k{margin-top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.cap-row{display:grid;grid-template-columns:150px minmax(0,1fr) 84px;gap:14px;align-items:center;font-size:14px}
+@media (max-width:640px){.cap-row{grid-template-columns:96px minmax(0,1fr) 66px;gap:10px;font-size:12.5px}}
+.cap-row .track{height:24px;border-radius:8px;background:var(--sunk);border:1px solid var(--edge);overflow:hidden}
+.cap-row .fill{height:100%;width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
+.cap-row.hot .fill{background:var(--signal);background-image:linear-gradient(90deg,var(--signal),var(--crit))}
+.cap-row.cool .fill{background:var(--settled)}
+.cap-row .pct{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.map{width:100%;height:auto;display:block;background:var(--sunk);border-radius:0 0 var(--r) var(--r)}
+.map .outline{fill:color-mix(in srgb,var(--ink) 4%,transparent);stroke:var(--edge-2);stroke-width:1.2}
+.map .grat{stroke:var(--grid);stroke-width:1}
+.map .ring{fill:var(--signal-wash);stroke:var(--signal);stroke-width:1.2;opacity:0}
+.map .epi{fill:none;stroke:var(--crit);stroke-width:1.6;opacity:0}
+.map .pt{fill:var(--hold);stroke:var(--ground);stroke-width:1.5;transition:fill .3s}
+.map .pt.paid{fill:var(--settled)}
+.map .lbl{font-family:var(--mono);font-size:9px;fill:var(--ink-3);letter-spacing:.04em}
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:12px;box-shadow:var(--lift-1),var(--hairline)}
+.skel{display:grid;gap:10px}
+.skel i{display:block;height:14px;border-radius:8px;background:linear-gradient(90deg,var(--sunk) 25%,var(--edge) 50%,var(--sunk) 75%);background-size:200% 100%}
+.skel i:nth-child(2){width:72%}.skel i:nth-child(3){width:48%}
+@media (prefers-reduced-motion:no-preference){.skel i{animation:shimmer 1.4s linear infinite}@keyframes shimmer{to{background-position:-200% 0}}}
+.panel-head{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:1px solid var(--edge);
+  background:var(--sunk);border-radius:var(--r) var(--r) 0 0}
+.side{padding:16px;display:grid;gap:13px;align-content:start}
+.total{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,34px);line-height:1;
+  color:var(--settled);font-variant-numeric:tabular-nums}
+.feed{display:grid;gap:5px}
+.ev{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:baseline;font-family:var(--mono);
+  font-size:11.5px;padding:7px 9px;border-radius:var(--r-sm);background:var(--sunk);border:1px solid var(--edge);
+  color:var(--ink-2);animation:fade .3s ease-out}
+.ev b{font-weight:500;color:var(--ink)}
+.ev .tag{padding:1px 6px;border-radius:4px;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase}
+.tag.paid{background:var(--settled-wash);color:var(--settled)}
+.ev .amt{color:var(--settled);white-space:nowrap}
+.map-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:14px}
+@media (max-width:900px){.map-wrap{grid-template-columns:1fr}}
+
+.sec{display:grid;gap:12px;margin-top:28px}
+.sec > h2{font-size:clamp(22px,3.2vw,30px)}
+.sec > p.lead{color:var(--ink-2);max-width:var(--measure)}
+/* Small print that runs wider than the prose above it reads as a rag,
+   and it is the least important text on the page. Same measure.
+
+   And the same everywhere prose is read rather than labelled. Measured
+   across the site, a 13.5px paragraph filling a 1120px band is a 166
+   character line: the Proof page had four of them, For insurers eight, and
+   the pool one. The comfortable range is 45 to 75 characters and 90 is
+   already generous, so the small print gets the measure the rest of the
+   page already had. Only paragraphs in reading containers: a label in a
+   chip, a cell in a table or a caption in a band is not prose and keeps
+   whatever width it sits in. */
+.sec > p.fine,
+.sec > p,
+.qbody > p, .qbody > .panel > p,
+.more .inner > p,
+.sec > .panel > p,
+/* Prose that had no measure at all rather than a loose one: a plain
+   paragraph in a section, the line a pull quote sits beside, the small print
+   under a form field, and the text a disclosure opens onto. Measured before
+   being named: 136, 121, 145 and 112 characters to a line. */
+.pullrow > p, .pullrow > p.lead,
+.field > p.fine, form > p.fine,
+#coverage-out > p{max-width:var(--measure)}
+
+footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-3);font-size:13px;margin-top:auto}
+/* The Ask Rider button is fixed to the bottom right corner, so whenever
+   the footer is in view it sits on top of the last link in this row and
+   that link cannot be clicked. The row ends before the button starts. */
+.foot{display:flex;flex-wrap:wrap;gap:16px;align-items:center;
+  padding-right:184px}
+@media (max-width:760px){.foot{padding-right:0;padding-bottom:124px}}
+.foot nav{margin-left:auto;display:flex;flex-wrap:wrap;gap:4px 18px}
+.foot a{text-decoration:none;display:inline-block;padding-block:4px}
+.foot a:hover{color:var(--signal-ink)}
+
+
+/* ---------------- drawn artwork ----------------
+   Everything on this page is drawn rather than photographed, so the page
+   carries no external files and renders identically years from now. Every
+   stroke takes its colour from the theme tokens. */
+/* == scoped styles for #view-rialo, begin ==
+   Three drawings on the Rialo page, and the type inside them. A drawing on
+   this site is line work in the palette's own colours, so the fills here are
+   tokens rather than values, and a figure is never given a frame wider than
+   the drawing it holds. */
+.fig-wide{margin:20px 0 0;width:100%}
+.fig-wide svg{display:block;width:100%;height:auto}
+.fig-wide text.mono,.fig-wide .mono text,.fig-wide g.mono text{font-family:var(--mono)}
+/* A line worth stopping on, set apart from the paragraph it came out of.
+   Not a decoration: on this page each one is the sentence the section exists
+   to make, and a reader who reads only these has the argument. */
+.pull{margin:22px 0 0;padding:0 0 0 18px;border-left:2px solid var(--signal);
+  max-width:46ch}
+.pull p{font-family:var(--display);font-size:clamp(19px,2.4vw,25px);line-height:1.32;
+  letter-spacing:-.015em;color:var(--ink)}
+.pull small{display:block;margin-top:8px;font-size:12.5px;color:var(--ink-3)}
+.pullrow{display:grid;gap:14px}
+@media (min-width:1000px){
+  /* Beside the prose rather than under it, where there is room for both. A
+     quote given a row of its own leaves the other half of that row empty,
+     which is the same fault as a page that does not use its width.
+
+     Named for what it is rather than for what it holds: this was .said for
+     one release, which is also what the hero's five beats have called their
+     own line since long before this page existed. The rule reached all seven
+     and squeezed a 390px box to nothing, so the policy's own sentence came
+     out one character to a line. */
+  .pullrow{grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:12px 44px;align-items:start}
+  .pullrow > .pull{margin-top:0}
+}
+/* == scoped styles, end == */
+.art{width:100%;height:auto;display:block;max-width:100%}
+.a-panel{fill:var(--panel)}
+.a-sunk{fill:var(--sunk)}
+.a-edge{stroke:var(--art-line);fill:none}
+.a-edge-soft{stroke:var(--art-line-soft);fill:none}
+.a-ink{fill:var(--ink)}
+.a-ink2{fill:var(--ink-2)}
+.a-mute{fill:var(--ink-3)}
+.a-signal{stroke:var(--signal);fill:none}
+.a-signal-f{fill:var(--signal)}
+/* Text inside a drawing, in the palette's own inks. Shared, not one page's:
+   the hero's landscape instrument has worn t-2 since before the Rialo page
+   existed, which is how a rule written for one page reached another. */
+.t-2{fill:var(--ink-2)}
+.t-3{fill:var(--ink-3)}
+.t-settled{fill:var(--settled)}
+.a-settled{stroke:var(--settled);fill:none}
+
+/* ---- living illustrations: the trigger loop on the hero, the weather on the
+   cards. All of it is CSS on the SVG, so it costs nothing to run, and none of
+   it runs for a browser that asks for less motion: the still art stands. ---- */
+@media (prefers-reduced-motion:no-preference){
+.art .hx-ring,.art .hx-epi,.art .hx-dot,.art .hx-card,.art .hx-attest,.art .bq-ring,.art .bq-epi,.art .bq-glow,.art .bd-sun,.art .bd-core,.art .bd-heat,.art .bd-fill,.art .bf-plane,.art .bf-late,.art .bf-delay,.art .bc-rain,.art .bc-water,.art .bs-wind,.art .bs-gust,.art .bs-tree,.art .bs-tile{transform-box:fill-box;transform-origin:center}
+.stage.on-2 .hx-ring{animation:hxRing 3.6s ease-out infinite}
+.stage.on-2 .hx-r2{animation-delay:1.2s}.stage.on-2 .hx-r3{animation-delay:2.4s}
+@keyframes hxRing{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.15);opacity:0}}
+/* A pen travelling the paper, and the reading brightening under it. The
+   period is 3.4s rather than a second: an instrument at rest, not a pulse
+   racing, and slow enough that it does not pull the eye off the words. */
+.stage .hx-rest{stroke-dasharray:46 340;stroke-dashoffset:46;
+  animation:hxRest 3.4s linear infinite}
+.stage .hx-rest-dot{animation:hxRestRide 3.4s linear infinite}
+@keyframes hxRest{to{stroke-dashoffset:-340}}
+@keyframes hxRestRide{
+  0%{transform:translateX(0);opacity:0}
+  6%{opacity:1}
+  94%{opacity:1}
+  100%{transform:translateX(262px);opacity:0}}
+.stage.on-2 .hx-epi,.bq-epi{animation:hxEpi 1.8s ease-in-out infinite}
+@keyframes hxEpi{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
+.bq-ring{animation:bqRing 4.4s ease-out infinite}.bq-2{animation-delay:1.1s}.bq-3{animation-delay:2.2s}.bq-4{animation-delay:3.3s}
+@keyframes bqRing{0%{transform:scale(.72);opacity:.85}100%{transform:scale(1.12);opacity:0}}
+.bq-glow{animation:bqGlow 1.8s ease-in-out infinite}
+@keyframes bqGlow{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.35);opacity:1}}
+.bd-sun{stroke-dasharray:7 4;animation:bdSun 16s linear infinite}
+@keyframes bdSun{to{transform:rotate(360deg)}}
+.bd-core{animation:bdCore 3s ease-in-out infinite}
+@keyframes bdCore{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(1.25);opacity:.6}}
+.bd-heat{animation:bdHeat 2.6s ease-out infinite}
+@keyframes bdHeat{0%{transform:translateY(4px);opacity:0}30%{opacity:1}100%{transform:translateY(-10px);opacity:0}}
+.bd-fill{transform-origin:center bottom;animation:bdFill 5s ease-in-out infinite}
+@keyframes bdFill{0%,100%{transform:scaleY(1.18)}50%{transform:scaleY(.95)}}
+.bf-plane{animation:bfPlane 5.5s ease-in-out infinite}
+@keyframes bfPlane{0%{transform:translate(-118px,30px) rotate(-6deg);opacity:0}12%{opacity:1}70%{transform:translate(0,0) rotate(0);opacity:1}92%{transform:translate(0,-2px);opacity:1}100%{transform:translate(0,-2px);opacity:0}}
+.bf-late{transform-origin:left center;animation:bfLate 5.5s ease-in-out infinite}
+@keyframes bfLate{0%,40%{transform:scaleX(0)}75%,100%{transform:scaleX(1)}}
+.bf-delay{animation:bfDelay 5.5s linear infinite}
+@keyframes bfDelay{0%,70%{opacity:0}80%,100%{opacity:1}}
+.bc-rain{animation:bcRain 1.4s linear infinite}.bc-r2{animation-delay:.7s;animation-duration:1.9s}
+@keyframes bcRain{0%{transform:translateY(-14px);opacity:0}25%{opacity:.8}100%{transform:translateY(22px);opacity:0}}
+.bc-water{animation:bcWater 3.4s ease-in-out infinite}
+@keyframes bcWater{0%,100%{transform:translate(0,2px)}50%{transform:translate(28px,-2px)}}
+.bs-wind{animation:bsWind 2.2s linear infinite}.bs-gust{animation:bsGust 2.2s linear infinite;animation-delay:.6s}
+@keyframes bsWind{0%{transform:translateX(-26px);opacity:0}30%{opacity:.7}100%{transform:translateX(30px);opacity:0}}
+@keyframes bsGust{0%{transform:translateX(-40px);opacity:0}30%{opacity:.9}100%{transform:translateX(40px);opacity:0}}
+.bs-tree{transform-origin:0% 100%;animation:bsTree 2.2s ease-in-out infinite}
+@keyframes bsTree{0%,100%{transform:rotate(0)}50%{transform:rotate(7deg)}}
+.bs-tile{animation:bsTile 2.2s ease-in-out infinite}
+@keyframes bsTile{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(6px,-4px) rotate(12deg)}}
+}
+.a-settled-f{fill:var(--settled)}
+.a-settled-w{fill:var(--settled-wash)}
+.a-signal-w{fill:var(--signal-wash)}
+.a-hold-f{fill:var(--hold)}
+.a-dash{stroke-dasharray:5 5}
+.art text{font-family:var(--mono);fill:var(--ink-3)}
+.art .t-ink{fill:var(--ink)}
+.art .t-2{fill:var(--ink-2)}
+.art .big{font-family:var(--display);font-weight:700;fill:var(--ink)}
+.pick figure{margin:0 0 4px;width:100%}
+.pick .banner{border-radius:var(--r-sm);overflow:hidden;background:var(--sunk);width:100%}
+figure{margin:0}
+figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
+.diagram{padding:18px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+
+/* ---------------- the chain, as a row of blocks ----------------
+   This was drawn as an SVG, which meant every label was one unwrappable line
+   inside a fixed box: Turkish and German ran straight through the borders and
+   the arrows crossed the words they pointed at. Boxes that wrap are not a
+   smaller idea; they are the same idea in a form every language survives, and
+   on a phone they become a list instead of a drawing shrunk past reading.
+   The alignment carries the argument: the note about a dormant predicate sits
+   under the blocks where nothing happened, and the payment under the block
+   that paid. */
+.chainfig{border:1px solid var(--edge);border-radius:var(--r);background:var(--panel);
+  box-shadow:var(--lift-1),var(--hairline);padding:clamp(16px,2.4vw,24px);
+  display:grid;gap:14px}
+.chainfig figcaption{margin-top:2px}
+.cf-grid{display:grid;gap:12px 10px;grid-template-columns:1fr}
+.cf-source{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
+  padding:11px 13px;display:grid;gap:3px;min-width:0}
+.cf-source b{font-size:13.5px;font-weight:600}
+.cf-source span{font-size:12.5px;color:var(--ink-3);line-height:1.55}
+.cf-drop{display:grid;gap:7px;justify-items:center;align-content:center;text-align:center;
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);line-height:1.5}
+.cf-drop i{display:block;width:1px;height:22px;background:var(--art-line);position:relative}
+.cf-drop i::after{content:"";position:absolute;bottom:-1px;left:-3.5px;width:0;height:0;
+  border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:6px solid var(--art-line)}
+.cf-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--ink-3)}
+.cf-b{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
+  padding:11px 12px;display:grid;gap:4px;align-content:start;min-width:0;position:relative}
+.cf-b b{font-family:var(--mono);font-size:13px;font-weight:400;color:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+.cf-b span{font-size:12px;color:var(--ink-3);line-height:1.5}
+.cf-b em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--signal-ink)}
+.cf-b.is-hot{background:var(--signal-wash);border-color:var(--signal-ink)}
+.cf-b.is-hot b{color:var(--ink)}
+.cf-b.is-hot span{color:var(--ink-2)}
+.cf-note{border-radius:var(--r-sm);padding:12px 14px;display:grid;gap:3px;min-width:0}
+.cf-note b{font-size:13.5px;font-weight:600}
+.cf-note span{font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.cf-armed{background:var(--sunk);border:1px solid var(--edge)}
+.cf-paid{background:var(--settled-wash);border:1px solid var(--settled)}
+.cf-paid b{color:var(--settled)}
+@media (min-width:780px){
+  .cf-grid{grid-template-columns:repeat(5,minmax(0,1fr));
+    grid-template-areas:
+      ".   .   .   src  src"
+      ".   .   .   drop ."
+      "b1  b2  b3  b4   b5"
+      "arm arm arm paid paid"}
+  .cf-source{grid-area:src}
+  .cf-drop{grid-area:drop}
+  /* Named, not counted: :nth-of-type counts siblings of the same element
+     name, and every child here is a div, so counting put the blocks in the
+     source's and the arrow's cells. */
+  .cf-b.b1{grid-area:b1}.cf-b.b2{grid-area:b2}.cf-b.b3{grid-area:b3}
+  .cf-b.b4{grid-area:b4}.cf-b.b5{grid-area:b5}
+  .cf-armed{grid-area:arm}
+  .cf-paid{grid-area:paid}
+  /* the chain itself: one hairline from each block to the next */
+  .cf-b:not(.b5)::after{content:"";position:absolute;top:50%;left:100%;
+    width:10px;height:1px;background:var(--edge-2)}
+}
+.chart-box{padding:16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+
+/* A thing that floats over the page sits a step above the card it came
+   from. In the dark theme that step is lightness, because a black
+   shadow does almost nothing against a near-black page; in the light
+   theme the card is already white, so the shadow does the work and
+   --float is white as well. */
+dialog{border:1px solid var(--edge);border-radius:var(--r);background:var(--float);color:var(--ink);
+  padding:0;max-width:min(92vw,400px);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+@media (prefers-reduced-motion:no-preference){
+  dialog[open]{animation:dlgIn .32s cubic-bezier(.2,.7,.2,1)}
+  dialog[open]::backdrop{animation:fadeIn .32s ease-out}
+  @keyframes dlgIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+}
+.dlg{padding:24px;display:grid;gap:14px}
+.dlg h3{font-size:20px}
+.dlg p{font-size:14px;color:var(--ink-2)}
+.dlg input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid var(--edge-2);
+  background:var(--sunk);color:var(--ink);font-family:var(--sans);font-size:15px}
+.dlg .row{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
+.bio{display:grid;place-items:center;gap:9px;padding:16px 0}
+.sizegrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.sizegrid{grid-template-columns:1fr}}
+.newbuild{position:fixed;left:16px;bottom:16px;z-index:60;display:flex;align-items:center;gap:12px;
+  padding:10px 12px 10px 16px;border-radius:var(--r);background:var(--raised);border:1px solid var(--edge-2);
+  box-shadow:0 18px 40px -24px rgba(0,0,0,.55);font-size:13.5px;
+  transform:translateY(8px);opacity:0;transition:transform .22s ease,opacity .22s ease}
+.newbuild.in{transform:none;opacity:1}
+@media (prefers-reduced-motion:reduce){.newbuild{transition:none}}
+@media (max-width:600px){.newbuild{left:12px;right:12px;bottom:calc(var(--bar-h,64px) + 12px)}}
+.worth{padding:14px 16px;border-radius:var(--r);background:var(--sunk);display:grid;gap:3px}
+.worth b{font-size:20px;font-family:var(--display)}
+.worth span{font-size:12.5px;color:var(--ink-3)}
+.worth .wsrc{font-size:11.5px;color:var(--ink-3);opacity:.82;line-height:1.45}
+.unitrow{display:grid;grid-template-columns:1fr auto;gap:8px}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;padding:4px;border-radius:12px;
+  background:var(--sunk);box-shadow:var(--sunk-in)}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:14px;font-weight:500;
+  padding:9px 10px;border-radius:8px;cursor:pointer}
+.seg button{border-radius:8px;transition:background .18s,color .18s,box-shadow .18s,transform .18s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-checked="true"]{background:var(--panel);color:var(--ink);
+  box-shadow:var(--lift-1),var(--hairline);transform:translateY(-1px)}
+.choice{display:grid;gap:4px;text-align:left;width:100%;padding:14px 16px;border-radius:var(--r);
+  border:1px solid var(--edge-2);background:var(--raised,transparent);color:var(--ink);font:inherit;cursor:pointer}
+.choice:hover,.choice:focus-visible{border-color:var(--signal-ink)}
+.choice b{font-weight:600;font-size:15px}
+.choice span{font-size:13px;color:var(--ink-3)}
+.choice[disabled]{opacity:.6;cursor:progress}
+.who{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:999px;
+  border:1px solid var(--edge);background:transparent;color:var(--ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.who .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.who.in .dot{background:var(--signal)}
+.who.in{font-family:var(--mono,monospace)}
+@media (max-width:420px){.who{padding:0 10px;font-size:12px}.langsel select{max-width:84px}}
+/* 320 css px (a phone, or a desktop at 400% zoom): the mark alone, so the
+   header holds the account, the language and the theme without scrolling. */
+/* Below 400px the word is dropped for room, but the mark beside it is
+   aria-hidden, so display:none left the link to the home page with no
+   name at all for anyone not looking at it. Hidden from the eye only. */
+@media (max-width:400px){
+  .brand span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .brand{padding:0 6px}.top-in{gap:6px}
+  /* A grid cell is as wide as its longest unbreakable word, and German has
+     words that are wider than a 320 px screen: "Versicherungsschutz" set at
+     34px pushed the whole hero four pixels off the side of the page. The
+     language is declared on <html>, so the browser already knows where this
+     one may be broken; it was only never asked. (1.4.10) */
+  .hero-text>*{min-width:0}
+  /* hyphens:auto first, where the reader's browser has the dictionary for
+     their language. Where it does not, the headline steps down a size rather
+     than being snapped in half: "Versicherungssc / hutz" is worse than four
+     pixels of overflow, and both are worse than a headline that fits. */
+  .home-hero .hero-text h1,.home-hero .hero-text p{hyphens:auto;overflow-wrap:break-word}
+  /* And the headline gives up its reading measure. 13ch is the rule for a
+     column standing beside the art on a wide screen; on a 320px phone it was
+     holding the line to 244px of an available 288, which is what actually
+     broke the word. Measured: the longest German compound is 275px at 24px
+     and 299px at 26px, so 24px is the largest size that keeps it whole. */
+  .hero-text h1{max-width:none}
+  html[lang=de] .home-hero .hero-text h1,
+  html[lang=ru] .home-hero .hero-text h1{font-size:24px;letter-spacing:-.025em}
+  /* And the globe goes too. At 320 css px the row has nothing left to give:
+     Spanish asks eight pixels more than the screen has, because "Iniciar
+     sesión" is forty pixels longer than "Sign in". The globe is decoration —
+     it is aria-hidden, and the control beside it already says the language
+     in the language. Decoration yields before words do. (1.4.10) */
+  .langsel svg{display:none}
+  .langsel{padding-inline:8px}}
+.whobox{position:relative}
+.sizegrid.addr{grid-template-columns:2fr 1fr 1fr 1fr 2fr}
+@media (max-width:700px){.sizegrid.addr{grid-template-columns:1fr 1fr}}
+.contract{max-height:340px;overflow:auto;white-space:pre-wrap;font-family:var(--mono,monospace);font-size:12.5px;line-height:1.55;
+  padding:14px;border-radius:12px;background:var(--sunk);color:var(--ink-2)}
+.accept{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin-top:12px;border-radius:8px;padding:6px;margin-left:-6px;transition:box-shadow .3s}
+.accept.nudge{box-shadow:0 0 0 3px var(--signal)}
+.accept input{margin-top:3px}
+.nfts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:16px}
+.nft{border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.nft img{width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:transform .15s}
+.nft:hover img{transform:translateY(-3px)}
+.nft span{display:block;font-size:12px;color:var(--ink-3);margin-top:6px}
+.offers{display:grid;gap:10px}
+.offer{display:grid;grid-template-columns:auto 1fr auto;gap:12px 14px;align-items:start;padding:14px 16px;border:1px solid var(--edge-2);
+  border-radius:var(--r);background:var(--panel);cursor:pointer;text-align:left;font:inherit;color:var(--ink);width:100%;
+  transition:border-color .2s,transform .24s cubic-bezier(.2,.7,.2,1),box-shadow .24s}
+.offer:hover{transform:translateY(-2px);box-shadow:0 12px 26px -16px rgba(12,17,22,.45)}
+.offer[aria-pressed="true"]{border-color:var(--signal-ink);box-shadow:0 0 0 1px var(--signal),0 12px 30px -18px var(--signal)}
+.offer .nm{font-weight:600;font-size:15px}
+.offer .price{font-family:var(--mono,monospace);font-size:17px;text-align:right;white-space:nowrap}
+.offer .price small{display:block;font-size:11.5px;color:var(--ink-3);font-family:var(--body,inherit)}
+.offer ul{grid-column:2/4;margin:0;padding:0;list-style:none;display:grid;gap:3px;font-size:13px}
+.offer li.p::before{content:"+";color:var(--settled);font-weight:700;margin-right:6px}
+.offer li.m::before{content:"−";color:var(--signal-ink);font-weight:700;margin-right:6px}
+.offers .held{margin:2px 2px 0;color:var(--ink-3)}
+.offer .tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-left:8px}
+@media (max-width:600px){.offer{grid-template-columns:1fr auto}.offer ul{grid-column:1/3}}
+#faucet-go{font-family:var(--body,inherit);vertical-align:middle}
+.locate-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0 4px}
+.locate-row .btn svg{margin-right:6px;vertical-align:-3px}
+.where-map{height:280px;border-radius:var(--r);border:1px solid var(--edge);overflow:hidden;margin:12px 0 6px;z-index:0}
+@media (max-width:600px){.where-map{height:230px}}
+.map-note{margin:0 0 10px}
+.leaflet-container{font:inherit;background:var(--sunk)}
+.spec-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 18px;font-size:13px;color:var(--ink-3)}
+.spec-list b{color:var(--ink-2);font-weight:600;display:block}
+/* What the header offers depends on who signed in. A person sees cover; a
+   company sees its own page and the insurer side; someone not signed in sees
+   the person's side, with the insurer side one link away in the footer. */
+body[data-role="guest"] [data-for="company"],
+body[data-role="guest"] [data-for="admin"],
+body[data-role="guest"] [data-for="capital"],
+body[data-role="person"] [data-for="capital"],
+body[data-role="person"] [data-for="admin"],
+body[data-role="company"] [data-for="admin"],
+body[data-role="admin"] [data-for="guest"],
+body[data-role="person"] [data-for="company"],
+body[data-role="company"] [data-for="person"],
+body[data-role="person"] [data-for="guest"],
+body[data-role="company"] [data-for="guest"]{display:none!important}
+pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);font-size:12.5px;line-height:1.55;
+  font-family:var(--mono,monospace);white-space:pre;margin:0}
+.mine-extras{display:grid;gap:0;margin-top:6px}
+.mine-extras summary b{font-weight:600;color:var(--ink)}
+.checks{display:flex;flex-wrap:wrap;gap:14px;font-size:14px}
+.checks label{display:flex;gap:6px;align-items:center}
+.seg[role=radiogroup]{display:inline-flex;flex-wrap:wrap}
+.tranche-panel{padding:20px;display:grid;gap:14px;margin-top:14px}
+.tstack{display:flex;height:22px;border-radius:8px;overflow:hidden;border:1px solid var(--edge)}
+.tstack span{display:block;height:100%}
+.tstack .t-senior,.tdot.t-senior{background:var(--ink-3)}
+.tstack .t-mezzanine,.tdot.t-mezzanine{background:#c9a24a}
+.tstack .t-first_loss,.tdot.t-first_loss{background:var(--signal)}
+.tdot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:8px;vertical-align:baseline}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* Focusable, so the one way to scroll it is not the pointer. */
+.table-scroll:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.ttable{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+.ttable th{text-align:left;font-weight:500;color:var(--ink-3);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--edge)}
+.ttable td,.ttable th{white-space:nowrap}
+.ttable td{padding:10px;border-bottom:1px solid var(--edge);font-variant-numeric:tabular-nums}
+.ttable td.num,.ttable th.num{text-align:right}
+.tform{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.tform label{display:grid;gap:6px;font-size:13px;color:var(--ink-3)}
+.tform select,.tform input{height:40px;border-radius:8px;border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
+  font:inherit;font-size:15px;padding:0 10px;min-width:150px}
+/* What needs looking at, at the top of My cover. */
+.due-panel{margin-top:22px;padding:18px 20px;border-left:3px solid var(--accent)}
+.due-head{font-size:16px;margin:0 0 12px}
+.due-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.due-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--edge)}
+.due-row:last-child{padding-bottom:0;border-bottom:0}
+.due-what{flex:1 1 220px;display:grid;gap:2px;min-width:0}
+.due-what b{word-break:break-word}
+.due-when{font-size:14px;color:var(--ink-2);flex:0 1 auto}
+.paper-panel{margin-top:22px;padding:18px 20px}
+.paper-row{border-bottom:1px solid var(--edge)}
+.paper-row:last-child{border-bottom:0}
+.paper-open{display:flex;width:100%;gap:12px;align-items:center;flex-wrap:wrap;
+  background:none;border:0;padding:10px 0;font:inherit;color:inherit;text-align:left;cursor:pointer;min-height:44px}
+.paper-open:hover .paper-what b{text-decoration:underline}
+.paper-what{flex:1 1 220px;display:grid;gap:2px;min-width:0}
+.paper-when{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+.paper-row.unread .paper-what b{font-weight:700}
+.paper-body{white-space:pre-wrap;font-size:14px;color:var(--ink-2);padding:0 0 12px;
+  max-height:340px;overflow:auto;word-break:break-word}
+/* On a phone the row stacks, so every entry reads the same way down the
+   page instead of the button landing beside a short line and under a long one. */
+@media (max-width:560px){
+  .due-row{display:grid;gap:8px;justify-items:start}
+  .due-when{font-size:14px}
+}
+.whomenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:230px;display:grid;gap:2px;padding:8px;
+  border:1px solid var(--edge);border-radius:12px;background:var(--float);box-shadow:var(--lift-2),var(--hairline)}
+.whomenu[hidden]{display:none}
+.whomenu p{padding:6px 10px 8px;margin:0;border-bottom:1px solid var(--edge);margin-bottom:4px;word-break:break-all}
+.whomenu a,.whomenu button{display:block;text-align:left;padding:9px 10px;border-radius:8px;border:0;background:none;
+  color:var(--ink);font:inherit;font-size:14px;text-decoration:none;cursor:pointer}
+.whomenu a:hover,.whomenu button:hover,.whomenu a:focus-visible,.whomenu button:focus-visible{background:var(--raised,rgba(0,0,0,.05))}
+.whomenu .quiet{color:var(--ink-3);font-size:13px}
+.bio svg{width:46px;height:46px;color:var(--signal-ink)}
+.bio span{font-size:13px;color:var(--ink-3)}
+/* A control's boundary is the only thing that says it is a control, so it
+   answers to WCAG 1.4.11 and has to clear 3:1 against what is behind it.
+   The decorative --edge measures 1.10:1; --edge-ctl measures 3.01. Panels,
+   table rules and card edges keep --edge, because nothing depends on
+   seeing those. This block is last in the sheet so it wins on order. */
+.dlg-input,#country,.field select,.dlg input,.dlg select,.dlg textarea,
+.searchbox input,.rider .ask input,.now-where select,.filerow select,
+.tform select,.tform input,.presets button,.seg,.drop,.opt .tick,
+.dlg-input:hover,#country:hover,.field select:hover,
+input[type=text],input[type=email],input[type=number],input[type=date],
+input[type=search],input[type=password],input[type=tel],select,textarea{
+  border-color:var(--edge-ctl)}
+
+/* Focus, as two rings. The inner ring is painted in the surface colour, so
+   the focus tone only ever has to stand out from the surface, never from
+   the control it is ringing. A single ring around a signal-filled button
+   is signal on signal: 1.00:1, invisible, and a 1.4.11 failure. */
+.dlg-input:focus,#country:focus,.field select:focus{outline:none;border-color:var(--signal-ink);
+  box-shadow:var(--sunk-in),0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{
+  box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+.rider .ask input:focus-visible{outline:none;
+  box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
+.drop:focus-within{outline:none;
+  box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}

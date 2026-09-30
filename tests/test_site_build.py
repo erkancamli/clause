@@ -12,9 +12,11 @@ nobody finds out.
 from __future__ import annotations
 
 import importlib.util
+import re
 import pathlib
 
 import pytest
+from conftest import stylesheet
 
 BUILD = pathlib.Path(__file__).resolve().parent.parent / "site" / "build.py"
 
@@ -79,7 +81,7 @@ def test_every_face_the_page_declares_is_a_file_that_exists() -> None:
 
     site = Path(__file__).resolve().parent.parent / "site"
     page = (site / "index.html").read_text(encoding="utf-8")
-    wanted = re.findall(r"src:url\((fonts/[^)]+)\)", page)
+    wanted = re.findall(r"src:url\(\.\./(fonts/[^)]+)\)", stylesheet())
     assert wanted, "the page declares no faces of its own"
     missing = [w for w in wanted if not (site / w).is_file()]
     assert not missing, f"declared but not shipped: {missing}"
@@ -146,7 +148,7 @@ def test_the_palette_reaches_the_published_page_intact(build) -> None:
     from pathlib import Path
 
     page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
-    style = page[page.index("<style>") + len("<style>"):page.index("</style>")]
+    style = stylesheet()
 
     def palettes(text):
         """Every block that defines the ink, by what it contains rather than by
@@ -190,7 +192,7 @@ def test_the_two_light_palettes_are_the_same_palette(build) -> None:
     from pathlib import Path
 
     page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
-    style = page[page.index("<style>") + len("<style>"):page.index("</style>")]
+    style = stylesheet()
     blocks = [dict(re.findall(r"--([a-z0-9-]+):\s*([^;}]+)", b))
               for b in re.findall(r"\{([^{}]*--ink:[^{}]*)\}", style)]
     light = [b for b in blocks if int(b["ink"].strip().lstrip("#")[:2], 16) < 128]
@@ -235,3 +237,53 @@ def test_the_runner_that_gates_the_deployment_can_run_the_minifier() -> None:
     doing = "\n".join(l for l in job.splitlines() if not l.lstrip().startswith("#"))
     assert not re.search(r"CLAUSE_BUILD_ALLOW_UNMINIFIED\s*[:=]", doing), (
         "the runner skips minification, so the palette test passes without asking")
+
+
+def test_the_stylesheet_is_put_back_together_in_the_order_it_is_linked(build) -> None:
+    """Nine files in the source, one inlined block in what is published.
+
+    Split so the visual system can be worked on as a thing of its own. A
+    reader should not pay for that: nine stylesheets are nine requests, and a
+    stylesheet fetched at all blocks the first paint on a round trip the page
+    used to not need. So the build puts them back where they were written.
+
+    Order is the whole risk. A cascade read out of order is a different
+    stylesheet, and the failure is silent: rules still apply, just the wrong
+    ones win. The numbers in the file names carry the order and the page's
+    link order is what the build follows.
+    """
+    site = pathlib.Path(__file__).resolve().parent.parent / "site"
+    page = (site / "index.html").read_text(encoding="utf-8")
+    linked = re.findall(r'<link rel="stylesheet" href="(styles/[^"]+)">', page)
+
+    assert linked, "the page links no stylesheet"
+    assert linked == sorted(linked), f"the parts are not linked in name order: {linked}"
+    assert len(set(linked)) == len(linked), "a part is linked twice"
+    on_disk = sorted("styles/" + p.name for p in (site / "styles").glob("*.css"))
+    assert on_disk == sorted(linked), (
+        f"styles/ and the page disagree about which parts exist: {set(on_disk) ^ set(linked)}"
+    )
+
+    gathered = build.gather_styles(page)
+    assert 'href="styles/' not in gathered, "a part is still fetched by the published page"
+    assert gathered.count("<style>") == 1, "the parts did not come back as one block"
+    inlined = gathered[gathered.index("<style>") + len("<style>") : gathered.index("</style>")]
+    want = "".join((site / p).read_text(encoding="utf-8") for p in linked)
+    assert inlined == re.sub(r"url\(\.\./", "url(", want).lstrip(), (
+        "the inlined stylesheet is not the parts, in order"
+    )
+
+    # A path in a part is written from styles/; a path in the page is written
+    # from the page. Every one of them points at something.
+    for ref in re.findall(r"url\(([^)'\"]+)\)", want):
+        if ref.startswith("data:"):
+            continue
+        assert ref.startswith("../"), f"{ref} is read from styles/ and does not say so"
+        assert (site / "styles" / ref).resolve().is_file(), f"{ref} is not there"
+
+
+def test_a_part_the_page_does_not_link_stops_the_build(build, tmp_path) -> None:
+    """Silence is the failure mode this whole arrangement invites."""
+    page = '<html><head><link rel="stylesheet" href="styles/no-such-file.css"></head></html>'
+    with pytest.raises(SystemExit, match="no-such-file.css"):
+        build.gather_styles(page)

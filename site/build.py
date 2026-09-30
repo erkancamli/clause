@@ -125,8 +125,50 @@ def obfuscate(code: str) -> str:
         return out.read_text(encoding="utf-8")
 
 
+def gather_styles(source: str) -> str:
+    """Put the stylesheet back together as one inlined <style>.
+
+    The visual system is nine files in the source so it can be worked on as a
+    thing of its own. A reader should not pay nine requests for that, and a
+    stylesheet fetched separately blocks the first paint on a second round
+    trip, so the published page carries it inlined exactly as it did when it
+    was one block. The run of <link> tags is replaced in place, so the styles
+    land where they were written and in the order they were written; the order
+    is load-bearing and the numbers in the file names carry it.
+    """
+    links = list(re.finditer(r'[ \t]*<link rel="stylesheet" href="(styles/[^"]+)">\n?', source))
+    if not links:
+        return source
+    joined = ""
+    for link in links:
+        part = HERE / link.group(1)
+        if not part.is_file():
+            raise SystemExit(f"{link.group(1)} is linked by the page and is not there")
+        joined += part.read_text(encoding="utf-8")
+    at = links[0].start()
+    # Take the note above them with them. It is removed from what is published
+    # either way, and swallowing it here leaves the page byte for byte what it
+    # was when the stylesheet was written inline, which is what proves this
+    # split changed nothing a browser can see.
+    while at and source[at - 1] in " \t\n":
+        at -= 1
+    if source[:at].endswith("-->"):
+        at = source.rindex("<!--", 0, at)
+        while at and source[at - 1] in " \t":
+            at -= 1
+    # A relative path in a stylesheet is read from where the stylesheet is.
+    # In the source that is site/styles/, so the parts say ../fonts/; inlined
+    # they are read from where the page is, so the ../ comes off. Without
+    # this the two halves of the arrangement disagree and one of them is
+    # always wrong: the fonts 404ed in the source before it was written.
+    joined = re.sub(r"url\(\.\./", "url(", joined)
+    return source[:at] + f"<style>{joined.lstrip()}</style>\n" + source[links[-1].end() :]
+
+
 def build_page(source: str) -> str:
     """Minify every inline <script> and <style>, leave the markup itself."""
+    source = gather_styles(source)
+
     def script(match: re.Match) -> str:
         attrs, body = match.group(1), match.group(2)
         if "src=" in attrs or "type=\"application/ld+json\"" in attrs or not body.strip():

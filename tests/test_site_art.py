@@ -17,8 +17,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import page_with_styles
+
 SITE = Path(__file__).resolve().parent.parent / "site"
-PAGE = (SITE / "index.html").read_text(encoding="utf-8")
+PAGE = page_with_styles()
 
 #: The two drawings, by the class the markup puts on them.
 TALL = 'class="art art-tall"'

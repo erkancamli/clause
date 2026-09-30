@@ -27,3 +27,42 @@ def cover_has_started(policy) -> None:
     so here instead of waiting a week for it.
     """
     policy.starts_at = policy.bought_at
+
+
+def stylesheet() -> str:
+    """The page's styles, as the browser ends up with them.
+
+    They live in site/styles/ as nine files so the visual system can be worked
+    on as a thing of its own, and the build puts them back into one inlined
+    block in the order the page links them. A test that wants to read the
+    stylesheet wants that same concatenation, not one of the nine, and reading
+    it through the page's own link order means a file nobody links is a file
+    nobody tests.
+    """
+    import pathlib
+    import re
+
+    site = pathlib.Path(__file__).resolve().parent.parent / "site"
+    page = (site / "index.html").read_text(encoding="utf-8")
+    parts = re.findall(r'<link rel="stylesheet" href="(styles/[^"]+)">', page)
+    assert parts, "the page links no stylesheet"
+    return "".join((site / p).read_text(encoding="utf-8") for p in parts)
+
+
+def page_with_styles() -> str:
+    """The page as a browser ends up with it: the markup and the styles in one.
+
+    The stylesheet is nine files in the source and one inlined block in what is
+    published. A test that asks a question about the page, and does not care
+    which of the two the answer is written in, should ask it of both; asking it
+    of site/index.html alone made eight tests pass by reading a stylesheet that
+    was no longer there.
+    """
+    import pathlib
+    import re
+
+    site = pathlib.Path(__file__).resolve().parent.parent / "site"
+    page = (site / "index.html").read_text(encoding="utf-8")
+    styles = re.sub(r"url\(\.\./", "url(", stylesheet())
+    return re.sub(r'(?:[ \t]*<link rel="stylesheet" href="styles/[^"]+">\n?)+',
+                  f"<style>{styles}</style>\n", page, count=1)

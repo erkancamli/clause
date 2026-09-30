@@ -27,8 +27,11 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import stylesheet
+
 ROOT = Path(__file__).resolve().parent.parent
 PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+STYLES = stylesheet()
 
 #: A marked region and the view it says it is for.
 REGION = re.compile(
@@ -44,7 +47,7 @@ def _regions() -> dict[str, list[str]]:
     shared rules they modify, not collected at the bottom of the sheet.
     """
     found: dict[str, list[str]] = {}
-    for view, body in REGION.findall(PAGE):
+    for view, body in REGION.findall(STYLES):
         found.setdefault(view, []).append(body)
     return found
 
@@ -93,7 +96,7 @@ def _wearers(classes: frozenset[str], markup: str) -> list[str]:
 def test_the_page_marks_the_regions_that_belong_to_one_screen() -> None:
     regions = _regions()
     assert regions, "no scoped style region is marked at all"
-    assert PAGE.count("== scoped styles, end ==") == sum(
+    assert STYLES.count("== scoped styles, end ==") == sum(
         len(bodies) for bodies in regions.values()
     ), "a region is closed without being opened for a named view"
     for view in regions:

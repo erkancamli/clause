@@ -22,6 +22,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import stylesheet
+
 import pytest
 
 INDEX = Path(__file__).resolve().parent.parent / "site" / "index.html"
@@ -128,8 +130,7 @@ def mix(a: str, b: str, share: float):
 
 def themes() -> dict[str, dict[str, str]]:
     """The token blocks, read out of the stylesheet as the browser sees them."""
-    text = INDEX.read_text(encoding="utf-8")
-    style = text[text.index("<style>"):text.index("</style>")]
+    style = stylesheet()
     blocks = {
         "dark": style[style.index(":root{"):style.index("@media (prefers-color-scheme:light)")],
         "light": style[style.index(':root[data-theme="light"]{'):style.index("*{box-sizing")],
