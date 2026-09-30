@@ -130,7 +130,7 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --ground:#F7F5F0; --panel:#FFFDF9; --raised:#FFFFFF; --sunk:#EFECE5;
   --float:#FFFFFF;
   --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
-  --art-line:#888A87; --art-line-soft:#AEB1AD;
+  --art-line:#7D7C78; --art-line-soft:#A7A59F;
   /* The light theme's ladder had drifted from the dark one's. Secondary text
      measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
      is what the 10.5px uppercase labels are set in, which is the size APCA is
@@ -139,10 +139,10 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      the two stay a step apart rather than collapsing into one tier with two
      names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
      both themes, which is what it was always meant to be. */
-  --ink:#171512; --ink-2:#514C45; --ink-3:#665F56;
+  --ink:#171512; --ink-2:#3F3B36; --ink-3:#4D4943;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
-  --settled:#007B5F; --hold:#946200; --crit:#B62734;
+  --settled:#007157; --hold:#855800; --crit:#B62734;
   --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
   --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
   --grid:rgba(23,21,18,.045);
@@ -158,7 +158,7 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --ground:#F7F5F0; --panel:#FFFDF9; --raised:#FFFFFF; --sunk:#EFECE5;
   --float:#FFFFFF;
   --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
-  --art-line:#888A87; --art-line-soft:#AEB1AD;
+  --art-line:#7D7C78; --art-line-soft:#A7A59F;
   /* The light theme's ladder had drifted from the dark one's. Secondary text
      measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
      is what the 10.5px uppercase labels are set in, which is the size APCA is
@@ -167,10 +167,10 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      the two stay a step apart rather than collapsing into one tier with two
      names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
      both themes, which is what it was always meant to be. */
-  --ink:#171512; --ink-2:#514C45; --ink-3:#665F56;
+  --ink:#171512; --ink-2:#3F3B36; --ink-3:#4D4943;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
-  --settled:#007B5F; --hold:#946200; --crit:#B62734;
+  --settled:#007157; --hold:#855800; --crit:#B62734;
   --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
   --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
   --grid:rgba(23,21,18,.045);
