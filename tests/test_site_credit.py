@@ -18,8 +18,10 @@ import json
 import re
 from pathlib import Path
 
+from conftest import page_assembled
+
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 
 
 def test_the_licences_that_ask_for_a_notice_get_one() -> None:

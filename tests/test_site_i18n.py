@@ -14,6 +14,8 @@ import re
 from html.parser import HTMLParser
 from pathlib import Path
 
+from conftest import page_assembled
+
 import pytest
 
 SITE = Path(__file__).resolve().parent.parent / "site"
@@ -38,7 +40,7 @@ def _literal(src: str, i: int) -> tuple[str, int]:
 
 def page_sentences() -> set[str]:
     """Every English sentence the page passes through t(), N() or tspan()."""
-    html = (SITE / "index.html").read_text(encoding="utf-8")
+    html = page_assembled()
     js = html[html.index("<script>", html.index("<body")):]
     found: set[str] = set()
     for match in re.finditer(r"(?<![\w.$])(t|N|tspan)\(\s*", js):
@@ -112,7 +114,7 @@ def markup_sentences() -> set[str]:
     without a translation reached a Japanese reader in English, and no test
     said a word.
     """
-    html = (SITE / "index.html").read_text(encoding="utf-8")
+    html = page_assembled()
     parser = _Marked(html)
     parser.feed(html)
     out = set()
@@ -178,7 +180,7 @@ def test_the_type_inside_a_drawing_is_translated(lang) -> None:
     English through it.
     """
     strings = dictionary(lang)["strings"]
-    html = (SITE / "index.html").read_text(encoding="utf-8")
+    html = page_assembled()
     labels = set()
     for svg in re.findall(r"<svg\b.*?</svg>", html, re.S):
         for text in re.findall(r"<text[^>]*\bdata-i18n\b[^>]*>([^<]+)</text>", svg):
@@ -199,7 +201,7 @@ def test_what_a_drawing_says_to_a_screen_reader_is_translated(lang) -> None:
     since the release that drew them.
     """
     strings = dictionary(lang)["strings"]
-    html = (SITE / "index.html").read_text(encoding="utf-8")
+    html = page_assembled()
     described = set(re.findall(r'aria-label="([^"]+)" data-i18n-aria', html))
     assert described, "no described elements found; the page is not being read"
     missing = sorted(s for s in described if s not in strings)
@@ -470,7 +472,7 @@ def test_a_sentence_the_protocol_sends_is_never_printed_raw() -> None:
     "class", "textContent" and "id" within three rounds and then demanded that
     tsHtml translate the English original it exists to show.
     """
-    html = (SITE / "index.html").read_text(encoding="utf-8")
+    html = page_assembled()
     script = "".join(re.findall(r"<script\b[^>]*>(.*?)</script>", html, re.S))
 
     #: Fields of an API reply that carry a sentence rather than a name, a
@@ -518,7 +520,7 @@ def table_sentences() -> dict[str, list[str]]:
     checked them, so a value added to a table arrived on the page in English
     in every language and no test said a word.
     """
-    html = (SITE / "index.html").read_text(encoding="utf-8")
+    html = page_assembled()
     faults = json.loads(re.search(r"var FAULTS = (\[.*?\]);", html, re.S).group(1))
     zones = json.loads(re.search(r"var ZONE_NAMES = (\{.*?\});", html, re.S).group(1))
     inline = re.findall(r'zoneName:"([^"]+)"', html)

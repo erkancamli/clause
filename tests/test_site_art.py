@@ -17,10 +17,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from conftest import page_with_styles
+from conftest import page_assembled
 
 SITE = Path(__file__).resolve().parent.parent / "site"
-PAGE = page_with_styles()
+PAGE = page_assembled()
 
 #: The two drawings, by the class the markup puts on them.
 TALL = 'class="art art-tall"'

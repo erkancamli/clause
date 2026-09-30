@@ -16,8 +16,10 @@ import math
 import re
 from pathlib import Path
 
+from conftest import page_assembled
+
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 
 
 def _function(name: str) -> str:
@@ -412,15 +414,18 @@ def test_one_quote_names_one_amount() -> None:
     """
     from clause.protocol.valuation import schedule
 
-    # The scenario is not hypothetical: with today's published rate the two
-    # roundings still disagree, so this test would fail if the second one came
-    # back.
+    # Whether one area happens to land between two whole numbers depends on a
+    # rate that moves with the exchange rate, so the scenario is found rather
+    # than written down: the first written-down one, 120 m² at 519.29, stopped
+    # splitting the day the rate reached 519.33 and this test would have gone
+    # quiet rather than red.
     rate = schedule()["rebuild_per_m2"]["TR"]["flat"]
     ceiling = max(0.55, 1 - 0.01 * (2026 - 2005))
-    raw = 120 * rate * ceiling
-    assert math.floor(raw) != round(raw), (
-        f"120 m², built 2005, at {rate} per m² gives {raw}, which rounds the same "
-        "either way; pick a scenario that does not"
+    splits = [a for a in range(15, 3001)
+              if math.floor(a * rate * ceiling) != round(a * rate * ceiling)]
+    assert splits, (
+        f"at {rate} per m² no allowed floor area falls between two whole numbers, "
+        "so nothing here would show the two roundings apart"
     )
 
     body = _function("sizeValue")

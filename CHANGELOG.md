@@ -2,6 +2,64 @@
 
 ## Unreleased
 
+- The script is twenty-three files, and site/index.html is no longer a page.
+
+  598,208 bytes of it, 9,617 lines, in one block. It is `site/app/` now, cut at
+  the headings the script had already written for itself, and the build joins
+  the parts back where they were listed. The published page is byte for byte
+  the one published before either split, 623,103 bytes, down to the build name.
+
+  The first attempt was wrong and the browser said so in four words. The parts
+  were linked as scripts for a browser to fetch, and the first one stopped it
+  on "Unexpected end of input": the whole script is the inside of a single
+  `(function(){ ... })()`, so a part cut out of it opens braces it never
+  closes, and separate files cannot share a closure. Twenty-one of the
+  twenty-three parts parse alone and two do not, which is exactly the way for
+  an arrangement like this to look right and be broken.
+
+  So the parts are listed and not fetched, under an attribute a browser does
+  not act on, and `site/index.html` stopped being a page a browser can run.
+  `python3 site/build.py --dev` assembles it into `site/dev.html`, beside it so
+  every relative path still resolves, unminified so it can be read and stepped
+  through. What is checked in a browser is now what is published rather than a
+  second arrangement that drifts from it.
+
+  Fifty-two tests were reading the script out of `site/index.html` and would
+  have gone on passing while reading nothing at all. They read the page as a
+  browser ends up with it, markup and styles and script together, through one
+  helper.
+
+  One of those tests was mine, written earlier the same day, and it had the
+  fault it was written to prevent. It proved the rounding scenario was real by
+  checking that 120 m² at 519.29 per m² falls between two whole numbers. The
+  rate reached 519.33 and it does not any more, so the test went quiet rather
+  than red. It now looks for an area that splits instead of naming one.
+
+- Measured before deciding what to do about the weight, and the measurements
+  cancelled the plan they were taken for.
+
+  Splitting by route, which is what the weight was assumed to need, would move
+  46 KB of 598 KB. Every screen runs about the same 145 KB and differs by a
+  slice: proof 13,970 bytes, insurers 12,299, rules 7,578, and the rest under
+  three thousand each.
+
+  The plan was route-splitting because 76 per cent of the script never runs on
+  a visit. It does not follow, and the second measurement says why. Walked
+  through a whole purchase, from the home page to the signing step, a buyer
+  runs 208,921 bytes of 598,203, and 389,282 bytes, 65 per cent, never run at
+  all. What is heavy is not the screens; it is signing in, paying, and the
+  desks a company and an operator work at.
+
+  Attributed to the files the script is now cut into: a buyer touches 9 per
+  cent of the 92,666 bytes of company and operator, 14 per cent of the 57,870
+  of proof and chain, 5 per cent of the 42,966 of the profile. Emptying those
+  three and building takes the published page from 623,725 bytes to 479,626,
+  and the wire, brotli, from 137,548 to 107,531. That is the prize for
+  deferring them, measured rather than guessed: 30 KB fewer to download and
+  144 KB fewer to parse on a phone. They cannot be deferred while they are
+  inside the one closure, and that is the next piece of work rather than this
+  one.
+
 - The stylesheet is nine files and the published page is unchanged.
 
   `site/index.html` is 897,113 bytes and 13,894 lines, and 156,879 of those

@@ -40,3 +40,5 @@ RELEASE-*.md
 
 # A model file part way through being written. The build renames it into place.
 clause/hazard/models/*.json.part
+site/dev.html
+site/version.json

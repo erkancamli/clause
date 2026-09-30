@@ -24,8 +24,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from conftest import page_assembled
+
 SITE = Path(__file__).resolve().parent.parent / "site"
-PAGE = (SITE / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 
 
 def _code() -> str:

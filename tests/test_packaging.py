@@ -11,6 +11,7 @@ from __future__ import annotations
 import ast
 import pathlib
 import sys
+from conftest import page_assembled
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "clause"
@@ -235,7 +236,7 @@ def test_a_read_is_asked_again_and_a_write_never_is() -> None:
     be the reply going missing rather than the request; sending it twice is
     how somebody is charged twice.
     """
-    page = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+    page = page_assembled()
     assert 'if (method === "GET" && !options.noRetry)' in page, (
         "reads are no longer retried, or writes have been swept in with them")
     assert "noRetry: true" in page, "nothing stops the retry retrying itself"

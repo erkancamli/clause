@@ -16,10 +16,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from conftest import page_with_styles
+from conftest import page_assembled
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = page_with_styles()
+PAGE = page_assembled()
 CLIENT = (ROOT / "clause" / "rpc" / "client.py").read_text(encoding="utf-8")
 
 #: The part of the page that is this view, so a rule about it is about it.

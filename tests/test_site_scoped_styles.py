@@ -27,10 +27,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from conftest import stylesheet
+from conftest import page_assembled, stylesheet
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 STYLES = stylesheet()
 
 #: A marked region and the view it says it is for.

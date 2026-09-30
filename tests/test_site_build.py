@@ -16,7 +16,7 @@ import re
 import pathlib
 
 import pytest
-from conftest import stylesheet
+from conftest import page_assembled, stylesheet
 
 BUILD = pathlib.Path(__file__).resolve().parent.parent / "site" / "build.py"
 
@@ -102,7 +102,7 @@ def test_reading_the_page_asks_nothing_of_a_third_party() -> None:
 
     import re
 
-    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
+    page = page_assembled()
     head = page[:page.index("</head>")]
     # A reference, not a mention: prose about why the fonts moved is not a
     # request, and this test failed on its own explanation the first time.
@@ -287,3 +287,56 @@ def test_a_part_the_page_does_not_link_stops_the_build(build, tmp_path) -> None:
     page = '<html><head><link rel="stylesheet" href="styles/no-such-file.css"></head></html>'
     with pytest.raises(SystemExit, match="no-such-file.css"):
         build.gather_styles(page)
+
+
+def test_the_script_is_joined_in_the_order_the_page_lists_it(build) -> None:
+    """Twenty-three parts of one closure, and not one of them is a program.
+
+    The whole script is the inside of a single `(function(){ ... })()`, so a
+    part cut out of it opens braces it never closes. Cut into files and fetched
+    as files, the first one stops the browser on "Unexpected end of input" and
+    the page is blank. They are therefore listed by the page and joined by the
+    build, never fetched, and the attribute they are listed with is not one a
+    browser acts on.
+
+    Order carries twice as much here as it does for the styles. Joined, the
+    whole thing hoists and any order of declarations would work; what does not
+    survive reordering is the code that runs as it is read. The numbers in the
+    names carry the order and this holds the page to them.
+    """
+    site = pathlib.Path(__file__).resolve().parent.parent / "site"
+    page = (site / "index.html").read_text(encoding="utf-8")
+    listed = re.findall(r'<script data-part="(app/[^"]+)"></script>', page)
+
+    assert listed, "the page lists no script part"
+    assert listed == sorted(listed), f"the parts are not listed in name order: {listed}"
+    assert len(set(listed)) == len(listed), "a part is listed twice"
+    on_disk = sorted("app/" + p.name for p in (site / "app").glob("*.js"))
+    assert on_disk == sorted(listed), (
+        f"app/ and the page disagree about which parts exist: {set(on_disk) ^ set(listed)}"
+    )
+    assert 'src="app/' not in page, (
+        "a part is given to the browser to fetch; not one of them is a program on its own"
+    )
+
+    joined = build.gather_scripts(page)
+    assert "data-part=" not in joined, "a part is still listed in the joined page"
+    assert joined.count("<script>") == 2, (
+        "the page should hold the one it always had and the one the parts came back as"
+    )
+    inside = joined[joined.rindex("<script>") + len("<script>") : joined.rindex("</script>")]
+    want = "".join((site / p).read_text(encoding="utf-8") for p in listed)
+    assert inside == want, "the joined script is not the parts, in order"
+
+    # The closure the parts are the inside of: opened in the first, closed in
+    # the last, and nowhere else is either of them a whole thing.
+    first = (site / listed[0]).read_text(encoding="utf-8")
+    last = (site / listed[-1]).read_text(encoding="utf-8")
+    assert first.lstrip().startswith('"use strict";'), "the first part does not open the script"
+    assert last.rstrip().endswith("})();"), "the last part does not close the closure"
+
+
+def test_a_part_the_page_does_not_list_stops_the_build(build) -> None:
+    page = '<html><body><script data-part="app/no-such-file.js"></script></body></html>'
+    with pytest.raises(SystemExit, match="no-such-file.js"):
+        build.gather_scripts(page)

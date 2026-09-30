@@ -17,10 +17,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from conftest import stylesheet
+from conftest import page_assembled, stylesheet
 
 SITE = Path(__file__).resolve().parent.parent / "site"
-PAGE = (SITE / "index.html").read_text(encoding="utf-8")
+PAGE = page_assembled()
 STYLES = stylesheet()
 
 #: The class the flow puts on the wrap when it takes the rail away.
@@ -152,7 +152,7 @@ def test_the_ceiling_says_what_it_leaves_out() -> None:
     site works" -- and the page was carrying that note in its payload and
     keeping it to itself.
     """
-    page = (Path(__file__).resolve().parent.parent / "site" / "index.html").read_text(encoding="utf-8")
+    page = PAGE
     # The schedule's own words, wherever the figure came from.
     assert "if(from.figure.note) said.push(from.figure.note);" in page
     # And the plain sentence, on the home valuation only: a field's revenue and
