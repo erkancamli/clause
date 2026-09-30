@@ -2454,7 +2454,13 @@
     "The source did not answer.": "Источник не ответил.",
     "the source is not answering": "источник не отвечает",
     "no airport is reporting a delay right now": "сейчас ни один аэропорт не сообщает о задержке",
-    "What to ask about": "О чём спрашивать"
+    "What to ask about": "О чём спрашивать",
+    "Your cover": "Ваше покрытие",
+    "When Clause pays": "Когда Clause платит",
+    "What this does not cover": "Что это не покрывает",
+    "Who issues the policy": "Кто выпускает полис",
+    "Payment and acceptance": "Оплата и принятие",
+    "See the same thing as a curve": "То же самое в виде кривой"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

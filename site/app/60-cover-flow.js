@@ -916,8 +916,16 @@ function drawCurve(){
   // basis risk paragraph: 53 mm in Rize is an ordinary wet day on a gauge and
   // a once in ten years day on this scale, and a buyer who does not know that
   // will expect to be paid several times a year.
-  var scale=scaleSaid();
-  $("curve-cap").textContent=note+(scale?" "+scale:"");
+  // The note says why the payout steps and where the trigger sits; that
+  // belongs beside the ladder, which shows the steps and not the reason. The
+  // scale caveat says the millimetres are a fifty kilometre average, which is
+  // basis risk in one sentence, so it goes to the part that names it. The
+  // figure keeps no caption: everything it said is now said where it is read,
+  // and repeating it under the drawing is how this screen came to hold two of
+  // everything in the first place.
+  var payNote=$("pay-note"); if(payNote)payNote.textContent=note;
+  var scaleBox=$("basis-scale"); if(scaleBox)scaleBox.textContent=scaleSaid();
+  $("curve-cap").textContent="";
 }
 
 function renderStep(){
@@ -1165,10 +1173,14 @@ function renderAnswers(){
     price+=' <small>'+esc(t("{n} payments of {amount}",{n:flow.instalments,amount:money(total*(1+pl.surcharge)/flow.instalments)}))+'</small>'; }
   rows.push(row(t("Price"),price,flow.instalments>1||($("plan-box")&&!$("plan-box").hidden)?CONFIRM_STEP:0,"plan-box"));
   box.innerHTML=rows.join("");
-  // And what it does not cover, in the numbers on this policy.
-  var says=basisRiskSaid();
-  box.innerHTML+='<div class="ans basis"><span class="k">'+esc(t("Does not cover"))+'</span>'+
-    '<span class="v"><b>'+esc(says[0])+'</b><br><small>'+esc(says[1])+'</small></span><span></span></div>';
+  // And what it does not cover, in the numbers on this policy. It was the
+  // last row of this table, under a 10px uppercase label, which is the
+  // typography of a field name and not of the one thing on this screen a
+  // buyer is most likely to be wrong about. It has its own part now, and
+  // reads as two sentences rather than a value in a column.
+  var says=basisRiskSaid(), basis=$("basis-box");
+  if(basis)basis.innerHTML='<p class="basis-cut">'+esc(says[0])+'</p>'+
+    '<p class="basis-cut">'+esc(says[1])+'</p>';
   Array.prototype.forEach.call(box.querySelectorAll(".ans-change"),function(b){
     b.addEventListener("click",function(){
       var to=b.dataset.to, step=+b.dataset.step;
@@ -1210,9 +1222,10 @@ function confirmUnshowable(){
   // setNextLabel, which half a dozen other things call, so disabling it here
   // lasts only until the next of them runs. The gate has to know.
   flow.unshowable=true;
-  var blanks=["plain","pay-rows","market-box","offers","contract-text","curve"];
+  var blanks=["plain","pay-rows","market-box","offers","contract-text","curve","basis-box"];
   for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
   var cap=$("curve-cap"); if(cap)cap.textContent="";
+  ["pay-note","basis-scale"].forEach(function(id){ var e=$(id); if(e)e.textContent=""; });
   var said=$("confirm-broken");
   if(said){ said.hidden=false; said.textContent=t("This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged."); }
   var button=$("next");
@@ -1227,9 +1240,10 @@ function confirmUnshowable(){
 function confirmPricing(){
   flow.unshowable=false;
   var said=$("confirm-broken"); if(said)said.hidden=true;
-  var blanks=["pay-rows","market-box","offers","contract-text","curve"];
+  var blanks=["pay-rows","market-box","offers","contract-text","curve","basis-box"];
   for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
   var cap=$("curve-cap"); if(cap)cap.textContent="";
+  ["pay-note","basis-scale"].forEach(function(id){ var e=$(id); if(e)e.textContent=""; });
   var plain=$("plain");
   if(plain)plain.innerHTML='<p class="prompt">'+
     esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';

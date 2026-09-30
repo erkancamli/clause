@@ -2454,7 +2454,13 @@
     "The source did not answer.": "情報源は応答しませんでした。",
     "the source is not answering": "情報源が応答していません",
     "no airport is reporting a delay right now": "現在、遅延を報告している空港はありません",
-    "What to ask about": "何について尋ねるか"
+    "What to ask about": "何について尋ねるか",
+    "Your cover": "あなたの補償",
+    "When Clause pays": "Clause が支払うとき",
+    "What this does not cover": "この補償の対象外",
+    "Who issues the policy": "保険証券を発行する会社",
+    "Payment and acceptance": "支払いと承諾",
+    "See the same thing as a curve": "同じ内容を曲線で見る"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

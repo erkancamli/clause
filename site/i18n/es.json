@@ -2454,7 +2454,13 @@
     "The source did not answer.": "La fuente no respondió.",
     "the source is not answering": "la fuente no responde",
     "no airport is reporting a delay right now": "ningún aeropuerto informa de retrasos ahora mismo",
-    "What to ask about": "Sobre qué preguntar"
+    "What to ask about": "Sobre qué preguntar",
+    "Your cover": "Su cobertura",
+    "When Clause pays": "Cuándo paga Clause",
+    "What this does not cover": "Lo que esto no cubre",
+    "Who issues the policy": "Quién emite la póliza",
+    "Payment and acceptance": "Pago y aceptación",
+    "See the same thing as a curve": "Ver lo mismo como una curva"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

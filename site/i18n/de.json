@@ -2454,7 +2454,13 @@
     "The source did not answer.": "Die Quelle hat nicht geantwortet.",
     "the source is not answering": "die Quelle antwortet nicht",
     "no airport is reporting a delay right now": "derzeit meldet kein Flughafen eine Verspätung",
-    "What to ask about": "Worüber gefragt wird"
+    "What to ask about": "Worüber gefragt wird",
+    "Your cover": "Ihr Versicherungsschutz",
+    "When Clause pays": "Wann Clause zahlt",
+    "What this does not cover": "Was dies nicht abdeckt",
+    "Who issues the policy": "Wer die Police ausstellt",
+    "Payment and acceptance": "Zahlung und Annahme",
+    "See the same thing as a curve": "Dasselbe als Kurve ansehen"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

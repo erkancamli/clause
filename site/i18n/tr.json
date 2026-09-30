@@ -2462,7 +2462,13 @@
     "The source did not answer.": "Kaynak cevap vermedi.",
     "the source is not answering": "kaynak cevap vermiyor",
     "no airport is reporting a delay right now": "şu an hiçbir havalimanı gecikme bildirmiyor",
-    "What to ask about": "Ne sorulacağı"
+    "What to ask about": "Ne sorulacağı",
+    "Your cover": "Teminatınız",
+    "When Clause pays": "Clause ne zaman öder",
+    "What this does not cover": "Bu poliçenin kapsamadıkları",
+    "Who issues the policy": "Poliçeyi kim düzenler",
+    "Payment and acceptance": "Ödeme ve kabul",
+    "See the same thing as a curve": "Aynı bilgiyi eğri olarak görün"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

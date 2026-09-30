@@ -509,3 +509,39 @@ tr:last-child td{border-bottom:0}
   .pricebar .grow .btn-primary{flex:1}
 }
 
+
+/* ---------------- the paying screen, in six parts ----------------
+   Fifteen blocks in a row with nothing between them but a 14px gap: the
+   reader could not tell where one subject ended and the next began, and the
+   two that mattered most -- who issues this, what it does not cover -- were
+   indistinguishable from the rest. A part carries a number and a name, and a
+   rule above it, so the screen reads as a document with sections rather than
+   a column of panels.
+
+   A part is a grid so the blocks inside it space themselves the way the
+   q-body used to space them; the q-body's own gap now separates the parts,
+   which is why it is larger between them than within. */
+.part{display:grid;gap:12px;align-content:start}
+.part + .part{margin-top:10px;padding-top:20px;border-top:1px solid var(--edge)}
+.part-t{display:flex;align-items:baseline;gap:10px;margin:0;
+  font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+/* The number is the reader's place in the six, so it is quieter than the name
+   it sits beside and is read out by neither: a screen reader is given the
+   name and the heading level, which say the same thing better. */
+.part-n{flex:none;width:23px;height:23px;border-radius:50%;align-self:center;
+  display:grid;place-items:center;background:var(--sunk);border:1px solid var(--edge);
+  font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-3)}
+/* What the cover does not pay for, as two sentences rather than a table cell.
+   The rule down the left is the one the site uses for a thing being quoted
+   back at the reader, and the colour is the signal's, because this is the
+   sentence the page most wants read before the money moves. */
+.basis-cut{margin:0;padding-left:13px;border-left:2px solid var(--signal);
+  font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+.basis-cut + .basis-cut{margin-top:8px}
+#basis-scale:empty{display:none}
+#pay-note:empty{display:none}
+@media (max-width:640px){
+  .part-t{font-size:15.5px;gap:8px}
+  .part-n{width:21px;height:21px;font-size:10.5px}
+  .part + .part{padding-top:16px}
+}

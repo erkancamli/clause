@@ -983,6 +983,21 @@
       </div>
     </div>
 
+    <!-- The paying screen, in six named parts.
+         It was fifteen blocks in a row with nothing saying where one subject
+         ended and the next began, and two drawings of the same three amounts:
+         the ladder and the curve both read the policy's own points, so a
+         reader met the figures twice and learnt nothing the second time. The
+         curve keeps what the ladder cannot carry -- the shape between the
+         steps and how far the trigger sits from an ordinary reading -- and it
+         is now behind a disclosure in the part it belongs to. What the curve's
+         caption carried and the ladder did not, the sentence about why it
+         steps, is said in full where the ladder is.
+
+         The parts are numbered because a buyer who stops halfway needs to know
+         how much is left, and named because a buyer looking for one thing --
+         who issues this, what it does not cover -- should not have to read
+         the rest to find it. -->
     <div class="q" id="s4" hidden>
       <h2 data-i18n>Here is the deal, in one sentence.</h2>
       <div class="q-body">
@@ -992,39 +1007,69 @@
           <div id="answers-rows"></div>
         </section>
         <p class="verdict no" id="confirm-broken" role="alert" hidden></p>
-        <p class="plain" id="plain"></p>
-        <figure class="chart-box">
-          <svg class="art" id="curve" viewBox="0 0 540 272" role="img" aria-label="Payout curve" data-i18n-aria></svg>
-          <figcaption id="curve-cap"></figcaption>
-        </figure>
-        <div>
-          <div class="label" style="margin-bottom:8px" data-i18n>What you receive, depending on what happens</div>
+
+        <section class="part" id="part-cover" aria-labelledby="part-cover-t">
+          <h3 class="part-t" id="part-cover-t"><span class="part-n" aria-hidden="true">1</span><span data-i18n>Your cover</span></h3>
+          <p class="plain" id="plain"></p>
+        </section>
+
+        <section class="part" id="part-pays" aria-labelledby="part-pays-t">
+          <h3 class="part-t" id="part-pays-t"><span class="part-n" aria-hidden="true">2</span><span data-i18n>When Clause pays</span></h3>
           <div class="pay-rows" id="pay-rows"></div>
-        </div>
-        <div id="offers-box" hidden>
-          <div class="label" style="margin-bottom:8px" data-i18n>Who will issue it: choose a company</div>
-          <div class="offers" id="offers"></div>
-        </div>
-        <div id="compliance-box" class="verdict" hidden></div>
-        <div id="verify-box" class="panel verify" hidden>
-          <div class="label" data-i18n>Before this can be issued</div>
-          <p class="hint" id="verify-why"></p>
-          <div id="verify-rows"></div>
-          <p class="fine" id="verify-held"></p>
-        </div>
-        <div id="market-box"></div>
-        <div id="plan-box" hidden>
-          <div class="label" style="margin-bottom:8px" data-i18n>How to pay</div>
-          <div class="seg" id="plan-seg" role="radiogroup"></div>
-          <p class="fine" id="plan-note"></p>
-        </div>
-        <p class="fine" id="cancel-terms"></p>
-        <div id="contract-box" hidden>
-          <div class="label" style="margin-bottom:8px" data-i18n>The contract</div>
-          <div class="contract" id="contract-text"></div>
-          <p class="fine" data-i18n>The English text is the binding one. It is the whole policy: what it covers, when it pays, what it costs, and how to cancel.</p>
+          <p class="fine" id="pay-note"></p>
+          <details class="more" id="curve-box">
+            <summary data-i18n>See the same thing as a curve</summary>
+            <div class="inner">
+              <figure class="chart-box">
+                <svg class="art" id="curve" viewBox="0 0 540 272" role="img" aria-label="Payout curve" data-i18n-aria></svg>
+                <figcaption id="curve-cap"></figcaption>
+              </figure>
+            </div>
+          </details>
+        </section>
+
+        <section class="part" id="part-basis" aria-labelledby="part-basis-t">
+          <h3 class="part-t" id="part-basis-t"><span class="part-n" aria-hidden="true">3</span><span data-i18n>What this does not cover</span></h3>
+          <div id="basis-box"></div>
+          <p class="fine" id="basis-scale"></p>
+        </section>
+
+        <section class="part" id="part-issuer" aria-labelledby="part-issuer-t">
+          <h3 class="part-t" id="part-issuer-t"><span class="part-n" aria-hidden="true">4</span><span data-i18n>Who issues the policy</span></h3>
+          <div id="offers-box" hidden>
+            <div class="label" style="margin-bottom:8px" data-i18n>Who will issue it: choose a company</div>
+            <div class="offers" id="offers"></div>
+          </div>
+          <div id="compliance-box" class="verdict" hidden></div>
+          <div id="market-box"></div>
+        </section>
+
+        <section class="part" id="part-docs" aria-labelledby="part-docs-t">
+          <h3 class="part-t" id="part-docs-t"><span class="part-n" aria-hidden="true">5</span><span data-i18n>Documents</span></h3>
+          <div id="verify-box" class="panel verify" hidden>
+            <div class="label" data-i18n>Before this can be issued</div>
+            <p class="hint" id="verify-why"></p>
+            <div id="verify-rows"></div>
+            <p class="fine" id="verify-held"></p>
+          </div>
+          <div id="contract-box" hidden>
+            <div class="label" style="margin-bottom:8px" data-i18n>The contract</div>
+            <div class="contract" id="contract-text"></div>
+            <p class="fine" data-i18n>The English text is the binding one. It is the whole policy: what it covers, when it pays, what it costs, and how to cancel.</p>
+          </div>
+        </section>
+
+        <section class="part" id="part-pay" aria-labelledby="part-pay-t">
+          <h3 class="part-t" id="part-pay-t"><span class="part-n" aria-hidden="true">6</span><span data-i18n>Payment and acceptance</span></h3>
+          <div id="plan-box" hidden>
+            <div class="label" style="margin-bottom:8px" data-i18n>How to pay</div>
+            <div class="seg" id="plan-seg" role="radiogroup"></div>
+            <p class="fine" id="plan-note"></p>
+          </div>
+          <p class="fine" id="cancel-terms"></p>
           <label class="accept"><input type="checkbox" id="accept"><span data-i18n>I have read the contract and the information before it, and I accept them.</span></label>
-        </div>
+        </section>
+
         <details class="more" id="later-box" hidden>
           <summary data-i18n>Not now: buy it later, when a condition comes true</summary>
           <div class="inner">
