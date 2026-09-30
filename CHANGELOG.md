@@ -75,18 +75,38 @@
   | refused: our model and the published one disagree | 381 | 11.2% |
   | refused: nothing published within sixty kilometres | 168 | 4.9% |
 
-  The 381 are the guard on that disagreement doing exactly what the note beside
-  it says it does: "about one place in nine is refused by this, in both
-  countries." Measured here at 11.2%, which is that figure. The guard is not a
-  gap to close by loosening it. It is bound by the clamp on how far the map may
-  move an intensity, and where it binds our own event model is the thing that is
-  wrong: Jacksonville, a city of a million, gets intensity VII once in 164,848
-  years from our events and once in 7,357 from the USGS, and Atlanta once in
-  155,063 against once in 3,274. Those are parts of the country where the
-  historical record inside the circle is close to empty, so a model fitted to
-  that record reads almost no hazard while the published one still carries a
-  great deal. Which sources it carries there is not measured here and is not
-  guessed at. Refusing is right until our own model reaches the same figure.
+  The 381 are the guard on that disagreement doing what the note beside it says
+  it does: "about one place in nine is refused by this, in both countries."
+  Measured here at 11.2%, which is that figure. So the guard is not news. Where
+  it fires is.
+
+  Three hundred and seventy one of them, 97%, lie between longitude -100 and
+  -80: the central and eastern United States. Across that whole band our own
+  model reads intensity VII at between once in 85,726 years and once in 164,848
+  years, a spread under a factor of two over a thousand kilometres, while the
+  published model runs from once in 477 years at Memphis to once in 7,357 at
+  Jacksonville, a spread of fifteen. Ours is not disagreeing about the level. It
+  has no spatial resolution there at all: it is reading a regional floor and
+  calling it an answer.
+
+  | | published | ours | factor left after the map |
+  |---|---:|---:|---:|
+  | Memphis | 1 in 477 | 1 in 129,275 | 39 |
+  | Nashville | 1 in 1,375 | 1 in 146,520 | 5 |
+  | St. Louis | 1 in 1,113 | 1 in 85,726 | 4 |
+  | Atlanta | 1 in 3,274 | 1 in 155,063 | 4 |
+  | Jacksonville | 1 in 7,357 | 1 in 164,848 | 2 |
+
+  Memphis is the case that makes it plain. It is the most exposed large city in
+  the eastern United States and our model cannot tell it from Jacksonville, six
+  hundred miles away. Which sources the published model carries there is not
+  measured here and is not guessed at; what is measured is that ours carries
+  none of them.
+
+  Most of the 381 sit just over the line, 155 at a factor of two and 61 at
+  three, so moving the guard would open them. That is the wrong repair: it would
+  sell a price two or three times light in the places our model understands
+  least. The repair is the model.
 
   The 168 are the ones a deeper build closes, and it is the smaller half.
 
