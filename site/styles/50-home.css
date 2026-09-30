@@ -38,7 +38,7 @@
    canvas, a dozen at a time, paused when unseen, absent for anyone who
    asked the browser for less motion. */
 .home-hero>.wrap{position:relative;z-index:1}
-.hero-fx-clip .readings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-fx-clip .readings{display:none;position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .hero-grid{display:grid;grid-template-columns:1fr;align-items:start;gap:clamp(20px,4vw,48px)}
 .hero-text{display:grid;gap:12px;justify-items:start;text-align:left}
 .hero-text h1{max-width:13ch}
