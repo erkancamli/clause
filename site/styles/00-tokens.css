@@ -127,9 +127,9 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
 }
 @media (prefers-color-scheme:light){ :root:not([data-theme="dark"]){
   color-scheme:light; --mark-invert:0;
-  --ground:#F7F7F5; --panel:#FFFFFF; --raised:#FFFFFF; --sunk:#F1F1EE;
+  --ground:#F7F5F0; --panel:#FFFDF9; --raised:#FFFFFF; --sunk:#EFECE5;
   --float:#FFFFFF;
-  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
+  --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
   /* The light theme's ladder had drifted from the dark one's. Secondary text
      measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
@@ -139,25 +139,25 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      the two stay a step apart rather than collapsing into one tier with two
      names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
      both themes, which is what it was always meant to be. */
-  --ink:#0C1116; --ink-2:#3F4750; --ink-3:#535C64;
+  --ink:#171512; --ink-2:#514C45; --ink-3:#665F56;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007B5F; --hold:#946200; --crit:#B62734;
   --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
   --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
-  --grid:rgba(12,17,22,.05);
-  --shadow:0 14px 40px rgba(12,17,22,.10);
-  --lift-1:0 1px 2px rgba(12,17,22,.05),0 2px 8px -4px rgba(12,17,22,.08);
-  --lift-2:0 2px 4px rgba(12,17,22,.05),0 14px 30px -12px rgba(12,17,22,.16);
+  --grid:rgba(23,21,18,.045);
+  --shadow:0 18px 50px -28px rgba(31,25,17,.28);
+  --lift-1:0 1px 2px rgba(31,25,17,.06);
+  --lift-2:0 12px 32px -22px rgba(31,25,17,.3);
   --hairline:inset 0 1px 0 rgba(255,255,255,.9);
   --sunk-in:inset 0 1px 2px rgba(12,17,22,.06);
 }}
 :root[data-theme="light"]{
   --mark-invert:0;
   color-scheme:light;
-  --ground:#F7F7F5; --panel:#FFFFFF; --raised:#FFFFFF; --sunk:#F1F1EE;
+  --ground:#F7F5F0; --panel:#FFFDF9; --raised:#FFFFFF; --sunk:#EFECE5;
   --float:#FFFFFF;
-  --edge:#E3E5E2; --edge-2:#D2D5D1; --edge-ctl:rgba(0,0,0,.44);
+  --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#888A87; --art-line-soft:#AEB1AD;
   /* The light theme's ladder had drifted from the dark one's. Secondary text
      measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
@@ -167,16 +167,16 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
      the two stay a step apart rather than collapsing into one tier with two
      names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
      both themes, which is what it was always meant to be. */
-  --ink:#0C1116; --ink-2:#3F4750; --ink-3:#535C64;
+  --ink:#171512; --ink-2:#514C45; --ink-3:#665F56;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007B5F; --hold:#946200; --crit:#B62734;
   --signal-wash:rgba(230,103,0,.09); --settled-wash:rgba(0,123,95,.10);
   --hold-wash:rgba(148,98,0,.10); --crit-wash:rgba(182,39,52,.09);
-  --grid:rgba(12,17,22,.05);
-  --shadow:0 14px 40px rgba(12,17,22,.10);
-  --lift-1:0 1px 2px rgba(12,17,22,.05),0 2px 8px -4px rgba(12,17,22,.08);
-  --lift-2:0 2px 4px rgba(12,17,22,.05),0 14px 30px -12px rgba(12,17,22,.16);
+  --grid:rgba(23,21,18,.045);
+  --shadow:0 18px 50px -28px rgba(31,25,17,.28);
+  --lift-1:0 1px 2px rgba(31,25,17,.06);
+  --lift-2:0 12px 32px -22px rgba(31,25,17,.3);
   --hairline:inset 0 1px 0 rgba(255,255,255,.9);
   --sunk-in:inset 0 1px 2px rgba(12,17,22,.06);
 }
@@ -310,26 +310,6 @@ a.pub .sm{grid-column:2;font-size:13px;color:var(--ink-2);line-height:1.5;margin
   --ease-enter:cubic-bezier(.2,0,0,1);
   --ease-exit:cubic-bezier(.4,0,1,1);
   --motion-press:90ms;--motion-hover:140ms;--motion-screen:220ms;
-}
-@media (prefers-color-scheme:light){
-  :root:not([data-theme="dark"]){
-    --ground:#F7F5F0;--panel:#FFFDF9;--raised:#FFFFFF;--sunk:#EFECE5;--float:#FFFFFF;
-    --edge:#DEDAD2;--edge-2:#CBC5BA;
-    --ink:#171512;--ink-2:#514C45;--ink-3:#665F56;
-    --grid:rgba(23,21,18,.045);
-    --shadow:0 18px 50px -28px rgba(31,25,17,.28);
-    --lift-1:0 1px 2px rgba(31,25,17,.06);
-    --lift-2:0 12px 32px -22px rgba(31,25,17,.3);
-  }
-}
-:root[data-theme="light"]{
-  --ground:#F7F5F0;--panel:#FFFDF9;--raised:#FFFFFF;--sunk:#EFECE5;--float:#FFFFFF;
-  --edge:#DEDAD2;--edge-2:#CBC5BA;
-  --ink:#171512;--ink-2:#514C45;--ink-3:#665F56;
-  --grid:rgba(23,21,18,.045);
-  --shadow:0 18px 50px -28px rgba(31,25,17,.28);
-  --lift-1:0 1px 2px rgba(31,25,17,.06);
-  --lift-2:0 12px 32px -22px rgba(31,25,17,.3);
 }
 body{line-height:1.5}
 h1{font-size:clamp(42px,5vw,64px);line-height:1.02}
