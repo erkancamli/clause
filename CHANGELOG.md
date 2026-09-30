@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.48.0, 30 September 2026
 
 - "Nobody decides whether you get paid" was the largest line on How it works,
   and the page's own questions page said otherwise four screens away.
