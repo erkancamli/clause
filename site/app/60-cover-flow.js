@@ -679,17 +679,40 @@ function payRows(){
   // out", closed, which is the one place a buyer deciding will not look.
   var exc=null;
   try{ exc=exceedance(); }catch(err){ exc=null; }
-  return rows.map(function(r){
+  /* Each step carries the share of the limit it pays, as a number between 0
+     and 1, so the ladder can be drawn as steps rather than read as a table.
+     On a wide screen the rows were already indented into a staircase; at 390px
+     the indent went and four rows sat flush left, which is a list. The share
+     is the thing that differs between them, so it is the thing the drawing
+     should carry, at either width.
+
+     "In the recorded earthquakes since 1973" was on every row, four times, and
+     at 390px it wrapped to two lines every time: twelve lines of the same six
+     words on the screen where the buyer decides. It is said once, under the
+     ladder. */
+  var top=0;
+  rows.forEach(function(r){ if(r[1]>top)top=r[1]; });
+  var said=false;
+  var body=rows.map(function(r){
     var often="";
     if(exc&&r[2]!=null){
       var chance=exc(r[2]);
-      if(chance>0&&chance<1)
-        often='<span class="fine often">'+esc(t("about 1 in {n} years in the recorded earthquakes since 1973",
+      if(chance>0&&chance<1){
+        often='<span class="fine often">'+esc(t("about 1 in {n} years",
           {n:f0.format(Math.round(1/chance))}))+'</span>';
+        said=true;
+      }
     }
-    return '<div class="pay-row'+(r[1]?"":" none")+'"><span>'+esc(r[0])+often+'</span><span class="amt">'+
+    var share=top>0?(r[1]||0)/top:0;
+    return '<div class="pay-row'+(r[1]?"":" none")+'" data-share="'+share.toFixed(4)+'"'+
+      ' style="--share:'+share.toFixed(4)+'">'+
+      '<span class="step" aria-hidden="true"></span>'+
+      '<span>'+esc(r[0])+often+'</span><span class="amt">'+
       (r[1]?money(r[1])+" USDC":esc(t("nothing")))+'</span></div>';
   }).join("");
+  return body + (said
+    ? '<p class="fine pay-since">'+esc(t("How often, in the earthquakes recorded since 1973."))+'</p>'
+    : "");
 }
 function hazardRows(){
   var exc=exceedance(),c=structure();

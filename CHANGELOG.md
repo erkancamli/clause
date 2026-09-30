@@ -40,6 +40,26 @@
   space on that screen holds Adana, Adıyaman and Afyonkarahisar. That is a
   separate thing and is not fixed here.
 
+- The payout ladder is a staircase on a wide screen and a flat list at 390px.
+
+  It is the thing a buyer is actually agreeing to. On a wide screen it was
+  already drawn as one: four steps, each indented further than the one above,
+  the highest payment at the top, each step saying the level, what that level
+  means in words, how often it happens here and what it pays. At 390px the
+  indent goes and the four rows sit flush left against one bar.
+
+  The one thing that differs between the rows is the share of the limit each
+  pays, and the indent was the only thing carrying it. Every row states its
+  share now, as a number between 0 and 1, measured at the İstanbul quote as
+  0.0000, 0.3500, 0.7500 and 1.0000, and holds an element for the step to be
+  drawn in. How it is drawn is not decided here.
+
+  "In the recorded earthquakes since 1973" was on every row, four times, and at
+  390px it wrapped to two lines each time: twelve lines of the same six words
+  on the screen where the buyer decides. It is said once, under the ladder.
+  Measured, that is smaller than it sounds: 497px to 479px. Eighteen pixels,
+  because the element the steps will be drawn with took most of it back.
+
 - An empty search box offered eight places chosen by the alphabet.
 
   The place index is in alphabetical order and an empty box was answered with
