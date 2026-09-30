@@ -113,10 +113,10 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --ease-enter:cubic-bezier(.2,0,0,1);
   --ease-exit:cubic-bezier(.4,0,1,1);
   --motion-press:90ms; --motion-hover:140ms; --motion-screen:220ms;
-  /* How long a line of running prose may be, said once. 44rem keeps the
-     reading column at 704px on the 16px body scale: inside the intended
-     620–720px measure without tying it to the unusually wide zero glyph. */
-  --measure:44rem;
+  /* How long a line of running prose may be, said once. In this face 55ch
+     measures about seventy-five average characters, inside the reading band
+     while still scaling with the text. */
+  --measure:55ch;
   --gutter:clamp(32px,4vw,48px); --max:1248px; --mark-invert:1;
 }
 @media (prefers-color-scheme:light){ :root:not([data-theme="dark"]){
