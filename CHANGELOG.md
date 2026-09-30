@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+- The line the three deferrable surfaces sit behind, drawn where it can hold.
+
+  A company's desk with the operator's screens, the proof register with the
+  chain beside it, and the profile: 193,502 bytes of script, and a buyer walking
+  a whole purchase touches 9, 14 and 5 per cent of them. They are the three
+  worth fetching only when somebody opens one.
+
+  They could not be. Sixteen declarations written inside them were used outside
+  them, and none of the sixteen was incidental: the cover flow reads the buyer's
+  saved things through `loadAssets` and `ASSETS`, My cover draws its payout,
+  mandate and funding panels from the profile's file, signing out clears the
+  operator's session through `opSignOut`, and `downloadCsv` and `bindTokens` are
+  simply general helpers that happened to be written in a desk. Moving those
+  sixteen pulled sixteen more after them, and those settled after three rounds.
+
+  Thirty-two declarations are in `site/app/44-always-loaded.js` now, on the side
+  of the line that is always in the page. Nothing else changed: no line of the
+  script was lost or written, only moved, which is checked by comparing the
+  parts line for line before and after. Every one of the fifteen screens was
+  opened in a browser afterwards and every one of them draws, with no error
+  anywhere.
+
+  The line itself is now a test rather than an intention. One new name declared
+  on the wrong side is a file that can no longer be deferred, and until somebody
+  tried it and measured, nothing would have said so.
+
+  This does not defer anything yet. The three are still inside the one closure,
+  and taking them out of it is the next step: they reach for 66 names the rest
+  of the closure declares, of which 62 are never reassigned and can be handed
+  over by value, and four, `link`, `t`, `LANG` and `identity`, are, so they have
+  to be read through the thing that holds them rather than copied out of it.
+
 - The script is twenty-three files, and site/index.html is no longer a page.
 
   598,208 bytes of it, 9,617 lines, in one block. It is `site/app/` now, cut at

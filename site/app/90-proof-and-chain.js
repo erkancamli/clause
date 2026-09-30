@@ -47,10 +47,10 @@ function anchorCheck(p){
   p.proof.forEach(function(sib){ sib=sib.toLowerCase(); node=node<=sib?keccak256(hexBytes(node.slice(2)+sib.slice(2))):keccak256(hexBytes(sib.slice(2)+node.slice(2))); });
   return node===p.root.toLowerCase();
 }
-var ANCHOR_KINDS={mint:N("token mint"),burn:N("token burn"),settle:N("settlement record"),root:N("book root")};
-function anchorState(st){ return {pending:t("waiting to be sent"),sent:t("sent"),confirmed:t("confirmed"),failed:t("failed")}[st]||st; }
+
+
 function anchorLink(url,text){ return url?'<a href="'+esc(url)+'" target="_blank" rel="noreferrer noopener">'+esc(text)+'</a>':esc(text); }
-function anchorShort(h){ return h?h.slice(0,10)+"…"+h.slice(-6):""; }
+
 function renderAnchorStatus(box){
   api("/api/anchor",{timeout:9000}).then(function(a){
     var chain=a.chain||{},c=a.counts||{},lr=a.last_root,el=document.createElement("div");
@@ -763,55 +763,13 @@ var AGREEMENT={agreed:N("agreed"),disputed:N("disputed"),no_quorum:N("no quorum"
    reader can trust at a glance. Every outcome is explained, not only the
    payments: the complaints about parametric cover come from the ones that did
    not pay, and "the reading was 5.8 and your cover needed 6.0" is an answer. */
-function bindTokens(root){
-  Array.prototype.forEach.call(root.querySelectorAll("[data-token]"),function(b){
-    b.addEventListener("click",function(){ showToken(b.dataset.token); });
-  });
-}
-function showToken(id){
-  api("/api/policies/"+encodeURIComponent(id)+"/token",{timeout:9000}).then(function(meta){
-    $("token-img").src=meta.image;
-    $("token-img").alt=meta.name;
-    $("token-meta").textContent=t("Minted in block {n}",{n:f0.format(meta.token.minted_block)})+" · "+meta.token.terms_hash;
-    $("token-chain").textContent=""; $("token-claim").innerHTML="";
-    api("/api/policies/"+encodeURIComponent(id)+"/anchor",{timeout:9000,token:identity.token||undefined}).then(function(a){
-      var last=(a.intents||[]).slice(-1)[0];
-      $("token-chain").textContent=last?t("On {chain}: {state}",{chain:(a.chain||{}).name||"",state:t(ANCHOR_KINDS[last.kind]||last.kind)+", "+anchorState(last.status)}):t("Not on a public chain yet.");
-      renderTokenClaim(id,a);
-    },function(){});
-    var d=$("token-dlg");
-    if(typeof d.showModal==="function"){ if(!d.open)d.showModal(); } else d.setAttribute("open","");
-  },function(){});
-}
+
+
 /* Whose wallet holds the token on the public chain, and the holder's way to
    make it their own: a wallet they linked on their profile, proved by its
    signature. The token cannot move, so "to my wallet" is a burn and a new
    mint, in that order; the page says so rather than pretending otherwise. */
-function renderTokenClaim(id,a){
-  var box=$("token-claim"); if(!box)return;
-  if(!a.wallets||a.mode!=="live"||!a.held)return;   // not the holder, or nothing on the chain yet
-  var held=a.held, mine=a.wallets;
-  var where=held.custodial?t("Held for you by the protocol's signer."):t("In your wallet {address}.",{address:anchorShort(held.to)});
-  var h='<p class="fine">'+esc(where)+'</p>';
-  var target=mine.length?mine[0]:null;
-  if(target&&(held.to||"").toLowerCase()!==target.toLowerCase()){
-    h+='<div><button class="btn btn-ghost btn-sm" type="button" id="token-claim-go">'+esc(t("Mint it to my wallet {address}",{address:anchorShort(target)}))+'</button> <span class="fine" id="token-claim-out"></span></div>';
-    if(held.status!=="pending")h+='<p class="fine">'+esc(t("The token cannot be transferred, so this burns the one the signer holds and mints a new one to your wallet, in that order."))+'</p>';
-  } else if(!target){
-    h+='<p class="fine">'+esc(t("Want it in your own wallet? Link an Ethereum wallet on your profile; the token is then minted to it."))+' <a href="#/profile">'+esc(t("My profile"))+'</a></p>';
-  }
-  box.innerHTML=h;
-  var go=$("token-claim-go");
-  if(go)go.addEventListener("click",function(){
-    go.disabled=true; $("token-claim-out").textContent="…";
-    api("/api/policies/"+encodeURIComponent(id)+"/anchor/claim",{method:"POST",token:identity.token,body:{address:target}}).then(function(r){
-      $("token-claim-out").textContent=t("Queued: {n} transaction(s), sent on the next cycle.",{n:(r.queued||[]).length});
-    },function(error){
-      go.disabled=false;
-      $("token-claim-out").textContent=(error&&error.payload&&error.payload.detail)||t("The protocol did not answer.");
-    });
-  });
-}
+
 function outcomeValue(o,v){
   if(v===null||v===undefined)return "–";
   var num=Number(v);

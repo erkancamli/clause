@@ -503,17 +503,9 @@ function submitCarrier(){
 
 /* OP is declared with the identity, above: the header reads it on load. */
 
-function opStore(value){
-  try { value ? sessionStorage.setItem("clause.op", value)
-              : sessionStorage.removeItem("clause.op"); } catch(e){}
-}
-function opRestore(){
-  try { return sessionStorage.getItem("clause.op"); } catch(e){ return null; }
-}
-function opStamp(seconds){
-  if(!seconds) return "";
-  return new Date(seconds*1000).toISOString().slice(0,16).replace("T"," ")+" UTC";
-}
+
+
+
 
 function bindOperator(){
   if(!OP.bound){
@@ -555,14 +547,7 @@ function opSignIn(){
   });
 }
 
-function opSignOut(){
-  var token=OP.token;
-  OP.token=null; OP.reviewer=""; OP.expires=0; opStore(null);
-  $("op-work").hidden=true; $("op-work").innerHTML="";
-  $("op-signin").hidden=false;
-  if(token) api("/api/operator/session",{method:"DELETE",token:token,timeout:8000})
-    .then(function(){},function(){});
-}
+
 
 function opLoad(){
   var work=$("op-work");
@@ -756,35 +741,11 @@ function bindDesk(holder,id,base,auth,admin){
 
 /* A download that needs the session: fetched with it, then handed to the
    browser as a file, since a plain link cannot carry a bearer token. */
-function downloadCsv(path, opts, filename){
-  var o={raw:true,timeout:30000}; for(var k in opts)o[k]=opts[k];
-  return api(path,o).then(function(blob){
-    var url=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
-    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1000);
-  });
-}
-function monthLabel(m){
-  var p=String(m||"").split("-"); if(p.length<2)return m||"";
-  return new Date(Date.UTC(+p[0],+p[1]-1,1)).toLocaleDateString(LOCALES[LANG]||"en-US",{year:"numeric",month:"long",timeZone:"UTC"});
-}
+
+
 /* One company's month, as a statement: the totals, then the lines. */
-var FEE_KINDS={fronting_fee:N("fronting fee received"),fronting_fee_returned:N("fronting fee returned"),platform_fee:N("platform fee"),platform_fee_returned:N("platform fee returned")};
-function statementHtml(st, months, chosen, who){
-  var sel=months.length?'<select class="dlg-input" style="max-width:220px" data-statement-month="'+esc(who)+'">'+months.map(function(m){
-    return '<option value="'+esc(m)+'"'+(m===chosen?' selected':'')+'>'+esc(monthLabel(m))+'</option>'; }).join("")+'</select>':'';
-  var rows=[[t("Policies written"),f0.format(st.policies)],[t("Premiums written"),money(st.premiums_written)+" USDC"],
-    [t("Fronting fees received"),money(st.fronting_fees)+" USDC"],[t("Fronting fees returned"),money(st.fronting_fees_returned)+" USDC"],
-    [t("Platform fee, deducted"),money(st.platform_fees)+" USDC"],[t("Platform fee, returned"),money(st.platform_fees_returned)+" USDC"],
-    [t("Net to the company"),money(st.net_to_company)+" USDC"]];
-  return '<div class="vrow" style="gap:10px;align-items:center;flex-wrap:wrap">'+sel+
-    '<button class="btn btn-line btn-sm" type="button" style="flex:0 0 auto" data-statement-csv="'+esc(who)+'">'+esc(t("Download CSV"))+'</button></div>'+
-    '<div class="tbl-wrap" style="margin-top:10px"><table class="tbl" style="min-width:0"><tbody>'+rows.map(function(r){
-      return '<tr><td>'+esc(r[0])+'</td><td class="num"><b>'+esc(r[1])+'</b></td></tr>'; }).join("")+'</tbody></table></div>'+
-    (st.lines&&st.lines.length?'<div class="tbl-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>'+esc(t("When"))+'</th><th>'+esc(t("Policy"))+'</th><th>'+esc(t("Entry"))+'</th><th class="num">'+esc(t("Premium"))+'</th><th class="num">'+esc(t("Amount"))+'</th></tr></thead><tbody>'+
-      st.lines.map(function(l){ return '<tr><td class="fine">'+esc(opStamp(l.at))+'</td><td class="mono">'+esc(l.policy_id)+'</td><td>'+esc(t(FEE_KINDS[l.kind]||l.kind))+'</td><td class="num">'+esc(money(l.premium))+'</td><td class="num">'+esc((l.kind.indexOf("returned")>=0?"−":"")+money(l.amount))+'</td></tr>'; }).join("")+
-      '</tbody></table></div>':'<p class="fine">'+esc(t("No entries this month."))+'</p>');
-}
+
+
 /* What the platform earned, and every company's statement for the month. */
 function opPlatformHtml(p){
   var pf=p.platform||{}, months=p.months||[], month=p.month;
