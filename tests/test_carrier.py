@@ -835,3 +835,40 @@ def test_a_saved_stand_in_gets_this_builds_terms() -> None:
     assert now.cost_of_capital == fresh.cost_of_capital
     assert now.expense_ratio == fresh.expense_ratio
     assert now.fronting_fee == fresh.fronting_fee
+
+
+def test_no_two_stand_ins_answer_to_the_same_name() -> None:
+    """Two companies called "Specimen Carrier B, Türkiye", on the paying screen.
+
+    The eight written out by hand are all in one country and were lettered A,
+    B, D, E, F, G. The three generated for every country are lettered nothing,
+    B and C. So Türkiye had two Specimen Carrier B, `specimen-tr-two` and
+    `specimen-tr-2`, and both of them appear in the list of who will issue the
+    policy, at different prices, on the screen where somebody is about to pay.
+    One collision in seven hundred and two, in the one country the
+    demonstration is actually used in, which is the worst place for the only
+    one to be.
+
+    The ids do not move: a saved book holds them and renumbering would rewrite
+    the terms an older policy was bought on. Only the spoken name moves, to the
+    first letter that country has not used, and Türkiye now reads A to H with
+    nothing missing.
+
+    Held for every country rather than for that one, because the next hand
+    written company added anywhere would do it again and nothing would say so.
+    """
+    import collections
+
+    from clause.protocol.carrier import add_world_specimens, specimen_registry
+
+    registry = specimen_registry()
+    add_world_specimens(registry)
+
+    spoken = collections.Counter(c.name for c in registry.carriers.values())
+    twice = {name: n for name, n in spoken.items() if n > 1}
+    assert not twice, f"more than one company answers to these names: {twice}"
+
+    # And the one country with both kinds reads as one series.
+    turkish = sorted(c.name for c in registry.carriers.values() if c.domicile == "TR")
+    assert len(turkish) == len(set(turkish)), "Türkiye has two companies of one name"
+    assert len(turkish) >= 8, f"Türkiye is down to {len(turkish)} companies"

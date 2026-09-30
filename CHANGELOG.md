@@ -40,6 +40,36 @@
   space on that screen holds Adana, Adıyaman and Afyonkarahisar. That is a
   separate thing and is not fixed here.
 
+- Two companies answered to "Specimen Carrier B, Türkiye", on the paying screen.
+
+  The eight stand ins written out by hand are all in one country and are
+  lettered A, B, D, E, F, G. The three generated for every country are lettered
+  nothing, B and C. So Türkiye held two Specimen Carrier B, `specimen-tr-two`
+  and `specimen-tr-2`, and both of them appear in the list of who will issue
+  the policy, at different prices, on the screen where somebody is about to
+  pay. One collision in seven hundred and two, in the one country the
+  demonstration is actually used in.
+
+  The ids do not move: a saved book holds them and renumbering would rewrite
+  the terms an older policy was bought on. Only the spoken name moves, to the
+  first letter that country has not used, so Türkiye reads A to H with nothing
+  missing. Held for every country by a test, because the next hand written
+  company added anywhere would do the same thing and nothing would have said
+  so.
+
+  Measured while looking at the confirm step, which is 4,040px tall at
+  1440x900 and 4,688px at 390x844: 687 words, 294 visible nodes and 25
+  controls, nine of them companies. Where the weight is, by block: check your
+  answers 689px, who will issue it 628px, the payout ladder 520px, the curve
+  chart 428px, what has to be proved 408px. The ladder and the chart are 29 per
+  cent of the screen between them and carry the same three amounts and the same
+  levels. Nothing about that is fixed yet.
+
+  Also measured, and it corrects an assumption worth correcting: the standing
+  instruction, the thing that buys cover again later, is 54px of that screen
+  and already folded shut. Moving it off the confirm step is still right, and
+  it is not the reason the screen is long.
+
 - The payout ladder is a staircase on a wide screen and a flat list at 390px.
 
   It is the thing a buyer is actually agreeing to. On a wide screen it was
