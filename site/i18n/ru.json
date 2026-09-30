@@ -2460,7 +2460,10 @@
     "What this does not cover": "Что это не покрывает",
     "Who issues the policy": "Кто выпускает полис",
     "Payment and acceptance": "Оплата и принятие",
-    "See the same thing as a curve": "То же самое в виде кривой"
+    "See the same thing as a curve": "То же самое в виде кривой",
+    "Clause could not be reached": "Не удалось связаться с Clause",
+    "Clause could not be reached.": "Не удалось связаться с Clause.",
+    "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Ничего не списано и ничего не подписано. Возможно, связь прервалась или протокол занят."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

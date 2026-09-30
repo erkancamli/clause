@@ -198,4 +198,9 @@ def test_a_disclosure_does_not_count_as_a_part_being_filled() -> None:
 
 def test_the_shapes_go_when_the_price_lands_and_when_the_step_gives_up() -> None:
     assert PAGE.count("partsWaiting(false);") == 2
-    assert PAGE.count("partsWaiting(true);") == 1
+    # The only place they start is the one that first asks whether an answer
+    # is still coming: there is no shape to show for one that is not. That
+    # condition is tested in tests/test_site_price_silence.py.
+    calls = PAGE.count("partsWaiting(") - PAGE.count("function partsWaiting(")
+    assert calls == 3, calls
+    assert "partsWaiting(true);" not in PAGE

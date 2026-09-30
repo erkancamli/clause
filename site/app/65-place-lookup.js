@@ -628,7 +628,7 @@ function updateRunRail(){
   var settled=!link.live||(current&&!!offer);
   if(!settled){
     foot.innerHTML='<p class="prompt">'+
-      esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
+      esc(priceSaid(t("working out your price")))+'</p>';
     return;
   }
   var total=q.premium+(offer?offer.fee:0);
@@ -688,7 +688,7 @@ function updatePriceBar(){
     noAmount($("pb-amt"));
     $("pb-cap").textContent=ladderSaid()+" · "+
       t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days})+" · "+
-      (flow.refusal?t("The protocol did not price this"):t("working out your price"));
+      priceSaid(t("working out your price"));
     var waiting=$("pb-pays");
     if(waiting){ waiting.hidden=!flow.limit;
       waiting.innerHTML=esc(t("you receive up to"))+' <b>'+esc(money(flow.limit))+'</b>'; }
@@ -755,7 +755,7 @@ function choosePeril(key){
     // where the protocol caps a trip at 20,000 -- and said so only at the
     // last step, as "http 422", after the price and the contract.
     flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.value=0; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
-    flow.place=null; flow.quoted=null; flow.refusal=null;
+    flow.place=null; flow.quoted=null; flow.refusal=null; flow.unreached=false;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
     flow.flightFrom=null; flow.flightTo=null; flow.flightFromText=""; flow.flightToText="";
@@ -787,7 +787,7 @@ function resetFlow(){
   if(flow.busy)return;
   flow.step=1; flow.reached=1; flow.chosen=false; flow.subject=null; flow.place=null;
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
-  flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
+  flow.quoted=null; flow.refusal=null; flow.unreached=false; flow.offers=null; flow.carrier=null;
   flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
   flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
   flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;

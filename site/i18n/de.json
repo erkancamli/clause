@@ -2460,7 +2460,10 @@
     "What this does not cover": "Was dies nicht abdeckt",
     "Who issues the policy": "Wer die Police ausstellt",
     "Payment and acceptance": "Zahlung und Annahme",
-    "See the same thing as a curve": "Dasselbe als Kurve ansehen"
+    "See the same thing as a curve": "Dasselbe als Kurve ansehen",
+    "Clause could not be reached": "Clause war nicht erreichbar",
+    "Clause could not be reached.": "Clause war nicht erreichbar.",
+    "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Es wurde nichts abgebucht und nichts unterzeichnet. Die Verbindung ist möglicherweise abgebrochen, oder das Protokoll ist ausgelastet."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

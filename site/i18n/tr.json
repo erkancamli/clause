@@ -2468,7 +2468,10 @@
     "What this does not cover": "Bu poliçenin kapsamadıkları",
     "Who issues the policy": "Poliçeyi kim düzenler",
     "Payment and acceptance": "Ödeme ve kabul",
-    "See the same thing as a curve": "Aynı bilgiyi eğri olarak görün"
+    "See the same thing as a curve": "Aynı bilgiyi eğri olarak görün",
+    "Clause could not be reached": "Clause'a ulaşılamadı",
+    "Clause could not be reached.": "Clause'a ulaşılamadı.",
+    "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Hiçbir tahsilat yapılmadı ve hiçbir şey imzalanmadı. Bağlantı kopmuş ya da protokol yoğun olabilir."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

@@ -2460,7 +2460,10 @@
     "What this does not cover": "Lo que esto no cubre",
     "Who issues the policy": "Quién emite la póliza",
     "Payment and acceptance": "Pago y aceptación",
-    "See the same thing as a curve": "Ver lo mismo como una curva"
+    "See the same thing as a curve": "Ver lo mismo como una curva",
+    "Clause could not be reached": "No se pudo contactar con Clause",
+    "Clause could not be reached.": "No se pudo contactar con Clause.",
+    "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "No se ha cobrado nada ni se ha firmado nada. Puede que se haya cortado la conexión o que el protocolo esté ocupado."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

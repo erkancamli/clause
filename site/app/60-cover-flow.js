@@ -493,7 +493,7 @@ function refreshQuote(){
      even though the protocol had already answered for exactly this policy one
      step earlier. priced() checks that an answer belongs to what is on the
      screen before it uses it, so nothing stale can be shown by keeping it. */
-  flow.refusal=null;
+  flow.refusal=null; flow.unreached=false;
   var atConfirm=flow.step===CONFIRM_STEP, done=atConfirm?renderPrice:updatePriceBar;
   if(!link.live){done();return;}
   // Nor until the subject is whole. A flight without its number is refused
@@ -531,7 +531,21 @@ function refreshQuote(){
   },function(error){
     if(seq!==flow.seq)return;
     flow.pricing=false;
+    /* A refusal and a silence are not the same answer, and the page had no
+       way to tell them apart. It read "the protocol sent no reason" as "the
+       protocol has not answered yet", so a quote that timed out, a connection
+       that dropped, or any error whose body carries no detail left every one
+       of the five places a price goes reading "working out your price".
+       Measured: a quote held unanswered leaves the paying screen saying
+       "Pricing…" for as long as the buyer is willing to look at it, with
+       nothing else on the screen and no way forward. Seventy-five seconds
+       was as long as the measurement was willing to look.
+
+       A refusal is the protocol's decision and it is final. A silence is not
+       a decision at all, so it is told apart here, said differently, and
+       offered the one thing a decision cannot be offered: another go. */
     flow.refusal=(error&&error.payload&&error.payload.detail)||null;
+    flow.unreached=!flow.refusal;
     (flow.step===CONFIRM_STEP?renderPrice:updatePriceBar)();
   });
 }
@@ -1101,13 +1115,22 @@ function setNextLabel(){
     (!ruling.allowed||!carried||!priced||!proved) ? "true" : "false");
   button.textContent=!ruling.allowed ? t("Cannot be written")
     : !carried ? t("The pool cannot carry this")
-    : !priced ? (flow.refusal?t("The protocol did not price this"):t("Pricing…"))
+    : !priced ? priceSaid(t("Pricing…"))
     : !proved ? t("Verify the items above")
     : !accepted ? t("Read and accept the contract")
     : identity.token ? t("Sign and apply, paying {amount}",{amount:money(payableNow())})
                      : t("Sign in and apply, paying {amount}",{amount:money(payableNow())});
 }
 
+/* What stands where a price would be. The waiting word differs by place --
+   a button says "Pricing…" and a sentence says "working out your price" --
+   so the caller brings its own; what it must not do is decide on its own
+   which of the three states it is in. */
+function priceSaid(waiting){
+  if(flow.refusal)return t("The protocol did not price this");
+  if(flow.unreached)return t("Clause could not be reached");
+  return waiting;
+}
 function payableNow(){
   // What leaves the account when this is signed: the whole price, or the
   // first instalment where one was chosen.
@@ -1167,7 +1190,7 @@ function renderAnswers(){
   var settled=!link.live||!!(flow.quoted&&flow.quotedFor===quoteKey());
   var total=offer?q.premium+offer.fee:q.premium;
   var price=settled?money(total)+" USDC"
-    :esc(flow.refusal?t("The protocol did not price this"):t("working out your price"));
+    :esc(priceSaid(t("working out your price")));
   if(settled&&offer&&offer.fee>0)price+=' <small>'+esc(t("includes the company's fee of {fee}",{fee:money(offer.fee)}))+'</small>';
   if(settled&&flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
     price+=' <small>'+esc(t("{n} payments of {amount}",{n:flow.instalments,amount:money(total*(1+pl.surcharge)/flow.instalments)}))+'</small>'; }
@@ -1288,15 +1311,30 @@ function partsWaiting(waiting){
 }
 function confirmPricing(){
   flow.unshowable=false;
-  var said=$("confirm-broken"); if(said)said.hidden=true;
+  /* A silence gets the one thing a refusal cannot be offered: another go.
+     It is said at the top of the step rather than in the verdict box lower
+     down, because until the protocol answers there is nothing below it worth
+     scrolling to, and because a buyer who has just been told the connection
+     dropped should not have to find the button. */
+  var said=$("confirm-broken");
+  if(said&&flow.unreached){
+    said.hidden=false;
+    said.innerHTML='<b>'+esc(t("Clause could not be reached."))+'</b> '+
+      esc(t("Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy."))+
+      ' <button type="button" class="btn btn-line btn-sm" id="price-again">'+esc(t("Try again"))+'</button>';
+    var again=$("price-again");
+    if(again)again.addEventListener("click",function(){
+      again.disabled=true; refreshQuote(); confirmPricing();
+    });
+  } else if(said)said.hidden=true;
   var blanks=["pay-rows","market-box","offers","contract-text","curve","basis-box"];
   for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
   var cap=$("curve-cap"); if(cap)cap.textContent="";
   ["pay-note","basis-scale"].forEach(function(id){ var e=$(id); if(e)e.textContent=""; });
   var plain=$("plain");
   if(plain)plain.innerHTML='<p class="prompt">'+
-    esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
-  partsWaiting(true);
+    esc(priceSaid(t("working out your price")))+'</p>';
+  partsWaiting(!flow.unreached);
   CONTRACT={key:"",text:"",hash:""};
   if($("accept"))$("accept").checked=false;
   // What was chosen is still shown: it is what the buyer answered, not what
