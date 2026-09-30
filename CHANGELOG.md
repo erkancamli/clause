@@ -94,6 +94,21 @@
   asking the conterminous model, which answers for a point six hundred
   kilometres outside its own mesh with a status of success.
 
+- A storm or a car quote says what it sits beside, as an earthquake quote does.
+
+  Wind and rain settle on a station's reading, and both carry a shared factor
+  across a region in the simulation: a front is hundreds of kilometres wide and
+  one storm system floods several provinces in the same year. So cover on one
+  station accumulates the way cover on one fault does, and the capital charge
+  already reflected it.
+
+  What the quote said about it was nothing. An earthquake quote named the
+  policies near it and a drought quote named the ones on its station, while a
+  storm or a vehicle quote explained its price with silence. That is the same
+  price shown to one buyer with its reason and to another without. Both now
+  count the cover already settling on their station and say what one bad day
+  does to it, or say that nothing else settles there.
+
 - A gap in the published coverage says which place it is.
 
   The list of places a build could not reach held bare names. Three hundred and

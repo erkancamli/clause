@@ -571,6 +571,34 @@ class PricingEngine:
                 f"Field to station correlation is about {correlation:.2f}: {verdict}."
             )
 
+        # Wind and rain both settle on a station's reading and both carry a
+        # shared factor across a region, so cover on one station accumulates the
+        # way cover on one fault does. A storm or a car quote used to say nothing
+        # at all about that, while an earthquake and a drought quote each said
+        # what they sat beside: the same price, explained to one buyer and not
+        # another.
+        WEATHER = {
+            "storm": ("One front is hundreds of kilometres wide, so a day that "
+                      "takes roofs here takes them there."),
+            "vehicle_flood": ("One storm system floods several provinces in the "
+                              "same year, so a day like that pays them together."),
+        }
+        if peril.key in WEATHER:
+            station = subject.get("station")
+            here = [e for e in same_peril
+                    if station and e.subject.get("station") == station]
+            if here:
+                notes.append(
+                    f"{len(here)} other {'policy' if len(here) == 1 else 'policies'} "
+                    f"already settle on this station's reading. {WEATHER[peril.key]}"
+                )
+            elif same_peril:
+                notes.append(
+                    "No other policy the pool holds settles on this station's "
+                    "reading, so this policy spreads the book rather than "
+                    "deepening it."
+                )
+
         if not book:
             notes.append(
                 "This is the first policy in the book, so its risk load carries the "

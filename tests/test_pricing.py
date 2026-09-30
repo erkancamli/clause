@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from clause.perils import DROUGHT, EARTHQUAKE, FLIGHT_DELAY
+from clause.perils import DROUGHT, EARTHQUAKE, FLIGHT_DELAY, get_peril
 from clause.pricing import (
     SOLVENCY_LEVEL,
     Exposure,
@@ -692,3 +692,37 @@ def test_two_passengers_on_one_aeroplane_are_late_together(
                       curve=FLIGHT_DELAY.curve_for(other), limit=2_000.0, term_days=2.0)
     assert engine.losses_of(theirs) != ours
 
+
+
+def test_a_storm_quote_says_what_it_sits_beside(engine: PricingEngine) -> None:
+    """Wind and rain accumulate on a station the way shaking does on a fault.
+
+    An earthquake quote and a drought quote each said what the pool already
+    held near them. A storm or a car quote said nothing at all, which is the
+    same price explained to one buyer and withheld from another. Both carry a
+    shared regional factor in the simulation, so the accumulation is real and
+    the sentence is about something.
+    """
+    storm = get_peril("storm")
+    here = {"latitude": 40.15, "longitude": 26.41, "place": "Çanakkale"}
+
+    def cover(index: str, raw: dict) -> Exposure:
+        subject = storm.validate_subject(dict(raw))
+        return Exposure(policy_id=index, peril_key="storm", subject=subject,
+                        curve=storm.curve_for(subject), limit=80_000.0,
+                        term_days=365.0)
+
+    book = [cover(f"st-{i}", here) for i in range(3)]
+    beside = engine.quote(peril_key="storm", subject=storm.validate_subject(dict(here)),
+                          limit=100_000.0, term_days=365.0, book=book)
+    said = " ".join(beside.notes)
+    assert "3 other policies already settle on this station's reading" in said, said
+
+    far = engine.quote(
+        peril_key="storm",
+        subject=storm.validate_subject(
+            {"latitude": 41.00, "longitude": 39.72, "place": "Trabzon"}),
+        limit=100_000.0, term_days=365.0, book=book)
+    told = " ".join(far.notes)
+    assert "No other policy the pool holds settles on this station's reading" in told, told
+    assert "spreads the book" in told, told
