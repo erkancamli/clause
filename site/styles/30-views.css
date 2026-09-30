@@ -1,6 +1,6 @@
 /* ---------------- views ---------------- */
 .view{display:none}
-.view.on{display:block;animation:fade .38s cubic-bezier(.2,.7,.2,1)}
+.view.on{display:block;animation:fade var(--motion-screen) var(--ease-enter)}
 /* Except the opening one, which the stylesheet below already put on the
    screen. Fading in something the reader has been looking at for a second
    is a blink, not an entrance. */
@@ -45,7 +45,7 @@ header.top.is-scrolled{box-shadow:0 8px 24px -16px rgba(12,17,22,.35);border-bot
 /* The trigger, on every press that moves you on: rings spread from the
    point pressed the way they spread from an epicentre on the home page, and a
    light crosses the button. Nothing of it for anyone who asked for less motion. */
-.tburst{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;z-index:200}
+.tburst{display:none;position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;z-index:200}
 .tburst i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;border:2px solid var(--signal);opacity:0;
   animation:tbRing .8s cubic-bezier(.15,.7,.2,1) forwards}
 .tburst i:nth-child(2){animation-delay:.11s}
@@ -55,13 +55,13 @@ header.top.is-scrolled{box-shadow:0 8px 24px -16px rgba(12,17,22,.35);border-bot
 @keyframes tbRing{0%{transform:scale(.3);opacity:.95}100%{transform:scale(7);opacity:0}}
 @keyframes tbDot{0%{transform:scale(1);opacity:1}100%{transform:scale(2.4);opacity:0}}
 .btn-primary,.mainnav a,.pick{position:relative;overflow:hidden}
-.btn.fired::after,.mainnav a.fired::after{content:"";position:absolute;inset:0;pointer-events:none;
+.btn.fired::after,.mainnav a.fired::after{content:"";display:none;position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.45) 50%,transparent 75%);
   transform:translateX(-100%);animation:tbSweep .65s cubic-bezier(.2,.7,.2,1) forwards}
 @keyframes tbSweep{to{transform:translateX(100%)}}
 input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0 4px var(--signal-wash)}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.pad{padding-block:clamp(34px,5vw,58px)}
+.pad{padding-block:clamp(64px,7vw,96px)}
 
 /* Whether this page is talking to a live protocol or running on its own. Said
    plainly, because a demonstration presented as a live system is a lie. */
@@ -82,13 +82,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 
 /* search */
 .searchbox{position:relative}
-.searchbox input{width:100%;padding:13px 15px;border-radius:var(--r);border:1px solid var(--edge-2);
-  background:var(--panel);color:var(--ink);font-family:var(--sans);font-size:15.5px}
+.searchbox input{width:100%;min-height:50px;padding:13px 15px;border-radius:10px;
+  border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
+  font-family:var(--sans);font-size:15.5px}
 .results{display:grid;gap:8px;margin-top:10px}
 .empty{padding:14px 2px;font-size:14px;color:var(--ink-3)}
 
 /* my cover */
-.holding{border-radius:12px;overflow:hidden;box-shadow:var(--lift-1),var(--hairline);display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
+.holding{border-radius:12px;overflow:hidden;box-shadow:none;display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);
   border-radius:var(--r);overflow:hidden}
 .holding > div{background:var(--panel);padding:16px}
 .hrow{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
@@ -105,24 +106,28 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .pill.no,.pill.disputed,.pill.no_quorum{background:var(--signal-wash);color:var(--signal-ink)}
 
 /* declaring what is at risk */
-.field{display:grid;gap:8px}
-.field .label{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.field{display:grid;gap:9px}
+.field .label{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px}
 .field .label .val{font-family:var(--mono);font-size:13px;color:var(--ink);
   letter-spacing:0;text-transform:none}
-.dlg-input,#country,.field select{width:100%;padding:13px 15px;border-radius:12px;
+.dlg-input{width:100%;min-height:50px;padding:13px 15px;border-radius:10px;
   box-shadow:var(--sunk-in);transition:border-color .18s,box-shadow .18s,background .18s;
   border:1px solid var(--edge-2);background-color:var(--panel);color:var(--ink);
   font:inherit;font-size:15px;appearance:none;-webkit-appearance:none}
+#country,.field select{width:100%;min-height:50px;padding:13px 40px 13px 15px;
+  border-radius:10px;box-shadow:var(--sunk-in);
+  transition:border-color .18s,box-shadow .18s,background .18s;
+  border:1px solid var(--edge-2);background-color:var(--panel);color:var(--ink);
+  font:inherit;font-size:15px;appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
+  linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 19px) calc(50% + 1px),calc(100% - 14px) calc(50% + 1px);
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
 .dlg-input::placeholder{color:var(--ink-3);font-style:italic}
 .dlg-input:hover,#country:hover,.field select:hover{border-color:var(--edge-2)}
 .dlg-input:focus,#country:focus,.field select:focus{outline:none;border-color:var(--signal-ink);
   box-shadow:var(--sunk-in),0 0 0 4px var(--signal-wash)}
 .dlg-input:focus-visible,#country:focus-visible,.field select:focus-visible{outline:none}
-#country,.field select{background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
-  linear-gradient(135deg,currentColor 50%,transparent 50%);
-  background-position:calc(100% - 19px) calc(50% + 1px),calc(100% - 14px) calc(50% + 1px);
-  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:40px}
-
 /* proof */
 /* The register: what the chain decided last, in the order it decided it. The
    page used to open with an empty box asking for a policy id, which only
@@ -130,7 +135,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
    line in a ledger on a desk, because four cards in a three column grid leave
    one of them standing alone and a register is a list, not a gallery. */
 .register{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
-  box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
+  box-shadow:none;overflow:hidden}
 .reg{display:grid;gap:11px;padding:16px 18px;align-content:start}
 .reg + .reg{border-top:1px solid var(--edge)}
 .reg-who{display:flex;gap:10px;align-items:center;justify-content:space-between;
@@ -177,13 +182,14 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
   .reg-who{flex-direction:column;align-items:flex-start;gap:7px}
   .reg-foot{border-top:0;padding-top:0;flex-direction:column;align-items:flex-end;gap:8px}
 }
-.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
-  background:var(--edge);border:1px solid var(--edge);border-radius:var(--r);
+.figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;
+  background:transparent;border:1px solid var(--edge);border-radius:12px;
   overflow:hidden}
-.figures > div{background:var(--panel);padding:16px 18px;display:grid;gap:3px;min-width:0}
+.figures > div{background:var(--panel);padding:20px;display:grid;gap:3px;
+  min-width:0;border-right:1px solid var(--edge)}
 /* Two columns on a phone and a figure that can run to ten digits: the type
    has to come down with the column or the number leaves the cell. */
-.figures b{font-family:var(--display);font-size:clamp(17px,4.4vw,28px);font-weight:700;
+.figures b{font-family:var(--display);font-size:clamp(28px,3vw,40px);font-weight:600;
   font-variant-numeric:tabular-nums;letter-spacing:-.02em;overflow-wrap:anywhere}
 .figures span{font-size:13px;color:var(--ink-3)}
 .lookup{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r);
@@ -261,15 +267,15 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 
 /* Rider */
 .mascot{width:34px;height:27px;flex:none;color:var(--signal-ink);overflow:visible}
-.mascot .figure{color:var(--settled)}
+.mascot .figure{color:var(--settled);animation:bob 2.6s ease-in-out infinite}
 /* The assistant sits above the price bar rather than on top of the button
    that buys the cover; the flow raises it while that bar is on screen. */
 body.has-pricebar .rider-open{bottom:calc(20px + var(--pricebar-h,0px))}
 body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:min(660px,calc(100vh - 60px - var(--pricebar-h,0px)))}
 .rider-open{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;gap:10px;
   transition:bottom .25s cubic-bezier(.2,.7,.2,1);
-  align-items:center;padding:10px 16px 10px 12px;border-radius:999px;cursor:pointer;
-  background:var(--panel);border:1px solid var(--edge-2);box-shadow:var(--shadow);
+  align-items:center;min-height:44px;padding:10px 16px 10px 12px;border-radius:999px;cursor:pointer;
+  background:var(--panel);border:1px solid var(--edge-2);box-shadow:var(--lift-2);
   color:var(--ink);font:inherit;font-size:14px;font-weight:500}
 .rider-open:hover{border-color:var(--signal-ink)}
 .rider-open .mascot{width:30px;height:24px}
@@ -279,13 +285,11 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
    the browser for less motion. */
 .mascot .pulse{fill:none;stroke:var(--signal);stroke-dasharray:14 100;stroke-dashoffset:114;animation:ride 2.6s linear infinite}
 @keyframes ride{to{stroke-dashoffset:0}}
-.mascot .figure{animation:bob 2.6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}40%{transform:translateY(-1.4px)}60%{transform:translateY(.7px)}}
 .rider-open:hover .pulse,.rider.thinking .pulse{animation-duration:.9s}
 .rider-open:hover .figure,.rider.thinking .figure{animation-duration:.9s}
 .rider header .wave{position:relative;flex:0 0 auto;margin-left:auto;height:30px;width:96px;opacity:.55;pointer-events:none;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)}
-.rider header .tag{margin-left:0}
 .rider header .wave i{display:block;position:absolute;bottom:3px;width:2px;height:26px;background:var(--signal);border-radius:1px;
   transform-origin:bottom;transform:scaleY(.2);animation:swell 2.6s ease-in-out infinite}
 @keyframes swell{0%,100%{transform:scaleY(.15)}50%{transform:scaleY(1)}}
@@ -315,7 +319,7 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
   padding-left:11px}
 .rider .used{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:7px}
 .rider .ask{display:flex;gap:8px;padding:12px;border-top:1px solid var(--edge)}
-.rider .ask input{flex:1;padding:10px 13px;border-radius:8px;border:1px solid var(--edge-2);
+.rider .ask input{flex:1;min-height:50px;padding:10px 13px;border-radius:10px;border:1px solid var(--edge-2);
   background:var(--ground);color:var(--ink);font:inherit;font-size:14px}
 .rider .ask input:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
 .rider .foot{padding:0 14px 12px;font-size:11.5px;color:var(--ink-3);line-height:1.5}
@@ -365,14 +369,14 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
 .co-head .nm{font-family:var(--display);font-size:16.5px;font-weight:600}
 
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
-.stat{padding:14px 16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+.stat{padding:14px 16px;border:1px solid var(--edge);border-radius:12px;background:var(--panel)}
 .stat b{display:block;font-size:20px;font-family:var(--display);color:var(--ink)}
 .stat span{font-size:12.5px;color:var(--ink-3)}
 .stats-lg .stat{padding:18px 20px;position:relative;overflow:hidden;transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s}
-.stats-lg .stat::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--signal),var(--settled))}
+.stats-lg .stat::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--signal)}
 .stats-lg .stat b{font-size:clamp(24px,2.6vw,32px);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-bottom:4px}
 .stats-lg .stat b small{font-size:.5em;color:var(--ink-3);font-weight:600}
-.stats-lg .stat:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.stats-lg .stat:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
 .tbl{width:100%;border-collapse:collapse;font-size:13.5px;min-width:620px}
 .tbl th{text-align:left;font-weight:600;font-size:12px;color:var(--ink-3);padding:10px 12px;border-bottom:1px solid var(--edge);white-space:nowrap}
@@ -395,26 +399,9 @@ body.has-pricebar .rider{bottom:calc(20px + var(--pricebar-h,0px));max-height:mi
 .op-trail{font-size:12.5px;color:var(--ink-3);font-family:var(--mono);line-height:1.7}
 
 /* Screen rhythm and forms. */
-.view.on{animation:fade var(--motion-screen) var(--ease-enter)}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .reveal{transition-duration:var(--motion-screen)!important;
   transition-timing-function:var(--ease-enter)!important}
-.tburst{display:none}
-.btn.fired::after,.mainnav a.fired::after{display:none}
-.pad{padding-block:clamp(64px,7vw,96px)}
-.searchbox input,.dlg-input,#country,.field select,.rider .ask input{
-  min-height:50px;border-radius:10px}
-.field{gap:9px}
-.field .label{font-size:14px}
-.figures{border-radius:12px;background:transparent;gap:0}
-.figures > div{padding:20px;border-right:1px solid var(--edge)}
 .figures > div:last-child{border-right:0}
-.figures b{font-size:clamp(28px,3vw,40px);font-weight:600}
-.register,.holding{box-shadow:none}
-.stat{border-radius:12px}
-.stats-lg .stat::before{height:2px;background:var(--signal)}
-.stats-lg .stat:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}
-.rider-open{min-height:44px;box-shadow:var(--lift-2)}
 @media (max-width:760px){
   .pad{padding-block:48px 72px}
   .figures{grid-template-columns:1fr}

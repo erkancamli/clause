@@ -388,7 +388,7 @@ h1 span{color:var(--signal-ink)}
 .home-hero .choose .pick .banner{flex:none;width:96px;height:44px;max-height:none;margin:0}
 .home-hero .choose .pick .banner svg{width:100%;height:100%}
 .home-hero .choose .pick .txt{display:grid;gap:2px;min-width:0}
-.home-hero .choose .pick h3{font-size:15.5px;margin:0}
+.home-hero .choose .pick h3{font-size:15.5px;margin:0;flex:none;white-space:nowrap}
 .home-hero .choose .pick p{font-size:12.5px;margin:0}
 .home-hero .choose .pick .from{display:none}
 @media (min-width:1300px){
@@ -403,8 +403,11 @@ h1 span{color:var(--signal-ink)}
   .hero-cta{width:100%}
   .hero-cta .btn{flex:1 1 100%}
   .home-hero .choose{width:100%}
-  .home-hero .choose .pick{padding-block:12px}
-  .home-hero .choose .pick .banner{width:88px;height:44px}
+  .home-hero .choose .pick{display:grid;grid-template-columns:88px minmax(0,1fr);
+    grid-template-rows:auto auto;column-gap:14px;row-gap:2px;align-items:center;padding-block:12px}
+  .home-hero .choose .pick .banner{grid-column:1;grid-row:1 / span 2;width:88px;height:44px}
+  .home-hero .choose .pick h3{grid-column:2;grid-row:1;align-self:end}
+  .home-hero .choose .pick p{grid-column:2;grid-row:2;align-self:start}
   .beats{margin-top:80px}
   .beat{padding-block:36px}
 }

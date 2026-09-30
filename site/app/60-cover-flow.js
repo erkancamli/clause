@@ -493,7 +493,7 @@ function refreshQuote(){
      even though the protocol had already answered for exactly this policy one
      step earlier. priced() checks that an answer belongs to what is on the
      screen before it uses it, so nothing stale can be shown by keeping it. */
-  flow.refusal=null;
+  flow.refusal=null; flow.unreached=false;
   var atConfirm=flow.step===CONFIRM_STEP, done=atConfirm?renderPrice:updatePriceBar;
   if(!link.live){done();return;}
   // Nor until the subject is whole. A flight without its number is refused
@@ -531,7 +531,21 @@ function refreshQuote(){
   },function(error){
     if(seq!==flow.seq)return;
     flow.pricing=false;
+    /* A refusal and a silence are not the same answer, and the page had no
+       way to tell them apart. It read "the protocol sent no reason" as "the
+       protocol has not answered yet", so a quote that timed out, a connection
+       that dropped, or any error whose body carries no detail left every one
+       of the five places a price goes reading "working out your price".
+       Measured: a quote held unanswered leaves the paying screen saying
+       "Pricing…" for as long as the buyer is willing to look at it, with
+       nothing else on the screen and no way forward. Seventy-five seconds
+       was as long as the measurement was willing to look.
+
+       A refusal is the protocol's decision and it is final. A silence is not
+       a decision at all, so it is told apart here, said differently, and
+       offered the one thing a decision cannot be offered: another go. */
     flow.refusal=(error&&error.payload&&error.payload.detail)||null;
+    flow.unreached=!flow.refusal;
     (flow.step===CONFIRM_STEP?renderPrice:updatePriceBar)();
   });
 }
@@ -679,17 +693,40 @@ function payRows(){
   // out", closed, which is the one place a buyer deciding will not look.
   var exc=null;
   try{ exc=exceedance(); }catch(err){ exc=null; }
-  return rows.map(function(r){
+  /* Each step carries the share of the limit it pays, as a number between 0
+     and 1, so the ladder can be drawn as steps rather than read as a table.
+     On a wide screen the rows were already indented into a staircase; at 390px
+     the indent went and four rows sat flush left, which is a list. The share
+     is the thing that differs between them, so it is the thing the drawing
+     should carry, at either width.
+
+     "In the recorded earthquakes since 1973" was on every row, four times, and
+     at 390px it wrapped to two lines every time: twelve lines of the same six
+     words on the screen where the buyer decides. It is said once, under the
+     ladder. */
+  var top=0;
+  rows.forEach(function(r){ if(r[1]>top)top=r[1]; });
+  var said=false;
+  var body=rows.map(function(r){
     var often="";
     if(exc&&r[2]!=null){
       var chance=exc(r[2]);
-      if(chance>0&&chance<1)
-        often='<span class="fine often">'+esc(t("about 1 in {n} years in the recorded earthquakes since 1973",
+      if(chance>0&&chance<1){
+        often='<span class="fine often">'+esc(t("about 1 in {n} years",
           {n:f0.format(Math.round(1/chance))}))+'</span>';
+        said=true;
+      }
     }
-    return '<div class="pay-row'+(r[1]?"":" none")+'"><span>'+esc(r[0])+often+'</span><span class="amt">'+
+    var share=top>0?(r[1]||0)/top:0;
+    return '<div class="pay-row'+(r[1]?"":" none")+'" data-share="'+share.toFixed(4)+'"'+
+      ' style="--share:'+share.toFixed(4)+'">'+
+      '<span class="step" aria-hidden="true"></span>'+
+      '<span>'+esc(r[0])+often+'</span><span class="amt">'+
       (r[1]?money(r[1])+" USDC":esc(t("nothing")))+'</span></div>';
   }).join("");
+  return body + (said
+    ? '<p class="fine pay-since">'+esc(t("How often, in the earthquakes recorded since 1973."))+'</p>'
+    : "");
 }
 function hazardRows(){
   var exc=exceedance(),c=structure();
@@ -893,8 +930,16 @@ function drawCurve(){
   // basis risk paragraph: 53 mm in Rize is an ordinary wet day on a gauge and
   // a once in ten years day on this scale, and a buyer who does not know that
   // will expect to be paid several times a year.
-  var scale=scaleSaid();
-  $("curve-cap").textContent=note+(scale?" "+scale:"");
+  // The note says why the payout steps and where the trigger sits; that
+  // belongs beside the ladder, which shows the steps and not the reason. The
+  // scale caveat says the millimetres are a fifty kilometre average, which is
+  // basis risk in one sentence, so it goes to the part that names it. The
+  // figure keeps no caption: everything it said is now said where it is read,
+  // and repeating it under the drawing is how this screen came to hold two of
+  // everything in the first place.
+  var payNote=$("pay-note"); if(payNote)payNote.textContent=note;
+  var scaleBox=$("basis-scale"); if(scaleBox)scaleBox.textContent=scaleSaid();
+  $("curve-cap").textContent="";
 }
 
 function renderStep(){
@@ -1070,13 +1115,22 @@ function setNextLabel(){
     (!ruling.allowed||!carried||!priced||!proved) ? "true" : "false");
   button.textContent=!ruling.allowed ? t("Cannot be written")
     : !carried ? t("The pool cannot carry this")
-    : !priced ? (flow.refusal?t("The protocol did not price this"):t("Pricing…"))
+    : !priced ? priceSaid(t("Pricing…"))
     : !proved ? t("Verify the items above")
     : !accepted ? t("Read and accept the contract")
     : identity.token ? t("Sign and apply, paying {amount}",{amount:money(payableNow())})
                      : t("Sign in and apply, paying {amount}",{amount:money(payableNow())});
 }
 
+/* What stands where a price would be. The waiting word differs by place --
+   a button says "Pricing…" and a sentence says "working out your price" --
+   so the caller brings its own; what it must not do is decide on its own
+   which of the three states it is in. */
+function priceSaid(waiting){
+  if(flow.refusal)return t("The protocol did not price this");
+  if(flow.unreached)return t("Clause could not be reached");
+  return waiting;
+}
 function payableNow(){
   // What leaves the account when this is signed: the whole price, or the
   // first instalment where one was chosen.
@@ -1136,16 +1190,20 @@ function renderAnswers(){
   var settled=!link.live||!!(flow.quoted&&flow.quotedFor===quoteKey());
   var total=offer?q.premium+offer.fee:q.premium;
   var price=settled?money(total)+" USDC"
-    :esc(flow.refusal?t("The protocol did not price this"):t("working out your price"));
+    :esc(priceSaid(t("working out your price")));
   if(settled&&offer&&offer.fee>0)price+=' <small>'+esc(t("includes the company's fee of {fee}",{fee:money(offer.fee)}))+'</small>';
   if(settled&&flow.instalments>1){ var pl=(PLANS.plans||[]).filter(function(p){return p.count===flow.instalments;})[0]||{surcharge:0};
     price+=' <small>'+esc(t("{n} payments of {amount}",{n:flow.instalments,amount:money(total*(1+pl.surcharge)/flow.instalments)}))+'</small>'; }
   rows.push(row(t("Price"),price,flow.instalments>1||($("plan-box")&&!$("plan-box").hidden)?CONFIRM_STEP:0,"plan-box"));
   box.innerHTML=rows.join("");
-  // And what it does not cover, in the numbers on this policy.
-  var says=basisRiskSaid();
-  box.innerHTML+='<div class="ans basis"><span class="k">'+esc(t("Does not cover"))+'</span>'+
-    '<span class="v"><b>'+esc(says[0])+'</b><br><small>'+esc(says[1])+'</small></span><span></span></div>';
+  // And what it does not cover, in the numbers on this policy. It was the
+  // last row of this table, under a 10px uppercase label, which is the
+  // typography of a field name and not of the one thing on this screen a
+  // buyer is most likely to be wrong about. It has its own part now, and
+  // reads as two sentences rather than a value in a column.
+  var says=basisRiskSaid(), basis=$("basis-box");
+  if(basis)basis.innerHTML='<p class="basis-cut">'+esc(says[0])+'</p>'+
+    '<p class="basis-cut">'+esc(says[1])+'</p>';
   Array.prototype.forEach.call(box.querySelectorAll(".ans-change"),function(b){
     b.addEventListener("click",function(){
       var to=b.dataset.to, step=+b.dataset.step;
@@ -1187,9 +1245,11 @@ function confirmUnshowable(){
   // setNextLabel, which half a dozen other things call, so disabling it here
   // lasts only until the next of them runs. The gate has to know.
   flow.unshowable=true;
-  var blanks=["plain","pay-rows","market-box","offers","contract-text","curve"];
+  partsWaiting(false);
+  var blanks=["plain","pay-rows","market-box","offers","contract-text","curve","basis-box"];
   for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
   var cap=$("curve-cap"); if(cap)cap.textContent="";
+  ["pay-note","basis-scale"].forEach(function(id){ var e=$(id); if(e)e.textContent=""; });
   var said=$("confirm-broken");
   if(said){ said.hidden=false; said.textContent=t("This cover cannot be shown, so it cannot be bought. Go back a step and choose again; nothing has been charged."); }
   var button=$("next");
@@ -1201,15 +1261,80 @@ function confirmUnshowable(){
    so while the protocol is still answering none of them is drawn: the step
    says it is waiting, the button says it too, and renderPrice comes back here
    the moment the answer lands. */
+/* What the step shows while the protocol is still answering.
+
+   Six headings over six empty parts, each with a rule above it, reads as a
+   page that failed to load rather than one that is working. Each part carries
+   a slot the shape of what will land in it -- four steps of a ladder, two
+   sentences of basis risk, three lines of a company card -- so the wait shows
+   the document arriving rather than an outline of one that never did. Part
+   one says in words what is happening, because a shape cannot say "working
+   out your price", and the parts below it are shapes, because five more lines
+   of the same sentence would say nothing five more times. */
+function partFilled(part){
+  // Anything in the part that is not its heading and not the waiting shape.
+  return Array.prototype.some.call(part.children,function(child){
+    // A disclosure is a control, not content: the curve's summary line is the
+    // same height whether the drawing behind it has been made or not.
+    if(child.tagName==="DETAILS")return false;
+    if(child.classList.contains("part-t")||child.classList.contains("part-wait"))return false;
+    if(child.hidden||getComputedStyle(child).display==="none")return false;
+    // Asked of the box, not of its geometry. The empty ladder is 8px tall
+    // because .pay-rows carries 4px of padding either side, so a height test
+    // called it full and the payout part, alone of the six, never showed what
+    // it was waiting for. What is being asked is whether there is anything in
+    // it, and that is a question about its contents.
+    return child.childElementCount>0||child.textContent.trim()!=="";
+  });
+}
+function partsWaiting(waiting){
+  Array.prototype.forEach.call(document.querySelectorAll("#s4 .part"),function(part){
+    var slot=part.querySelector(".part-wait"); if(!slot)return;
+    // Not every part waits for the price. The screening panel is drawn from
+    // who the buyer is and lands seconds before the protocol answers, so this
+    // one measured a heading, three grey bars and the real panel underneath
+    // them, at once, for the rest of the wait. A part that already has
+    // something to show never shows a shape instead.
+    var show=waiting&&!partFilled(part);
+    slot.hidden=!show;
+    slot.innerHTML=show?skeleton(+slot.dataset.bars||3):"";
+    if(!show)return;
+    // And it stops the moment its own content lands, rather than at the moment
+    // the price does: the two are not the same moment for every part.
+    if(slot.watching)return;
+    slot.watching=new MutationObserver(function(){
+      if(!slot.hidden&&partFilled(part)){ slot.hidden=true; slot.innerHTML=""; }
+    });
+    slot.watching.observe(part,{childList:true,subtree:true,attributes:true,
+      attributeFilter:["hidden","style","class"]});
+  });
+}
 function confirmPricing(){
   flow.unshowable=false;
-  var said=$("confirm-broken"); if(said)said.hidden=true;
-  var blanks=["pay-rows","market-box","offers","contract-text","curve"];
+  /* A silence gets the one thing a refusal cannot be offered: another go.
+     It is said at the top of the step rather than in the verdict box lower
+     down, because until the protocol answers there is nothing below it worth
+     scrolling to, and because a buyer who has just been told the connection
+     dropped should not have to find the button. */
+  var said=$("confirm-broken");
+  if(said&&flow.unreached){
+    said.hidden=false;
+    said.innerHTML='<b>'+esc(t("Clause could not be reached."))+'</b> '+
+      esc(t("Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy."))+
+      ' <button type="button" class="btn btn-line btn-sm" id="price-again">'+esc(t("Try again"))+'</button>';
+    var again=$("price-again");
+    if(again)again.addEventListener("click",function(){
+      again.disabled=true; refreshQuote(); confirmPricing();
+    });
+  } else if(said)said.hidden=true;
+  var blanks=["pay-rows","market-box","offers","contract-text","curve","basis-box"];
   for(var i=0;i<blanks.length;i++){ var el=$(blanks[i]); if(el)el.innerHTML=""; }
   var cap=$("curve-cap"); if(cap)cap.textContent="";
+  ["pay-note","basis-scale"].forEach(function(id){ var e=$(id); if(e)e.textContent=""; });
   var plain=$("plain");
   if(plain)plain.innerHTML='<p class="prompt">'+
-    esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
+    esc(priceSaid(t("working out your price")))+'</p>';
+  partsWaiting(!flow.unreached);
   CONTRACT={key:"",text:"",hash:""};
   if($("accept"))$("accept").checked=false;
   // What was chosen is still shown: it is what the buyer answered, not what
@@ -1222,6 +1347,7 @@ function confirmPricing(){
 function renderPriceBody(){
   if(link.live&&!(flow.quoted&&flow.quotedFor===quoteKey())){ confirmPricing(); return; }
   flow.unshowable=false;
+  partsWaiting(false);
   var said=$("confirm-broken"); if(said)said.hidden=true;
   var q=priced(),total=Math.max(q.premium,1e-9);
   renderAnswers();

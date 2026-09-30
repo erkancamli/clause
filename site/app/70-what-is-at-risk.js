@@ -116,9 +116,10 @@ function renderInterest(){
       el.addEventListener("input",function(e){ (interest.address=interest.address||{})[k]=e.target.value;
         // Once they have written any of it themselves, nothing offers over it again.
         interest.addressTouched=true; var offered=$("addr-offered"); if(offered)offered.hidden=true;
-        setNextLabel(); }); }
+        lookUpTheAddress(); setNextLabel(); }); }
       if(el&&el.value!==(a[k]||""))el.value=a[k]||""; });
     if(!a.city&&flow.place){ var parts=String(flow.place).split(", "); if(parts.length>=2){ a.city=parts[parts.length-2]; (interest.address=a); $("addr-city").value=a.city; } }
+    lookUpTheAddress();
     // Said out loud when it was filled in for them, because an answer somebody
     // did not write is one they have not checked.
     var offered=$("addr-offered");
@@ -464,4 +465,86 @@ $("country").addEventListener("change",function(e){
   renderInterest();
 });
 
+/* The address is written on one screen and the policy measures on another, and
+   until this was written nothing joined them.
 
+   A buyer choosing a home picks a place on the step before this one, and the
+   list offers provinces, because the same list serves a drought policy that
+   settles at a station. Pick "Adana" and the point the policy measures is the
+   middle of Adana. Then type a street in Ceyhan, forty-four kilometres east,
+   and nothing moves: the address is stored as text and the policy goes on
+   measuring where it was.
+
+   The two are not the same risk. The model puts intensity 7 at Adana's centre
+   once in 581 years and at Ceyhan once in 305, and the expected loss on the
+   same cover is 144.76 against 224.37, half as much again. The premium is the
+   other way round, 456.74 against 380.24, because the middle of Adana is where
+   the book is already concentrated and capital there costs more: the risk load
+   is 300.39 against 137.92. So this is not a story about a buyer underpaying,
+   and it would be wrong to tell it as one. What it reliably does is measure
+   the policy forty-four kilometres from the building it is written on, so a
+   shake that crosses the line over the building need not cross it where the
+   policy is looking. That is basis risk, and it was made here rather than by
+   the model.
+
+   The address is looked up and what it finds is put in front of the buyer with
+   the distance, and moving the measurement is one press. It is never moved on
+   its own. A geocoder answers a street that does not exist with a street that
+   does: "Ceyhan Caddesi 14, Ceyhan" comes back as an address in Ankara, 398 km
+   away, with no hesitation at all. A policy silently moved there would be
+   worse than the thing this fixes. */
+var ADDR_HERE = {asked: "", found: null, seq: 0};
+var addrHereTimer = null;
+
+function addressAsTyped(){
+  var a = (flow.interest && flow.interest.address) || {};
+  var street = String(a.street || "").trim(), city = String(a.city || "").trim();
+  if (street.length < 3 || city.length < 2) return "";
+  return [street, a.number, city, a.postcode].filter(Boolean).join(" ").slice(0, 120);
+}
+
+function lookUpTheAddress(){
+  var box = $("addr-far");
+  if (!box) return;
+  var measured = flow.peril === "quake" || flow.peril === "car" || flow.peril === "storm";
+  var query = addressAsTyped(), at = coordinates();
+  if (!measured || !link.live || !query || !at){ box.hidden = true; return; }
+  if (ADDR_HERE.asked === query){ drawTheDistance(); return; }
+  clearTimeout(addrHereTimer);
+  addrHereTimer = setTimeout(function(){
+    var seq = ++ADDR_HERE.seq;
+    api("/api/geocode?q=" + encodeURIComponent(query) + "&lang=" + LANG +
+        "&lat=" + at.latitude.toFixed(3) + "&lon=" + at.longitude.toFixed(3), {timeout: 9000})
+      .then(function(reply){
+        if (seq !== ADDR_HERE.seq) return;
+        ADDR_HERE.asked = query;
+        ADDR_HERE.found = (reply.places || [])[0] || null;
+        drawTheDistance();
+      }, function(){});
+  }, 600);
+}
+
+function drawTheDistance(){
+  var box = $("addr-far");
+  if (!box) return;
+  var found = ADDR_HERE.found, at = coordinates();
+  if (!found || !at){ box.hidden = true; return; }
+  var away = kmBetween([at.latitude, at.longitude], [found.latitude, found.longitude]);
+  // Under a kilometre the two are the same building as far as any index here
+  // can tell, and saying so would be noise on the screen that matters most.
+  if (away < 1){ box.hidden = true; return; }
+  box.hidden = false;
+  box.innerHTML =
+    "<span>" + esc(t("The policy measures at {place}, which is {km} km from the address above.",
+      {place: flow.place || t("the place you chose"), km: away < 10 ? f1.format(away) : f0.format(away)})) +
+    "</span> <button type=\"button\" class=\"btn btn-sm\" id=\"addr-move\">" +
+    esc(t("Measure at this address")) + "</button>" +
+    "<span class=\"fine\">" + esc(t("Found: {what}", {what: found.name || ""})) + "</span>";
+  $("addr-move").addEventListener("click", function(){
+    setPoint(found.latitude, found.longitude, found.name || null, found.country || null);
+    flow.quoted = null;
+    ADDR_HERE.asked = "";
+    drawTheDistance();
+    renderInterest();
+  });
+}

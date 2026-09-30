@@ -109,21 +109,15 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --display:"Archivo","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
-  --r:12px; --r-sm:8px;
-  /* How long a line of running prose may be, said once.
-
-     Not in CSS ch, which is the width of the digit zero: in this face that is
-     1.364 times the average character of a sentence, measured rather than
-     assumed. So every max-width written in ch was holding a line a third
-     longer than the number said, and 62ch meant eighty five characters and
-     not sixty two. Half the site read past the top of the band that way, and
-     the privacy page at a hundred and five characters to a line was the worst
-     of it.
-
-     55ch is about seventy five characters, which is inside the band at every
-     size the site sets type in, because ch scales with the font. */
+  --r:12px; --r-sm:8px; --r-lg:16px; --r-hero:24px;
+  --ease-enter:cubic-bezier(.2,0,0,1);
+  --ease-exit:cubic-bezier(.4,0,1,1);
+  --motion-press:90ms; --motion-hover:140ms; --motion-screen:220ms;
+  /* How long a line of running prose may be, said once. In this face 55ch
+     measures about seventy-five average characters, inside the reading band
+     while still scaling with the text. */
   --measure:55ch;
-  --gutter:clamp(16px,4vw,40px); --max:1240px; --mark-invert:1;
+  --gutter:clamp(32px,4vw,48px); --max:1248px; --mark-invert:1;
 }
 @media (prefers-color-scheme:light){ :root:not([data-theme="dark"]){
   color-scheme:light; --mark-invert:0;
@@ -208,7 +202,7 @@ html{-webkit-text-size-adjust:100%;
    the bottom instead of leaving it halfway up with dark ground beneath. */
 body{margin:0;min-height:100svh;display:flex;flex-direction:column;
   background:var(--ground);color:var(--ink);font-family:var(--sans);
-  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 /* Tracking follows size, because one value cannot serve both. A display
    line needs the letters pulled together or it reads as a row of separate
@@ -219,10 +213,14 @@ body{margin:0;min-height:100svh;display:flex;flex-direction:column;
    compounds are longer than a phone is wide: "Versicherungsschutz" in
    the home page headline measured 387px in a 308px column and was only
    ever invisible because the hero clipped whatever left it. */
-h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;
+h1{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;
+  text-wrap:balance;overflow-wrap:break-word;font-size:clamp(42px,5vw,64px);line-height:1.02}
+h2{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.026em;
+  text-wrap:balance;overflow-wrap:break-word;font-size:clamp(40px,4vw,52px);line-height:1.08}
+h3{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.018em;
+  text-wrap:balance;overflow-wrap:break-word;line-height:1.2}
+h4{font-family:var(--display);font-weight:600;margin:0;letter-spacing:-.008em;
   text-wrap:balance;overflow-wrap:break-word}
-h3{letter-spacing:-.018em}
-h4{letter-spacing:-.008em}
 p{margin:0}
 a{color:inherit}
 button{font:inherit;color:inherit}
@@ -302,25 +300,11 @@ a.pub .sm{grid-column:2;font-size:13px;color:var(--ink-2);line-height:1.5;margin
 @media (min-width:1800px){:root{--max:1440px;--gutter:56px}}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums}
-.label{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+.label{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:0;
+  text-transform:none;color:var(--ink-3)}
 :focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
 [hidden]{display:none!important}
 
-/* ---------------- 2026 visual system ----------------
-   A small, explicit scale shared by every screen. */
-:root{
-  --r:12px;--r-sm:8px;--r-lg:16px;--r-hero:24px;
-  --max:1248px;--measure:44rem;--gutter:clamp(32px,4vw,48px);
-  --ease-enter:cubic-bezier(.2,0,0,1);
-  --ease-exit:cubic-bezier(.4,0,1,1);
-  --motion-press:90ms;--motion-hover:140ms;--motion-screen:220ms;
-}
-body{line-height:1.5}
-h1{font-size:clamp(42px,5vw,64px);line-height:1.02}
-h2{font-size:clamp(40px,4vw,52px);line-height:1.08}
-h3{line-height:1.2}
-.label{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:0;
-  text-transform:none}
 @media (max-width:760px){
   :root{--gutter:20px}
   h1{font-size:clamp(42px,12vw,52px)}

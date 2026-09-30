@@ -39,3 +39,23 @@ files are yours.
 
    Ninety-nine repeats added in all. Fold each one into the rule it overrides,
    as you did for the first three.
+
+2. **Two blocks were written into `60-flow.css` from the other side, which is
+   against the rule above.** They are at the foot of the file, marked
+   "the paying screen, in six parts" and the four lines after it. The paying
+   screen was restructured from fifteen blocks in a row into six named parts,
+   and new markup with no rules at all would have shipped unstyled, so the
+   minimum was written rather than queued: `.part`, `.part + .part`,
+   `.part-t`, `.part-n`, `.basis-cut`, `#basis-scale:empty`, `#pay-note:empty`,
+   `.part-wait`, and one 640px query.
+
+   They are yours now, not a fixed point. They were written to be correct
+   rather than good: the numbered circle, the rule between parts, the quoted
+   sentence for what the cover does not pay for, and the waiting shape are all
+   worth a designer's eye. Nothing in the markup depends on the declarations,
+   only on the class names, so they can be rewritten freely. The class names
+   are in `tests/test_site_confirm_parts.py`, which also holds what each part
+   is for.
+
+   Counted after the two blocks: `60-flow.css` still needs the fold described
+   in 1 above, and these blocks add no repeat of any selector already in it.

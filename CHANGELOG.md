@@ -1,5 +1,219 @@
 # Changelog
 
+## 1.49.0, 30 September 2026
+
+- The paying screen reads as six named parts, and draws the payout once.
+
+  It was fifteen blocks in a row with nothing between them but a 14px gap, so
+  a reader could not tell where one subject ended and the next began, and the
+  two they most needed to find, who issues this and what it does not cover,
+  looked like everything else. It is six parts now, numbered and named: your
+  cover, when Clause pays, what this does not cover, who issues the policy,
+  documents, payment and acceptance.
+
+  It also held two drawings of the same three amounts. The payout ladder and
+  the exceedance curve are both read off the policy's own points, so the
+  figures arrived twice and the second time taught nothing; together they were
+  948px of a 4,675px step. The curve keeps what the ladder cannot carry, the
+  shape between the steps and how far the trigger sits from an ordinary
+  reading, so it is kept, behind a disclosure in the part it belongs to.
+
+  Its caption carried two sentences the ladder never had. Why the payout steps
+  now sits beside the ladder, which shows the steps and not the reason. That
+  the millimetres are a fifty kilometre grid average, which is basis risk in
+  one sentence, now sits in the part that names basis risk.
+
+  What the cover does not pay for was the last row of the summary table, under
+  a 10px uppercase label: the typography of a field name, for the one thing on
+  the screen a buyer is most likely to be wrong about. It is a part of its own
+  and reads as two sentences.
+
+- While the protocol answers, the paying screen shows the document arriving.
+
+  Six headings over six empty parts, each with a rule above it, reads as a
+  page that failed to load rather than one that is working. Each part now
+  carries a slot the shape of what will land in it, four steps of a ladder,
+  three lines of a company card. Part one keeps its sentence, because a shape
+  cannot say "working out your price".
+
+  Not every part waits for the price, and two of them were the reason to do
+  this carefully. The screening panel is drawn from who the buyer is and lands
+  seconds before the protocol answers; basis risk is read off the policy's own
+  structure and needs no price at all. A part that already has something to
+  show never shows a shape instead, and a shape stops the moment its own
+  content lands rather than when the price does.
+
+  Whether a part is filled is asked of its contents, not its geometry. An
+  empty ladder is 8px tall, because the ladder carries four pixels of padding
+  either side, and a height test called it full: the payout part, alone of the
+  six, then never showed what it was waiting for.
+
+- A protocol that says nothing is not a protocol that said no.
+
+  The page told a refusal from an answer still coming by whether the protocol
+  had sent a reason, and an answer that never arrives carries none. A quote
+  that timed out, a connection that dropped, or any error whose body has no
+  detail left the refusal empty, and every one of the five places a price goes
+  read that as "not answered yet".
+
+  Measured in a browser, holding the quote unanswered: the paying screen read
+  "Pricing…" for seventy-five seconds, which was as long as the measurement
+  was willing to look. No error, no alert, no way forward. The instrument was
+  checked first, because a held request could have been swallowing the abort
+  rather than the page ignoring it: an abort fires at 2001ms under a held
+  route, so the page's own twenty-five second timeout did fire and was thrown
+  away.
+
+  A refusal is the protocol's decision and it is final. A silence is not a
+  decision at all. They are told apart now, said differently, and the silence
+  is offered the one thing a decision cannot be offered: another go, with the
+  sentence a buyer needs first when a purchase screen goes wrong. Nothing is
+  charged and nothing is signed, and it says so. Pressing Try again against a
+  working protocol draws the ladder and returns the button to "Read and accept
+  the contract".
+
+- The address a buyer types is not where the policy measures.
+
+  The place is picked on one screen and the address is typed on the next, and
+  nothing joined them. The list on the second step offers provinces, because
+  the same list serves a drought policy that settles at a named station. Pick
+  "Adana" and the point the policy measures is the middle of Adana. Type a
+  street in Ceyhan on the screen after, forty-four kilometres east, and nothing
+  moves: the address is kept as text and `flow.subject` stays where it was.
+  Driven in a browser, that purchase reaches the signing step with the address
+  reading Ceyhan and the measurement at Adana's centre.
+
+  The two are not the same risk. The model puts intensity 7 at Adana's centre
+  once in 581 years and at Ceyhan once in 305, and the expected loss on the
+  same cover is 144.76 against 224.37, half as much again.
+
+  It would be easy and wrong to call that underpaying, and the first version of
+  this note did. The premium runs the other way, 456.74 against 380.24, because
+  the middle of Adana is where the book is already concentrated and capital
+  there costs more: the risk load is 300.39 against 137.92. The model is doing
+  exactly what it should. What the interface was doing is measuring the policy
+  forty-four kilometres from the building it is written on, so a shake that
+  crosses the line over the building need not cross it where the policy is
+  looking. That is basis risk, and it was made here rather than by the model.
+
+  The address is looked up now and what came back is put in front of the buyer
+  with the distance, and one press moves the measurement and reprices. It is
+  never moved on its own, and that is not caution for its own sake: a geocoder
+  answers a street that does not exist with a street that does. "Ceyhan Caddesi
+  14, Ceyhan" comes back as an address in Ankara, 398 kilometres away, without
+  hesitating. A policy moved there unasked would be a worse defect than the one
+  this fixes. Under a kilometre nothing is said at all, because a buyer who
+  searched their own street does not need telling about it.
+
+  Measured on the way: the eight places offered before anything is typed are
+  the first eight in the index, which is alphabetical, so the most valuable
+  space on that screen holds Adana, Adıyaman and Afyonkarahisar. That is a
+  separate thing and is not fixed here.
+
+- Two companies answered to "Specimen Carrier B, Türkiye", on the paying screen.
+
+  The eight stand ins written out by hand are all in one country and are
+  lettered A, B, D, E, F, G. The three generated for every country are lettered
+  nothing, B and C. So Türkiye held two Specimen Carrier B, `specimen-tr-two`
+  and `specimen-tr-2`, and both of them appear in the list of who will issue
+  the policy, at different prices, on the screen where somebody is about to
+  pay. One collision in seven hundred and two, in the one country the
+  demonstration is actually used in.
+
+  The ids do not move: a saved book holds them and renumbering would rewrite
+  the terms an older policy was bought on. Only the spoken name moves, to the
+  first letter that country has not used, so Türkiye reads A to H with nothing
+  missing. Held for every country by a test, because the next hand written
+  company added anywhere would do the same thing and nothing would have said
+  so.
+
+  Measured while looking at the confirm step, which is 4,040px tall at
+  1440x900 and 4,688px at 390x844: 687 words, 294 visible nodes and 25
+  controls, nine of them companies. Where the weight is, by block: check your
+  answers 689px, who will issue it 628px, the payout ladder 520px, the curve
+  chart 428px, what has to be proved 408px. The ladder and the chart are 29 per
+  cent of the screen between them and carry the same three amounts and the same
+  levels. Nothing about that is fixed yet.
+
+  Also measured, and it corrects an assumption worth correcting: the standing
+  instruction, the thing that buys cover again later, is 54px of that screen
+  and already folded shut. Moving it off the confirm step is still right, and
+  it is not the reason the screen is long.
+
+- The payout ladder is a staircase on a wide screen and a flat list at 390px.
+
+  It is the thing a buyer is actually agreeing to. On a wide screen it was
+  already drawn as one: four steps, each indented further than the one above,
+  the highest payment at the top, each step saying the level, what that level
+  means in words, how often it happens here and what it pays. At 390px the
+  indent goes and the four rows sit flush left against one bar.
+
+  The one thing that differs between the rows is the share of the limit each
+  pays, and the indent was the only thing carrying it. Every row states its
+  share now, as a number between 0 and 1, measured at the İstanbul quote as
+  0.0000, 0.3500, 0.7500 and 1.0000, and holds an element for the step to be
+  drawn in. How it is drawn is not decided here.
+
+  "In the recorded earthquakes since 1973" was on every row, four times, and at
+  390px it wrapped to two lines each time: twelve lines of the same six words
+  on the screen where the buyer decides. It is said once, under the ladder.
+  Measured, that is smaller than it sounds: 497px to 479px. Eighteen pixels,
+  because the element the steps will be drawn with took most of it back.
+
+- An empty search box offered eight places chosen by the alphabet.
+
+  The place index is in alphabetical order and an empty box was answered with
+  the first eight of it, so the most valuable space on the second step held
+  Adana, Adıyaman, Afyonkarahisar, Ağrı, Aksaray, Amasya, Ankara and Antalya.
+  Eighty-one provinces, and the three a buyer met first were the three whose
+  names begin earliest.
+
+  There is nothing to rank them by. The catalogue carries no population, and
+  ranking by the demonstration book would be ranking by figures this repository
+  makes up. So nothing is offered: the box says where cover can be priced and
+  what it takes, and the whole catalogue is one press behind a disclosure,
+  named for the country it is of rather than for how many rows it has, because
+  cover is priced in seven countries and the list is one country's provinces
+  and districts. It is built when it is opened: a hundred and three places is
+  five hundred nodes on a step that already carries a map.
+
+  Measured at 1440x900, before anything is typed: fourteen controls became six,
+  the step went from 1,061px to 664px in a 900px window, and what is on it went
+  from 8 places to none. Asked for, the list gives all 103. Typing "Kadıköy"
+  answers with six, the first of them İstanbul, Kadıköy.
+
+  The audit this came from said the second step was dominated by an 81 province
+  wall. Measured today it was eight, not eighty-one, which is worth saying
+  because the fix that followed from the wrong number would have been to shrink
+  a list that was already short.
+
+- The live bands had been stopped for every reader.
+
+  Three bands under the home page carry the readings the protocol settles
+  against: the earthquakes of the last day, today's weather, the delays at the
+  airports. They scroll because there are more of them than fit, and the
+  duplicate copy inside each is what makes the loop seamless. Four declarations
+  appended to the stylesheet turned all of that off, under a note calling them
+  ticker-tape decoration.
+
+  The rule they were written against is about decoration behind the words.
+  These are the words, and a register that has stopped looks like a register
+  that is wrong. Stopping was already handled where stopping is what somebody
+  asked for, forty lines above: a reader who sets prefers-reduced-motion gets
+  no animation, no duplicate and a track they can scroll themselves, and hover
+  or focus pauses it for everybody else. Turning it off for everybody left both
+  of those as rules that could never apply.
+
+  Measured with the movement back: 135.9px in two and a half seconds normally,
+  0.0px in a context asking for less motion. A test holds both, and fails
+  either when the band is stopped for everyone or when the pause under the
+  pointer is taken away.
+
+  The stylesheet here is the pass that stopped it putting it back, arrived at
+  independently and better than the version that replaced it: the same movement
+  restored, and the eleven declarations that had been appended folded into the
+  rules they were overriding at the same time. That version is the one kept.
+
 ## 1.48.0, 30 September 2026
 
 - "Nobody decides whether you get paid" was the largest line on How it works,

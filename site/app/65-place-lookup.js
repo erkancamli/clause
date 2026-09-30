@@ -26,7 +26,14 @@ function fold(text){
 function searchPlaces(query){
   var list = PLACE_INDEX || LOCAL_PLACES;
   var key = fold(query);
-  if (!key) return list.slice(0, 8);
+  // Nothing typed is not a reason to recommend eight places. It used to answer
+  // an empty box with the first eight of the index, and the index is in
+  // alphabetical order, so the most valuable space on this screen held Adana,
+  // Adıyaman and Afyonkarahisar: three places chosen by the first letter of
+  // their names, for a buyer who lives somewhere else. Nothing is offered now,
+  // and the whole list is one press away for somebody who would rather look
+  // than type.
+  if (!key) return [];
   var hits = list.filter(function(p){ return fold(p.name).indexOf(key) >= 0; });
   hits.sort(function(a, b){
     var sa = fold(a.name).indexOf(key) === 0 ? 0 : 1;
@@ -110,6 +117,34 @@ function renderResults(query){
   }
   if (addresses.length) hits = hits.slice(0, 5).concat(addresses).slice(0, 11);
   searchWorld(query);
+  if (!hits.length && !key){
+    // Nothing typed yet. Say what the box takes and where cover can be
+    // written, and put the whole list one press away rather than eight of it
+    // on the screen. The list is built when it is opened: a hundred and three
+    // places is five hundred nodes on the step that already has a map on it.
+    var all = PLACE_INDEX || LOCAL_PLACES;
+    box.innerHTML = '<div class="empty">' + esc(whereItIsWritten()) + " " +
+      esc(flow.peril === "quake"
+        ? t('Try a city there, or a coordinate as "35.68, 139.69".')
+        : t('Try a province, a district, or a coordinate as "40.99, 29.03".')) + '</div>' +
+      '<details class="more" id="all-places"><summary>' +
+      // The catalogue is one country's provinces and districts, and cover is
+      // priced in seven. "All 103 places" would say the opposite of that.
+      esc(t("Browse the {n} places in {country}",
+            {n: f0.format(all.length), country: regionName(all[0] && all[0].country || "TR") || "Türkiye"})) +
+      '</summary><div class="inner" id="all-places-list"></div></details>';
+    var more = $("all-places");
+    more.addEventListener("toggle", function(){
+      var into = $("all-places-list");
+      if (!more.open || into.firstChild) return;
+      into.innerHTML = placeButtons(all.map(function(p){
+        return Object.assign({country: "TR", priced: true}, p);
+      }));
+      bindPlaceButtons(into);
+    });
+    return;
+  }
+
   if (!hits.length){
     // Nothing matched, and for most of the world nothing ever will: the
     // catalogue only holds places in countries a model was built and tested
@@ -123,7 +158,14 @@ function renderResults(query){
     return;
   }
 
-  box.innerHTML = hits.map(function(place){
+  box.innerHTML = placeButtons(hits) + (world.length && WORLD.attribution
+    ? '<p class="hint">' + esc(t("Place names outside Türkiye come from GeoNames (geonames.org), under CC BY 4.0.")) + '</p>' : '')
+    + (addresses.length ? '<p class="hint">' + esc(t("Addresses from OpenStreetMap, © OpenStreetMap contributors, ODbL.")) + '</p>' : '');
+  bindPlaceButtons(box);
+}
+
+function placeButtons(hits){
+  return hits.map(function(place){
     var value = place.latitude + "," + place.longitude;
     var chosen = flow.subject === value;
     var off = place.priced === false;
@@ -143,10 +185,10 @@ function renderResults(query){
       '<span class="s">' + esc(sub) + '</span></span>' +
       '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg></span>' +
       '</button>';
-  }).join("") + (world.length && WORLD.attribution
-    ? '<p class="hint">' + esc(t("Place names outside Türkiye come from GeoNames (geonames.org), under CC BY 4.0.")) + '</p>' : '')
-    + (addresses.length ? '<p class="hint">' + esc(t("Addresses from OpenStreetMap, © OpenStreetMap contributors, ODbL.")) + '</p>' : '');
+  }).join("");
+}
 
+function bindPlaceButtons(box){
   Array.prototype.forEach.call(box.querySelectorAll(".opt"), function(button){
     button.addEventListener("click", function(){
       if (button.disabled) return;
@@ -586,7 +628,7 @@ function updateRunRail(){
   var settled=!link.live||(current&&!!offer);
   if(!settled){
     foot.innerHTML='<p class="prompt">'+
-      esc(flow.refusal?t("The protocol did not price this"):t("working out your price"))+'</p>';
+      esc(priceSaid(t("working out your price")))+'</p>';
     return;
   }
   var total=q.premium+(offer?offer.fee:0);
@@ -646,7 +688,7 @@ function updatePriceBar(){
     noAmount($("pb-amt"));
     $("pb-cap").textContent=ladderSaid()+" · "+
       t("{cover} of cover for {days} days",{cover:f0.format(flow.limit),days:days})+" · "+
-      (flow.refusal?t("The protocol did not price this"):t("working out your price"));
+      priceSaid(t("working out your price"));
     var waiting=$("pb-pays");
     if(waiting){ waiting.hidden=!flow.limit;
       waiting.innerHTML=esc(t("you receive up to"))+' <b>'+esc(money(flow.limit))+'</b>'; }
@@ -713,7 +755,7 @@ function choosePeril(key){
     // where the protocol caps a trip at 20,000 -- and said so only at the
     // last step, as "http 422", after the price and the contract.
     flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.value=0; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
-    flow.place=null; flow.quoted=null; flow.refusal=null;
+    flow.place=null; flow.quoted=null; flow.refusal=null; flow.unreached=false;
     flow.offers=null; flow.carrier=null; flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false;
     flow.shaking=null; flow.vehicle=null; flow.storm=null; flow.renewing=null; CONTRACT={key:"",text:"",hash:""};
     flow.flightFrom=null; flow.flightTo=null; flow.flightFromText=""; flow.flightToText="";
@@ -745,7 +787,7 @@ function resetFlow(){
   if(flow.busy)return;
   flow.step=1; flow.reached=1; flow.chosen=false; flow.subject=null; flow.place=null;
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
-  flow.quoted=null; flow.refusal=null; flow.offers=null; flow.carrier=null;
+  flow.quoted=null; flow.refusal=null; flow.unreached=false; flow.offers=null; flow.carrier=null;
   flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
   flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
   flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;

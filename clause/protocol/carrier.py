@@ -70,6 +70,7 @@ the lookup is in the path rather than in a document.
 
 from __future__ import annotations
 
+import string
 import time
 from dataclasses import dataclass, field, replace
 from enum import Enum
@@ -1163,15 +1164,39 @@ def world_specimens(*, now: float | None = None) -> list[Carrier]:
         ("-2", " B", 0.028, 5.0, 0.0, 3_000_000.0, 0.09, 0.13),
         ("-3", " C", 0.075, 1.0, 14.0, 5_000_000.0, 0.16, 0.05),
     )
+    # The eight written out by hand are all in one country, and the letters
+    # they were given overlap the letters given here: Türkiye's hand written
+    # set is A, B, D, E, F, G, and this one hands out B and C. So two companies
+    # were called "Specimen Carrier B, Türkiye", specimen-tr-two and
+    # specimen-tr-2, and both of them appear on the screen where a buyer picks
+    # who will issue the policy. One collision in seven hundred and two, in the
+    # one country the demonstration is actually used in.
+    #
+    # The ids are left exactly as they are: a saved book holds them, and the
+    # note above says why renumbering is not on the table. Only the name moves,
+    # to the first letter that country has not used.
+    spoken = {}
+    for written in specimen_registry(now=now).carriers.values():
+        spoken.setdefault(written.domicile, set()).add(written.name)
+
     out = []
     for code, name in sorted(NAMES.items()):
         if code in _NO_SPECIMEN:
             continue
+        used = set(spoken.get(code, ()))
         for suffix, letter, fee, days, extra, capacity, capital, expense in KINDS:
+            spoken_as = f"Specimen Carrier{letter}, {name} (not a real company)"
+            if spoken_as in used:
+                for free in string.ascii_uppercase:
+                    instead = f"Specimen Carrier {free}, {name} (not a real company)"
+                    if instead not in used:
+                        spoken_as = instead
+                        break
+            used.add(spoken_as)
             out.append(Carrier(
                 specimen=True, contact="specimen, not a company",
                 carrier_id=f"specimen-{code.lower()}{suffix}",
-                name=f"Specimen Carrier{letter}, {name} (not a real company)",
+                name=spoken_as,
                 role=Role.CARRIER, domicile=code,
                 licences=(Licence(
                     country=code,

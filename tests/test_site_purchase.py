@@ -515,3 +515,80 @@ def test_the_page_does_not_say_that_nobody_decides() -> None:
         assert "Nobody decides whether you get paid." not in book, (
             f"{path.name} still carries the old claim"
         )
+
+
+def test_nothing_typed_offers_no_places_at_all() -> None:
+    """The eight it used to offer were chosen by the alphabet.
+
+    An empty search box answered with the first eight entries of the place
+    index, and the index is in alphabetical order, so the most valuable space
+    on the second step held Adana, Adıyaman, Afyonkarahisar, Ağrı, Aksaray,
+    Amasya, Ankara and Antalya. Eighty-one provinces, and the three a buyer saw
+    first were the three whose names begin earliest. Measured at 1440x900 the
+    step was 1,061px of an 900px window before anything was typed, and 14 of
+    the things on it were controls.
+
+    Nothing is offered now and the whole catalogue is one press away, built
+    when it is opened rather than carried on every visit: a hundred and three
+    places is five hundred nodes on a step that already has a map. Measured
+    after: 6 controls, 664px, 53 nodes, and 103 options once the list is asked
+    for.
+    """
+    body = (ROOT / "site" / "app" / "65-place-lookup.js").read_text(encoding="utf-8")
+    at = body.index("function searchPlaces(")
+    search = body[at : body.index("\n}\n", at)]
+    assert "if (!key) return [];" in search, (
+        "an empty box is still answered with a list of places"
+    )
+    assert "list.slice(0, 8)" not in search, "the first eight of the index are still offered"
+
+    # The way in for somebody who would rather look than type, and the list is
+    # named for what it holds rather than for how many rows it has.
+    assert 'id="all-places"' in body, "there is no way to see the whole list"
+    assert "Browse the {n} places in {country}" in body, (
+        "the list does not say which country it is of"
+    )
+    assert re.search(r"if\s*\(!more\.open \|\| into\.firstChild\) return;", body), (
+        "the list is built before it is asked for, or built again every time"
+    )
+
+
+def test_every_step_of_the_ladder_carries_the_share_it_pays() -> None:
+    """A staircase on a wide screen and a flat list at 390px.
+
+    The payout ladder is the thing a buyer is actually agreeing to, and on a
+    wide screen it was already drawn as one: four steps, each indented further
+    than the one above, the highest payment at the top. At 390px the indent
+    goes and the four rows sit flush left against a single bar, which is a
+    list. The one thing that differs between the rows is the share of the limit
+    each pays, so that is what the drawing has to carry, and it was carried by
+    the indent alone.
+
+    Each row states its share as a number between 0 and 1 now, measured at the
+    İstanbul quote as 0.0000, 0.3500, 0.7500 and 1.0000, and holds an element
+    for the step to be drawn in. Nothing here decides how it looks.
+
+    Measured while doing it, and smaller than it sounds: saying "in the
+    recorded earthquakes since 1973" once under the ladder instead of on every
+    row took the ladder from 497px to 479px at 390px. Eighteen pixels. The
+    twelve lines of repeated words are gone, and the element the steps will be
+    drawn with took most of the space back.
+    """
+    body = (ROOT / "site" / "app" / "60-cover-flow.js").read_text(encoding="utf-8")
+    at = body.index("function payRows(")
+    rows = body[at : body.index("\n}\n", at)]
+
+    assert 'data-share="' in rows, "a row does not say what share of the limit it pays"
+    assert '"--share:"' in rows.replace("'", '"') or "--share:" in rows, (
+        "the share is not given to the stylesheet"
+    )
+    assert 'class="step"' in rows, "there is nothing for the step to be drawn in"
+    assert 'aria-hidden="true"' in rows, "the drawn step is read out as if it were content"
+
+    # Said once, under the ladder, not four times inside it.
+    assert "about 1 in {n} years in the recorded earthquakes since 1973" not in body, (
+        "every row still carries where the frequency came from"
+    )
+    assert "How often, in the earthquakes recorded since 1973." in rows, (
+        "the ladder no longer says where its frequencies came from at all"
+    )
