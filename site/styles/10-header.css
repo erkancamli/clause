@@ -125,6 +125,7 @@ main:focus{outline:none}
    pressed Tab to get there, so no ring is drawn; somebody who does press
    Tab to it still gets one. */
 h1[tabindex="-1"]:focus:not(:focus-visible){outline:none}
+h1[tabindex="-1"]:focus{outline:none}
 input[type=file]{font:inherit;font-size:13.5px;padding:4px 0;min-height:28px}
 .leaflet-container .leaflet-control-attribution a{display:inline-block;padding-block:4px}
 details.orig{display:block;margin-top:6px;font-size:12.5px;color:var(--ink-3)}

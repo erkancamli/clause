@@ -400,13 +400,20 @@ h1 span{color:var(--signal-ink)}
 .pick:hover{transform:translateY(-2px);box-shadow:none;border-color:var(--edge-2)}
 .pick:hover .banner svg{transform:none}
 .pick[aria-pressed="true"]{background:var(--signal-wash)}
+.home-hero .choose .picks{gap:0;border-block:1px solid var(--edge)}
+.home-hero .choose .pick{flex-direction:row;align-items:center;gap:14px;border:0;
+  border-bottom:1px solid var(--edge);border-radius:0;background:transparent;
+  padding:13px 4px}
+.home-hero .choose .pick:last-child{border-bottom:0}
+.home-hero .choose .pick .banner{flex:none;width:96px;height:44px;max-height:none;margin:0}
+.home-hero .choose .pick .banner svg{width:100%;height:100%}
+.home-hero .choose .pick .txt{display:grid;gap:2px;min-width:0}
+.home-hero .choose .pick h3{font-size:15.5px;margin:0}
+.home-hero .choose .pick p{font-size:12.5px;margin:0}
+.home-hero .choose .pick .from{display:none}
 @media (min-width:1300px){
   .hero-text{grid-template-columns:minmax(390px,.9fr) minmax(0,1.1fr);
     column-gap:clamp(64px,7vw,112px)}
-  .choose .picks{gap:0;border-block:1px solid var(--edge)}
-  .choose .pick{border:0;border-bottom:1px solid var(--edge);border-radius:0;
-    background:transparent;padding:13px 4px}
-  .choose .pick:last-child{border-bottom:0}
   .choose .pick .banner{width:112px;height:44px}
 }
 @media (max-width:760px){
@@ -415,6 +422,9 @@ h1 span{color:var(--signal-ink)}
   .home-hero p{font-size:16px}
   .hero-cta{width:100%}
   .hero-cta .btn{flex:1 1 100%}
+  .home-hero .choose{width:100%}
+  .home-hero .choose .pick{padding-block:12px}
+  .home-hero .choose .pick .banner{width:88px;height:44px}
   .beats{margin-top:80px}
   .beat{padding-block:36px}
 }
