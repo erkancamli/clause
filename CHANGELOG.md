@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.49.0, 30 September 2026
 
 - The paying screen reads as six named parts, and draws the payout once.
 
