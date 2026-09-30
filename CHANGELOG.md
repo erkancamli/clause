@@ -103,9 +103,10 @@
   measured here and is not guessed at; what is measured is that ours carries
   none of them.
 
-  Most of the 382 sit just over the line, so moving the guard would open them.
-  That is the wrong repair: it would sell a price two or three times light in
-  the places our model understands least. The repair is the model.
+  Three hundred and thirteen of the 382 sit within a factor of four of the line,
+  155 of them at two and 61 at three, so moving the guard would open most of
+  them. That is the wrong repair: it would sell a price two, three or four times
+  light in the places our model understands least. The repair is the model.
 
   The 167 are the ones a deeper build closes, and they are the smaller half.
   Smaller than they look, too: the last fifty curves this release fetched moved
