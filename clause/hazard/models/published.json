@@ -56397,14 +56397,9 @@
   "conversion": "Worden, Gerstenberger, Rhoades and Wald (2012), peak ground velocity to modified Mercalli intensity",
   "measure": "PGV, cm/s, at a reference site of 760 m/s",
   "missed": [
-   "Hot Springs",
-   "Glendale Heights",
-   "Butte",
-   "Oswego",
-   "El Mirage",
-   "West Lake Sammamish",
-   "North Bel Air",
-   "Chelmsford"
+   "Hot Springs (34.5037, -93.0552)",
+   "Glendale Heights (41.9146, -88.0649)",
+   "Butte (46.0038, -112.5347)"
   ],
   "points": [
    {
