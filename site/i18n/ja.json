@@ -2178,6 +2178,7 @@
     "These millimetres are the average over a grid cell of about fifty kilometres, not a reading from a rain gauge in your street: a gauge would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "このミリ数は約50キロ四方の格子の平均であり、お住まいの通りの雨量計の値ではありません。同じ日に雨量計はもっと多くを示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。",
     "These wind speeds are the strongest hour's mean over a grid cell of about fifty kilometres, not the gust a weather station records: a station would show more on the same day. The trigger is set on the same figures the policy settles on, so the two agree.": "この風速は約50キロ四方の格子における最も強い1時間の平均であり、気象観測所が記録する突風ではありません。同じ日に観測所はもっと高い値を示すはずです。支払いの引き金は、保険金が決まるのと同じ数値の上に置かれているので、両者は食い違いません。",
     "Nothing matched.": "一致するものがありません。",
+    "Browse the {n} places in {country}": "{country} の {n} か所を見る",
     "Try a city there, or a coordinate as \"35.68, 139.69\".": "その国の都市名か、「35.68, 139.69」のような座標をお試しください。",
     "Drought cover is written only in Türkiye for now.": "干ばつ補償は現在トルコでのみ引き受けています。",
     "Earthquake cover can be priced in {countries}: places where our own model passed its test, or where the country's own authority publishes the hazard at the address.": "地震の補償は{countries}で価格を出せます。当方のモデルが検証を通った地域、またはその国の機関が住所ごとの危険度を公表している地域です。",

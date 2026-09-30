@@ -515,3 +515,39 @@ def test_the_page_does_not_say_that_nobody_decides() -> None:
         assert "Nobody decides whether you get paid." not in book, (
             f"{path.name} still carries the old claim"
         )
+
+
+def test_nothing_typed_offers_no_places_at_all() -> None:
+    """The eight it used to offer were chosen by the alphabet.
+
+    An empty search box answered with the first eight entries of the place
+    index, and the index is in alphabetical order, so the most valuable space
+    on the second step held Adana, Adıyaman, Afyonkarahisar, Ağrı, Aksaray,
+    Amasya, Ankara and Antalya. Eighty-one provinces, and the three a buyer saw
+    first were the three whose names begin earliest. Measured at 1440x900 the
+    step was 1,061px of an 900px window before anything was typed, and 14 of
+    the things on it were controls.
+
+    Nothing is offered now and the whole catalogue is one press away, built
+    when it is opened rather than carried on every visit: a hundred and three
+    places is five hundred nodes on a step that already has a map. Measured
+    after: 6 controls, 664px, 53 nodes, and 103 options once the list is asked
+    for.
+    """
+    body = (ROOT / "site" / "app" / "65-place-lookup.js").read_text(encoding="utf-8")
+    at = body.index("function searchPlaces(")
+    search = body[at : body.index("\n}\n", at)]
+    assert "if (!key) return [];" in search, (
+        "an empty box is still answered with a list of places"
+    )
+    assert "list.slice(0, 8)" not in search, "the first eight of the index are still offered"
+
+    # The way in for somebody who would rather look than type, and the list is
+    # named for what it holds rather than for how many rows it has.
+    assert 'id="all-places"' in body, "there is no way to see the whole list"
+    assert "Browse the {n} places in {country}" in body, (
+        "the list does not say which country it is of"
+    )
+    assert re.search(r"if\s*\(!more\.open \|\| into\.firstChild\) return;", body), (
+        "the list is built before it is asked for, or built again every time"
+    )

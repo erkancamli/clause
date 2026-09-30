@@ -40,6 +40,33 @@
   space on that screen holds Adana, Adıyaman and Afyonkarahisar. That is a
   separate thing and is not fixed here.
 
+- An empty search box offered eight places chosen by the alphabet.
+
+  The place index is in alphabetical order and an empty box was answered with
+  the first eight of it, so the most valuable space on the second step held
+  Adana, Adıyaman, Afyonkarahisar, Ağrı, Aksaray, Amasya, Ankara and Antalya.
+  Eighty-one provinces, and the three a buyer met first were the three whose
+  names begin earliest.
+
+  There is nothing to rank them by. The catalogue carries no population, and
+  ranking by the demonstration book would be ranking by figures this repository
+  makes up. So nothing is offered: the box says where cover can be priced and
+  what it takes, and the whole catalogue is one press behind a disclosure,
+  named for the country it is of rather than for how many rows it has, because
+  cover is priced in seven countries and the list is one country's provinces
+  and districts. It is built when it is opened: a hundred and three places is
+  five hundred nodes on a step that already carries a map.
+
+  Measured at 1440x900, before anything is typed: fourteen controls became six,
+  the step went from 1,061px to 664px in a 900px window, and what is on it went
+  from 8 places to none. Asked for, the list gives all 103. Typing "Kadıköy"
+  answers with six, the first of them İstanbul, Kadıköy.
+
+  The audit this came from said the second step was dominated by an 81 province
+  wall. Measured today it was eight, not eighty-one, which is worth saying
+  because the fix that followed from the wrong number would have been to shrink
+  a list that was already short.
+
 - The live bands had been stopped for every reader.
 
   Three bands under the home page carry the readings the protocol settles
