@@ -72,10 +72,10 @@
   | | places | share |
   |---|---:|---:|
   | sold today | 2,859 | 83.9% |
-  | refused: our model and the published one disagree | 381 | 11.2% |
-  | refused: nothing published within sixty kilometres | 168 | 4.9% |
+  | refused: our model and the published one disagree | 382 | 11.2% |
+  | refused: nothing published within sixty kilometres | 167 | 4.9% |
 
-  The 381 are the guard on that disagreement doing what the note beside it says
+  The 382 are the guard on that disagreement doing what the note beside it says
   it does: "about one place in nine is refused by this, in both countries."
   Measured here at 11.2%, which is that figure. So the guard is not news. Where
   it fires is.
@@ -103,22 +103,34 @@
   measured here and is not guessed at; what is measured is that ours carries
   none of them.
 
-  Most of the 381 sit just over the line, 155 at a factor of two and 61 at
-  three, so moving the guard would open them. That is the wrong repair: it would
-  sell a price two or three times light in the places our model understands
-  least. The repair is the model.
+  Most of the 382 sit just over the line, so moving the guard would open them.
+  That is the wrong repair: it would sell a price two or three times light in
+  the places our model understands least. The repair is the model.
 
-  The 168 are the ones a deeper build closes, and it is the smaller half.
+  The 167 are the ones a deeper build closes, and they are the smaller half.
+  Smaller than they look, too: the last fifty curves this release fetched moved
+  the sold count by nothing at all. One place crossed over, and it crossed from
+  one refusal to the other rather than into being sold, because a curve arriving
+  near it only exposed that the two models disagree there. Depth buys precision
+  at addresses already covered by a neighbour's curve; it does not buy reach.
 
-  Behind that, the curve count went from 1,240 to 1,500 and is still climbing:
-  CONUS 1,486, Hawaii 13, Alaska 1 at the time of writing. The USGS hazard
-  service was up and down through it. One pass took the file from 1,240 to 1,318
-  and named 182 places it could not reach, a later one reached 1,410 with
-  nothing missed, a pass over what was left returned a single curve out of
-  eighty three, and the next morning it answered six probes out of six. A limit
-  is a throttle on the asking and not a decision about what to keep, so every
-  curve already fetched is still in the file, and the depth the model declares
-  is settled against a finished run rather than a hopeful one.
+  Behind that, the curve count went from 1,240 to 1,500: CONUS 1,486, Hawaii 13,
+  Alaska 1. Of the 1,500 largest American places three are still without a curve
+  of their own, Hot Springs, Glendale Heights and Butte, and each gap is named
+  with its coordinate.
+
+  The USGS hazard service was up and down throughout. One pass took the file
+  from 1,240 to 1,318 and named 182 places it could not reach, a later one
+  reached 1,410 with nothing missed, a pass over what was left returned a single
+  curve out of eighty three, and the next morning it answered six probes out of
+  six. A deeper run was then started and stopped rather than waited out: it was
+  managing about one place a minute, with no open socket and flat CPU between
+  fetches while three probes of the same service from the same container
+  answered at once, so the remaining five hundred places were eight hours away
+  and every figure written about the file went stale while it moved. A limit is
+  a throttle on the asking and not a decision about what to keep, so every curve
+  already fetched is still in the file, and the depth the model declares is
+  settled against a run that finished.
 
   Anchorage and Hilo are sold. Fairbanks and Juneau are still refused, because
   nothing published sits within sixty kilometres of either; they open when the
