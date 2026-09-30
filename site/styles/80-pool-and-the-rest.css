@@ -1,16 +1,16 @@
 /* ---------------- pool ---------------- */
-.readouts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--edge);
-  border:1px solid var(--edge);border-radius:var(--r);overflow:hidden}
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:transparent;
+  border:1px solid var(--edge);border-radius:12px;overflow:hidden}
 @media (max-width:760px){.readouts{grid-template-columns:1fr 1fr}}
-.readout{background:var(--panel);padding:17px 16px}
-.readout .v{font-family:var(--display);font-weight:600;font-size:clamp(19px,2.8vw,25px);line-height:1.1;
+.readout{background:var(--panel);padding:22px}
+.readout .v{font-family:var(--display);font-weight:600;font-size:clamp(28px,3vw,40px);line-height:1.1;
   font-variant-numeric:tabular-nums}
 .readout .k{margin-top:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
 .cap-row{display:grid;grid-template-columns:150px minmax(0,1fr) 84px;gap:14px;align-items:center;font-size:14px}
 @media (max-width:640px){.cap-row{grid-template-columns:96px minmax(0,1fr) 66px;gap:10px;font-size:12.5px}}
-.cap-row .track{height:24px;border-radius:8px;background:var(--sunk);border:1px solid var(--edge);overflow:hidden}
+.cap-row .track{height:16px;border-radius:8px;background:var(--sunk);border:1px solid var(--edge);overflow:hidden}
 .cap-row .fill{height:100%;width:0;transition:width .9s cubic-bezier(.22,1,.36,1)}
-.cap-row.hot .fill{background:var(--signal);background-image:linear-gradient(90deg,var(--signal),var(--crit))}
+.cap-row.hot .fill{background:var(--signal);background-image:none}
 .cap-row.cool .fill{background:var(--settled)}
 .cap-row .pct{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
 .map{width:100%;height:auto;display:block;background:var(--sunk);border-radius:0 0 var(--r) var(--r)}
@@ -21,7 +21,7 @@
 .map .pt{fill:var(--hold);stroke:var(--ground);stroke-width:1.5;transition:fill .3s}
 .map .pt.paid{fill:var(--settled)}
 .map .lbl{font-family:var(--mono);font-size:9px;fill:var(--ink-3);letter-spacing:.04em}
-.panel{background:var(--panel);border:1px solid var(--edge);border-radius:12px;box-shadow:var(--lift-1),var(--hairline)}
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:12px;box-shadow:none}
 .skel{display:grid;gap:10px}
 .skel i{display:block;height:14px;border-radius:8px;background:linear-gradient(90deg,var(--sunk) 25%,var(--edge) 50%,var(--sunk) 75%);background-size:200% 100%}
 .skel i:nth-child(2){width:72%}.skel i:nth-child(3){width:48%}
@@ -29,22 +29,23 @@
 .panel-head{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:1px solid var(--edge);
   background:var(--sunk);border-radius:var(--r) var(--r) 0 0}
 .side{padding:16px;display:grid;gap:13px;align-content:start}
-.total{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,34px);line-height:1;
+.total{font-family:var(--display);font-weight:600;font-size:clamp(32px,4vw,40px);line-height:1;
   color:var(--settled);font-variant-numeric:tabular-nums}
 .feed{display:grid;gap:5px}
 .ev{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:baseline;font-family:var(--mono);
   font-size:11.5px;padding:7px 9px;border-radius:var(--r-sm);background:var(--sunk);border:1px solid var(--edge);
-  color:var(--ink-2);animation:fade .3s ease-out}
+  color:var(--ink-2);animation:fade .3s ease-out;min-height:44px}
 .ev b{font-weight:500;color:var(--ink)}
 .ev .tag{padding:1px 6px;border-radius:4px;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase}
 .tag.paid{background:var(--settled-wash);color:var(--settled)}
 .ev .amt{color:var(--settled);white-space:nowrap}
-.map-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:14px}
+.map-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,300px);gap:24px}
 @media (max-width:900px){.map-wrap{grid-template-columns:1fr}}
 
-.sec{display:grid;gap:12px;margin-top:28px}
-.sec > h2{font-size:clamp(22px,3.2vw,30px)}
-.sec > p.lead{color:var(--ink-2);max-width:var(--measure)}
+.sec{display:grid;gap:16px;margin-top:clamp(72px,9vw,120px)}
+.sec:first-child{margin-top:0}
+.sec > h2{font-size:clamp(40px,4vw,52px);line-height:1.08}
+.sec > p.lead{color:var(--ink-2);max-width:var(--measure);font-size:17px;line-height:1.6}
 /* Small print that runs wider than the prose above it reads as a rag,
    and it is the least important text on the page. Same measure.
 
@@ -69,7 +70,8 @@
 .field > p.fine, form > p.fine,
 #coverage-out > p{max-width:var(--measure)}
 
-footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-3);font-size:13px;margin-top:auto}
+footer{border-top:1px solid var(--edge);padding-block:48px 72px;color:var(--ink-3);
+  font-size:13px;margin-top:clamp(96px,12vw,160px)}
 /* The Ask Rider button is fixed to the bottom right corner, so whenever
    the footer is in view it sits on top of the last link in this row and
    that link cannot be clicked. The row ends before the button starts. */
@@ -199,7 +201,7 @@ footer{border-top:1px solid var(--edge);padding-block:26px 38px;color:var(--ink-
 .pick .banner{border-radius:var(--r-sm);overflow:hidden;background:var(--sunk);width:100%}
 figure{margin:0}
 figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
-.diagram{padding:18px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+.diagram{padding:18px;border:1px solid var(--edge);border-radius:12px;background:var(--panel)}
 
 /* ---------------- the chain, as a row of blocks ----------------
    This was drawn as an SVG, which meant every label was one unwrappable line
@@ -210,12 +212,12 @@ figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
    The alignment carries the argument: the note about a dormant predicate sits
    under the blocks where nothing happened, and the payment under the block
    that paid. */
-.chainfig{border:1px solid var(--edge);border-radius:var(--r);background:var(--panel);
-  box-shadow:var(--lift-1),var(--hairline);padding:clamp(16px,2.4vw,24px);
+.chainfig{border:1px solid var(--edge);border-radius:12px;background:var(--panel);
+  box-shadow:none;padding:clamp(20px,3vw,32px);
   display:grid;gap:14px}
 .chainfig figcaption{margin-top:2px}
 .cf-grid{display:grid;gap:12px 10px;grid-template-columns:1fr}
-.cf-source{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
+.cf-source{background:var(--sunk);border:1px solid var(--edge);border-radius:8px;
   padding:11px 13px;display:grid;gap:3px;min-width:0}
 .cf-source b{font-size:13.5px;font-weight:600}
 .cf-source span{font-size:12.5px;color:var(--ink-3);line-height:1.55}
@@ -227,7 +229,7 @@ figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
   border-top:6px solid var(--art-line)}
 .cf-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;
   text-transform:uppercase;color:var(--ink-3)}
-.cf-b{background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
+.cf-b{background:var(--sunk);border:1px solid var(--edge);border-radius:8px;
   padding:11px 12px;display:grid;gap:4px;align-content:start;min-width:0;position:relative}
 .cf-b b{font-family:var(--mono);font-size:13px;font-weight:400;color:var(--ink-2);
   font-variant-numeric:tabular-nums}
@@ -236,7 +238,7 @@ figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
 .cf-b.is-hot{background:var(--signal-wash);border-color:var(--signal-ink)}
 .cf-b.is-hot b{color:var(--ink)}
 .cf-b.is-hot span{color:var(--ink-2)}
-.cf-note{border-radius:var(--r-sm);padding:12px 14px;display:grid;gap:3px;min-width:0}
+.cf-note{border-radius:8px;padding:12px 14px;display:grid;gap:3px;min-width:0}
 .cf-note b{font-size:13.5px;font-weight:600}
 .cf-note span{font-size:12.5px;color:var(--ink-3);line-height:1.6}
 .cf-armed{background:var(--sunk);border:1px solid var(--edge)}
@@ -262,7 +264,7 @@ figcaption{font-size:12.5px;color:var(--ink-3);margin-top:10px;text-align:left}
   .cf-b:not(.b5)::after{content:"";position:absolute;top:50%;left:100%;
     width:10px;height:1px;background:var(--edge-2)}
 }
-.chart-box{padding:16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+.chart-box{padding:16px;border:1px solid var(--edge);border-radius:12px;background:var(--panel)}
 
 /* A thing that floats over the page sits a step above the card it came
    from. In the dark theme that step is lightness, because a black
@@ -281,7 +283,7 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .dlg{padding:24px;display:grid;gap:14px}
 .dlg h3{font-size:20px}
 .dlg p{font-size:14px;color:var(--ink-2)}
-.dlg input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid var(--edge-2);
+.dlg input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid var(--edge-ctl);
   background:var(--sunk);color:var(--ink);font-family:var(--sans);font-size:15px}
 .dlg .row{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
 .bio{display:grid;place-items:center;gap:9px;padding:16px 0}
@@ -299,16 +301,17 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .worth span{font-size:12.5px;color:var(--ink-3)}
 .worth .wsrc{font-size:11.5px;color:var(--ink-3);opacity:.82;line-height:1.45}
 .unitrow{display:grid;grid-template-columns:1fr auto;gap:8px}
-.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;padding:4px;border-radius:12px;
-  background:var(--sunk);box-shadow:var(--sunk-in)}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;padding:4px;
+  border-color:var(--edge-ctl);border-radius:12px;background:var(--sunk);box-shadow:var(--sunk-in)}
 .seg button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:14px;font-weight:500;
-  padding:9px 10px;border-radius:8px;cursor:pointer}
-.seg button{border-radius:8px;transition:background .18s,color .18s,box-shadow .18s,transform .18s}
+  padding:9px 10px;border-radius:8px;cursor:pointer;
+  transition:background .18s,color .18s,box-shadow .18s,transform .18s}
 .seg button:hover{color:var(--ink)}
 .seg button[aria-checked="true"]{background:var(--panel);color:var(--ink);
   box-shadow:var(--lift-1),var(--hairline);transform:translateY(-1px)}
-.choice{display:grid;gap:4px;text-align:left;width:100%;padding:14px 16px;border-radius:var(--r);
-  border:1px solid var(--edge-2);background:var(--raised,transparent);color:var(--ink);font:inherit;cursor:pointer}
+.choice{display:grid;gap:4px;text-align:left;width:100%;min-height:52px;padding:14px 16px;
+  border-radius:12px;border:1px solid var(--edge-2);background:var(--raised,transparent);
+  color:var(--ink);font:inherit;cursor:pointer}
 .choice:hover,.choice:focus-visible{border-color:var(--signal-ink)}
 .choice b{font-weight:600;font-size:15px}
 .choice span{font-size:13px;color:var(--ink-3)}
@@ -363,14 +366,16 @@ dialog::backdrop{background:rgba(3,5,8,.6);backdrop-filter:blur(6px);-webkit-bac
 .accept input{margin-top:3px}
 .nfts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:16px}
 .nft{border:0;background:none;padding:0;cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
-.nft img{width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:transform .15s}
-.nft:hover img{transform:translateY(-3px)}
+.nft img{width:100%;border-radius:12px;box-shadow:none;transition:transform .15s}
+.nft:hover img{transform:translateY(-2px)}
 .nft span{display:block;font-size:12px;color:var(--ink-3);margin-top:6px}
 .offers{display:grid;gap:10px}
-.offer{display:grid;grid-template-columns:auto 1fr auto;gap:12px 14px;align-items:start;padding:14px 16px;border:1px solid var(--edge-2);
-  border-radius:var(--r);background:var(--panel);cursor:pointer;text-align:left;font:inherit;color:var(--ink);width:100%;
-  transition:border-color .2s,transform .24s cubic-bezier(.2,.7,.2,1),box-shadow .24s}
-.offer:hover{transform:translateY(-2px);box-shadow:0 12px 26px -16px rgba(12,17,22,.45)}
+.offer{display:grid;grid-template-columns:auto 1fr auto;gap:12px 14px;align-items:start;
+  min-height:52px;padding:14px 16px;border:1px solid var(--edge-2);border-radius:12px;
+  background:var(--panel);cursor:pointer;text-align:left;font:inherit;color:var(--ink);width:100%;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter)}
+.offer:hover{transform:translateY(-1px);box-shadow:none}
 .offer[aria-pressed="true"]{border-color:var(--signal-ink);box-shadow:0 0 0 1px var(--signal),0 12px 30px -18px var(--signal)}
 .offer .nm{font-weight:600;font-size:15px}
 .offer .price{font-family:var(--mono,monospace);font-size:17px;text-align:right;white-space:nowrap}
@@ -422,13 +427,14 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
 /* Focusable, so the one way to scroll it is not the pointer. */
 .table-scroll:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
 .ttable{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
-.ttable th{text-align:left;font-weight:500;color:var(--ink-3);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--edge)}
-.ttable td,.ttable th{white-space:nowrap}
-.ttable td{padding:10px;border-bottom:1px solid var(--edge);font-variant-numeric:tabular-nums}
+.ttable th{text-align:left;font-weight:500;color:var(--ink-3);font-size:12px;
+  padding:8px 10px;border-bottom:1px solid var(--edge);white-space:nowrap}
+.ttable td{padding:10px;border-bottom:1px solid var(--edge);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
 .ttable td.num,.ttable th.num{text-align:right}
 .tform{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .tform label{display:grid;gap:6px;font-size:13px;color:var(--ink-3)}
-.tform select,.tform input{height:40px;border-radius:8px;border:1px solid var(--edge-2);background:var(--panel);color:var(--ink);
+.tform select,.tform input{height:40px;border-radius:8px;border:1px solid var(--edge-ctl);background:var(--panel);color:var(--ink);
   font:inherit;font-size:15px;padding:0 10px;min-width:150px}
 /* What needs looking at, at the top of My cover. */
 .due-panel{margin-top:22px;padding:18px 20px;border-left:3px solid var(--accent)}
@@ -457,7 +463,7 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
   .due-when{font-size:14px}
 }
 .whomenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:230px;display:grid;gap:2px;padding:8px;
-  border:1px solid var(--edge);border-radius:12px;background:var(--float);box-shadow:var(--lift-2),var(--hairline)}
+  border:1px solid var(--edge);border-radius:12px;background:var(--float);box-shadow:var(--lift-2)}
 .whomenu[hidden]{display:none}
 .whomenu p{padding:6px 10px 8px;margin:0;border-bottom:1px solid var(--edge);margin-bottom:4px;word-break:break-all}
 .whomenu a,.whomenu button{display:block;text-align:left;padding:9px 10px;border-radius:8px;border:0;background:none;
@@ -471,9 +477,9 @@ pre.code{overflow-x:auto;padding:14px;border-radius:12px;background:var(--sunk);
    The decorative --edge measures 1.10:1; --edge-ctl measures 3.01. Panels,
    table rules and card edges keep --edge, because nothing depends on
    seeing those. This block is last in the sheet so it wins on order. */
-.dlg-input,#country,.field select,.dlg input,.dlg select,.dlg textarea,
+.dlg-input,#country,.field select,.dlg select,.dlg textarea,
 .searchbox input,.rider .ask input,.now-where select,.filerow select,
-.tform select,.tform input,.presets button,.seg,.drop,.opt .tick,
+.presets button,.drop,.opt .tick,
 .dlg-input:hover,#country:hover,.field select:hover,
 input[type=text],input[type=email],input[type=number],input[type=date],
 input[type=search],input[type=password],input[type=tel],select,textarea{
@@ -492,31 +498,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{
 .drop:focus-within{outline:none;
   box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--signal)}
 
-/* ---------------- secondary screens and finishing pass ---------------- */
-.sec{gap:16px;margin-top:clamp(72px,9vw,120px)}
-.sec:first-child{margin-top:0}
-.sec > h2{font-size:clamp(40px,4vw,52px);line-height:1.08}
-.sec > p.lead{font-size:17px;line-height:1.6}
-.panel,.chainfig{box-shadow:none;border-radius:12px}
-.readouts{border-radius:12px;background:transparent;gap:0}
-.readout{padding:22px}
-.readout .v{font-size:clamp(28px,3vw,40px);font-weight:600}
-.cap-row .track{height:16px;border-radius:8px}
-.cap-row.hot .fill{background:var(--signal);background-image:none}
-.total{font-size:clamp(32px,4vw,40px);font-weight:600}
-.ev{min-height:44px}
-.map-wrap{gap:24px}
-.diagram,.chart-box{border-radius:12px}
-.chainfig{padding:clamp(20px,3vw,32px)}
-.cf-b,.cf-source,.cf-note{border-radius:8px}
-.whomenu{box-shadow:var(--lift-2)}
-.choice,.offer{min-height:52px;border-radius:12px}
-.offer{transition:border-color var(--motion-hover) var(--ease-enter),
-  transform var(--motion-hover) var(--ease-enter)}
-.offer:hover{transform:translateY(-1px);box-shadow:none}
-.nft img{box-shadow:none}
-.nft:hover img{transform:translateY(-2px)}
-footer{padding-block:48px 72px;margin-top:clamp(96px,12vw,160px)}
 @media (max-width:760px){
   .sec{margin-top:72px}
   .sec > h2{font-size:36px}

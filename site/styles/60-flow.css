@@ -1,12 +1,13 @@
 /* ---------------- flow ---------------- */
 /* The height of one dot, held whether or not the script has drawn them yet,
    so the question below does not step down 22 pixels as they appear. */
-.steps{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:nowrap;min-height:22px}
-.step-dot{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3);flex:none;white-space:nowrap}
-.step-dot i{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
-  border:1px solid var(--edge-2);font-family:var(--mono);font-size:11px;font-style:normal;flex:none}
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:40px;flex-wrap:nowrap;min-height:28px}
+.step-dot{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-3);flex:none;white-space:nowrap}
+.step-dot i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--edge-2);font-family:var(--mono);font-size:11px;
+  font-style:normal;flex:none;transition:background .3s,border-color .3s,transform .3s}
 .step-dot.done i{background:var(--settled);border-color:var(--settled);color:var(--ground)}
-.step-dot.now i{background:var(--signal);border-color:var(--signal-ink);color:#0B0D11}
+.step-dot.now i{background:var(--signal);border-color:var(--signal-ink);color:#0B0D11;animation:none}
 :root[data-theme="light"] .step-dot.now i{color:#fff}
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .step-dot.now i{color:#fff}}
 :root[data-theme="dark"] .step-dot.now i{color:#0B0D11}
@@ -14,14 +15,13 @@
 .step-line{flex:1;height:2px;background:var(--edge);min-width:8px;border-radius:2px;position:relative;overflow:hidden}
 .step-line::after{content:"";position:absolute;inset:0;background:var(--settled);transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
 .step-line.done::after{transform:scaleX(1)}
-.step-dot i{transition:background .3s,border-color .3s,transform .3s}
 @media (prefers-reduced-motion:no-preference){
   .step-dot.now i{animation:stepPulse 2.4s ease-out infinite}
   @keyframes stepPulse{0%{box-shadow:0 0 0 0 var(--signal-wash)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
 }
 @media (max-width:700px){.step-dot span{display:none}}
 
-.q{max-width:720px}
+.q{max-width:640px}
 /* Two columns from 1180 up: the question on the left, the running summary on
    the right, and both of them under one stepper. Every .q shares the same
    cell because only one is ever shown -- a hidden step is display:none and
@@ -53,7 +53,8 @@
 .alt .nm{font-size:13.5px;overflow-wrap:anywhere}
 .alt .pr{font-family:var(--mono);font-size:13px;color:var(--ink-2);
   font-variant-numeric:tabular-nums;flex:none}
-.runrail{display:none}
+.runrail{display:none;gap:10px;padding:20px;border:1px solid var(--edge);
+  border-radius:12px;background:var(--panel);box-shadow:none}
 @media (min-width:1180px){
   #view-cover > .wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;
     column-gap:36px;align-items:start}
@@ -102,8 +103,6 @@
   #view-cover .pick .banner{max-height:126px}
   #view-cover .pick .banner svg{height:126px}
 }
-.runrail{gap:10px;padding:16px 18px;border:1px solid var(--edge);
-  border-radius:var(--r);background:var(--panel);box-shadow:var(--lift-1),var(--hairline)}
 .runrail dl{display:grid;gap:0;margin:0}
 .runrail .row{display:grid;gap:2px;padding:9px 0;border-top:1px solid var(--edge)}
 .runrail .row:first-child{border-top:0;padding-top:2px}
@@ -114,7 +113,7 @@
    filled rather than as a summary with holes in it. */
 .runrail dd.waiting{font-style:italic;color:var(--ink-3)}
 .runrail-foot{border-top:1px solid var(--edge);padding-top:11px;display:grid;gap:4px}
-.runrail-foot .amt{font-family:var(--display);font-size:25px;font-weight:700;
+.runrail-foot .amt{font-family:var(--display);font-size:32px;font-weight:600;
   letter-spacing:-.025em;font-variant-numeric:tabular-nums}
 .runrail-foot .amt small{font-family:var(--mono);font-size:11.5px;font-weight:400;
   color:var(--ink-3);margin-left:6px;letter-spacing:0}
@@ -168,16 +167,18 @@
   #where-map{grid-area:map;align-self:start;position:sticky;top:calc(var(--header-h) + 35px);
     height:clamp(420px,58vh,600px);margin:0}
 }
-.q h2{font-size:clamp(24px,3.4vw,32px);line-height:1.15}
-.q > p.hint{margin-top:10px;color:var(--ink-2);max-width:var(--measure)}
-.q-body{margin-top:24px;display:grid;gap:12px}
+.q h2{font-size:clamp(28px,3vw,32px);line-height:1.14}
+.q > p.hint{margin-top:12px;color:var(--ink-2);max-width:var(--measure);
+  font-size:16px;line-height:1.55}
+.q-body{margin-top:32px;display:grid;gap:14px}
 
 .opt.off{opacity:.55;cursor:not-allowed}
 .opt{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;width:100%;
-  padding:15px 17px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);
-  cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
-.opt{transition:border-color .18s,transform .2s cubic-bezier(.2,.7,.2,1),box-shadow .2s}
-.opt:hover{border-color:var(--edge-2);transform:translateY(-1px);box-shadow:0 8px 20px -14px rgba(12,17,22,.4)}
+  min-height:64px;padding:16px;border-radius:12px;border:1px solid var(--edge);
+  background:var(--panel);cursor:pointer;text-align:left;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter)}
+.opt:hover{border-color:var(--ink-3);transform:translateY(-1px);box-shadow:none}
 .opt[aria-pressed="true"]{border-color:var(--signal-ink);background:var(--signal-wash)}
 .opt .t{font-weight:600;font-size:15.5px}
 .opt .s{font-size:13px;color:var(--ink-2);margin-top:2px;display:block}
@@ -191,8 +192,9 @@
 .opt .lead{width:40px;height:40px;border-radius:8px;background:var(--sunk);display:grid;place-items:center;
   font-family:var(--mono);font-size:12px;color:var(--ink-2);flex:none}
 
-.amount{padding:22px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);display:grid;gap:16px}
-.amount .big{font-family:var(--display);font-weight:700;font-size:clamp(34px,7vw,52px);line-height:1;
+.amount{padding:24px;border-radius:16px;border:1px solid var(--edge);
+  background:var(--panel);display:grid;gap:16px;box-shadow:none}
+.amount .big{font-family:var(--display);font-weight:600;font-size:clamp(32px,5vw,40px);line-height:1;
   letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .amount .big small{font-size:.35em;color:var(--ink-3);margin-left:8px;letter-spacing:0;font-weight:600}
 input[type=range]{width:100%;background:transparent;height:28px;-webkit-appearance:none;appearance:none;cursor:pointer}
@@ -241,26 +243,33 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
   color:var(--ink-2);font-size:13px;cursor:pointer}
 .presets button[aria-pressed="true"]{border-color:var(--signal-ink);color:var(--signal-ink);background:var(--signal-wash)}
 
-.plain{padding:22px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);
-  font-size:clamp(16px,2.2vw,19px);line-height:1.55}
-.plain b{color:var(--signal-ink);font-weight:600}
+.plain{position:relative;padding:20px 24px;border:0;border-left:3px solid var(--signal);
+  border-radius:0;background:var(--sunk);font-size:18px;line-height:1.5}
+.plain b{color:var(--ink);font-weight:600}
 .plain em{font-style:normal;color:var(--settled);font-weight:600}
-.pay-rows{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:var(--r);overflow:hidden}
-.pay-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:13px 16px;background:var(--panel);font-size:14.5px}
-.pay-row .amt{font-family:var(--mono);color:var(--settled);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pay-rows{display:flex;flex-direction:column-reverse;align-items:flex-end;gap:0;
+  background:transparent;border:0;border-right:2px solid var(--signal);
+  border-radius:0;overflow:visible;padding-block:4px}
+.pay-row{display:grid;grid-template-columns:1fr auto;gap:12px;width:100%;
+  min-height:64px;padding:14px 18px;border-bottom:1px solid var(--edge);
+  border-left:4px solid var(--signal);background:var(--panel);
+  font-size:14.5px;align-items:center}
+.pay-row .amt{font-family:var(--display);font-size:20px;font-weight:600;
+  color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pay-row.none .amt{color:var(--ink-3)}
 /* How often that level happens here, under the words rather than beside them:
    it is the reason for the step, not a second column of the offer. */
-.pay-row .often{display:block;margin-top:2px;color:var(--ink-3)}
+.pay-row .often{display:block;margin-top:2px;color:var(--ink-3);font-size:13px}
 
-.pricebar{position:sticky;bottom:0;z-index:50;margin-top:24px;box-shadow:0 -14px 34px -20px rgba(12,17,22,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  background:color-mix(in srgb,var(--panel) 96%,transparent);backdrop-filter:blur(14px);
-  border:1px solid var(--edge);border-radius:var(--r);box-shadow:var(--shadow);
+.pricebar{position:sticky;bottom:0;z-index:50;margin-top:24px;
+  box-shadow:0 -8px 24px -22px rgba(12,17,22,.5);
+  backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--panel);
+  border:1px solid var(--edge);border-radius:12px;
   padding:14px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 @media (max-width:760px){.pricebar{bottom:70px}
   /* Nothing to say, so nothing on the screen. See updatePriceBar. */
   .pricebar.empty{display:none}}
-.pricebar .amt{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.6vw,28px);
+.pricebar .amt{font-family:var(--display);font-weight:600;font-size:32px;
   line-height:1;font-variant-numeric:tabular-nums}
 .pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:600}
 /* What is paid, beside what is received. In parametric cover the ratio
@@ -272,14 +281,15 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
 .pricebar .cap{font-size:12.5px;color:var(--ink-3);margin-top:3px}
 .pricebar .grow{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
 
-details.more{margin-top:16px;border:1px solid var(--edge);border-radius:var(--r);background:var(--panel)}
+details.more{margin-top:16px;border:1px solid var(--edge);border-radius:var(--r);
+  background:var(--panel);box-shadow:none}
 details.more summary{padding:14px 18px;cursor:pointer;font-size:14px;color:var(--ink-2);list-style:none;max-width:var(--measure);
-  display:flex;align-items:center;gap:9px}
+  display:flex;align-items:center;gap:9px;min-height:52px}
 details.more summary::-webkit-details-marker{display:none}
 details.more summary::before{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;
   border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .2s;flex:none}
 details.more[open] summary::before{transform:rotate(45deg)}
-details.more .inner{padding:0 18px 18px;display:grid;gap:16px}
+details.more .inner{padding:4px 20px 20px;display:grid;gap:16px}
 .kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
 /* What the cover does not do, set apart from the rows above it: those are
    what the buyer chose, this is what they are taking on. */
@@ -467,49 +477,13 @@ tr:last-child td{border-bottom:0}
 .policy-card .body{padding:16px;display:grid;gap:14px}
 .right{margin-left:auto}
 
-/* ---------------- purchase flow ---------------- */
-.q{max-width:640px}
-.q h2{font-size:clamp(28px,3vw,32px);line-height:1.14}
-.q > p.hint{font-size:16px;line-height:1.55;margin-top:12px}
-.q-body{margin-top:32px;gap:14px}
-.steps{margin-bottom:40px;min-height:28px}
-.step-dot{font-size:13px}
-.step-dot i{width:28px;height:28px}
-.step-dot.now i{animation:none}
-.runrail{border-radius:12px;box-shadow:none;padding:20px}
-.runrail-foot .amt{font-size:32px;font-weight:600}
-.opt{min-height:64px;border-radius:12px;padding:16px;
-  transition:border-color var(--motion-hover) var(--ease-enter),
-  transform var(--motion-hover) var(--ease-enter)}
-.opt:hover{transform:translateY(-1px);box-shadow:none;border-color:var(--ink-3)}
-.amount{border-radius:16px;padding:24px;box-shadow:none}
-.amount .big{font-size:clamp(32px,5vw,40px);font-weight:600}
-.plain{position:relative;border:0;border-left:3px solid var(--signal);border-radius:0;
-  padding:20px 24px;background:var(--sunk);font-size:18px;line-height:1.5}
-.plain b{color:var(--ink);font-weight:600}
-
 /* The payout ladder reads from maximum at the top to no payout at the foot.
    Each rung carries its threshold and amount, so it needs no legend. */
-.pay-rows{display:flex;flex-direction:column-reverse;align-items:flex-end;gap:0;
-  background:transparent;border:0;border-right:2px solid var(--signal);
-  border-radius:0;overflow:visible;padding-block:4px}
-.pay-row{width:100%;min-height:64px;border-bottom:1px solid var(--edge);
-  border-left:4px solid var(--signal);background:var(--panel);
-  padding:14px 18px;align-items:center}
 .pay-row:nth-last-child(2){width:88%}
 .pay-row:nth-last-child(3){width:76%}
 .pay-row:nth-last-child(4),.pay-row:nth-last-child(5){width:64%}
 .pay-row:last-child{border-top:1px solid var(--edge)}
 .pay-row.none{border-left-color:var(--edge-2);background:var(--sunk)}
-.pay-row .amt{font-family:var(--display);font-size:20px;font-weight:600;
-  color:var(--ink);font-variant-numeric:tabular-nums}
-.pay-row .often{font-size:13px}
-.pricebar{border-radius:12px;box-shadow:0 -8px 24px -22px rgba(12,17,22,.5);
-  backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--panel)}
-.pricebar .amt{font-size:32px;font-weight:600}
-details.more{box-shadow:none}
-details.more summary{min-height:52px}
-details.more .inner{padding:4px 20px 20px}
 @media (max-width:760px){
   .steps{margin-bottom:32px}
   .q-body{margin-top:24px}
