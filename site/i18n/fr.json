@@ -973,7 +973,6 @@
     "The floor area must be between {min} and {max} m².": "La surface au sol doit être comprise entre {min} et {max} m².",
     "The highest reading so far is {value}. It pays when the reading reaches {trigger}.": "La mesure la plus élevée à ce jour est de {value}. La police paie lorsque la mesure atteint {trigger}.",
     "The index reached {value} at block {since}. It pays at block {final}, once the window for corrections by the sources has passed; the final figure is the one that pays.": "L’indice a atteint {value} au bloc {since}. Elle paie au bloc {final}, une fois passé le délai de correction des sources ; c’est le chiffre définitif qui détermine le versement.",
-    "The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Le palier à l’intensité VI est votre seuil de déclenchement. Chaque palier supérieur paie davantage : une mesure juste en dessous d’un niveau paie donc quand même le niveau inférieur.",
     "The term ended without a reading reaching the trigger of {trigger}.": "La durée s’est achevée sans qu’aucune mesure n’atteigne le seuil de déclenchement de {trigger}.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "La durée s’est achevée. La mesure la plus élevée était de {value} ; il fallait {trigger} pour que cette police paie.",
     "There is no rebuild cost schedule for this country yet.": "Il n’existe pas encore de barème des coûts de reconstruction pour ce pays.",
@@ -2464,7 +2463,8 @@
     "Clause could not be reached": "Clause n'a pas pu être joint",
     "Clause could not be reached.": "Clause n'a pas pu être joint.",
     "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Rien n'a été débité et rien n'a été signé. La connexion a peut-être été coupée, ou le protocole est occupé.",
-    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Cette page ne peut pas joindre le protocole, il n'y a donc rien de réel à afficher ici. Elle ne vous montrera pas un chiffre inventé."
+    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Cette page ne peut pas joindre le protocole, il n'y a donc rien de réel à afficher ici. Elle ne vous montrera pas un chiffre inventé.",
+    "The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Le palier d'intensité {level} est votre déclencheur. Chaque palier supérieur paie davantage, de sorte qu'une mesure juste en dessous d'un niveau paie encore le niveau précédent."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

@@ -845,7 +845,23 @@ function drawCurve(){
     x0=4.5;x1=7.5;xlabel=t("EARTHQUAKE MAGNITUDE");ticks=[5,5.5,6,6.5,7,7.5];
     if(shakingIndex()){ x0=5;x1=9;xlabel=t("SHAKING AT THE ADDRESS (MMI)");ticks=[5,6,7,8,9]; }
     note=t("The step at 5.5 is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.");
-    if(shakingIndex()) note=t("The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.");
+    /* The policy's own first step, not the numeral six.
+
+       A roman numeral is a whole number and these steps are not: an older
+       building pays at less shaking, so the first step sits at 6.9 for this
+       flat and at 6.25 in Istanbul and 6.62 in New York. This sentence named
+       VI whatever the policy said, so it sat under a ladder whose first
+       paying row read "Intensity 6.9 or more" and told the buyer their
+       trigger was a different, lower level. rungWords was written to avoid
+       exactly this and payRows was fixed for it; this was the last place
+       still carrying it.
+
+       It says intensity rather than MMI because the ladder immediately above
+       it says intensity, and one screen should call a thing one name. The
+       unit is named where naming it is the point: in the sentence about what
+       the cover does not pay for, and in the contract. */
+    if(shakingIndex()) note=t("The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.",
+      {level:f1.format(structure().pts[0][0])});
   } else if(flow.peril==="car"){
     var cps=structure().pts;
     x0=Math.max(0,Math.floor(cps[0][0]*0.6/10)*10); x1=Math.ceil(cps[2][0]*1.2/10)*10;

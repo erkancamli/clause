@@ -973,7 +973,6 @@
     "The floor area must be between {min} and {max} m².": "Brüt alan {min} ile {max} m² arasında olmalıdır.",
     "The highest reading so far is {value}. It pays when the reading reaches {trigger}.": "Şimdiye kadarki en yüksek ölçüm {value}. Ölçüm {trigger} değerine ulaştığında öder.",
     "The index reached {value} at block {since}. It pays at block {final}, once the window for corrections by the sources has passed; the final figure is the one that pays.": "Endeks {since} numaralı blokta {value} değerine ulaştı. Kaynakların düzeltme yapabileceği süre geçtikten sonra, {final} numaralı blokta öder; ödemeyi kesin rakam belirler.",
-    "The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "VI şiddetindeki basamak, tetikleyicinizdir. Her üst basamak daha fazla öder; bu yüzden bir seviyenin hemen altında kalan bir ölçüm yine de bir alt seviyenin tutarını öder.",
     "The term ended without a reading reaching the trigger of {trigger}.": "Süre, hiçbir ölçüm {trigger} tetikleyicisine ulaşmadan sona erdi.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "Süre sona erdi. En yüksek ölçüm {value} oldu; bu poliçenin ödeme yapması için {trigger} gerekiyordu.",
     "There is no rebuild cost schedule for this country yet.": "Bu ülke için henüz bir yeniden inşa maliyeti tablosu yok.",
@@ -2472,7 +2471,8 @@
     "Clause could not be reached": "Clause'a ulaşılamadı",
     "Clause could not be reached.": "Clause'a ulaşılamadı.",
     "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Hiçbir tahsilat yapılmadı ve hiçbir şey imzalanmadı. Bağlantı kopmuş ya da protokol yoğun olabilir.",
-    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Bu sayfa protokole ulaşamıyor, bu yüzden burada gösterilecek gerçek bir veri yok. Uydurduğu bir rakamı size göstermez."
+    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Bu sayfa protokole ulaşamıyor, bu yüzden burada gösterilecek gerçek bir veri yok. Uydurduğu bir rakamı size göstermez.",
+    "The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Tetikleyiciniz {level} şiddetindeki basamak. Her üst basamak daha fazla öder, bu yüzden bir seviyenin az altında kalan bir ölçüm yine de bir alttaki seviyeyi öder."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

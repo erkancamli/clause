@@ -973,7 +973,6 @@
     "The floor area must be between {min} and {max} m².": "Die Grundfläche muss zwischen {min} und {max} m² liegen.",
     "The highest reading so far is {value}. It pays when the reading reaches {trigger}.": "Der bisher höchste Messwert ist {value}. Die Police zahlt, wenn der Messwert {trigger} erreicht.",
     "The index reached {value} at block {since}. It pays at block {final}, once the window for corrections by the sources has passed; the final figure is the one that pays.": "Der Index erreichte {value} in Block {since}. Die Auszahlung erfolgt in Block {final}, sobald das Korrekturfenster der Quellen verstrichen ist; ausgezahlt wird nach dem endgültigen Wert.",
-    "The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Die Stufe bei Intensität VI ist Ihr Auslöser. Jede höhere Stufe zahlt mehr, sodass ein Messwert knapp unter einer Stufe trotzdem die Stufe darunter auszahlt.",
     "The term ended without a reading reaching the trigger of {trigger}.": "Die Laufzeit endete, ohne dass ein Messwert den Auslöser von {trigger} erreicht hat.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "Die Laufzeit ist beendet. Der höchste Messwert war {value}; diese Police hätte {trigger} gebraucht, um zu zahlen.",
     "There is no rebuild cost schedule for this country yet.": "Für dieses Land gibt es noch keine Tabelle der Wiederaufbaukosten.",
@@ -2464,7 +2463,8 @@
     "Clause could not be reached": "Clause war nicht erreichbar",
     "Clause could not be reached.": "Clause war nicht erreichbar.",
     "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Es wurde nichts abgebucht und nichts unterzeichnet. Die Verbindung ist möglicherweise abgebrochen, oder das Protokoll ist ausgelastet.",
-    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Diese Seite erreicht das Protokoll nicht, daher gibt es hier nichts Echtes zu zeigen. Eine erfundene Zahl wird Ihnen nicht angezeigt."
+    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Diese Seite erreicht das Protokoll nicht, daher gibt es hier nichts Echtes zu zeigen. Eine erfundene Zahl wird Ihnen nicht angezeigt.",
+    "The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Die Stufe bei Intensität {level} ist Ihr Auslöser. Jede höhere Stufe zahlt mehr, sodass ein Messwert knapp unterhalb einer Stufe noch die darunterliegende Stufe zahlt."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

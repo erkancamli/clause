@@ -973,7 +973,6 @@
     "The floor area must be between {min} and {max} m².": "Площадь помещения должна быть от {min} до {max} м².",
     "The highest reading so far is {value}. It pays when the reading reaches {trigger}.": "Наибольшее показание на данный момент: {value}. Выплата производится, когда показание достигает {trigger}.",
     "The index reached {value} at block {since}. It pays at block {final}, once the window for corrections by the sources has passed; the final figure is the one that pays.": "Индекс достиг {value} в блоке {since}. Выплата произойдёт в блоке {final}, когда истечёт срок, в течение которого источники могут внести исправления; выплата производится по окончательной цифре.",
-    "The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Ступень при интенсивности VI — ваш порог срабатывания. Каждая следующая ступень выплачивает больше, поэтому показание, немного не дотянувшее до одного уровня, всё равно даёт выплату по уровню ниже.",
     "The term ended without a reading reaching the trigger of {trigger}.": "Срок закончился, а ни одно показание не достигло порога срабатывания {trigger}.",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "Срок закончился. Наибольшее показание: {value}; для выплаты по этому полису требовалось {trigger}.",
     "There is no rebuild cost schedule for this country yet.": "Для этой страны пока нет таблицы стоимости восстановления.",
@@ -2464,7 +2463,8 @@
     "Clause could not be reached": "Не удалось связаться с Clause",
     "Clause could not be reached.": "Не удалось связаться с Clause.",
     "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "Ничего не списано и ничего не подписано. Возможно, связь прервалась или протокол занят.",
-    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Эта страница не может связаться с протоколом, поэтому здесь нечего показать. Выдуманную цифру она вам не покажет."
+    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "Эта страница не может связаться с протоколом, поэтому здесь нечего показать. Выдуманную цифру она вам не покажет.",
+    "The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "Порогом служит ступень интенсивности {level}. Каждая следующая ступень платит больше, поэтому показание чуть ниже уровня всё равно оплачивается по предыдущему уровню."
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

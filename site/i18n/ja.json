@@ -973,7 +973,6 @@
     "The floor area must be between {min} and {max} m².": "床面積は{min}〜{max} m²の範囲でなければなりません。",
     "The highest reading so far is {value}. It pays when the reading reaches {trigger}.": "これまでの最大の測定値は{value}です。測定値が{trigger}に達すると支払われます。",
     "The index reached {value} at block {since}. It pays at block {final}, once the window for corrections by the sources has passed; the final figure is the one that pays.": "指数はブロック{since}で{value}に達しました。データソースによる修正期間が過ぎた後、ブロック{final}で支払われます。支払いの根拠となるのは最終的な数値です。",
-    "The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "メルカリ震度VIの段階がお客様のトリガーです。段階が上がるごとに支払額が増えるため、ある水準にわずかに届かない測定値でも、1つ下の水準の額は支払われます。",
     "The term ended without a reading reaching the trigger of {trigger}.": "測定値がトリガーの{trigger}に達しないまま期間が終了しました。",
     "The term ended. The highest reading was {value}; this policy needed {trigger} to pay.": "期間が終了しました。最大の測定値は{value}でした。この保険契約の支払いには{trigger}が必要でした。",
     "There is no rebuild cost schedule for this country yet.": "この国の再建費用表はまだありません。",
@@ -2464,7 +2463,8 @@
     "Clause could not be reached": "Clause に接続できませんでした",
     "Clause could not be reached.": "Clause に接続できませんでした。",
     "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "請求も署名も行われていません。接続が切れたか、プロトコルが混雑している可能性があります。",
-    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "このページはプロトコルに接続できないため、ここに表示できる実際の数値はありません。作り上げた数値を表示することはありません。"
+    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "このページはプロトコルに接続できないため、ここに表示できる実際の数値はありません。作り上げた数値を表示することはありません。",
+    "The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.": "あなたのトリガーは震度 {level} の段です。段が一つ上がるごとに支払額は増え、ある水準をわずかに下回る観測値でも、その一つ下の水準の金額が支払われます。"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",
