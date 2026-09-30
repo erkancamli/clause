@@ -52,7 +52,7 @@ a.chip:hover{border-color:var(--signal-ink);color:var(--ink)}
 .band-empty{padding:12px 14px;font-size:13px;color:var(--ink-3)}
 @media (max-width:640px){.band{grid-template-columns:1fr}.band-label{border-right:0;border-bottom:1px solid var(--edge);padding:8px 12px}}
 @media (prefers-reduced-motion:reduce){.band-track{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
-  .band-run{animation:none}.band-run .dup{display:none}}
+  .band-run{animation:none}.band-run .dup{display:none!important}}
 
 /* The digest, above the hero. The three bands are the detail and they sit at
    the foot of the home page, where a reader who never scrolls -- most of them
