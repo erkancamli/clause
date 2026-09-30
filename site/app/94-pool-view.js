@@ -1,14 +1,55 @@
 /* ================= pool view ================= */
-var height=412000,armed=1284;
-function tick(){
-  height+=8+Math.floor(Math.random()*5);
-  if(Math.random()<.3)armed+=Math.random()<.55?1:-1;
-  $("r-height").textContent=f0.format(height);
-  $("r-armed").textContent=f0.format(armed);
-  $("map-block").textContent=t("block {n}",{n:f0.format(height)});
-}
+/* The three figures across the top of this screen, under the line "Someone
+   has to be able to pay".
+
+   Two of them were a random walk. The block started at 412,000 and gained
+   eight to twelve a second; the count of armed policies drifted up and down
+   by one. Neither had ever been asked of the protocol, and nothing on this
+   site reads /api/chain at all, so the numbers were not stale, they were
+   invented: the real height is 15,307,897 and the real count of armed
+   policies is 10. The third, capital in the pool, was the string 3,500,000
+   written into the markup, replaced by the tranche panel when the protocol
+   answered and left standing when it did not, against a real balance of
+   274,745,994.
+
+   This site says, on seven other screens, that it will not show you a record
+   it made up. This screen was showing three, with real labels, animated, on
+   the one page whose whole argument is that somebody can pay.
+
+   They are read from the protocol now, and when it cannot be reached they say
+   so in the same sentence the rest of the site uses rather than falling back
+   to a number. Every fifteen seconds rather than every second: a block height
+   that moves once a second is an animation, and the protocol serves this from
+   a cache anyway. */
 var TICKER=null;
-function startTick(){ if(!TICKER){ tick(); TICKER=setInterval(tick,1000); } }
+function poolReadoutsSay(what){
+  ["r-height","r-armed","r-capital"].forEach(function(id){
+    var e=$(id); if(e)e.textContent="\u2013";
+  });
+  var e=$("map-block"); if(e)e.textContent="";
+  var box=$("pool-unreachable");
+  if(box){ box.hidden=!what; box.textContent=what||""; }
+}
+function readThePool(){
+  if(!link.live){
+    poolReadoutsSay(t("This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up."));
+    return;
+  }
+  Promise.all([api("/api/chain",{timeout:12000}),
+               api("/api/pool",{timeout:12000})]).then(function(both){
+    var stats=(both[0]||{}).stats||{}, pool=both[1]||{};
+    var box=$("pool-unreachable"); if(box)box.hidden=true;
+    if(stats.height!=null){
+      $("r-height").textContent=f0.format(stats.height);
+      $("map-block").textContent=t("block {n}",{n:f0.format(stats.height)});
+    }
+    if(stats.armed!=null)$("r-armed").textContent=f0.format(stats.armed);
+    if(pool.balance!=null)$("r-capital").textContent=f0.format(pool.balance);
+  },function(){
+    poolReadoutsSay(t("This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up."));
+  });
+}
+function startTick(){ if(!TICKER){ readThePool(); TICKER=setInterval(readThePool,15000); } }
 function stopTick(){ if(TICKER){ clearInterval(TICKER); TICKER=null; } }
 function fillCapBars(){
   requestAnimationFrame(function(){

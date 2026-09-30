@@ -2463,7 +2463,8 @@
     "See the same thing as a curve": "同じ内容を曲線で見る",
     "Clause could not be reached": "Clause に接続できませんでした",
     "Clause could not be reached.": "Clause に接続できませんでした。",
-    "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "請求も署名も行われていません。接続が切れたか、プロトコルが混雑している可能性があります。"
+    "Nothing has been charged and nothing has been signed. The connection may have dropped, or the protocol may be busy.": "請求も署名も行われていません。接続が切れたか、プロトコルが混雑している可能性があります。",
+    "This page cannot reach the protocol, so there is nothing real to show here. It will not show you a figure it made up.": "このページはプロトコルに接続できないため、ここに表示できる実際の数値はありません。作り上げた数値を表示することはありません。"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",
