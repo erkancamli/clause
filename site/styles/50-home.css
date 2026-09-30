@@ -1,8 +1,8 @@
 /* ---------------- home ---------------- */
-.home-hero{position:relative;padding-block:clamp(16px,2.4vw,30px) clamp(12px,1.8vw,20px)}
+.home-hero{position:relative;padding-block:clamp(52px,7vw,96px) clamp(96px,11vw,144px)}
 .hero-fx-clip{position:absolute;inset:0 0 auto 0;height:min(100svh,900px);
   overflow:hidden;pointer-events:none;z-index:0}
-.hero-fx-clip::before{content:"";position:absolute;inset:-140px -12% 0;pointer-events:none;
+.hero-fx-clip::before{content:"";display:none;position:absolute;inset:-140px -12% 0;pointer-events:none;
   background:radial-gradient(52% 55% at 22% 4%,var(--signal-wash),transparent 70%),
              radial-gradient(40% 50% at 82% 22%,var(--settled-wash),transparent 72%),
              radial-gradient(34% 40% at 58% 78%,var(--hold-wash),transparent 74%)}
@@ -10,7 +10,8 @@
   .hero-fx-clip::before{animation:heroDrift 18s ease-in-out infinite alternate}
   @keyframes heroDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-2%,1.5%,0) scale(1.06)}}
 }
-.home-hero .hero-text h1{font-size:clamp(34px,4.9vw,60px);letter-spacing:-.035em;line-height:1.02}
+.home-hero .hero-text h1{font-size:clamp(64px,6vw,80px);letter-spacing:-.045em;
+  line-height:.98;max-width:11ch}
 .stage .phone{filter:none}
 /* The hero arrives in order: the headline, the sentence, the buttons, the marks. */
 @media (prefers-reduced-motion:no-preference){
@@ -27,7 +28,7 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   @keyframes riseUp{from{transform:translateY(14px)}to{transform:none}}
 }
-.hero-fx-clip::after{content:"";position:absolute;inset:0;pointer-events:none;
+.hero-fx-clip::after{content:"";display:none;position:absolute;inset:0;pointer-events:none;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:54px 54px;
   -webkit-mask-image:radial-gradient(760px 380px at 28% 12%,#000,transparent 74%);
@@ -40,7 +41,7 @@
 .home-hero>.wrap{position:relative;z-index:1}
 .hero-fx-clip .readings{display:none;position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .hero-grid{display:grid;grid-template-columns:1fr;align-items:start;gap:clamp(20px,4vw,48px)}
-.hero-text{display:grid;gap:12px;justify-items:start;text-align:left}
+.hero-text{display:grid;gap:20px;justify-items:start;text-align:left}
 .hero-text h1{max-width:13ch}
 .hero-text .hero-cta,.hero-text .trust{justify-content:flex-start}
 @media (max-width:860px){
@@ -124,7 +125,7 @@
    stop existing when it pays. The first step is drawn before any script
    runs, so the page at rest is the hero it always was. */
 .hero-flow{min-width:0}
-.beats{display:grid;margin-top:clamp(18px,3vw,34px)}
+.beats{display:grid;margin-top:clamp(88px,10vw,136px)}
 /* Five short blocks in one column left the other half of a wide screen
    watching them. They are five, they are short, and they are steps -- which is
    a row of columns, not a stack. The rule down the side of the one being read
@@ -150,18 +151,20 @@
   .beat > p{grid-area:text;max-width:52ch;margin:0}
   .beat .said{grid-area:said;max-width:none;align-self:start;margin:0}
 }
-.beat{display:grid;gap:10px;align-content:center;padding-block:clamp(22px,5vh,46px)}
+.beat{display:grid;gap:10px;align-content:center;padding-block:clamp(38px,5vw,64px);
+  position:relative;padding-left:14px;transition:border-color .4s}
 .beat + .beat{border-top:1px solid var(--edge)}
-.beat h2{font-size:clamp(18px,2.2vw,24px);font-family:var(--display);font-weight:600;
+.beat h2{font-size:clamp(24px,2.4vw,32px);font-family:var(--display);font-weight:600;
   letter-spacing:-.024em;line-height:1.15;text-wrap:balance}
-.beat p{color:var(--ink-2);max-width:52ch;font-size:clamp(14.5px,1.6vw,16px)}
+.beat p{color:var(--ink-2);max-width:52ch;font-size:16px;line-height:1.55}
 .beat .num{font-family:var(--mono);font-size:11px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-3)}
 .beat .num b{color:var(--ink-3);font-weight:500}
 .beat[data-live="on"] .num b{color:var(--signal-ink)}
-.beat .said{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
-  background:var(--sunk);border:1px solid var(--edge);border-radius:var(--r-sm);
-  padding:9px 12px;line-height:1.75;overflow-wrap:anywhere;max-width:52ch}
+.beat .said{font-family:var(--mono);font-size:13px;color:var(--ink-3);
+  background:transparent;border:1px solid var(--edge);border-left:2px solid var(--signal);
+  border-radius:0;padding:7px 0 7px 14px;line-height:1.75;
+  overflow-wrap:anywhere;max-width:52ch}
 /* The step being read is marked, and the others are left alone.
    It used to be the other way round: the step being read was in full ink and
    the rest were faded to half. Measured, that fade put every word in them at
@@ -171,7 +174,6 @@
    than taken from four: a rule down its side and its number in the signal
    colour, with the mark and the colour saying it together, since colour on
    its own says nothing to somebody who cannot see that colour. */
-.beat{position:relative;padding-left:14px;transition:border-color .4s}
 .beat::before{content:"";position:absolute;left:0;top:.2em;bottom:.2em;width:2px;
   border-radius:2px;background:var(--edge);transition:background .4s}
 .beat[data-live="on"]::before{background:var(--signal)}
@@ -200,8 +202,8 @@
       top:calc(env(safe-area-inset-top,0px) + var(--header-h) + 18px)}
   }
 }
-.stage{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
-  box-shadow:var(--lift-1),var(--hairline);overflow:hidden}
+.stage{background:var(--panel);border:1px solid var(--edge);border-radius:16px;
+  box-shadow:none;overflow:hidden}
 .stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);
   gap:clamp(12px,2vw,26px);padding:clamp(12px,1.6vw,20px);align-items:center}
 .stage-body > svg{display:block;width:100%;height:auto;min-width:0}
@@ -234,7 +236,7 @@
    over the bezel the moment it was not English. */
 .phone{border:1px solid var(--edge);border-radius:16px;background:var(--panel);
   padding:10px 10px 8px;display:grid;gap:8px;align-content:start;min-width:0;
-  box-shadow:var(--lift-1)}
+  box-shadow:none}
 .phone-bar{width:34px;height:4px;border-radius:2px;background:var(--sunk);margin:0 auto}
 .phone-app{font-size:9px;letter-spacing:.16em}
 .ph-card{border-radius:8px;padding:9px 10px;display:grid;gap:5px;min-width:0}
@@ -318,14 +320,15 @@
 }
 h1{font-size:clamp(28px,4vw,46px);line-height:1.05;font-weight:700;max-width:16ch}
 h1 span{color:var(--signal-ink)}
-.home-hero p{max-width:52ch;color:var(--ink-2);font-size:clamp(15px,1.7vw,17px)}
-.hero-cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.trust{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.home-hero p{max-width:var(--measure);color:var(--ink-2);font-size:17px;line-height:1.55}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.trust{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 /* Four claims in a column that fits three: laid out three and one, it
    reads as an accident. Two and two reads as a decision. */
 @media (min-width:861px){.hero-text .trust{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:start}}
-.trust>span{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
-  border:1px solid var(--edge);background:var(--panel);font-size:12.5px;color:var(--ink-2)}
+.trust>span{display:inline-flex;align-items:center;gap:7px;min-height:36px;
+  padding:7px 11px;border-radius:8px;border:1px solid var(--edge);
+  background:transparent;font-size:12.5px;color:var(--ink-2)}
 .trust svg{width:12px;height:12px;color:var(--settled);flex:none}
 .rialo-mark{display:inline-block;width:1em;height:1em;vertical-align:-.15em;margin-right:.35em;background:url(../vendor/rialo-mark.png) center/contain no-repeat;filter:invert(var(--mark-invert));flex:none}
 .trust .rialo-mark{width:13px;height:13px;margin-right:0}
@@ -340,15 +343,18 @@ h1 span{color:var(--signal-ink)}
 @media (max-width:480px){.picks{grid-template-columns:1fr}}
 @media (min-width:641px) and (max-width:900px){.picks{gap:10px}.pick h3{font-size:16px}.pick p{font-size:13px}}
 .pick{display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;
-  padding:16px 18px;border-radius:var(--r);border:1px solid var(--edge);background:var(--panel);
-  cursor:pointer;transition:border-color .2s,transform .28s cubic-bezier(.2,.7,.2,1),background .2s,box-shadow .28s;width:100%;position:relative}
-.pick::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .28s;
+  padding:16px 18px;border-radius:12px;border:1px solid var(--edge);background:var(--panel);
+  box-shadow:none;cursor:pointer;width:100%;position:relative;
+  transition:border-color var(--motion-hover) var(--ease-enter),
+  transform var(--motion-hover) var(--ease-enter),
+  background var(--motion-hover) var(--ease-enter)}
+.pick::after{content:"";display:none;position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .28s;
   background:radial-gradient(240px 120px at 50% 0%,var(--signal-wash),transparent 70%)}
-.pick:hover{border-color:color-mix(in srgb,var(--signal) 55%,var(--edge));transform:translateY(-5px);box-shadow:var(--shadow)}
+.pick:hover{border-color:var(--edge-2);transform:translateY(-2px);box-shadow:none}
 .pick:hover::after{opacity:1}
 .pick .banner svg{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
-.pick:hover .banner svg{transform:scale(1.035)}
-.pick[aria-pressed="true"]{border-color:var(--signal-ink);background:linear-gradient(180deg,var(--signal-wash),transparent 60%)}
+.pick:hover .banner svg{transform:none}
+.pick[aria-pressed="true"]{border-color:var(--signal-ink);background:var(--signal-wash)}
 .pick .ico{width:30px;height:30px;color:var(--signal-ink)}
 .pick h3{font-size:18px}
 .pick p{font-size:13.5px;color:var(--ink-2);line-height:1.4}
@@ -374,32 +380,6 @@ h1 span{color:var(--signal-ink)}
   .pick .banner svg{height:132px;width:100%}}
 .pick .from{margin-top:auto;padding-top:6px;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
-/* ---------------- home, composed as a financial product ---------------- */
-.home-hero{padding-block:clamp(52px,7vw,96px) clamp(96px,11vw,144px)}
-.hero-fx-clip::before,.hero-fx-clip::after{display:none}
-.home-hero .hero-text h1{font-size:clamp(64px,6vw,80px);line-height:.98;
-  letter-spacing:-.045em;max-width:11ch}
-.home-hero p{font-size:17px;line-height:1.55;max-width:var(--measure)}
-.hero-text{gap:20px}
-.hero-cta{gap:12px}
-.trust{gap:10px}
-.trust>span{min-height:36px;padding:7px 11px;border-radius:8px;background:transparent}
-.beats{margin-top:clamp(88px,10vw,136px)}
-.beat{padding-block:clamp(38px,5vw,64px)}
-.beat h2{font-size:clamp(24px,2.4vw,32px)}
-.beat p{font-size:16px;line-height:1.55}
-.beat .said{font-size:13px;background:transparent;border-left:2px solid var(--signal);
-  border-radius:0;padding:7px 0 7px 14px}
-.stage{border-radius:16px;box-shadow:none}
-.phone{box-shadow:none}
-.pick{border-radius:12px;box-shadow:none;
-  transition:border-color var(--motion-hover) var(--ease-enter),
-  transform var(--motion-hover) var(--ease-enter),
-  background var(--motion-hover) var(--ease-enter)}
-.pick::after{display:none}
-.pick:hover{transform:translateY(-2px);box-shadow:none;border-color:var(--edge-2)}
-.pick:hover .banner svg{transform:none}
-.pick[aria-pressed="true"]{background:var(--signal-wash)}
 .home-hero .choose .picks{gap:0;border-block:1px solid var(--edge)}
 .home-hero .choose .pick{flex-direction:row;align-items:center;gap:14px;border:0;
   border-bottom:1px solid var(--edge);border-radius:0;background:transparent;
