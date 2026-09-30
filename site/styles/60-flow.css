@@ -128,6 +128,7 @@
    half the page stayed empty. The step that holds the chooser gets the
    width its content needs; its prose keeps the measure. */
 #s1{max-width:min(100%,1120px)}
+#s1-picks{grid-auto-rows:1fr}
 #s1 > h2,#s1 > p.hint{max-width:720px}
 /* Choosing a place is a search and a map, and they belong beside each
    other: stacked in a reading column the map was 720px wide with 400px of
