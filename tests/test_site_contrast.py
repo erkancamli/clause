@@ -328,3 +328,43 @@ def test_the_two_quiet_inks_stay_a_step_apart(palette, theme) -> None:
             f"{theme} on --{surface}: --ink-2 is Lc {second:.1f} and --ink-3 "
             f"is Lc {third:.1f}, {second - third:.1f} apart — too close to read "
             f"as two tiers")
+
+
+def test_the_two_quiet_tiers_stay_a_step_apart_in_both_themes() -> None:
+    """A floor held and a ladder that was not.
+
+    Secondary and tertiary ink are two tiers on purpose: a caption and a label
+    should not read as the same weight of voice. Everything here held the floor
+    instead, the contrast a word at a reading size needs, and a floor says
+    nothing about the distance between two things standing on it.
+
+    So when the light theme's ink was warmed, secondary went to Lc 84.5 and
+    tertiary to 79.3 on the sunk surface, a step of 5.2 where the dark theme's
+    is 8.6, and every test passed: both tiers cleared 75 comfortably. The two
+    tiers had quietly become one with two names, in one theme and not the
+    other, which is the exact thing the tokens say they are not.
+
+    The step is held now, and held against the other theme rather than against
+    a number written down here, so warming or cooling either one is free as
+    long as both ladders keep the same shape.
+    """
+    steps = {}
+    for theme, tokens in THEMES.items():
+        on = tokens["sunk"]          # the worst of the surfaces for these two
+        second, third = abs(lc(tokens["ink-2"], on)), abs(lc(tokens["ink-3"], on))
+        assert second > third, (
+            f"{theme}: tertiary ink reads stronger than secondary, Lc {third:.1f} "
+            f"against {second:.1f}"
+        )
+        steps[theme] = second - third
+
+    for theme, step in steps.items():
+        assert step >= 6.0, (
+            f"{theme}: secondary and tertiary are Lc {step:.1f} apart on the sunk "
+            "surface, which is one tier with two names"
+        )
+
+    spread = max(steps.values()) - min(steps.values())
+    assert spread <= 3.0, (
+        f"the two themes climb at different rates: {', '.join(f'{k} {v:.1f}' for k, v in sorted(steps.items()))}"
+    )

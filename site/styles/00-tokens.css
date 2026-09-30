@@ -131,15 +131,17 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --float:#FFFFFF;
   --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#7D7C78; --art-line-soft:#A7A59F;
-  /* The light theme's ladder had drifted from the dark one's. Secondary text
-     measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
-     is what the 10.5px uppercase labels are set in, which is the size APCA is
-     strictest about, not the most forgiving. Both are darkened by the least
-     that clears Lc 75 on the worst surface, and secondary is taken further so
-     the two stay a step apart rather than collapsing into one tier with two
-     names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
-     both themes, which is what it was always meant to be. */
-  --ink:#171512; --ink-2:#3F3B36; --ink-3:#4D4943;
+  /* One ladder in both themes: secondary and tertiary have to stay a step
+     apart rather than collapse into one tier with two names, and tertiary is
+     what the 10.5px uppercase labels are set in, which is the size APCA is
+     strictest about, not the most forgiving. Measured on the sunk surface,
+     which is the worst of them: secondary Lc 84.5, tertiary Lc 76.2, a step of
+     8.3 against the dark theme's 8.6.
+
+     Warming the ink narrowed that step to 5.2 and no test noticed, because
+     both tiers still cleared the floor a word at a reading size needs and the
+     floor was the only thing held. The step is held as well now. */
+  --ink:#171512; --ink-2:#3F3B36; --ink-3:#55514B;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007157; --hold:#855800; --crit:#B62734;
@@ -159,15 +161,17 @@ html[lang="ja"]{--display:"IBM Plex Sans JP","Archivo",system-ui,sans-serif;
   --float:#FFFFFF;
   --edge:#DEDAD2; --edge-2:#CBC5BA; --edge-ctl:rgba(0,0,0,.44);
   --art-line:#7D7C78; --art-line-soft:#A7A59F;
-  /* The light theme's ladder had drifted from the dark one's. Secondary text
-     measured Lc 73.0 on the sunk surface and tertiary Lc 67.4 -- and tertiary
-     is what the 10.5px uppercase labels are set in, which is the size APCA is
-     strictest about, not the most forgiving. Both are darkened by the least
-     that clears Lc 75 on the worst surface, and secondary is taken further so
-     the two stay a step apart rather than collapsing into one tier with two
-     names: the gap is 8.3 now, against the dark theme's 8.6. One ladder in
-     both themes, which is what it was always meant to be. */
-  --ink:#171512; --ink-2:#3F3B36; --ink-3:#4D4943;
+  /* One ladder in both themes: secondary and tertiary have to stay a step
+     apart rather than collapse into one tier with two names, and tertiary is
+     what the 10.5px uppercase labels are set in, which is the size APCA is
+     strictest about, not the most forgiving. Measured on the sunk surface,
+     which is the worst of them: secondary Lc 84.5, tertiary Lc 76.2, a step of
+     8.3 against the dark theme's 8.6.
+
+     Warming the ink narrowed that step to 5.2 and no test noticed, because
+     both tiers still cleared the floor a word at a reading size needs and the
+     floor was the only thing held. The step is held as well now. */
+  --ink:#171512; --ink-2:#3F3B36; --ink-3:#55514B;
   --signal:#E66700; --signal-2:#F98A32; --signal-line:#C34700; --signal-ink:#A82B00;
   --signal-fill:#C34700; --signal-on-fill:#FFFFFF;
   --settled:#007157; --hold:#855800; --crit:#B62734;
