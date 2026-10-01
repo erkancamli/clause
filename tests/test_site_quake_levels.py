@@ -150,3 +150,21 @@ def test_the_quake_table_is_built_like_the_rain_and_wind_ones() -> None:
     at = FLOW.index("function hazardRows()")
     body = FLOW[at:FLOW.index("\n}", FLOW.index("drought", at))]
     assert body.count("c.pts.forEach") == 3, body.count("c.pts.forEach")
+
+
+def test_a_step_pays_at_the_step_and_not_just_above_it() -> None:
+    """The rows now read the curve at the policy's own points, exactly.
+
+    They used to read it at 5.5 and 6.5, which for an older building sit above
+    the first two steps, so the question of what happens at the point itself
+    never arose. It does now: if shareAt stopped including the step it stands
+    on, the second row would read "nothing" for every quake policy.
+    """
+    model = (SITE / "app" / "10-model.js").read_text(encoding="utf-8")
+    at = model.index("function shareAt(c,level)")
+    step = model[at:model.index("function priceIt", at)]
+    assert 'if(c.shape==="step"){for(i=0;i<p.length;i++)if(level>=p[i][0])sh=p[i][1];' in step, \
+        "shareAt no longer includes the step it is asked at"
+    # And the curve these rows are drawn from is a step curve.
+    assert 'quake:{shape:"step"' in model
+    assert 'shake:{shape:"step"' in model
