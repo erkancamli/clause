@@ -22,40 +22,34 @@ _none_
 Found while reviewing, measured, and left here rather than fixed, because these
 files are yours.
 
-1. **The rule about overrides was stated as three examples and taken as three
-   files.** That was badly put and it is the reviewer's fault, not yours. The
-   rule: a selector should be written once per level in a file, so that reading
-   the file top to bottom leaves the reader right. Counted at the top level of
-   each file, ignoring media queries, which are a different thing. You cleared
-   `10-header.css`, `20-controls.css` and `50-home.css`. Six files still carry
-   it, and four of them worse than the three that were named:
+The repeats are gone. Counted again on 1 October, at the top level of each
+file, ignoring media queries: all nine are at zero. Nothing is owed on that.
 
-        80-pool-and-the-rest.css      7 before,   34 now
-        60-flow.css                   3 before,   28 now
-        30-views.css                  4 before,   25 now
-        40-happening-now.css          1 before,   12 now
-        70-how.css                    1 before,   10 now
-        00-tokens.css                 2 before,    8 now
+1. **Two blocks in `60-flow.css` were written from the other side of the
+   boundary**, at the foot of the file, marked "the paying screen, in six
+   parts" and the four lines after it. The paying screen was restructured from
+   fifteen blocks in a row into six named parts, and new markup with no rules
+   at all would have shipped unstyled, so the minimum was written rather than
+   queued: `.part`, `.part + .part`, `.part-t`, `.part-n`, `.basis-cut`,
+   `#basis-scale:empty`, `#pay-note:empty`, `.part-wait`, and one 640px query.
 
-   Ninety-nine repeats added in all. Fold each one into the rule it overrides,
-   as you did for the first three.
-
-2. **Two blocks were written into `60-flow.css` from the other side, which is
-   against the rule above.** They are at the foot of the file, marked
-   "the paying screen, in six parts" and the four lines after it. The paying
-   screen was restructured from fifteen blocks in a row into six named parts,
-   and new markup with no rules at all would have shipped unstyled, so the
-   minimum was written rather than queued: `.part`, `.part + .part`,
-   `.part-t`, `.part-n`, `.basis-cut`, `#basis-scale:empty`, `#pay-note:empty`,
-   `.part-wait`, and one 640px query.
-
-   They are yours now, not a fixed point. They were written to be correct
-   rather than good: the numbered circle, the rule between parts, the quoted
-   sentence for what the cover does not pay for, and the waiting shape are all
-   worth a designer's eye. Nothing in the markup depends on the declarations,
-   only on the class names, so they can be rewritten freely. The class names
-   are in `tests/test_site_confirm_parts.py`, which also holds what each part
+   They were written to be correct, not to be good, and they are yours now.
+   The numbered circle, the rule between parts, the quoted sentence for what
+   the cover does not pay for, and the shape shown while the protocol answers
+   are all worth a designer's eye. Nothing in the markup depends on the
+   declarations, only on the class names, so they can be rewritten freely.
+   `tests/test_site_confirm_parts.py` holds the class names and what each part
    is for.
 
-   Counted after the two blocks: `60-flow.css` still needs the fold described
-   in 1 above, and these blocks add no repeat of any selector already in it.
+2. **The paying screen is still long.** Measured at 390x844 with a real
+   purchase driven to it: 5,231px, of which the company list is 1,293px and
+   the documents part 1,255px, so those two are half the screen. The ladder
+   and the curve were 948px between them and the curve is behind a disclosure
+   now, which is where the last reduction came from. Whether the rest is a
+   density problem or just a long document is a question about the design, and
+   that is your side of the line, not a measurement.
+
+3. **One number worth knowing.** A buyer's page is 553,125 B built and
+   152,175 B on the wire, of which the stylesheet is 108,670 B built and
+   21,709 B compressed. It is the second heaviest thing the page carries after
+   the script.
