@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.49.3, 1 October 2026
+
+- "Nothing matched" was said over a pin that was placed and a price that was
+  worked out.
+
+  Reported from the live site. The reader pressed "use my location", the
+  browser answered, and the page resolved it to "222. Cadde, Atakent
+  Mahallesi, Küçükçekmece, İstanbul, Türkiye", dropped the pin, priced the
+  cover at 9,048 USDC and drew the payout ladder. Across from all of that, the
+  results area said nothing matched, and then listed Türkiye among the
+  countries this cover is written in.
+
+  setPoint writes the resolved name into the search box, and renderStep writes
+  it back when the reader returns to the question, so the string being
+  searched is an address. The catalogue is provinces and districts and will
+  never hold a street. setPoint's own comment already said there was nothing
+  to search for, on the line above the one that searched.
+
+  The rule now sits inside renderResults, where it covers the caller that was
+  noticed and the one that was not. Driven against both builds with the same
+  stubbed answer from the reverse geocoder: the published one says "Eşleşen
+  bir şey yok", this one leaves the results area empty. A reader who types
+  Brasil still gets the real empty state.
+
+- Wind and the season were rounded away too, and 1.49.2 said they were not.
+
+  That release carried the tenth into the rain threshold and left the wind and
+  the season rounded, on the reasoning that every place that writes them
+  already agreed. They did agree. They agreed with each other and not with the
+  contract, which is the only agreement that counts.
+
+  Driven for storm cover at Trabzon: the ladder, the sentence and the summary
+  row all read "81 km/h", and the contract read "80.9 km/h". An 80.95 km/h day
+  pays, and all three screens told the buyer it would not.
+
+  The register says this is every policy rather than a corner. Of the 48 storm
+  decisions it was holding, not one threshold is a whole number: they are 73.5
+  and 80.9. A season's level is a share of a station's normal, so the one
+  drought record on the same page reads 129.6 mm, and that is the shape of all
+  of them.
+
+  The rain one was caught first only because its two spellings landed on one
+  screen, the summary saying 48 mm between a sentence and a ladder both saying
+  47.6. Wind and the season hid behind their own consistency. The test written
+  then asked whether the screens agree with each other, which is the question
+  that let this through; it asks now whether a level is ever written through
+  the whole number format, which is the question that finds it.
+
+  Fourteen sites, across the sentence, the ladder, the running summary, the
+  trigger line and the table under the price, for both perils.
+
 ## 1.49.2, 1 October 2026
 
 - One level, one spelling, on the screen where the money moves.

@@ -617,13 +617,13 @@ function plainSentence(){
   if(flow.peril==="storm"){
     var sc=structure().pts;
     return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {kmh:f0.format(Math.round(sc[0][0])), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:f0.format(Math.round(sc[2][0])), premium:money(q.premium)});
+      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), premium:money(q.premium)});
   }
   if(flow.peril==="drought"){
     var s=stationFor();
     return t("If the station at {station}, <b>{km} km</b> from {place}, records less than <b>{mm} mm</b> of rain across the {season} season, you start receiving money, up to <em>{full} USDC</em> if the season comes in at 40% of normal. You pay <b>{premium} USDC</b> now, and nothing else ever.",
       {station:esc(s.name), km:f0.format(Math.round(flow.stationKm)), place:esc(subjectLabel()),
-       mm:f0.format(Math.round(.8*s.normal)), season:esc(t(s.season)), full:money(l), premium:money(q.premium)});
+       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), premium:money(q.premium)});
   }
   // The two ends, named the way the rest of the step names them. This read
   // ROUTES[flow.subject], and could not ever hit: the subject of a flight is
@@ -686,16 +686,16 @@ function payRows(){
     rows.push([t("{mm} mm or more in a day",{mm:f1.format(cp[2][0])}),l]);
   } else if(flow.peril==="storm"){
     var sp=c.pts;
-    rows.push([t("Less than {kmh} km/h in a day",{kmh:f0.format(Math.round(sp[0][0]))}),0]);
-    rows.push([t("{kmh} km/h or more in a day",{kmh:f0.format(Math.round(sp[0][0]))}),shareAt(c,sp[0][0])*l]);
-    rows.push([t("{kmh} km/h or more in a day",{kmh:f0.format(Math.round(sp[1][0]))}),shareAt(c,sp[1][0])*l]);
-    rows.push([t("{kmh} km/h or more in a day",{kmh:f0.format(Math.round(sp[2][0]))}),l]);
+    rows.push([t("Less than {kmh} km/h in a day",{kmh:fLevel.format(sp[0][0])}),0]);
+    rows.push([t("{kmh} km/h or more in a day",{kmh:fLevel.format(sp[0][0])}),shareAt(c,sp[0][0])*l]);
+    rows.push([t("{kmh} km/h or more in a day",{kmh:fLevel.format(sp[1][0])}),shareAt(c,sp[1][0])*l]);
+    rows.push([t("{kmh} km/h or more in a day",{kmh:fLevel.format(sp[2][0])}),l]);
   } else if(flow.peril==="drought"){
     var s=stationFor();
-    rows.push([t("A normal season, at or above {mm} mm",{mm:f0.format(Math.round(.8*s.normal))}),0]);
+    rows.push([t("A normal season, at or above {mm} mm",{mm:fLevel.format(.8*s.normal)}),0]);
     [.7,.6,.5,.4].forEach(function(f){
       rows.push([t("The season comes in at {share}% of normal ({mm} mm)",
-        {share:Math.round(f*100),mm:f0.format(Math.round(f*s.normal))}),shareAt(c,f*s.normal)*l]);
+        {share:Math.round(f*100),mm:fLevel.format(f*s.normal)}),shareAt(c,f*s.normal)*l]);
     });
   } else {
     rows.push([t("On time, or under two hours late"),0]);
@@ -776,14 +776,14 @@ function hazardRows(){
   } else if(flow.peril==="storm"){
     c.pts.forEach(function(pt){
       var p=exc(pt[0]);
-      rows+='<tr><td>'+f0.format(Math.round(pt[0]))+' km/h</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
+      rows+='<tr><td>'+fLevel.format(pt[0])+' km/h</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
             '</td><td>'+money(pt[1]*flow.limit)+'</td></tr>';
     });
   } else if(flow.peril==="drought"){
     var s=stationFor();
     [.8,.7,.6,.5,.4].forEach(function(f){
       var mm=f*s.normal,p=exc(mm),sh=shareAt(c,mm);
-      rows+='<tr><td>'+f0.format(Math.round(mm))+' mm</td><td>'+esc(p<=0?t("never"):t("1 in {n} seasons",{n:f1.format(1/p)}))+
+      rows+='<tr><td>'+fLevel.format(mm)+' mm</td><td>'+esc(p<=0?t("never"):t("1 in {n} seasons",{n:f1.format(1/p)}))+
             '</td><td>'+(sh?money(sh*flow.limit):"–")+'</td></tr>';
     });
   } else {

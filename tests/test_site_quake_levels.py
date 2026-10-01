@@ -195,23 +195,46 @@ def test_a_magnitude_is_written_in_the_readers_own_decimal_mark() -> None:
     assert '"M"+fLevel.format(level)' in PLACES
 
 
-def test_a_rain_threshold_is_not_rounded_away_in_the_summary() -> None:
-    """Driven on the live site for rain cover at Kadıköy, one screen said all
-    three of these:
+def test_no_peril_rounds_its_threshold_away() -> None:
+    """A level is written as the contract writes it, which is to a tenth.
 
-        the sentence   "If 47.6 mm or more of rain falls ..."
-        the ladder     "47.6 mm or more in a day, 2,500 USDC"
-        the summary    "48 mm 2,500 . 56 mm 6,000 . 62 mm 10,000"
+    Rain was caught first, because its two spellings sat on one screen: the
+    ladder said "47.6 mm or more in a day" and the summary row between it and
+    the sentence said "48 mm". Wind and the season looked fine by that test,
+    because every place that displays them agreed with every other, and all of
+    them were wrong together.
 
-    48 and 47.6 are not the same threshold. A reader of the summary would
-    think a 47.8 mm day pays nothing, and it pays 2,500.
+    The right question is not whether the screens agree with each other. It is
+    whether they agree with the rule the buyer signs. Driven for storm cover at
+    Trabzon: the ladder, the sentence and the summary all read "81 km/h", and
+    the contract read "80.9 km/h". An 80.95 km/h day pays, and the screen said
+    it would not.
+
+    The register says this is every policy and not a corner. Of the 48 storm
+    decisions it was holding, not one threshold was a whole number: they are
+    73.5 and 80.9. A season's level is a share of a station's normal, so
+    129.6 mm is the shape of all of them.
     """
     at = PLACES.index("function rungWords(level)")
     body = PLACES[at:PLACES.index("function triggerSaid", at)]
     assert 'if(flow.peril==="car")return fLevel.format(level)+" mm";' in body
-    # The season's levels are hundreds of millimetres and round everywhere.
-    assert 'if(flow.peril==="drought")return f0.format(Math.round(level))+" mm";' in body
-    assert 'if(flow.peril==="storm")return f0.format(Math.round(level))+" km/h";' in body
+    assert 'if(flow.peril==="drought")return fLevel.format(level)+" mm";' in body
+    assert 'if(flow.peril==="storm")return fLevel.format(level)+" km/h";' in body
+    # Not every Math.round here is a rounding of the answer. One asks whether
+    # a shaking level is whole, which is how it decides a roman numeral would
+    # be honest; another turns minutes into hours for a flight, where the
+    # levels are 60, 120, 240 and 1440 exactly. What must not happen is a
+    # level going into a formatter already rounded.
+    assert "format(Math.round(level))" not in body
+
+
+def test_no_screen_writes_a_level_through_the_whole_number_format() -> None:
+    """f0 rounds to nothing after the point, which is right for a count of
+    years or a sum of money and wrong for a threshold."""
+    import re as _re
+    for src, name in ((FLOW, "60-cover-flow.js"), (PLACES, "65-place-lookup.js")):
+        for written in _re.findall(r"f0\.format\(Math\.round\((?:sp|sc|pt|mm|level|\.8\*|f\*)[^)]*\)\)", src):
+            raise AssertionError(f"{name}: a level still written with f0: {written}")
 
 
 def test_the_running_summary_spells_a_level_the_way_the_rest_does() -> None:

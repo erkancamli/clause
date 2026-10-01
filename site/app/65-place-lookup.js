@@ -97,6 +97,26 @@ function renderResults(query){
     return;
   }
 
+  /* A label this page put in the box is not something the reader asked for.
+
+     setPoint writes the chosen place's name there after a pin is dropped or
+     the browser's locator answers, and renderStep writes it back when the
+     reader returns to this question. So the string being "searched" is
+     whatever was resolved: "222. Cadde, Atakent Mahallesi, Küçükçekmece,
+     İstanbul, Türkiye". A catalogue of provinces and districts will never
+     hold a street, so the search failed and the box said "Nothing matched",
+     under a pin that was already placed, beside a price that was already
+     worked out, in a sentence that went on to name Türkiye as one of the
+     countries this cover is written in.
+
+     setPoint's own comment already said there was nothing to search for. It
+     then searched. The rule belongs here, where it covers every caller rather
+     than the one that was noticed. */
+  if (flow.place && String(query || "").trim() === String(flow.place).trim()){
+    box.innerHTML = "";
+    return;
+  }
+
   var coordinate = parseCoordinate(query);
   var key = String(query || "").trim();
   var hits = coordinate ? [coordinate] : searchPlaces(query).map(function(p){
@@ -507,7 +527,7 @@ function rungWords(level){
     return shakingIndex()
       ? "MMI "+(level === Math.round(level) ? (ROMAN[level]||String(level)) : fLevel.format(level))
       : "M"+fLevel.format(level);
-  if(flow.peril==="storm")return f0.format(Math.round(level))+" km/h";
+  if(flow.peril==="storm")return fLevel.format(level)+" km/h";
   /* Rain to one decimal, as the sentence and the ladder write it, and the
      season's rainfall whole, as its own two write it.
 
@@ -522,7 +542,7 @@ function rungWords(level){
      millimetres, where a tenth says nothing and both the other places that
      write them round. */
   if(flow.peril==="car")return fLevel.format(level)+" mm";
-  if(flow.peril==="drought")return f0.format(Math.round(level))+" mm";
+  if(flow.peril==="drought")return fLevel.format(level)+" mm";
   return level>=1440 ? t("cancelled") : t("{n}h late",{n:Math.round(level/60)});
 }
 function ladderSaid(){
@@ -586,9 +606,9 @@ function triggerSaid(){
   if(flow.peril==="car"){ pts=structure().pts;
     return t("pays from {mm} mm of rain in a day",{mm:fLevel.format(pts[0][0])}); }
   if(flow.peril==="storm"){ pts=structure().pts;
-    return t("pays from wind of {kmh} km/h",{kmh:f0.format(Math.round(pts[0][0]))}); }
+    return t("pays from wind of {kmh} km/h",{kmh:fLevel.format(pts[0][0])}); }
   if(flow.peril==="drought"){ var station=stationFor();
-    return t("pays below {mm} mm of rain for the season",{mm:f0.format(Math.round(.8*station.normal))}); }
+    return t("pays below {mm} mm of rain for the season",{mm:fLevel.format(.8*station.normal)}); }
   return t("pays from two hours late");
 }
 /* ---------------- the running summary ----------------
