@@ -180,9 +180,21 @@ def gather_scripts(source: str) -> str:
     held by a test against the parts as the page links them, not against what
     the build makes of them.
     """
-    tags = list(re.finditer(r'[ \t]*<script data-part="(app/[^"]+)"></script>\n?', source))
+    tags = list(re.finditer(r'[ \t]*<script data-part="(app/[^"]+)"[^>]*></script>\n?', source))
     if not tags:
         return source
+    # A part the pattern does not recognise is dropped without a word, and the
+    # page still builds, still runs, and is missing a screen. That happened:
+    # marking the desk's part with an attribute put something between the path
+    # and the closing bracket, the pattern stopped matching, and both pages
+    # came out 89,268 B lighter and short a company desk. The pattern takes
+    # other attributes now, and the count is checked, so the next thing that
+    # confuses it stops the build instead of shipping.
+    listed = len(re.findall(r'<script data-part="app/', source))
+    if len(tags) != listed:
+        raise SystemExit(f"the page lists {listed} script parts and the build "
+                         f"recognised {len(tags)}: one of them is written in a "
+                         f"way the build does not read")
     joined = ""
     for tag in tags:
         part = HERE / tag.group(1)
@@ -222,7 +234,7 @@ def build_page(source: str) -> str:
     return head + "\n" + body
 
 
-def stamp(page: str) -> tuple[str, str]:
+def stamp(page: str, called: str | None = None) -> tuple[str, str]:
     """Give the page a name for this build, and publish that name beside it.
 
     A single page application is only downloaded once. After that a person
@@ -235,8 +247,13 @@ def stamp(page: str) -> tuple[str, str]:
     The name is the digest of the built page, so it changes when and only when
     something a browser would load has changed. Rebuilding with no edits
     produces the same name and no reader is disturbed.
+
+    A name may be given instead of taken, for the second page of the same
+    build: the desk is the same source with nothing removed, and a tab open on
+    it asks the same version.json as a tab open on the buyer's page. Two names
+    for one build would have one of those two tabs reloading itself forever.
     """
-    name = hashlib.sha256(page.encode("utf-8")).hexdigest()[:12]
+    name = called or hashlib.sha256(page.encode("utf-8")).hexdigest()[:12]
     return page.replace("__CLAUSE_BUILD__", name), name
 
 
@@ -254,13 +271,63 @@ def assemble(source: str) -> str:
     return gather_styles(gather_scripts(source))
 
 
+def without_the_desk(source: str) -> str:
+    """The same page with the company desk taken out of it.
+
+    Three of the fifteen screens are the desk an insurer runs its book on:
+    the company view, the operator view and the register of insurers. A buyer
+    never opens one, and on the page a buyer downloads they were 89,268 B of
+    script and 14,148 B of markup, measured by building the page both ways.
+
+    They are not deferred inside the closure. The whole script is one closure
+    and the desk's part reads fifty-one names out of it; those fifty-one pull
+    in five hundred and sixty-three declarations between them, 77% of the
+    script, so a self-contained desk chunk would be the whole thing twice.
+    Handing the fifty-one across a boundary instead would leave a list to keep
+    by hand, and the day someone adds a fifty-second the desk breaks on the
+    route an insurer uses to run their book, with nothing to say so until
+    somebody goes there.
+
+    So the desk is a second page, built from these same parts with nothing
+    taken out. An insurer downloads what they download now. A buyer stops
+    downloading a screen they cannot open.
+    """
+    at = source.find(" data-desk")
+    while at != -1:
+        open_tag = source.rfind("<", 0, at)
+        # A script part is one tag; a view is a section with sections inside it.
+        if source.startswith("<script", open_tag):
+            shut = source.index("</script>", at) + len("</script>")
+            while shut < len(source) and source[shut] == "\n":
+                shut += 1
+        else:
+            depth, cut = 0, open_tag
+            while True:
+                nxt = re.search(r"</?section\b", source[cut:])
+                if not nxt:
+                    raise SystemExit("a data-desk section is never closed")
+                cut += nxt.start()
+                depth += -1 if source[cut:cut + 2] == "</" else 1
+                cut += 2
+                if depth == 0:
+                    break
+            shut = source.index(">", cut) + 1
+        source = source[:open_tag] + source[shut:]
+        at = source.find(" data-desk")
+    return source
+
+
 def main() -> None:
     if "--dev" in sys.argv:
         # Beside index.html, so fonts/, i18n/, vendor/ and app/ resolve as they
         # do for the published page. It is ignored by git: it is a build.
-        page = assemble((HERE / "index.html").read_text(encoding="utf-8"))
-        page = page.replace("__CLAUSE_BUILD__", "development")
+        source = (HERE / "index.html").read_text(encoding="utf-8")
+        desk = assemble(source).replace("__CLAUSE_BUILD__", "development")
+        page = assemble(without_the_desk(source)).replace("__CLAUSE_BUILD__", "development")
         (HERE / "dev.html").write_text(page, encoding="utf-8")
+        # Named as the published one is, so the link from the buyer's page to
+        # the desk is the same relative link in development and in production.
+        (HERE / "desk.html").write_text(desk, encoding="utf-8")
         # The open tab asks this for the name of the build it is running. In
         # development the answer is always the same one, so the page never
         # decides it has been replaced, and it is written rather than left to
@@ -269,13 +336,19 @@ def main() -> None:
         (HERE / "version.json").write_text(
             json.dumps({"build": "development"}, separators=(",", ":")) + "\n", encoding="utf-8")
         print(f"site/dev.html: {len(page.encode()):,} bytes, assembled and not minified")
+        print(f"site/desk.html: {len(desk.encode()):,} bytes, with the desk")
         return
 
     if DIST.exists():
         shutil.rmtree(DIST)
     DIST.mkdir()
-    page, name = stamp(build_page((HERE / "index.html").read_text(encoding="utf-8")))
+    source = (HERE / "index.html").read_text(encoding="utf-8")
+    page, name = stamp(build_page(without_the_desk(source)))
     (DIST / "index.html").write_text(page, encoding="utf-8")
+    # The same build name, because it is one build of one source: a tab open on
+    # the desk asks the same version.json as a tab open on the buyer's page.
+    desk, _ = stamp(build_page(source), name)
+    (DIST / "desk.html").write_text(desk, encoding="utf-8")
     # Forty bytes, fetched by an open tab now and then. It is deliberately not
     # the page itself: asking for the page to find out whether the page changed
     # costs seven hundred kilobytes to answer a question worth one line.
@@ -294,6 +367,7 @@ def main() -> None:
     before = (HERE / "index.html").stat().st_size
     after = (DIST / "index.html").stat().st_size
     print(f"site/dist/index.html: {after:,} bytes (source {before:,}), build {name}")
+    print(f"site/dist/desk.html: {(DIST / 'desk.html').stat().st_size:,} bytes, with the desk")
 
 
 if __name__ == "__main__":

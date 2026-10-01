@@ -561,9 +561,14 @@ function basisRiskSaid(){
 
 function triggerSaid(){
   var pts;
-  if(flow.peril==="quake")
-    return shakingIndex() ? t("pays from shaking of intensity VI")
-                          : t("pays from magnitude 5.5");
+  // Both quake branches name the policy's own first step, as the three below
+  // already did. Neither VI nor 5.5 is a fact about a policy: structure()
+  // shifts the curve by the age of the building, so the trigger is 6.9 for a
+  // flat built in 2005 and 5.2 for the same flat on the magnitude index built
+  // in 1975.
+  if(flow.peril==="quake"){ pts=structure().pts;
+    return shakingIndex() ? t("pays from shaking of intensity {level}",{level:f1.format(pts[0][0])})
+                          : t("pays from magnitude {level}",{level:f1.format(pts[0][0])}); }
   if(flow.peril==="car"){ pts=structure().pts;
     return t("pays from {mm} mm of rain in a day",{mm:pts[0][0].toFixed(0)}); }
   if(flow.peril==="storm"){ pts=structure().pts;

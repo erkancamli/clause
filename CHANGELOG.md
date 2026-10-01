@@ -1,5 +1,66 @@
 # Changelog
 
+## 1.49.1, 1 October 2026
+
+- The magnitude ladder named levels the policy does not pay at.
+
+  A quake policy's steps move with the building: structure() shifts the curve
+  by the age of what is insured, on both indexes, so a flat in Türkiye built
+  in 2019 or later pays from magnitude 5.5 and the same flat built in 1975
+  pays from 5.2. The shaking rows were given the policy's own points when this
+  was found there. The magnitude rows never were.
+
+  Driven on the live site for a flat built in 1975 with the magnitude index
+  chosen, the screen contradicted itself. The ladder read "A magnitude 5.5 to
+  6.5, 8,574 USDC". The summary row above it read "M5.2 8,574": the same money
+  at a different level, on the same screen, and the summary was the one
+  telling the truth. The first row was worse than inconsistent, because
+  "Nothing above magnitude 5.5 happens, nothing" is false when a 5.3 pays
+  8,574. Both buildings were also told the same "about 1 in 18 years", because
+  the chance column was answered at 5.5 for a policy whose first step is 5.2.
+
+  The magnitude index is offered to every buyer of quake cover, as "Magnitude
+  within a circle" beside "Shaking at my address".
+
+- The sentence beside the ladder named a level the policy does not use.
+
+  "The step at intensity VI is your trigger" sat directly beneath a ladder
+  reading "Intensity 6.9 or more". A roman numeral is a whole number and these
+  steps are not. triggerSaid had the same fault in the one place it computed
+  nothing: it worked the trigger out for rain, wind and drought, and wrote in
+  VI and 5.5 for the two quake indexes, which are the two where it moves.
+
+- "How this price was worked out" showed one of the three amounts it is made of.
+
+  The table sampled six magnitudes from 5.0 to 7.5 whichever index the policy
+  was written on. For the cover a buyer gets by default, which is shaking with
+  steps at 6.9, 7.9 and 8.9, four rows read "-", the two that paid both read
+  17,242, the two upper steps were past the end of the grid and never
+  appeared, and every row was labelled M, which is how a magnitude is written
+  and not an intensity.
+
+- The pool screen was showing three figures it had made up.
+
+  Block and Policies armed were a random walk that had never been asked of the
+  protocol, and Capital in the pool was the string 3,500,000 written into the
+  markup. The protocol's own answers are 15,307,897, ten, and 274,745,994.
+  This site tells a reader on seven other screens that it will not show them a
+  record it made up.
+
+- A buyer stops downloading the desk an insurer runs its book on.
+
+  The company view, the operator view and the register of insurers are a
+  second page now, built from the same parts with nothing taken out. Measured:
+  635,546 B to 553,125 B built, 174,183 B to 152,175 B on the wire, 12.6% of
+  what a buyer downloads to carry three screens they cannot open. What is not
+  shown is that it loads faster: sixteen interleaved cold loads of each page
+  at a quarter speed put the medians 44 ms apart with the quartile ranges
+  overlapping.
+
+- The home page's live bands were living in the pool view, a file named for a
+  screen they have nothing to do with. Split; the built page came out byte for
+  byte identical.
+
 ## 1.49.0, 30 September 2026
 
 - The paying screen reads as six named parts, and draws the payout once.

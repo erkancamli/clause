@@ -657,10 +657,27 @@ function payRows(){
     rows.push([t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:f1.format(qp[1][0])}),shareAt(c,qp[1][0])*l,qp[1][0]]);
     rows.push([t("Intensity {level} or more: severe",{level:f1.format(qp[2][0])}),l,qp[2][0]]);
   } else if(flow.peril==="quake"){
-    rows.push([t("Nothing above magnitude 5.5 happens"),0,null]);
-    rows.push([t("A magnitude 5.5 to 6.5"),shareAt(c,5.5)*l,5.5]);
-    rows.push([t("A magnitude 6.5 to 7.0"),shareAt(c,6.5)*l,6.5]);
-    rows.push([t("A magnitude 7.0 or more"),l,7.0]);
+    /* The same fix the shaking rows above were given, which this branch never
+       got. A quake policy's steps move with the building: structure() shifts
+       the curve by the age of what is insured, for the magnitude index as
+       well, so a flat built in 1975 in Türkiye pays from 5.2 and not from
+       5.5. These four rows named 5.5, 6.5 and 7.0 whatever the policy said,
+       and read the curve at those levels too, so the chance column was
+       answered at a level the contract does not use either.
+
+       Driven on the live site for a 1975 building: the ladder read "A
+       magnitude 5.5 to 6.5, 8,574 USDC" while the summary row two inches
+       above it read "M5.2 8,574", the same money at a different level, on the
+       same screen. The summary was right. The first row was worse than
+       inconsistent: "Nothing above magnitude 5.5 happens, nothing" is false
+       when a 5.3 pays 8,574. */
+    var mp=c.pts;
+    rows.push([t("A magnitude below {level}",{level:f1.format(mp[0][0])}),0,null]);
+    rows.push([t("A magnitude {from} to {to}",{from:f1.format(mp[0][0]),to:f1.format(mp[1][0])}),
+               shareAt(c,mp[0][0])*l,mp[0][0]]);
+    rows.push([t("A magnitude {from} to {to}",{from:f1.format(mp[1][0]),to:f1.format(mp[2][0])}),
+               shareAt(c,mp[1][0])*l,mp[1][0]]);
+    rows.push([t("A magnitude {level} or more",{level:f1.format(mp[2][0])}),l,mp[2][0]]);
   } else if(flow.peril==="car"){
     var cp=c.pts;
     rows.push([t("Less than {mm} mm in a day",{mm:f1.format(cp[0][0])}),0]);
@@ -732,10 +749,23 @@ function hazardRows(){
   var exc=exceedance(),c=structure();
   var rows='<tr><th>'+esc(t("If the index reaches"))+'</th><th>'+esc(t("How often"))+'</th><th>'+esc(t("You receive"))+'</th></tr>';
   if(flow.peril==="quake"){
-    [5.0,5.5,6.0,6.5,7.0,7.5].forEach(function(m){
-      var p=exc(m),sh=shareAt(c,m);
-      rows+='<tr><td>M'+m.toFixed(1)+'</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
-            '</td><td>'+(sh?money(sh*flow.limit):"–")+'</td></tr>';
+    /* The policy's own steps, as the rain and wind tables below already do.
+
+       This sampled six magnitudes from 5.0 to 7.5 whichever index the policy
+       was written on. Read on the live site for the default cover, which is
+       shaking at the address with steps at 6.9, 7.9 and 8.9: four rows said
+       "-", the two that paid both said 17,242, the two upper steps were past
+       the end of the grid and never appeared at all, and every row was
+       labelled M, which is the notation for a magnitude and not for an
+       intensity. A table headed "how this price was worked out" showed one
+       of the three amounts it is made of.
+
+       rungWords writes each level the way its own index writes it, MMI 6.9
+       or M5.2, and it is the same call the summary row uses. */
+    c.pts.forEach(function(pt){
+      var p=exc(pt[0]);
+      rows+='<tr><td>'+esc(rungWords(pt[0]))+'</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
+            '</td><td>'+money(pt[1]*flow.limit)+'</td></tr>';
     });
   } else if(flow.peril==="car"){
     c.pts.forEach(function(pt){
@@ -844,8 +874,25 @@ function drawCurve(){
   if(flow.peril==="quake"){
     x0=4.5;x1=7.5;xlabel=t("EARTHQUAKE MAGNITUDE");ticks=[5,5.5,6,6.5,7,7.5];
     if(shakingIndex()){ x0=5;x1=9;xlabel=t("SHAKING AT THE ADDRESS (MMI)");ticks=[5,6,7,8,9]; }
-    note=t("The step at 5.5 is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.");
-    if(shakingIndex()) note=t("The step at intensity VI is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.");
+    note=t("The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.",
+      {level:f1.format(structure().pts[0][0])});
+    /* The policy's own first step, not the numeral six.
+
+       A roman numeral is a whole number and these steps are not: an older
+       building pays at less shaking, so the first step sits at 6.9 for this
+       flat and at 6.25 in Istanbul and 6.62 in New York. This sentence named
+       VI whatever the policy said, so it sat under a ladder whose first
+       paying row read "Intensity 6.9 or more" and told the buyer their
+       trigger was a different, lower level. rungWords was written to avoid
+       exactly this and payRows was fixed for it; this was the last place
+       still carrying it.
+
+       It says intensity rather than MMI because the ladder immediately above
+       it says intensity, and one screen should call a thing one name. The
+       unit is named where naming it is the point: in the sentence about what
+       the cover does not pay for, and in the contract. */
+    if(shakingIndex()) note=t("The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.",
+      {level:f1.format(structure().pts[0][0])});
   } else if(flow.peril==="car"){
     var cps=structure().pts;
     x0=Math.max(0,Math.floor(cps[0][0]*0.6/10)*10); x1=Math.ceil(cps[2][0]*1.2/10)*10;

@@ -19,6 +19,14 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+# The desk an insurer runs its book on: the same source as the page above with
+# nothing taken out, where that one is built without the three screens a buyer
+# cannot open. It is a document, so it is checked every time like the other one.
+[[headers]]
+  for = "/desk.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Privy's sign in window, fetched only when someone presses the button. The
 # chunks are named by their content, so they can be kept forever; the entry
 # file is not, so it is always checked.

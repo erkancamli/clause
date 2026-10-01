@@ -1321,11 +1321,15 @@
     </p>
 
     <div class="readouts" style="margin-top:24px">
-      <div class="readout"><div class="v num" id="r-height">412,000</div><div class="k" data-i18n>Block</div></div>
-      <div class="readout"><div class="v num" id="r-armed">1,284</div><div class="k" data-i18n>Policies armed</div></div>
-      <div class="readout"><div class="v num" id="r-capital">3,500,000</div><div class="k" data-i18n>Capital in the pool</div></div>
+      <!-- Nothing stands here until the protocol has said what it is. These
+           three held 412,000, 1,284 and 3,500,000, which were not stale
+           figures but invented ones, and two of them were animated. -->
+      <div class="readout"><div class="v num" id="r-height">&ndash;</div><div class="k" data-i18n>Block</div></div>
+      <div class="readout"><div class="v num" id="r-armed">&ndash;</div><div class="k" data-i18n>Policies armed</div></div>
+      <div class="readout"><div class="v num" id="r-capital">&ndash;</div><div class="k" data-i18n>Capital in the pool</div></div>
       <div class="readout"><div class="v num">99.5%</div><div class="k" data-i18n>Solvency standard</div></div>
     </div>
+    <p class="fine" id="pool-unreachable" hidden></p>
 
     <div class="sec" id="tranche-sec">
       <h2 data-i18n>Three tranches, one order of loss.</h2>
@@ -1613,7 +1617,7 @@
 </section>
 
 <!-- ============================== COMPANY ============================== -->
-<section class="view" id="view-company">
+<section class="view" id="view-company" data-desk>
   <div class="wrap pad">
     <div class="label" data-i18n>For insurers</div>
     <h1 style="font-size:clamp(26px,4vw,36px);text-align:left;margin-top:12px" data-i18n>Your company</h1>
@@ -1626,7 +1630,7 @@
 </section>
 
 <!-- ============================== ADMIN ============================== -->
-<section class="view" id="view-admin">
+<section class="view" id="view-admin" data-desk>
   <div class="wrap pad">
     <div class="label" data-i18n>Operator</div>
     <h1 id="review" style="font-size:clamp(26px,4vw,36px);text-align:left;margin-top:12px" data-i18n>Reviewing registrations</h1>
@@ -1665,7 +1669,7 @@
 </section>
 
 <!-- ============================== INSURERS ============================== -->
-<section class="view" id="view-insurers">
+<section class="view" id="view-insurers" data-desk>
   <div class="wrap pad">
     <div class="label" data-i18n>For insurers</div>
     <h1 style="font-size:clamp(26px,4vw,38px);max-width:26ch;text-align:left;margin-top:12px" data-i18n>
@@ -2031,10 +2035,11 @@ curl https://api.clause.insure/api/partner/v1/me -H "x-clause-key: ck_live_…"<
 <script data-part="app/70-what-is-at-risk.js"></script>
 <script data-part="app/75-buying.js"></script>
 <script data-part="app/80-documents.js"></script>
-<script data-part="app/85-company-and-operator.js"></script>
+<script data-part="app/85-company-and-operator.js" data-desk></script>
 <script data-part="app/90-proof-and-chain.js"></script>
 <script data-part="app/92-rider.js"></script>
 <script data-part="app/94-pool-view.js"></script>
+<script data-part="app/95-live-readings.js"></script>
 <script data-part="app/96-digest.js"></script>
 <script data-part="app/98-boot.js"></script>
 
