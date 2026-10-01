@@ -121,3 +121,32 @@ def test_every_new_sentence_is_translated_and_keeps_its_level() -> None:
             assert strings[key] != key, (lang, key, "left in English")
             for hole in holes:
                 assert hole in strings[key], (lang, key, hole, "cannot carry the level")
+
+
+# ------------------------------------------- the table under the price
+
+
+def test_the_price_table_shows_the_policys_own_steps() -> None:
+    """It sampled six magnitudes from 5.0 to 7.5 whichever index was chosen.
+
+    Read on the live site for the default cover, which is shaking at the
+    address with steps at 6.9, 7.9 and 8.9: four rows said "-", the two that
+    paid both said 17,242, the two upper steps were past the end of the grid
+    and never appeared, and every row was labelled M, which is how a magnitude
+    is written and not an intensity. A table headed "how this price was worked
+    out" showed one of the three amounts the price is made of.
+    """
+    at = FLOW.index("function hazardRows()")
+    quake = FLOW[FLOW.index('if(flow.peril==="quake"){', at):
+                 FLOW.index('} else if(flow.peril==="car"){', at)]
+    assert "[5.0,5.5,6.0,6.5,7.0,7.5]" not in quake, "the written-in grid is back"
+    assert "c.pts.forEach" in quake
+    assert "rungWords(pt[0])" in quake, "the level is not written the way its index writes it"
+    assert "money(pt[1]*flow.limit)" in quake, "the amount is not the step's own"
+
+
+def test_the_quake_table_is_built_like_the_rain_and_wind_ones() -> None:
+    """Those two always read the policy's points; this one now does too."""
+    at = FLOW.index("function hazardRows()")
+    body = FLOW[at:FLOW.index("\n}", FLOW.index("drought", at))]
+    assert body.count("c.pts.forEach") == 3, body.count("c.pts.forEach")

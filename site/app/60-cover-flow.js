@@ -749,10 +749,23 @@ function hazardRows(){
   var exc=exceedance(),c=structure();
   var rows='<tr><th>'+esc(t("If the index reaches"))+'</th><th>'+esc(t("How often"))+'</th><th>'+esc(t("You receive"))+'</th></tr>';
   if(flow.peril==="quake"){
-    [5.0,5.5,6.0,6.5,7.0,7.5].forEach(function(m){
-      var p=exc(m),sh=shareAt(c,m);
-      rows+='<tr><td>M'+m.toFixed(1)+'</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
-            '</td><td>'+(sh?money(sh*flow.limit):"–")+'</td></tr>';
+    /* The policy's own steps, as the rain and wind tables below already do.
+
+       This sampled six magnitudes from 5.0 to 7.5 whichever index the policy
+       was written on. Read on the live site for the default cover, which is
+       shaking at the address with steps at 6.9, 7.9 and 8.9: four rows said
+       "-", the two that paid both said 17,242, the two upper steps were past
+       the end of the grid and never appeared at all, and every row was
+       labelled M, which is the notation for a magnitude and not for an
+       intensity. A table headed "how this price was worked out" showed one
+       of the three amounts it is made of.
+
+       rungWords writes each level the way its own index writes it, MMI 6.9
+       or M5.2, and it is the same call the summary row uses. */
+    c.pts.forEach(function(pt){
+      var p=exc(pt[0]);
+      rows+='<tr><td>'+esc(rungWords(pt[0]))+'</td><td>'+esc(p<=0?t("never"):t("1 in {n} years",{n:f0.format(Math.round(1/p))}))+
+            '</td><td>'+money(pt[1]*flow.limit)+'</td></tr>';
     });
   } else if(flow.peril==="car"){
     c.pts.forEach(function(pt){
