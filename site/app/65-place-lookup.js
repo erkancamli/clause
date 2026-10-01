@@ -97,6 +97,26 @@ function renderResults(query){
     return;
   }
 
+  /* A label this page put in the box is not something the reader asked for.
+
+     setPoint writes the chosen place's name there after a pin is dropped or
+     the browser's locator answers, and renderStep writes it back when the
+     reader returns to this question. So the string being "searched" is
+     whatever was resolved: "222. Cadde, Atakent Mahallesi, Küçükçekmece,
+     İstanbul, Türkiye". A catalogue of provinces and districts will never
+     hold a street, so the search failed and the box said "Nothing matched",
+     under a pin that was already placed, beside a price that was already
+     worked out, in a sentence that went on to name Türkiye as one of the
+     countries this cover is written in.
+
+     setPoint's own comment already said there was nothing to search for. It
+     then searched. The rule belongs here, where it covers every caller rather
+     than the one that was noticed. */
+  if (flow.place && String(query || "").trim() === String(flow.place).trim()){
+    box.innerHTML = "";
+    return;
+  }
+
   var coordinate = parseCoordinate(query);
   var key = String(query || "").trim();
   var hits = coordinate ? [coordinate] : searchPlaces(query).map(function(p){
