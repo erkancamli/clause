@@ -600,13 +600,13 @@ function plainSentence(){
   if(flow.peril==="quake"&&shakingIndex()){
     var qc=structure().pts;
     return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {place:esc(subjectLabel()), level:f1.format(qc[0][0]), top:f1.format(qc[2][0]),
+      {place:esc(subjectLabel()), level:fLevel.format(qc[0][0]), top:fLevel.format(qc[2][0]),
        first:money(qc[0][1]*l), full:money(l), premium:money(q.premium)});
   }
   if(flow.peril==="quake"){
     var mc=structure().pts;
     return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {mag:f1.format(mc[0][0]), top:f1.format(mc[2][0]), km:flow.radius,
+      {mag:fLevel.format(mc[0][0]), top:fLevel.format(mc[2][0]), km:flow.radius,
        place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), premium:money(q.premium)});
   }
   if(flow.peril==="car"){
@@ -652,10 +652,10 @@ function payRows(){
        storm rows below have always been built from the curve's own points;
        this one now is too. */
     var qp=c.pts;
-    rows.push([t("Shaking below intensity {level}",{level:f1.format(qp[0][0])}),0,null]);
-    rows.push([t("Intensity {level} or more: strong, light damage",{level:f1.format(qp[0][0])}),shareAt(c,qp[0][0])*l,qp[0][0]]);
-    rows.push([t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:f1.format(qp[1][0])}),shareAt(c,qp[1][0])*l,qp[1][0]]);
-    rows.push([t("Intensity {level} or more: severe",{level:f1.format(qp[2][0])}),l,qp[2][0]]);
+    rows.push([t("Shaking below intensity {level}",{level:fLevel.format(qp[0][0])}),0,null]);
+    rows.push([t("Intensity {level} or more: strong, light damage",{level:fLevel.format(qp[0][0])}),shareAt(c,qp[0][0])*l,qp[0][0]]);
+    rows.push([t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:fLevel.format(qp[1][0])}),shareAt(c,qp[1][0])*l,qp[1][0]]);
+    rows.push([t("Intensity {level} or more: severe",{level:fLevel.format(qp[2][0])}),l,qp[2][0]]);
   } else if(flow.peril==="quake"){
     /* The same fix the shaking rows above were given, which this branch never
        got. A quake policy's steps move with the building: structure() shifts
@@ -672,12 +672,12 @@ function payRows(){
        inconsistent: "Nothing above magnitude 5.5 happens, nothing" is false
        when a 5.3 pays 8,574. */
     var mp=c.pts;
-    rows.push([t("A magnitude below {level}",{level:f1.format(mp[0][0])}),0,null]);
-    rows.push([t("A magnitude {from} to {to}",{from:f1.format(mp[0][0]),to:f1.format(mp[1][0])}),
+    rows.push([t("A magnitude below {level}",{level:fLevel.format(mp[0][0])}),0,null]);
+    rows.push([t("A magnitude {from} to {to}",{from:fLevel.format(mp[0][0]),to:fLevel.format(mp[1][0])}),
                shareAt(c,mp[0][0])*l,mp[0][0]]);
-    rows.push([t("A magnitude {from} to {to}",{from:f1.format(mp[1][0]),to:f1.format(mp[2][0])}),
+    rows.push([t("A magnitude {from} to {to}",{from:fLevel.format(mp[1][0]),to:fLevel.format(mp[2][0])}),
                shareAt(c,mp[1][0])*l,mp[1][0]]);
-    rows.push([t("A magnitude {level} or more",{level:f1.format(mp[2][0])}),l,mp[2][0]]);
+    rows.push([t("A magnitude {level} or more",{level:fLevel.format(mp[2][0])}),l,mp[2][0]]);
   } else if(flow.peril==="car"){
     var cp=c.pts;
     rows.push([t("Less than {mm} mm in a day",{mm:f1.format(cp[0][0])}),0]);
@@ -875,7 +875,7 @@ function drawCurve(){
     x0=4.5;x1=7.5;xlabel=t("EARTHQUAKE MAGNITUDE");ticks=[5,5.5,6,6.5,7,7.5];
     if(shakingIndex()){ x0=5;x1=9;xlabel=t("SHAKING AT THE ADDRESS (MMI)");ticks=[5,6,7,8,9]; }
     note=t("The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.",
-      {level:f1.format(structure().pts[0][0])});
+      {level:fLevel.format(structure().pts[0][0])});
     /* The policy's own first step, not the numeral six.
 
        A roman numeral is a whole number and these steps are not: an older
@@ -892,7 +892,7 @@ function drawCurve(){
        unit is named where naming it is the point: in the sentence about what
        the cover does not pay for, and in the contract. */
     if(shakingIndex()) note=t("The step at intensity {level} is your trigger. Each step up pays more, so a reading just short of one level still pays the level below.",
-      {level:f1.format(structure().pts[0][0])});
+      {level:fLevel.format(structure().pts[0][0])});
   } else if(flow.peril==="car"){
     var cps=structure().pts;
     x0=Math.max(0,Math.floor(cps[0][0]*0.6/10)*10); x1=Math.ceil(cps[2][0]*1.2/10)*10;

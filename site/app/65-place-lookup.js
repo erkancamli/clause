@@ -243,9 +243,9 @@ function shakingHtml(){
   function every(p){ return p>0?f0.format(Math.round(1/(-Math.log(1-p)))):"–"; }
   return '<p class="hint">'+esc(t("Pays on how hard the ground shook at the address itself, as the seismic networks' shaking maps record it, not on how large a distant earthquake was."))+'</p>'+
     '<div class="tbl-wrap" style="margin-top:10px"><table class="tbl" style="min-width:0"><tbody>'+
-    [[qp[0][0],t("Intensity {level} or more: strong, light damage",{level:f1.format(qp[0][0])}),qp[0][1]],
-     [qp[1][0],t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:f1.format(qp[1][0])}),qp[1][1]],
-     [qp[2][0],t("Intensity {level} or more: severe",{level:f1.format(qp[2][0])}),qp[2][1]]].map(function(r){
+    [[qp[0][0],t("Intensity {level} or more: strong, light damage",{level:fLevel.format(qp[0][0])}),qp[0][1]],
+     [qp[1][0],t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:fLevel.format(qp[1][0])}),qp[1][1]],
+     [qp[2][0],t("Intensity {level} or more: severe",{level:fLevel.format(qp[2][0])}),qp[2][1]]].map(function(r){
       return '<tr><td>'+esc(r[1])+'</td><td class="num">'+esc(t("about once in {n} years",{n:every(exc(r[0]))}))+'</td><td class="num">'+pct(r[2],0)+'</td></tr>';
     }).join("")+'</tbody></table></div>'+
     '<p class="fine" style="margin-top:8px">'+esc(shakingSource())+'</p>';
@@ -505,10 +505,24 @@ function rungWords(level){
        the step really is one, which is a building of the current code, and the
        number itself is printed otherwise. */
     return shakingIndex()
-      ? "MMI "+(level === Math.round(level) ? (ROMAN[level]||String(level)) : f1.format(level))
-      : "M"+level.toFixed(1);
+      ? "MMI "+(level === Math.round(level) ? (ROMAN[level]||String(level)) : fLevel.format(level))
+      : "M"+fLevel.format(level);
   if(flow.peril==="storm")return f0.format(Math.round(level))+" km/h";
-  if(flow.peril==="car"||flow.peril==="drought")return f0.format(Math.round(level))+" mm";
+  /* Rain to one decimal, as the sentence and the ladder write it, and the
+     season's rainfall whole, as its own two write it.
+
+     A day's rain threshold is not a round number: this place's once in ten
+     years level is 47.6 mm. Rounding it here made the summary row say "48 mm
+     2,500" between a sentence reading "If 47.6 mm or more of rain falls" and
+     a ladder reading "47.6 mm or more in a day", all three on the paying
+     screen. 48 and 47.6 are not the same threshold: a reader of the summary
+     would think a 47.8 mm day pays nothing, and it pays 2,500.
+
+     The season's levels are shares of a station's normal, hundreds of
+     millimetres, where a tenth says nothing and both the other places that
+     write them round. */
+  if(flow.peril==="car")return fLevel.format(level)+" mm";
+  if(flow.peril==="drought")return f0.format(Math.round(level))+" mm";
   return level>=1440 ? t("cancelled") : t("{n}h late",{n:Math.round(level/60)});
 }
 function ladderSaid(){
@@ -567,14 +581,14 @@ function triggerSaid(){
   // flat built in 2005 and 5.2 for the same flat on the magnitude index built
   // in 1975.
   if(flow.peril==="quake"){ pts=structure().pts;
-    return shakingIndex() ? t("pays from shaking of intensity {level}",{level:f1.format(pts[0][0])})
-                          : t("pays from magnitude {level}",{level:f1.format(pts[0][0])}); }
+    return shakingIndex() ? t("pays from shaking of intensity {level}",{level:fLevel.format(pts[0][0])})
+                          : t("pays from magnitude {level}",{level:fLevel.format(pts[0][0])}); }
   if(flow.peril==="car"){ pts=structure().pts;
-    return t("pays from {mm} mm of rain in a day",{mm:pts[0][0].toFixed(0)}); }
+    return t("pays from {mm} mm of rain in a day",{mm:fLevel.format(pts[0][0])}); }
   if(flow.peril==="storm"){ pts=structure().pts;
-    return t("pays from wind of {kmh} km/h",{kmh:pts[0][0].toFixed(0)}); }
+    return t("pays from wind of {kmh} km/h",{kmh:f0.format(Math.round(pts[0][0]))}); }
   if(flow.peril==="drought"){ var station=stationFor();
-    return t("pays below {mm} mm of rain for the season",{mm:(.8*station.normal).toFixed(0)}); }
+    return t("pays below {mm} mm of rain for the season",{mm:f0.format(Math.round(.8*station.normal))}); }
   return t("pays from two hours late");
 }
 /* ---------------- the running summary ----------------

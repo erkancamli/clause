@@ -89,7 +89,9 @@ def test_both_indexes_name_their_trigger_from_the_policy() -> None:
     # "{level}", and so reads none of the branch it is asking about.
     at = PLACES.index('if(flow.peril==="quake"){ pts=structure().pts;')
     branch = PLACES[at:PLACES.index('if(flow.peril==="car")', at)]
-    assert branch.count("f1.format(pts[0][0])") == 2, branch
+    # fLevel, not f1: a level is always written to one decimal, in the
+    # reader's own decimal mark. f1 drops a trailing zero.
+    assert branch.count("fLevel.format(pts[0][0])") == 2, branch
 
 
 def test_the_curves_note_names_it_too() -> None:
@@ -168,3 +170,53 @@ def test_a_step_pays_at_the_step_and_not_just_above_it() -> None:
     # And the curve these rows are drawn from is a step curve.
     assert 'quake:{shape:"step"' in model
     assert 'shake:{shape:"step"' in model
+
+
+def test_a_level_has_one_spelling_on_the_screen() -> None:
+    """f1 drops a trailing zero, because most of its sixty-odd uses are
+    ratios and percentages where 7 is the right answer. A level is not one of
+    those: the magnitude ladder read "A magnitude 6.5 to 7" and "A magnitude 7
+    or more" beside a summary row reading "M7.0", two spellings of one number,
+    adjacent, on the screen where the money moves.
+    """
+    fmt = (SITE / "app" / "15-formatting.js").read_text(encoding="utf-8")
+    assert "fLevel=new Intl.NumberFormat(locale,{minimumFractionDigits:1,maximumFractionDigits:1})" in fmt
+    # Nowhere that writes a peril level still goes through the general one.
+    for src in (FLOW, PLACES):
+        for written in re.findall(r"\{(?:level|from|to):f1\.format\([^)]*\)", src):
+            raise AssertionError(f"a level still written with f1: {written}")
+
+
+def test_a_magnitude_is_written_in_the_readers_own_decimal_mark() -> None:
+    """rungWords used toFixed(1), which keeps the zero and loses the mark: a
+    Turkish reader was shown M5.2 where every other number on the page is
+    written 5,2."""
+    assert 'level.toFixed(1)' not in PLACES
+    assert '"M"+fLevel.format(level)' in PLACES
+
+
+def test_a_rain_threshold_is_not_rounded_away_in_the_summary() -> None:
+    """Driven on the live site for rain cover at Kadıköy, one screen said all
+    three of these:
+
+        the sentence   "If 47.6 mm or more of rain falls ..."
+        the ladder     "47.6 mm or more in a day, 2,500 USDC"
+        the summary    "48 mm 2,500 . 56 mm 6,000 . 62 mm 10,000"
+
+    48 and 47.6 are not the same threshold. A reader of the summary would
+    think a 47.8 mm day pays nothing, and it pays 2,500.
+    """
+    at = PLACES.index("function rungWords(level)")
+    body = PLACES[at:PLACES.index("function triggerSaid", at)]
+    assert 'if(flow.peril==="car")return fLevel.format(level)+" mm";' in body
+    # The season's levels are hundreds of millimetres and round everywhere.
+    assert 'if(flow.peril==="drought")return f0.format(Math.round(level))+" mm";' in body
+    assert 'if(flow.peril==="storm")return f0.format(Math.round(level))+" km/h";' in body
+
+
+def test_the_running_summary_spells_a_level_the_way_the_rest_does() -> None:
+    at = PLACES.index("function triggerSaid")
+    # To the next declaration, not to a word that happens to sit above it.
+    body = PLACES[at:PLACES.index("\nfunction ", at + 1)]
+    assert "toFixed(0)" not in body, "a level is still written outside the reader's own convention"
+    assert "fLevel.format(pts[0][0])" in body

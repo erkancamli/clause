@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.49.2, 1 October 2026
+
+- One level, one spelling, on the screen where the money moves.
+
+  Found reading 1.49.1 back on the live site, which is what that release was
+  for. The rain one is the worst, because the two spellings are two different
+  thresholds. Driven for rain cover at Kadıköy, one screen said all three of
+  these at once:
+
+      the sentence   "If 47.6 mm or more of rain falls ..."
+      the ladder     "47.6 mm or more in a day, 2,500 USDC"
+      the summary    "48 mm 2,500 · 56 mm 6,000 · 62 mm 10,000"
+
+  48 and 47.6 are not the same threshold. A reader of the summary row would
+  think a 47.8 mm day pays nothing, and it pays 2,500. rungWords rounded,
+  where the sentence and the ladder both carry the tenth, because a day's rain
+  level is not a round number: this place's once in ten years level is 47.6 mm.
+
+  The quake one is smaller and was the thread that led here. The ladder read
+  "A magnitude 6.5 to 7" and "A magnitude 7 or more" beside a summary row
+  reading "M7.0". f1 drops a trailing zero, which is right for most of its
+  sixty-odd uses, because they are ratios and percentages where 7 is the
+  answer. A level is not one of those, so it has a formatter of its own now.
+
+  rungWords also wrote a magnitude with toFixed(1), which keeps the zero and
+  loses the reader's decimal mark: a Turkish reader was shown M5.2 on a page
+  where every other number is written 5,2. Three more levels were written with
+  toFixed(0) in the running summary, for the same reason and with the same
+  effect.
+
+  The season's rainfall keeps its rounding, and so does the wind. Those are
+  hundreds of millimetres and tens of kilometres an hour, where a tenth says
+  nothing, and in both cases every place that writes them already agreed.
+
 ## 1.49.1, 1 October 2026
 
 - The magnitude ladder named levels the policy does not pay at.
