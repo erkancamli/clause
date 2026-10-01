@@ -45,7 +45,7 @@ def test_it_names_the_policys_own_first_step() -> None:
 def test_it_is_the_same_step_the_ladder_draws() -> None:
     """Both read the policy's own points, so they cannot drift apart."""
     ladder = re.search(r'rows\.push\(\[t\("Intensity \{level\} or more: strong,'
-                       r' light damage",\{level:f1\.format\(([^)]+)\)\}\)', FLOW)
+                       r' light damage",\{level:fLevel\.format\(([^)]+)\)\}\)', FLOW)
     assert ladder, "the ladder's first paying row moved"
     # qp is structure().pts in payRows; the sentence reads the same call.
     assert ladder.group(1) == "qp[0][0]", ladder.group(1)

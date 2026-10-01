@@ -373,7 +373,7 @@ def test_a_roman_numeral_is_a_whole_number_and_these_steps_are_not() -> None:
     packed = _function("rungWords").replace(" ", "")
     assert "ROMAN[Math.round(level)]" not in packed, "the level is still rounded to a numeral"
     assert "level===Math.round(level)" in packed, "there is no test for a whole number"
-    assert "f1.format(level)" in packed, "a step that is not whole is not printed as a number"
+    assert "fLevel.format(level)" in packed, "a step that is not whole is not printed as a number"
 
 
 def test_the_sentence_a_buyer_reads_is_the_policy_they_are_buying() -> None:
