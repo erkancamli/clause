@@ -657,10 +657,27 @@ function payRows(){
     rows.push([t("Intensity {level} or more: very strong, damage to ordinary buildings",{level:f1.format(qp[1][0])}),shareAt(c,qp[1][0])*l,qp[1][0]]);
     rows.push([t("Intensity {level} or more: severe",{level:f1.format(qp[2][0])}),l,qp[2][0]]);
   } else if(flow.peril==="quake"){
-    rows.push([t("Nothing above magnitude 5.5 happens"),0,null]);
-    rows.push([t("A magnitude 5.5 to 6.5"),shareAt(c,5.5)*l,5.5]);
-    rows.push([t("A magnitude 6.5 to 7.0"),shareAt(c,6.5)*l,6.5]);
-    rows.push([t("A magnitude 7.0 or more"),l,7.0]);
+    /* The same fix the shaking rows above were given, which this branch never
+       got. A quake policy's steps move with the building: structure() shifts
+       the curve by the age of what is insured, for the magnitude index as
+       well, so a flat built in 1975 in Türkiye pays from 5.2 and not from
+       5.5. These four rows named 5.5, 6.5 and 7.0 whatever the policy said,
+       and read the curve at those levels too, so the chance column was
+       answered at a level the contract does not use either.
+
+       Driven on the live site for a 1975 building: the ladder read "A
+       magnitude 5.5 to 6.5, 8,574 USDC" while the summary row two inches
+       above it read "M5.2 8,574", the same money at a different level, on the
+       same screen. The summary was right. The first row was worse than
+       inconsistent: "Nothing above magnitude 5.5 happens, nothing" is false
+       when a 5.3 pays 8,574. */
+    var mp=c.pts;
+    rows.push([t("A magnitude below {level}",{level:f1.format(mp[0][0])}),0,null]);
+    rows.push([t("A magnitude {from} to {to}",{from:f1.format(mp[0][0]),to:f1.format(mp[1][0])}),
+               shareAt(c,mp[0][0])*l,mp[0][0]]);
+    rows.push([t("A magnitude {from} to {to}",{from:f1.format(mp[1][0]),to:f1.format(mp[2][0])}),
+               shareAt(c,mp[1][0])*l,mp[1][0]]);
+    rows.push([t("A magnitude {level} or more",{level:f1.format(mp[2][0])}),l,mp[2][0]]);
   } else if(flow.peril==="car"){
     var cp=c.pts;
     rows.push([t("Less than {mm} mm in a day",{mm:f1.format(cp[0][0])}),0]);
@@ -844,7 +861,8 @@ function drawCurve(){
   if(flow.peril==="quake"){
     x0=4.5;x1=7.5;xlabel=t("EARTHQUAKE MAGNITUDE");ticks=[5,5.5,6,6.5,7,7.5];
     if(shakingIndex()){ x0=5;x1=9;xlabel=t("SHAKING AT THE ADDRESS (MMI)");ticks=[5,6,7,8,9]; }
-    note=t("The step at 5.5 is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.");
+    note=t("The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.",
+      {level:f1.format(structure().pts[0][0])});
     /* The policy's own first step, not the numeral six.
 
        A roman numeral is a whole number and these steps are not: an older
