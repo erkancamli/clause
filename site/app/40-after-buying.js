@@ -220,14 +220,19 @@ function bindCancels(root){
         return;
       }
       var w=c.withdrawal||{}, when=function(x){ return new Date(x*1000).toLocaleString(LOCALES[LANG]||"en-US"); };
+      /* What leaves the protocol, not what the pool reverses: inside a
+         cooling off period the issuing fee and the surcharge a plan charged
+         for paying in parts come back beside the premium, and a buyer told
+         only the premium part is told less than they get. */
+      var back=(c.whole_back!=null?c.whole_back:c.refund);
       slot.innerHTML='<button class="btn btn-line btn-sm" type="button" data-cancel="'+esc(id)+'">'+
-        esc(t(CANCEL_BASIS[c.basis]||"Cancel",{refund:money(c.refund)}))+'</button>'+
+        esc(t(CANCEL_BASIS[c.basis]||"Cancel",{refund:money(back)}))+'</button>'+
         (c.until?'<span class="fine"> '+esc(t("until {time}",{time:when(c.until)}))+'</span>':'')+
         (w.basis==="informed"?'<span class="fine"> · '+esc(t("Your {days} day right to withdraw runs from the day you received the contract; whatever comes back is paid within {refund_days} days, here at once.",{days:w.days,refund_days:w.refund_within_days}))+'</span>':'')+
         (w.basis==="not_informed"?'<span class="fine"> · '+esc(t("You were not given the contract on a durable medium before buying, so you may withdraw for a year. Download your copy below."))+'</span>':'');
       var b=slot.querySelector("[data-cancel]");
       b.addEventListener("click",function(){
-        if(!confirm(t("Cancel this policy? {refund} will be returned to your address and the cover ends now.",{refund:money(c.refund)})))return;
+        if(!confirm(t("Cancel this policy? {refund} will be returned to your address and the cover ends now.",{refund:money(back)})))return;
         b.disabled=true; b.textContent=t("Signing…");
         signedCall("cancel",{policy_id:id},"/api/policies/"+encodeURIComponent(id)+"/cancel",
           function(){return {account:identity.address};}).then(function(){ renderMine(); },

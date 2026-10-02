@@ -5504,7 +5504,10 @@ def create_app(
                 raise Refused(409, safe_detail(error, fallback="that policy cannot be cancelled")) from error
             chain.withdraw(found)
             if terms["basis"] in ("mistake", "rider", "cooling_off"):
+                # Everything that was taken: the premium, the issuing fee and
+                # the surcharge a plan charged for paying in parts.
                 refund += return_fee(found)
+                refund += pool.return_financing(found)
             if found.metadata.get("carrier"):
                 registry.reconcile(pool.policies.values())
         meta = found.metadata or {}

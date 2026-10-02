@@ -289,13 +289,17 @@ class Pool:
         """Value of one senior share, the pool's headline figure."""
         return self.tranches["senior"].price
 
-    def _gain(self, amount: float) -> dict[str, float]:
-        """Share income across the tranches by capital times yield weight."""
+    def _income_shares(self, amount: float) -> dict[str, float]:
+        """How income of this size is shared, without moving anything."""
         weights = {n: t.balance * YIELD_WEIGHT[n] for n, t in self.tranches.items() if t.balance > 0}
         total = sum(weights.values())
         if total <= 0:
             weights, total = {"senior": 1.0}, 1.0
-        split = {n: amount * w / total for n, w in weights.items()}
+        return {n: amount * w / total for n, w in weights.items()}
+
+    def _gain(self, amount: float) -> dict[str, float]:
+        """Share income across the tranches by capital times yield weight."""
+        split = self._income_shares(amount)
         for name, part in split.items():
             self.tranches[name].balance += part
         return split
@@ -977,6 +981,38 @@ class Pool:
             policy.metadata["premium_owed"] = 0.0
             policy.metadata["written_off"] = round(owed, 2)
             self._record(EntryKind.INSTALMENT, 0.0, policy.holder, policy.policy_id, now)
+
+    def return_financing(self, policy: Policy, *, now: float | None = None) -> float:
+        """Give back the surcharge paid for paying in parts.
+
+        Called where a full refund is due, which is the hour after buying,
+        Rider's first day and the statutory cooling off period. The surcharge
+        is the price of credit the plan carried, and withdrawing from the
+        insurance unwinds the credit with it, so a buyer who is owed "the
+        whole premium" is owed this too; measured before it came back, a
+        first instalment of 912.38 returned 868.93. A pro rata cancellation
+        keeps it, because the credit was used for the months that ran.
+
+        It went in through _gain as income, so it comes back through
+        _reverse, as the premium does.
+        """
+        with self.lock:
+            meta = policy.metadata or {}
+            paid = round(float(meta.get("financing_paid", 0.0)), 2)
+            if paid <= 0 or meta.get("financing_returned"):
+                return 0.0
+            paid = min(paid, round(self.balance, 2))
+            if paid <= 0:
+                return 0.0
+            split = self._reverse(self._income_shares(paid), paid)
+            self.premiums_earned -= paid
+            self.refunds_paid += paid
+            payer = meta.get("paid_by") or policy.holder
+            self._record(EntryKind.REFUND, -paid, payer, policy.policy_id, now, split)
+            if self.wallets is not None:
+                self.wallets.credit(payer, paid, policy.policy_id, kind="financing_returned")
+            meta["financing_returned"] = paid
+            return paid
 
     def cancel(self, policy: Policy, *, note: str = "", now: float | None = None,
                refund: float | None = None) -> float:

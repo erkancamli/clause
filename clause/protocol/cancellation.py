@@ -6,6 +6,15 @@ Three rules, applied in this order, and the most generous that applies wins.
    premium, whatever it is and wherever the buyer lives. People press the
    wrong button; an hour costs the pool nothing.
 
+   Where a plan pays in parts, "the whole premium" is every part of what was
+   taken: the premium paid so far, the issuing fee, and the surcharge the
+   plan carries for paying in parts. The surcharge is the price of credit
+   that is being unwound with the cover, so keeping it would settle a
+   statutory right short. It was measured doing exactly that: a buyer who
+   paid 912.38 for the first of twelve instalments was given 868.93 back,
+   4.76% less, because the 43.45 of surcharge in that instalment was income
+   the pool had already shared out.
+
 2. The law where the buyer lives. Consumer law gives a cooling off period for
    insurance sold at a distance, with the whole premium back:
 
@@ -118,6 +127,13 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
     # the instalments so far, less any commission already paid out of them.
     paid = policy.premium - float(meta.get("premium_owed", 0.0))
     refundable = max(0.0, paid - commission)
+    # The two amounts beside the premium that a full refund also returns, and
+    # a pro rata one does not. Both are what the buyer actually paid rather
+    # than what the plan totals to, and both are nil once returned.
+    fee_paid = 0.0 if meta.get("fee_returned") else round(float(
+        meta.get("fee_paid", meta.get("fronting_fee", 0.0))), 2)
+    financing_paid = 0.0 if meta.get("financing_returned") else round(float(
+        meta.get("financing_paid", 0.0)), 2)
     resident = ((meta.get("interest") or {}).get("resident")
                 or (meta.get("interest") or {}).get("country"))
     rule = cooling_off_for(resident)
@@ -130,21 +146,33 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
         "cooling_off_days": rule.days, "law": rule.law, "statutory": rule.statutory,
         "mistake_until": policy.bought_at + MISTAKE_SECONDS,
         "withdrawal": right, "withdrawn": meta.get("withdrawal"),
+        "fee_paid": fee_paid, "financing_paid": financing_paid,
     }
+    # refund is the premium side, which is what the pool reverses; whole is
+    # what leaves the protocol and so what a buyer is told, and the page
+    # shows that one. They differ by the fee and the surcharge.
+    everything = {"refund": round(refundable, 2), "fee_back": fee_paid,
+                  "financing_back": financing_paid,
+                  "whole_back": round(refundable + fee_paid + financing_paid, 2)}
+
+    def nothing_but(amount: float) -> dict[str, float]:
+        """A refund of the premium side only, which is every other basis."""
+        return {"refund": round(amount, 2), "fee_back": 0.0,
+                "financing_back": 0.0, "whole_back": round(amount, 2)}
 
     if not policy.is_open:
-        return {**out, "allowed": False, "refund": 0.0, "basis": "closed",
+        return {**out, **nothing_but(0.0), "allowed": False, "basis": "closed",
                 "reason": f"this policy is already {policy.status.value}"}
     if meta.get("provisional"):
-        return {**out, "allowed": False, "refund": 0.0, "basis": "settling",
+        return {**out, **nothing_but(0.0), "allowed": False, "basis": "settling",
                 "reason": "the index has already been reached; this policy is settling"}
 
     if age <= MISTAKE_SECONDS:
-        return {**out, "allowed": True, "refund": round(refundable, 2), "basis": "mistake",
+        return {**out, **everything, "allowed": True, "basis": "mistake",
                 "until": policy.bought_at + MISTAKE_SECONDS,
                 "reason": "bought less than an hour ago: all of it comes back"}
     if meta.get("bought_by") == "rider" and now <= float(meta.get("cancel_until", 0)):
-        return {**out, "allowed": True, "refund": round(refundable, 2), "basis": "rider",
+        return {**out, **everything, "allowed": True, "basis": "rider",
                 "until": float(meta["cancel_until"]),
                 "reason": "bought by Rider less than a day ago: all of it comes back"}
     if right["open"]:
@@ -152,7 +180,7 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
                   if right["basis"] == "informed" else
                   "the pre-contract information was never delivered to you on a durable medium, so the right to "
                   "withdraw runs for a year: all of it comes back")
-        return {**out, "allowed": True, "refund": round(refundable, 2), "basis": "cooling_off",
+        return {**out, **everything, "allowed": True, "basis": "cooling_off",
                 "until": right["until"], "reason": reason}
     if policy.peril_key in UNFORESEEABLE:
         # Never more than the whole term: cover cancelled before it has started
@@ -163,10 +191,10 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
         # What was paid, less the cover already used; never below zero, and a
         # plan that is behind its usage has nothing to get back.
         refund = max(0.0, min(refundable, paid - used - commission))
-        return {**out, "allowed": left > 0, "refund": round(refund, 2), "basis": "pro_rata",
+        return {**out, **nothing_but(refund), "allowed": left > 0, "basis": "pro_rata",
                 "reason": (f"the unexpired {left:.0%} of the term comes back: an earthquake cannot be "
                            f"seen coming, so leaving early tells the pool nothing")}
-    return {**out, "allowed": False, "refund": 0.0, "basis": "none",
+    return {**out, **nothing_but(0.0), "allowed": False, "basis": "none",
             "reason": ("cover on rain, on wind and on flights runs to the end of its term once the first "
                        "hour and any cooling off period have passed: a buyer can see how the "
                        "season, the weather or the flight is going, and refunds then would leave the pool "
