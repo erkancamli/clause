@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.50.3, 2 October 2026
+
+- Six more of the audit's findings on the buying flow, all of them states a
+  buyer could be left in and none of them visible from reading the code
+  alone. Every one was found by walking the flow and is fixed where it was
+  found.
+
+- Two dead ends on the way to the price.
+
+  A flight's cover arrives at 1,000 from the card and the value slider's
+  floor is 200, and the slider was the one place that did not bring the
+  cover down with the value. Cover above the value at risk is refused as a
+  wager rather than an indemnity, so dragging the slider to the bottom
+  refused the policy: the sentence that says why is on the fifth step, the
+  only control that lowers cover is on the fourth, and the third would not
+  let the buyer past, with a button reading "Cannot be written" that pointed
+  at no field. The only way out was to drag the slider back up, and nothing
+  said so.
+
+  And tapping the card that is already ticked now changes nothing.
+  choosePeril cleared the subject, the radius, the floor area and the cover
+  on every tap and cleared the place and the search box only when the answer
+  had actually changed, so going back to the first question and tapping the
+  same card left the buyer looking at their own address in the search box,
+  an empty result list because the query equalled the place it had just
+  deleted, no pin on the map, and a button reading "Choose a place".
+
+- A search still running is not a search that failed. The place box asks the
+  catalogue inside the page, which answers at once, and a geocoder over the
+  network, which takes up to 18.9 seconds with its retry. The empty state
+  fired on the first answer alone, so somebody typing their street read
+  "Nothing matched" while the service that would have matched it was still
+  in flight. It says it is still looking until there is an answer, and a
+  lookup that is refused records that as the answer it is, so the waiting
+  state always ends.
+
+- "Check the pin, and drag it if it is not quite right" was said the moment
+  the browser answered, which is before there is a pin: it is placed by the
+  call that turns the coordinate into an address, up to eighteen seconds
+  later. Said where the pin is put now, in both of that call's outcomes.
+
+- Offline, the last screen said "You are covered. There is nothing else to
+  do." under a green seal, and contradicted itself three lines below in the
+  one paragraph it set: "Nothing was bought." The heading, the lamp and the
+  seal are the markup's defaults and only the two paths that did buy
+  something ever replaced them. That screen writes its own now.
+
+- And the ten minute price hold says so when it ends. The contract is
+  written on a held price, so when the hold ends the contract is drawn again
+  and the acceptance is taken back. The contract is the longest text in the
+  product, so a buyer reading it for more than ten minutes looked up to find
+  the tick gone with nothing saying why. Said where the tick was, and only
+  where the buyer did not cause it.
+
 ## 1.50.2, 2 October 2026
 
 - Six of the audit's open findings, the three that cost a buyer money first.
