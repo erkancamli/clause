@@ -1081,6 +1081,39 @@ def create_app(
         redoc_url=None,
         lifespan=lifespan,
     )
+    def guessed_token(request: Request) -> Any:
+        """A wrong operator token is counted wherever it is tried.
+
+        POST /api/operator/session was limited "hard and on every attempt
+        rather than on failures, because a token guessed at a thousand tries
+        a second is not a token", and it was the only one of twenty five
+        doors that was: measured, 400 attempts at GET /api/operator/carriers
+        with a wrong token answered 401 four hundred times at 705 attempts a
+        second, and so did POST /api/carriers/{id}/activate.
+
+        Counted before routing, so every route that takes the header is
+        covered and so is every route added later. It only counts and
+        refuses with 429; it never answers in place of the route, because
+        several of these routes answer 404 rather than 401 by design and
+        saying 401 first would tell a stranger they exist.
+
+        Returns the refusal, or None to let the request through. Called from
+        harden() rather than from a middleware of its own, because a
+        middleware outside that one answers without the headers it sets:
+        measured, the 429 came back with no cache-control and no nosniff.
+        """
+        supplied = request.headers.get("x-operator-token")
+        if not supplied or settings.is_operator_token(supplied):
+            return None
+        try:
+            limiter.check(caller_of(request), "operator-token", limit=10, window=600.0)
+        except Refused as refusal:
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": refusal.detail},
+                                status_code=refusal.status_code,
+                                headers=refusal.headers or {})
+        return None
+
     @app.middleware("http")
     async def harden(request: Request, call_next):
         """The headers a browser needs from an API that answers with personal
@@ -1090,7 +1123,7 @@ def create_app(
         the same in production; the application says it itself so a deployment
         without nginx is no less careful, and the two copies are identical so
         they add up to one policy."""
-        response = await call_next(request)
+        response = guessed_token(request) or await call_next(request)
         headers = response.headers
         headers.setdefault("x-content-type-options", "nosniff")
         headers.setdefault("referrer-policy", "strict-origin-when-cross-origin")
@@ -1100,6 +1133,18 @@ def create_app(
         if path.startswith("/api/") and not path.startswith("/api/docs"):
             headers.setdefault("cache-control", "no-store")
             headers.setdefault("content-security-policy", "default-src 'none'; frame-ancestors 'none'")
+        # Only on a connection that is already encrypted, and said by the
+        # application rather than only by the edge: deploy/nginx.conf has sent
+        # this for as long as it has existed, and the deployment that is
+        # actually running answers through a different proxy, which does not.
+        # Measured against the live service: every other header above was
+        # there and this one was missing, so a first visit over http was
+        # downgradeable where the document said it could not be. A header set
+        # here cannot be lost by changing the edge.
+        if request.url.scheme == "https" or \
+                request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https":
+            headers.setdefault("strict-transport-security",
+                               "max-age=31536000; includeSubDomains")
         return response
 
     if keeper is not None:
@@ -5504,7 +5549,10 @@ def create_app(
                 raise Refused(409, safe_detail(error, fallback="that policy cannot be cancelled")) from error
             chain.withdraw(found)
             if terms["basis"] in ("mistake", "rider", "cooling_off"):
+                # Everything that was taken: the premium, the issuing fee and
+                # the surcharge a plan charged for paying in parts.
                 refund += return_fee(found)
+                refund += pool.return_financing(found)
             if found.metadata.get("carrier"):
                 registry.reconcile(pool.policies.values())
         meta = found.metadata or {}

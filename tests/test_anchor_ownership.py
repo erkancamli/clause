@@ -204,3 +204,88 @@ def test_the_deploy_script_offers_it() -> None:
     # And it says what to write down, because nothing in the repository
     # records a deployed address.
     assert "write the two addresses down" in script
+
+
+def test_the_deployed_addresses_are_written_down_correctly() -> None:
+    """A transcribed address is the one thing here nothing else can check.
+
+    The audit's finding was that nothing in the repository records an
+    address, so the operator's page cannot tell a real deployment from a
+    blank one. docs/anchor.md records them now, and a typo in one is
+    invisible to every other test, so the checksum is read here.
+    """
+    import re
+    from pathlib import Path
+
+    doc = (Path(__file__).resolve().parent.parent / "docs" / "anchor.md"
+           ).read_text(encoding="utf-8")
+    where = doc.split("## What is deployed", 1)
+    assert len(where) == 2, "the deployment is not recorded"
+    found = set(re.findall(r"0x[0-9a-fA-F]{40}", where[1]))
+    assert len(found) == 3, f"policy, book and signer; found {sorted(found)}"
+    for address in found:
+        assert checksum(address) == address, (
+            f"{address} is not its own EIP-55 checksum, so a character is wrong")
+
+
+# -- and the pair that is already deployed ---------------------------------
+
+def run_handover(**env) -> tuple[int, str, str]:
+    """The script, in a process of its own, as an operator would run it."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    args = []
+    for flag in ("owner", "policy", "book", "rpc"):
+        if flag in env:
+            args += [f"--{flag}", env.pop(flag)]
+    if env.pop("dry_run", False):
+        args.append("--dry-run")
+    where = dict(os.environ)
+    for name in ("CLAUSE_ANCHOR_KEY", "CLAUSE_ANCHOR_OWNER", "CLAUSE_ANCHOR_POLICY",
+                 "CLAUSE_ANCHOR_BOOK", "CLAUSE_ANCHOR_RPC"):
+        where.pop(name, None)
+    where.update(env)
+    done = subprocess.run([sys.executable, str(root / "scripts" / "hand_over_owner.py"), *args],
+                          capture_output=True, text=True, timeout=60, cwd=root, env=where)
+    return done.returncode, done.stdout, done.stderr
+
+
+def test_the_handover_needs_the_key_from_the_environment() -> None:
+    code, _out, said = run_handover(owner=SAFE, policy=POLICY, book=BOOK)
+    assert code == 2
+    assert "CLAUSE_ANCHOR_KEY" in said
+
+
+def test_the_handover_needs_somewhere_to_hand_it_to() -> None:
+    code, _out, said = run_handover(CLAUSE_ANCHOR_KEY=A_KEY, policy=POLICY, book=BOOK)
+    assert code == 2
+    assert "offline" in said
+
+
+def test_handing_it_to_the_signing_key_is_refused_there_too() -> None:
+    code, _out, said = run_handover(CLAUSE_ANCHOR_KEY=A_KEY, owner=SENDER,
+                                    policy=POLICY, book=BOOK)
+    assert code == 2
+    assert "the signing key itself" in said
+
+
+def test_it_says_where_the_addresses_are_written_down() -> None:
+    """Because nothing in the code holds one."""
+    code, _out, said = run_handover(CLAUSE_ANCHOR_KEY=A_KEY, owner=SAFE)
+    assert code == 2
+    assert "docs/anchor.md" in said
+
+
+def test_the_calldata_is_the_same_call_the_deployment_makes() -> None:
+    """One encoding of setOwner, so the two paths cannot drift apart."""
+    from pathlib import Path
+
+    script = (Path(__file__).resolve().parent.parent / "scripts"
+              / "hand_over_owner.py").read_text(encoding="utf-8")
+    assert 'encode_call("setOwner(address)", [wanted])' in script
+    assert 'encode_call("owner()", [])' in script, "it reads the owner before it writes one"
+    assert "--dry-run" in script

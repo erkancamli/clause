@@ -30,3 +30,39 @@ def test_every_api_answer_is_uncacheable_and_hardened() -> None:
             if r.status_code == 429:
                 break
         assert r.status_code == 429 and int(r.headers["retry-after"]) >= 1 and r.headers["cache-control"] == "no-store"
+
+
+def test_an_encrypted_answer_says_not_to_come_back_unencrypted() -> None:
+    """HSTS, from the application rather than only from the edge.
+
+    deploy/nginx.conf has sent `Strict-Transport-Security` for as long as it
+    has existed, and the deployment that is actually running answers through
+    a different proxy, which does not: measured against the live service,
+    every other header in the test above was present and this one was
+    missing. Said here too, so changing the edge cannot lose it.
+
+    Only where the connection is already encrypted. A header promising a
+    browser never to use http again, sent over http, is a promise made on
+    the one channel that could have been tampered with.
+    """
+    with TestClient(create_app(trials=50, seed=11, run_chain=False, seed_book=False,
+                               settings=Settings())) as client:
+        plain = client.get("/api/health")
+        assert "strict-transport-security" not in plain.headers
+
+        for proto in ("https", "https, http", "https,http"):
+            said = client.get("/api/health", headers={"x-forwarded-proto": proto}).headers
+            assert said["strict-transport-security"] == "max-age=31536000; includeSubDomains", proto
+
+        for proto in ("http", "ws", ""):
+            said = client.get("/api/health", headers={"x-forwarded-proto": proto}).headers
+            assert "strict-transport-security" not in said, proto
+
+
+def test_the_application_and_the_edge_say_the_same_thing() -> None:
+    """Two copies of one policy, which only add up while they agree."""
+    from pathlib import Path
+
+    conf = (Path(__file__).resolve().parent.parent / "deploy" / "nginx.conf"
+            ).read_text(encoding="utf-8")
+    assert 'Strict-Transport-Security "max-age=31536000; includeSubDomains"' in conf

@@ -1,5 +1,77 @@
 # Changelog
 
+## 1.50.2, 2 October 2026
+
+- Six of the audit's open findings, the three that cost a buyer money first.
+
+  A full refund now returns the surcharge a plan charges for paying in
+  parts. cancellation.py states its first rule as "Anything bought in the
+  last hour can be cancelled for the whole premium, whatever it is and
+  wherever the buyer lives", and measured end to end at Osaka on Japan's
+  twelve monthly plan, the buyer paid 38.16 and was given 36.34 back. The
+  surcharge had been booked as pool income and nothing gave it back. It
+  comes back the way it went in, the ledger still replays to the balance,
+  and a pro rata cancellation keeps it because the credit was used for the
+  months that ran. The page now confirms what leaves the protocol rather
+  than the premium part of it, which were not the same number.
+
+  The most read sentence on the page where the signature is taken said
+  "You pay N USDC now, and nothing else ever" whatever plan was chosen.
+  Under twelve monthly instalments both halves of that are wrong: measured
+  on a Tokyo policy it said 10,143.15 and nothing else ever for cover the
+  contract priced at 10,948.52 in twelve instalments of 912.38. The plan
+  box the buyer chose the plan in, the price row and the price bar all
+  knew. The clause is one function now and says what the plan pays.
+
+  And a policy appears in one month's statement rather than one per
+  instalment. The money columns were always right; the policy count and
+  the premium written were not, and they are the two figures a delegated
+  authority desk reconciles first. Measured on one policy with a 1,000.00
+  premium paid in twelve parts: twelve policies and 12,000.00 written
+  against one and 1,000.00, which made the platform's published 1 per cent
+  divide out as 0.083.
+
+- The third question, which asks what is at risk, had three dead ends.
+
+  The box showed one declaration while the contract was sent another: the
+  field was written from the model before the model was filled, so a home,
+  a field and a car showed a placeholder while the declaration already
+  read "A flat in Istanbul, Kadikoy", and that is what /api/contract and
+  /api/applications were sent.
+
+  A buyer in the United States was told to check a correct number. US
+  cities are offered because the USGS publishes the curves, and the third
+  question then refused the floor area, because the rebuild cost schedule
+  has ten countries and not that one. The real answer, that no carrier is
+  registered there, was the last test in the branch and never reached.
+
+  And nobody is refused before the licensing answer arrives. A flight
+  buyer, three taps from the home page with every field filled, met a red
+  "Nobody registered" panel and a dead button for as long as the health
+  check and the compliance call took, then watched it clear itself.
+
+- A wrong operator token is counted wherever it is tried. One of the
+  twenty five routes taking that header was rate limited, and its own
+  comment says why: "a token guessed at a thousand tries a second is not a
+  token". Measured, 400 wrong tokens at one of the other twenty four
+  answered 401 four hundred times at 705 attempts a second. Counted in one
+  middleware now, so the twenty sixth route is covered too, and a short
+  token is said to be short at startup.
+
+- The API says not to come back unencrypted. deploy/nginx.conf has sent
+  Strict-Transport-Security for as long as it has existed, and the
+  deployment that is actually running answers through a different proxy,
+  which does not: measured against the live service, every other header the
+  hardening test asks for was there and this one was missing. The
+  application says it itself now, on an encrypted connection only, so
+  changing the edge cannot lose it.
+
+- The two deployed contract addresses are written down, in docs/anchor.md.
+  Nothing in the repository recorded one, so the operator's page could not
+  tell a real deployment from a blank one. Read off the running service and
+  confirmed against the chain, where owner() on both still answers the
+  signing key.
+
 ## 1.50.1, 2 October 2026
 
 - A session released money, and a token could be moved until the key ran dry.

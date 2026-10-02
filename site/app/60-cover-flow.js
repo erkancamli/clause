@@ -430,6 +430,19 @@ function loadCoverage(force){
   return COVERAGE_PENDING;
 }
 
+/* Whether the licensing answer has arrived.
+
+   COVERAGE starts null, coverFor() then answers null for every country, and
+   licensing() read that as "No licensed carrier is registered to write cover
+   in Türkiye yet". A flight buyer is three taps from the home page to the
+   third question with every field already filled, so they met a red "Nobody
+   registered" panel and a dead "Cannot be written" button for as long as the
+   health check and the compliance call took: up to 18.9 seconds with the
+   retries, and then it cleared itself. Not knowing is its own state. */
+function coverageKnown(){
+  return COVERAGE!==null;
+}
+
 /* Where the licence has to be. For something tied to a place, the place: a
    flat in Istanbul needs paper licensed in Türkiye whoever owns it. For a
    flight, which follows the person, where they live. The protocol applies the
@@ -613,6 +626,22 @@ function wholePrice(){
   var offer=offerForPrice();
   return priced().premium+(offer?offer.fee:0);
 }
+
+/* What the buyer pays, as its own clause.
+
+   Every sentence ended with "and nothing else ever", which is true of a
+   single payment and false of every plan: measured on a Tokyo policy, the
+   sentence said 10,143.15 now and nothing else ever for cover the contract
+   priced at 10,948.52 in twelve instalments of 912.38. The plan box, the
+   price row and the price bar all knew; the sentence above them did not. */
+function payClause(){
+  var whole=wholePrice(), n=flow.instalments||1;
+  if(n<2)return t("You pay <b>{premium} USDC</b> now, and nothing else ever.",{premium:money(whole)});
+  var plan=(PLANS.plans||[]).filter(function(p){return p.count===n;})[0]||{surcharge:0};
+  var total=whole*(1+plan.surcharge);
+  return t("You pay <b>{each} USDC</b> today, then {rest} more payments of the same, <b>{total} USDC</b> in all.",
+    {each:money(total/n), rest:n-1, total:money(total)});
+}
 function plainSentence(){
   var q=priced(),l=flow.limit;
   /* The levels and the first payment come from the policy's own curve, as the
@@ -624,31 +653,31 @@ function plainSentence(){
      the page was wrong about what the policy pays and about when. */
   if(flow.peril==="quake"&&shakingIndex()){
     var qc=structure().pts;
-    return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+    return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. {pay}",
       {place:esc(subjectLabel()), level:fLevel.format(qc[0][0]), top:fLevel.format(qc[2][0]),
-       first:money(qc[0][1]*l), full:money(l), premium:money(wholePrice())});
+       first:money(qc[0][1]*l), full:money(l), pay:payClause()});
   }
   if(flow.peril==="quake"){
     var mc=structure().pts;
-    return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+    return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. {pay}",
       {mag:fLevel.format(mc[0][0]), top:fLevel.format(mc[2][0]), km:flow.radius,
-       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), premium:money(wholePrice())});
+       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), pay:payClause()});
   }
   if(flow.peril==="car"){
     var cc=structure().pts;
-    return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), premium:money(wholePrice())});
+    return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. {pay}",
+      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), pay:payClause()});
   }
   if(flow.peril==="storm"){
     var sc=structure().pts;
-    return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), premium:money(wholePrice())});
+    return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. {pay}",
+      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), pay:payClause()});
   }
   if(flow.peril==="drought"){
     var s=stationFor();
-    return t("If the station at {station}, <b>{km} km</b> from {place}, records less than <b>{mm} mm</b> of rain across the {season} season, you start receiving money, up to <em>{full} USDC</em> if the season comes in at 40% of normal. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+    return t("If the station at {station}, <b>{km} km</b> from {place}, records less than <b>{mm} mm</b> of rain across the {season} season, you start receiving money, up to <em>{full} USDC</em> if the season comes in at 40% of normal. {pay}",
       {station:esc(s.name), km:f0.format(Math.round(flow.stationKm)), place:esc(subjectLabel()),
-       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), premium:money(wholePrice())});
+       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), pay:payClause()});
   }
   // The two ends, named the way the rest of the step names them. This read
   // ROUTES[flow.subject], and could not ever hit: the subject of a flight is
@@ -659,10 +688,10 @@ function plainSentence(){
   // showing the policy before this one, with the summary beside them showing
   // this one. The page the buyer signs on cannot be pieced together from two
   // different policies.
-  return t("If your flight from {from} to {to} arrives <b>more than two hours late</b>, you receive <em>{first} USDC</em>, rising to <em>{full}</em> if it is cancelled. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+  return t("If your flight from {from} to {to} arrives <b>more than two hours late</b>, you receive <em>{first} USDC</em>, rising to <em>{full}</em> if it is cancelled. {pay}",
     {from:esc(flow.flightFromText||flow.flightFrom||""),
      to:esc(flow.flightToText||flow.flightTo||""),
-     first:money(.30*l), full:money(l), premium:money(wholePrice())});
+     first:money(.30*l), full:money(l), pay:payClause()});
 }
 function payRows(){
   var c=structure(),l=flow.limit,rows=[];
@@ -1150,6 +1179,21 @@ function whatIsMissing(){
     return null;
   }
   if(flow.step===RISK_STEP){
+    /* The country, where the country is the answer.
+
+       Earthquake territory includes the United States, because the USGS
+       publishes the curves, so a US city shows as available, is selectable
+       and passes the second question. The third question then asked for the
+       floor area and refused it, because the rebuild cost schedule has ten
+       countries and not that one, so the button read "Check the size above"
+       about a number that was correct and the field it pointed at could not
+       be fixed. The real answer, that no carrier is registered there, was
+       the last test in this branch and the size check never let it be
+       reached. It does not depend on anything below it, so it is asked
+       first. Only once the answer is in: before that it is not a refusal
+       but a wait, which is the state below. */
+    if(coverageKnown()&&link.live&&licensing(riskCountry()))
+      return {say:t("Cannot be written"),at:""};
     if(!it.what)return {say:t("Say what is at risk"),at:"what"};
     if(flow.peril==="car"){
       if(!(it.value>0))return {say:t("Enter what the car is worth"),at:"value"};
@@ -1183,7 +1227,9 @@ function whatIsMissing(){
     // Last, because the ruling reads the answers above it: asked before they
     // exist it refuses everything, and "Cannot be written" was the first thing
     // an empty third question said.
-    if(!localRuling().allowed)return {say:t("Cannot be written"),at:""};
+    var ruling=localRuling();
+    if(ruling.unknown)return {say:t("Checking the licence"),at:""};
+    if(!ruling.allowed)return {say:t("Cannot be written"),at:""};
     return null;
   }
   return null;
@@ -1516,6 +1562,11 @@ function localRuling(){
       t("This page cannot reach the protocol, so it cannot tell you whether a "+
       "company is licensed to issue this where you are. Nothing below is real.")]};
 
+  if(!coverageKnown())
+    return {allowed:false, unknown:true, cover:null, note:note, name:name, asset:null,
+            reasons:[t("Still checking which company is licensed to write this in {country}.",
+                       {country:name})]};
+
   var refusal=licensing(code);
   if(refusal) return no(refusal);
 
@@ -1558,8 +1609,9 @@ function cashName(code,asset){
 
 function verdictHtml(ruling, compact){
   var out="";
-  out+='<div class="vrow"><span class="pill '+(ruling.allowed?"ok":"no")+'">'+
-       esc(ruling.offline?t("Unverified"):ruling.allowed?t("May be written"):t("Refused"))+'</span>'+
+  out+='<div class="vrow"><span class="pill '+(ruling.allowed?"ok":ruling.unknown?"":"no")+'">'+
+       esc(ruling.offline?t("Unverified"):ruling.unknown?t("Still checking"):
+           ruling.allowed?t("May be written"):t("Refused"))+'</span>'+
        '<span>'+esc(ruling.name||"")+
        (ruling.cover?' · '+esc(listText(ruling.cover.authorities.map(ts))):"")+'</span></div>';
   // Allowed: the one line above says it; the law behind it is a click

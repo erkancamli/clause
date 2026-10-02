@@ -52,7 +52,6 @@ function areaSentence(){
 function renderInterest(){
   var interest=flow.interest;
   if(!interest.what&&flow.peril==="flight")interest.what=t("one flight, and what missing it costs");
-  $("what").value=interest.what;
   if(!interest.what&&flow.peril==="car")interest.what=t("my car");
   // A home is named after its place; the buyer can change the words. And
   // the place the buyer chose is where the home stands, so it is inside the
@@ -80,6 +79,16 @@ function renderInterest(){
   // from the station that settles it, the sentence names that distance, and
   // basis risk lives in it. That one is a buyer's to confirm.
   if(!interest.insideTouched&&flow.peril!=="drought")interest.inside=true;
+  /* The box is written after the name is worked out, and not before it.
+
+     It was written first, so for a home, a field and a car the field showed
+     its placeholder while flow.interest.what already held "A flat in
+     Istanbul, Kadikoy". The button said Continue, the summary row said the
+     name, and /api/contract and /api/applications were both sent it: the
+     buyer signed a declaration of what is at risk that the box they were
+     looking at never showed. It healed itself on the next render, which is
+     one compliance round trip away, up to 18.9 seconds on a slow line. */
+  $("what").value=interest.what;
   $("what").placeholder = flow.peril==="car" ? t("my car") : flow.peril==="quake" ? t("A flat in {place}",{place:subjectLabel()})
     : flow.peril==="storm" ? t("A house in {place}",{place:subjectLabel()})
     : flow.peril==="drought" ? t("40 hectares of wheat") : t("one flight, and what missing it costs");
@@ -154,6 +163,12 @@ function renderInterest(){
     box.className="verdict";
     box.innerHTML='<div class="vrow"><span class="pill">'+esc(t("Not connected"))+'</span><span>'+
       esc(name)+'</span></div><p>'+esc(t("This page cannot reach the protocol, so it cannot tell you which companies are licensed where you are."))+'</p>';
+  } else if(!coverageKnown()){
+    // The answer has not arrived. It used to read "Nobody registered" while
+    // it was on its way, in red, which is a different sentence altogether.
+    box.className="verdict";
+    box.innerHTML='<div class="vrow"><span class="pill">'+esc(t("Still checking"))+'</span><span>'+
+      esc(name)+'</span></div><p>'+esc(t("Still checking which company is licensed to write this in {country}.",{country:name}))+'</p>';
   } else if(open){
     box.className="verdict ok";
     box.innerHTML='<div class="vrow"><span class="pill ok">'+
