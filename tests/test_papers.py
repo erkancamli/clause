@@ -24,9 +24,13 @@ def test_a_paper_can_never_be_taken_out_or_rewritten() -> None:
     """A file that can quietly lose a page proves nothing about what was in
     it, so there is no way to remove one and no way to edit one."""
     book = Papers()
-    for name in dir(book):
-        assert not name.startswith(("remove", "delete", "drop", "purge", "edit", "amend")), \
-            f"Papers.{name} would let the record be changed after the fact"
+    # The whole surface, rather than six forbidden spellings of it: a
+    # rewrite(), a set_text(), a replace() or a redact() would all have
+    # passed the prefix check, and the claim above is about every way of
+    # changing a paper rather than about those six words. Anything added
+    # here has to be considered before this goes green again.
+    assert {n for n in dir(book) if not n.startswith("_")} == {
+        "about", "give", "mine", "open", "papers", "unread"}
     given = book.give(MINE, "confirmation", "Your order", "text", now=1000.0)
     assert book.mine(MINE) == [given]
     # Writing more does not disturb what is already there.

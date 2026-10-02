@@ -54,9 +54,22 @@ def test_it_is_the_same_step_the_ladder_draws() -> None:
 
 def test_it_says_intensity_where_the_ladder_says_intensity() -> None:
     """One screen calls a thing one name. The unit is named where naming it is
-    the point: in what the cover does not pay for, and in the contract."""
+    the point: in what the cover does not pay for, and in the contract.
+
+    The second assertion used to read `assert "MMI" not in KEY`, and KEY is a
+    string literal twenty eight lines above in this file: no change anywhere
+    in the product could make it fail. It asks the page now, which is what it
+    was always meant to be asking, and asks the ladder beside it, because the
+    claim is that the two agree.
+    """
     assert "The step at intensity {level} is your trigger" in PAGE
-    assert "MMI" not in KEY
+    sentence = re.search(r'The step at intensity \{level\}[^"]*', PAGE)
+    assert sentence and "MMI" not in sentence.group(0), sentence
+    ladder = re.search(r'Intensity \{level\} or more: strong, light damage', PAGE)
+    assert ladder, "the ladder's first paying row is no longer on the page"
+    # The screen does say MMI elsewhere, where naming the unit is the point,
+    # so this is about these two sentences and not about the word.
+    assert "MMI" in PAGE
 
 
 def test_the_old_sentence_is_gone_from_every_language() -> None:
