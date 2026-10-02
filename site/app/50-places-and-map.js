@@ -315,13 +315,34 @@ function contractKey(){
                          flow.instalments,flow.interest.address,sizePayload(),
                          held?["lock",lock.id]:priced().premium]);
 }
+/* Two contract keys that differ only in their last element, which is the
+   price or the lock that stands for it. Everything the buyer chose is in the
+   elements before it. */
+function onlyThePriceMoved(before, now){
+  try {
+    var a=JSON.parse(before), b=JSON.parse(now);
+    return JSON.stringify(a.slice(0,-1))===JSON.stringify(b.slice(0,-1));
+  } catch(e){ return false; }
+}
 function renderContract(){
   var box=$("contract-box"); if(!link.live){ box.hidden=true; return; }
   box.hidden=false;
   var key=contractKey();
+  var note=$("accept-note");
   if(CONTRACT.key===key){ $("contract-text").textContent=CONTRACT.text; return; }
+  /* The tick is about to be taken back. A buyer who changed something knows
+     why; a buyer who was reading does not, and the contract is the longest
+     text in the product. A held price lasts ten minutes, so anyone reading
+     for longer than that had their acceptance undone and the button put back
+     to "Read and accept the contract", with nothing on the screen saying so
+     but the price bar's caption. */
+  var undone=$("accept").checked&&CONTRACT.key&&onlyThePriceMoved(CONTRACT.key,key);
   $("contract-text").textContent=t("Preparing the contract…");
   $("accept").checked=false; setNextLabel();
+  if(note){
+    note.hidden=!undone;
+    if(undone)note.textContent=t("The price was held for ten minutes and that time is up, so the contract has been drawn again at today's price. Read it and accept it again.");
+  }
   // While the protocol is still pricing, wait for its price: the contract is
   // written on it, and carries its lock so the same policy is not priced
   // again for the text. renderPrice() comes back here when the price lands.
@@ -375,7 +396,12 @@ function contractFailed(why){
   if($("accept"))$("accept").checked=false;
   setNextLabel();
 }
-$("accept").addEventListener("change",setNextLabel);
+$("accept").addEventListener("change",function(){
+  // Ticked again: the note has been read and answered.
+  var note=$("accept-note");
+  if(note&&$("accept").checked)note.hidden=true;
+  setNextLabel();
+});
 /* What a buyer can do after buying, said before they buy. */
 var CANCEL_TERMS={key:"",text:""};
 function renderCancelTerms(){

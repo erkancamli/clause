@@ -362,6 +362,7 @@
     "Nothing was bought: this page cannot reach the protocol.": "Rien n’a été acheté : cette page ne peut pas joindre le protocole.",
     "Found where you are. Reading the address…": "Votre position est trouvée. Lecture de l’adresse…",
     "Still looking…": "Recherche en cours…",
+    "The price was held for ten minutes and that time is up, so the contract has been drawn again at today's price. Read it and accept it again.": "Le prix a été garanti dix minutes et ce délai est écoulé, le contrat a donc été rédigé à nouveau au prix du jour. Relisez-le et acceptez-le de nouveau.",
     "Not connected": "Non connecté",
     "This page cannot reach the protocol, so it cannot tell you which companies are licensed where you are.": "Cette page ne peut pas joindre le protocole : elle ne peut donc pas vous dire quelles entreprises sont agréées là où vous êtes.",
     "Available": "Disponible",
