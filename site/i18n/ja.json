@@ -359,6 +359,7 @@
     "Still checking": "確認中",
     "Still checking which company is licensed to write this in {country}.": "{country}でこれを引き受ける免許を持つ会社を確認しています。",
     "Checking the licence": "免許を確認しています",
+    "Nothing was bought: this page cannot reach the protocol.": "何も購入されていません。このページはプロトコルに接続できません。",
     "Not connected": "未接続",
     "This page cannot reach the protocol, so it cannot tell you which companies are licensed where you are.": "このページはプロトコルに接続できないため、お客様の所在地でどの会社が免許を持っているかをお伝えできません。",
     "Available": "利用可能",
