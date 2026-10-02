@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.50.5, 2 October 2026
+
+- Nine of the test audit's findings: assertions that could not fail, and two
+  paths with no assertion at all. No change to what the protocol does; what
+  changes is what the suite would notice if it did.
+
+- **The level of the price was pinned nowhere.** The premium test asked that
+  the premium equal its three parts, which is how the engine computes it, so
+  the assertion was that identity read back. Measured by mutating the engine:
+  doubling the quoted capital charge passed, 1.5x passed, 1.25x passed, and
+  setting the expense ratio to zero passed against the whole suite. The
+  company's price was worse: both sides of all three assertions were
+  loads_for on the same inputs, and that is the function a buyer is actually
+  charged from, so doubling the capital charge there passed 146 tests across
+  nine money files and dropping the term passed as well. The arithmetic is
+  written out now, with the figures beside it, and all four mutations fail.
+
+- A payout collects what is still owed on the premium, and nothing asked
+  whether it does: removing the deduction paid the holder in full and let
+  them keep the unpaid premium, with 95 tests silent. Cancellation, expiry
+  and lapse each had a test; the one ending that collects rather than
+  forgives had none.
+
+- The contract's promises were asked of the whole document, which any copy
+  of them anywhere satisfies: deleting the silence rule from section 3 left
+  it in the rulebook's own line at the end, and deleting the sentence that
+  says nothing can be cancelled once the index has reached its trigger left
+  "cannot be cancelled" in the sentence beside it. Each is asked of its own
+  section now, and a doubled ceiling, a deleted cancellation limit and a
+  deleted silence rule all fail.
+
+- Four smaller ones. A test asserted that one of its own string constants
+  does not contain "MMI", which no change in the product could make fail. The
+  payout ladder was guarded by a list of three spellings, so a fourth
+  written-in level in any other spelling passed sixty seven tests. Papers was
+  guarded by six forbidden method-name prefixes, so a rewrite() would have
+  passed while the docstring says there is no way to edit one. And one
+  assertion was written as two halves of an or that are the same string.
+
 ## 1.50.4, 2 October 2026
 
 - Three of the audit's remaining findings, all of them about what a session
