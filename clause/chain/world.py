@@ -378,6 +378,10 @@ class Chain:
         self.settlement_check: Callable[[Policy], str | None] | None = None
         self._queue: list[tuple[int, ArmedPolicy, float]] = []
         self._evaluations = 0
+        #: Listeners that threw. They are caught so that one bad listener
+        #: cannot stop a settlement, which means nothing downstream notices.
+        self.listener_failures = 0
+        self.last_listener_failure = ""
         self._nonce = 0
         self._running = False
         self._thread: threading.Thread | None = None
@@ -1226,8 +1230,7 @@ class Chain:
             try:
                 listener(event, policy)
             except Exception:
-                import logging
-                logging.getLogger("clause.chain").exception("token listener failed")
+                self._listener_failed("token listener failed")
 
     def _settled(self, settlement: Settlement) -> None:
         self.settlements.append(settlement)
@@ -1235,8 +1238,21 @@ class Chain:
             try:
                 listener(settlement)
             except Exception:
-                import logging
-                logging.getLogger("clause.chain").exception("settlement listener failed")
+                self._listener_failed("settlement listener failed")
+
+    def _listener_failed(self, what: str) -> None:
+        """A listener that throws is logged and counted.
+
+        Logged it always was. Counted because a listener that fails every
+        time looked exactly like one that works: the anchor's token listener
+        is what writes a policy to the public chain, and a line in a log file
+        nobody is reading is not the same as a figure on the operator's page.
+        """
+        import logging
+
+        self.listener_failures += 1
+        self.last_listener_failure = what
+        logging.getLogger("clause.chain").exception(what)
 
     def withdraw(self, policy: Policy) -> bool:
         """Take a cancelled policy off chain, so nothing settles it later.
@@ -1626,6 +1642,10 @@ class Chain:
                 "lapsed": sum(1 for s in self.settlements if s.kind == "lapsed") + int(forgotten.get("lapsed", 0)),
                 "sources": len(self.readings),
                 "silent_sources": sum(1 for r in self.readings.values() if r.silent),
+                # A listener that throws every time is otherwise exactly as
+                # quiet as one that works.
+                "listener_failures": self.listener_failures,
+                "last_listener_failure": self.last_listener_failure,
                 "mean_latency_blocks": (latency_total / latency_count if latency_count else 0.0),
                 # The REX layer: how the outside world actually gets in.
                 "validators": self.config.validators,
