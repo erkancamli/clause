@@ -360,6 +360,7 @@
     "Still checking which company is licensed to write this in {country}.": "{country} ülkesinde bunu hangi şirketin yazma yetkisi olduğu kontrol ediliyor.",
     "Checking the licence": "Lisans kontrol ediliyor",
     "Nothing was bought: this page cannot reach the protocol.": "Hiçbir şey satın alınmadı: bu sayfa protokole ulaşamıyor.",
+    "Found where you are. Reading the address…": "Konumunuz bulundu. Adres okunuyor…",
     "Not connected": "Bağlı değil",
     "This page cannot reach the protocol, so it cannot tell you which companies are licensed where you are.": "Bu sayfa protokole ulaşamıyor, bu yüzden bulunduğunuz yerde hangi şirketlerin ruhsatlı olduğunu size söyleyemez.",
     "Available": "Mevcut",

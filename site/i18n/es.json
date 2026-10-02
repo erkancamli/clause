@@ -360,6 +360,7 @@
     "Still checking which company is licensed to write this in {country}.": "Comprobando qué compañía tiene licencia para emitir esto en {country}.",
     "Checking the licence": "Comprobando la licencia",
     "Nothing was bought: this page cannot reach the protocol.": "No se compró nada: esta página no puede conectar con el protocolo.",
+    "Found where you are. Reading the address…": "Hemos encontrado dónde estás. Leyendo la dirección…",
     "Not connected": "Sin conexión",
     "This page cannot reach the protocol, so it cannot tell you which companies are licensed where you are.": "Esta página no puede conectar con el protocolo, así que no puede decirle qué empresas tienen licencia donde usted está.",
     "Available": "Disponible",

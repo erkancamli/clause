@@ -91,14 +91,22 @@ function locateMe(auto){
   msg.textContent=t("Finding where you are…");
   navigator.geolocation.getCurrentPosition(function(pos){
     var lat=pos.coords.latitude, lon=pos.coords.longitude;
-    msg.textContent=t("Found, to within about {m} m. Check the pin, and drag it if it is not quite right.",
-      {m:f0.format(Math.max(5,Math.round(pos.coords.accuracy||0)))});
+    var metres=Math.max(5,Math.round(pos.coords.accuracy||0));
+    /* There is no pin yet. The browser answers in a moment and the address
+       behind it takes a call with a nine second timeout and a retry, so
+       "Check the pin, and drag it" was said for up to eighteen seconds about
+       a pin that appears at the end of it. Said when there is one. */
+    msg.textContent=t("Found where you are. Reading the address…");
+    function pinned(){
+      msg.textContent=t("Found, to within about {m} m. Check the pin, and drag it if it is not quite right.",
+        {m:f0.format(metres)});
+    }
     api("/api/reverse?latitude="+lat.toFixed(5)+"&longitude="+lon.toFixed(5)+"&lang="+LANG,{timeout:9000}).then(function(r){
       var p=r.place||{};
       setPoint(lat,lon,[p.name,p.region].filter(Boolean).join(", "),p.country);
       offerAddress({street:p.street,city:p.city});
-      centreMap(16);
-    },function(){ setPoint(lat,lon,null,null); centreMap(16); });
+      centreMap(16); pinned();
+    },function(){ setPoint(lat,lon,null,null); centreMap(16); pinned(); });
   },function(error){
     msg.textContent=error&&error.code===1
       ? t("Location was not shared. Type your address, or allow location in the browser and try again.")

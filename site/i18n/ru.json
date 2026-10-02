@@ -360,6 +360,7 @@
     "Still checking which company is licensed to write this in {country}.": "Проверяем, какая компания имеет лицензию оформить это в {country}.",
     "Checking the licence": "Проверяем лицензию",
     "Nothing was bought: this page cannot reach the protocol.": "Ничего не куплено: эта страница не может связаться с протоколом.",
+    "Found where you are. Reading the address…": "Мы нашли, где вы. Читаем адрес…",
     "Not connected": "Нет подключения",
     "This page cannot reach the protocol, so it cannot tell you which companies are licensed where you are.": "Эта страница не может связаться с протоколом, поэтому не может сказать вам, какие компании лицензированы там, где вы находитесь.",
     "Available": "Доступно",
