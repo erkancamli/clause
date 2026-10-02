@@ -1104,6 +1104,28 @@ def create_app(
                 await run_in_threadpool(keeper.save)
             return response
 
+    def _finite(error: RequestValidationError) -> RequestValidationError:
+        """The same errors, with any float that cannot be written as JSON
+        written as what it is instead."""
+        import math
+
+        def plain(value: Any) -> Any:
+            if isinstance(value, float) and not math.isfinite(value):
+                return repr(value)
+            if isinstance(value, dict):
+                return {k: plain(v) for k, v in value.items()}
+            if isinstance(value, (list, tuple)):
+                return [plain(v) for v in value]
+            return value
+
+        errors = error.errors()
+        if not any("input" in e for e in errors):
+            return error
+        return RequestValidationError(
+            [{k: plain(v) for k, v in e.items()} for e in errors],
+            body=plain(getattr(error, "body", None)),
+        )
+
     @app.exception_handler(RequestValidationError)
     async def malformed(request: Request, error: RequestValidationError) -> Response:
         """A body the route could not read. Answered the way FastAPI answers
@@ -1117,7 +1139,16 @@ def create_app(
             for e in error.errors()[:6]
         )
         logger.warning("malformed %s %s: %s", request.method, request.url.path, where)
-        return await request_validation_exception_handler(request, error)
+        # FastAPI's answer quotes the body back under "input", and json.dumps
+        # cannot write a float that is not finite. Python's JSON reader accepts
+        # 1e999, NaN and Infinity, so an eleven byte body -- {"a":1e999} --
+        # reached the error handler and raised inside it: a 500 on every route
+        # with a body, from outside the layer that sets no-store and the content
+        # type rules, with no rate limit on the path because guard never ran,
+        # and a full traceback written to the log for each one. 9,312 fuzzed
+        # requests found 718 of them and this was the whole cause.
+        return await request_validation_exception_handler(
+            request, _finite(error))
 
     @app.exception_handler(Exception)
     async def unexpected(request: Request, error: Exception) -> Response:
@@ -5479,15 +5510,27 @@ def create_app(
     # -- the pool ---------------------------------------------------------
 
     @app.get("/api/pool")
-    async def pool_summary() -> dict[str, Any]:
-        return {
+    async def pool_summary(http: Request) -> dict[str, Any]:
+        """The book's shape, and who stands behind it.
+
+        Off the loop and behind a limit, because summary() runs the Monte
+        Carlo: measured against the live deployment this answers in 0.55 s and
+        /api/pool/risk in 2.47 s, all of it in Python, and called straight from
+        an async route that is the whole server stopped for that long, with
+        nothing to stop a second caller asking again.
+        """
+        guard(http, "pool", limit=30, window=60.0)
+        return await run_in_threadpool(lambda: {
             **pool.summary(),
             "providers": [p.to_dict() for p in pool.providers.values()],
-        }
+        })
 
     @app.get("/api/pool/risk")
-    async def pool_risk() -> dict[str, Any]:
-        return {**pool.risk_view(), "declined": list(reversed(app.state.declined))[:8]}
+    async def pool_risk(http: Request) -> dict[str, Any]:
+        guard(http, "pool", limit=30, window=60.0)
+        return await run_in_threadpool(
+            lambda: {**pool.risk_view(),
+                     "declined": list(reversed(app.state.declined))[:8]})
 
     @app.get("/api/pool/ledger")
     async def pool_ledger(limit: int = Query(60, ge=1, le=500),
@@ -5650,13 +5693,22 @@ def create_app(
 
                     if now - last_slow > 4.0:
                         last_slow = now
-                        yield _sse(
-                            "pool",
-                            {
-                                "pool": pool.summary(),
-                                "risk": pool.risk_view(),
-                            },
-                        )
+                        # Off the loop. Both of these run the Monte Carlo, in
+                        # Python, and this is an async generator: called here
+                        # they stopped the whole server for as long as they
+                        # took. Measured with a 5 ms timer, one client holding
+                        # this stream open blocked the loop for 15,208 ms
+                        # continuously -- about three seconds in every four --
+                        # while the same simulation through /api/quote, which
+                        # is already offloaded, blocks it for 54 ms. The
+                        # front page opens this stream, so the first visitor
+                        # was the attack. Every other expensive call in this
+                        # file goes through the threadpool; this was the one
+                        # that did not.
+                        seen = await run_in_threadpool(
+                            lambda: {"pool": pool.summary(),
+                                     "risk": pool.risk_view()})
+                        yield _sse("pool", seen)
 
                     await asyncio.sleep(0.4)
             except asyncio.CancelledError:
