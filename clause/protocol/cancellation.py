@@ -148,9 +148,14 @@ def assess(policy: Any, *, now: float | None = None) -> dict[str, Any]:
         "withdrawal": right, "withdrawn": meta.get("withdrawal"),
         "fee_paid": fee_paid, "financing_paid": financing_paid,
     }
-    # refund is the premium side, which is what the pool reverses; whole is
-    # what leaves the protocol and so what a buyer is told, and the page
-    # shows that one. They differ by the fee and the surcharge.
+    # refund is the premium side, which is what the pool reverses. whole_back
+    # is everything that is due back, which is what a buyer is told and what
+    # the page shows: they differ by the fee and the surcharge. Due, not
+    # recovered: the fee comes back out of the issuing company's own account
+    # and return_fee() takes only what that account can give, so a company
+    # that has spent it returns less than is owed. The refusal to create money
+    # to honour a refund is older than this and deliberate; what the buyer is
+    # told is what they are owed.
     everything = {"refund": round(refundable, 2), "fee_back": fee_paid,
                   "financing_back": financing_paid,
                   "whole_back": round(refundable + fee_paid + financing_paid, 2)}

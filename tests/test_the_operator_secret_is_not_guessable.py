@@ -84,6 +84,22 @@ def test_a_request_with_no_token_is_not_counted(client) -> None:
     assert set(seen) == {200}
 
 
+def test_the_refusal_carries_the_headers_every_answer_carries(client) -> None:
+    """It is refused before routing, so it is refused outside the route that
+    would have set them. Measured when the counting had a middleware of its
+    own: the 429 came back with no cache-control and no nosniff, which is the
+    one thing every other answer from this API is tested for."""
+    for _ in range(14):
+        reply = client.get("/api/operator/carriers", headers=WRONG)
+        if reply.status_code == 429:
+            assert reply.headers["cache-control"] == "no-store"
+            assert reply.headers["x-content-type-options"] == "nosniff"
+            assert reply.headers["x-frame-options"] == "DENY"
+            assert reply.headers["content-security-policy"].startswith("default-src 'none'")
+            return
+    pytest.fail("the door never shut")
+
+
 def test_the_refusal_says_how_long_to_wait(client) -> None:
     for _ in range(14):
         reply = client.get("/api/operator/carriers", headers=WRONG)

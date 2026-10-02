@@ -1081,6 +1081,39 @@ def create_app(
         redoc_url=None,
         lifespan=lifespan,
     )
+    def guessed_token(request: Request) -> Any:
+        """A wrong operator token is counted wherever it is tried.
+
+        POST /api/operator/session was limited "hard and on every attempt
+        rather than on failures, because a token guessed at a thousand tries
+        a second is not a token", and it was the only one of twenty five
+        doors that was: measured, 400 attempts at GET /api/operator/carriers
+        with a wrong token answered 401 four hundred times at 705 attempts a
+        second, and so did POST /api/carriers/{id}/activate.
+
+        Counted before routing, so every route that takes the header is
+        covered and so is every route added later. It only counts and
+        refuses with 429; it never answers in place of the route, because
+        several of these routes answer 404 rather than 401 by design and
+        saying 401 first would tell a stranger they exist.
+
+        Returns the refusal, or None to let the request through. Called from
+        harden() rather than from a middleware of its own, because a
+        middleware outside that one answers without the headers it sets:
+        measured, the 429 came back with no cache-control and no nosniff.
+        """
+        supplied = request.headers.get("x-operator-token")
+        if not supplied or settings.is_operator_token(supplied):
+            return None
+        try:
+            limiter.check(caller_of(request), "operator-token", limit=10, window=600.0)
+        except Refused as refusal:
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": refusal.detail},
+                                status_code=refusal.status_code,
+                                headers=refusal.headers or {})
+        return None
+
     @app.middleware("http")
     async def harden(request: Request, call_next):
         """The headers a browser needs from an API that answers with personal
@@ -1090,7 +1123,7 @@ def create_app(
         the same in production; the application says it itself so a deployment
         without nginx is no less careful, and the two copies are identical so
         they add up to one policy."""
-        response = await call_next(request)
+        response = guessed_token(request) or await call_next(request)
         headers = response.headers
         headers.setdefault("x-content-type-options", "nosniff")
         headers.setdefault("referrer-policy", "strict-origin-when-cross-origin")
@@ -1113,34 +1146,6 @@ def create_app(
             headers.setdefault("strict-transport-security",
                                "max-age=31536000; includeSubDomains")
         return response
-
-    @app.middleware("http")
-    async def count_wrong_operator_tokens(request: Request, call_next):
-        """A wrong operator token is counted wherever it is tried.
-
-        POST /api/operator/session was limited "hard and on every attempt
-        rather than on failures, because a token guessed at a thousand tries
-        a second is not a token", and it was the only one of twenty five
-        doors that was: measured, 400 attempts at GET /api/operator/carriers
-        with a wrong token answered 401 four hundred times at 705 attempts a
-        second, and so did POST /api/carriers/{id}/activate.
-
-        Counted here, before routing, so every route that takes the header is
-        covered and so is every route added later. It only counts and refuses
-        with 429; it never answers in place of the route, because several of
-        these routes answer 404 rather than 401 by design and saying 401
-        first would tell a stranger they exist.
-        """
-        supplied = request.headers.get("x-operator-token")
-        if supplied and not settings.is_operator_token(supplied):
-            try:
-                limiter.check(caller_of(request), "operator-token", limit=10, window=600.0)
-            except Refused as refusal:
-                from fastapi.responses import JSONResponse
-                return JSONResponse({"detail": refusal.detail},
-                                    status_code=refusal.status_code,
-                                    headers=refusal.headers or {})
-        return await call_next(request)
 
     if keeper is not None:
         @app.middleware("http")
