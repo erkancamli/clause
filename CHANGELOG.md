@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.50.4, 2 October 2026
+
+- Three of the audit's remaining findings, all of them about what a session
+  is and what a deployment gives away.
+
+- **Signing out ends the session.** A session token is a signed claim,
+  checked without a lookup, which is what makes it cheap; the cost was that
+  nothing could end one. Signing out dropped the token from the tab and left
+  it valid for the rest of its thirty minutes, and DELETE
+  /api/operator/session answered "signed out" to a buyer's token that then
+  went on working. DELETE /api/auth/session ends this one, and with
+  everywhere=true every session the address holds, including the ones the
+  service has never seen. Two records do it, both bounded by the session's
+  own length and both kept in the book, because the secret that signs
+  sessions is kept there too and a restart would otherwise bring back what
+  was ended.
+
+  **A session open when this goes out is signed out once.** The token now
+  carries a session id, without which two tabs signing in within one second
+  held the same token: ending one ended the other, and signing out and
+  straight back in handed back a token that had already been given up and
+  was refused for the rest of its half hour. Tokens of the old shape no
+  longer verify. The page signs in again by itself where it needs one.
+
+- The two demonstration endpoints no longer announce themselves. A
+  deployment with the switch off answers 404 to POST /api/chain/inject,
+  which is why deploy/README.md says they are safe to have, but the query
+  parameters were validated before the route ran, so an anonymous caller who
+  left them out was told their names and types in a 422 instead. Nothing was
+  reachable; what leaked was that the doors exist and what to send them.
+
+- The book keeps its secret to the user that runs the service. clause.sqlite
+  holds the secret behind every session and every price promise, and sqlite
+  created it at whatever the umask allowed: measured at a default Debian
+  umask, the book, its write ahead log and its shared memory file were all
+  readable by every user on the machine. They are 600 now, said by the file
+  itself rather than only by the installer, so a book copied elsewhere
+  carries the same answer.
+
 ## 1.50.3, 2 October 2026
 
 - Six more of the audit's findings on the buying flow, all of them states a
