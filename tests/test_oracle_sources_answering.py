@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import contextlib
 import pathlib
+import time
 import urllib.error
 
 import pytest
@@ -262,3 +263,73 @@ def test_the_loud_failure_stays_loud() -> None:
     feed.poll(chain, now=WINDOW[1])
     assert chain.readings[MEASURED].measured_through == 0.0
     assert not chain.written
+
+# -- and not paying for the same refusal twice a round ----------------------
+
+def test_the_subscription_is_left_alone_after_it_refuses(monkeypatch) -> None:
+    """Asked and refused is two requests for one reading. What the real host
+    actually says is a fact about the plan rather than about the moment:
+
+        403 {"error":true,"reason":"This API endpoint requires the API
+             Professional or Enterprise plan"}
+
+    so it will be true for every query until somebody changes the plan.
+    """
+    public = "archive-api.open-meteo.com/v1/archive?latitude=41.0&daily=rain"
+    monkeypatch.setenv(access.OPENMETEO_KEY, "s3cret")
+    access.forget_refusal()
+    assert access.OPENMETEO_PAID in access.reaching(public)
+
+    access.refused(403)
+    assert access.reaching(public) == public, "it asked the paid host again"
+    assert access.refusal()["resting"] is True
+
+
+def test_it_tries_again_once_the_hour_is_up(monkeypatch) -> None:
+    """So a plan that is upgraded is picked up without a restart.
+
+    The offset is an hour written out, not REST_AFTER_A_REFUSAL + 1: asking
+    the constant about itself passes whatever the constant is, and this file
+    exists because of a different assertion that did exactly that.
+    """
+    assert access.REST_AFTER_A_REFUSAL == 3600.0, (
+        "the rest is no longer an hour; this file says an hour in three places")
+    public = "archive-api.open-meteo.com/v1/archive?latitude=41.0&daily=rain"
+    monkeypatch.setenv(access.OPENMETEO_KEY, "s3cret")
+    access.forget_refusal()
+    access.refused(403, now=time.time() - 3601)
+    assert access.OPENMETEO_PAID in access.reaching(public)
+    assert access.refusal()["resting"] is False
+
+
+def test_it_is_still_resting_just_before_the_hour(monkeypatch) -> None:
+    public = "archive-api.open-meteo.com/v1/archive?latitude=41.0&daily=rain"
+    monkeypatch.setenv(access.OPENMETEO_KEY, "s3cret")
+    access.forget_refusal()
+    access.refused(403, now=time.time() - 3500)
+    assert access.reaching(public) == public
+
+
+def test_only_one_request_is_made_while_it_rests(monkeypatch) -> None:
+    """The point of it, measured as requests rather than as a flag."""
+    public = "archive-api.open-meteo.com/v1/archive?latitude=41.0&daily=rain"
+    monkeypatch.setenv(access.OPENMETEO_KEY, "s3cret")
+    access.forget_refusal()
+    opener, asked = paid_refuses(403, public_body=b'{"daily":{}}')
+    monkeypatch.setattr(quake.urllib.request, "urlopen", opener)
+
+    quake.fetch(public)
+    assert len(asked) == 2, "the first read asks both hosts"
+    quake.fetch(public)
+    quake.fetch(public)
+    assert len(asked) == 4, "every later read should ask the public host once"
+    assert all(access.OPENMETEO_PAID not in one for one in asked[2:])
+
+
+def test_a_deployment_with_no_key_is_untouched(monkeypatch) -> None:
+    monkeypatch.delenv(access.OPENMETEO_KEY, raising=False)
+    access.forget_refusal()
+    public = "archive-api.open-meteo.com/v1/archive?latitude=41.0&daily=rain"
+    assert access.reaching(public) == public
+    access.refused(403)
+    assert access.reaching(public) == public

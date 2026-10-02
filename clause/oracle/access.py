@@ -25,18 +25,45 @@ OPENMETEO_PAID = "customer-archive-api.open-meteo.com"
 OPENMETEO_KEY = "CLAUSE_OPENMETEO_KEY"
 
 
+#: How long to leave the subscription host alone after it has turned a query
+#: away. Asked and refused is two requests for one reading, and the reason a
+#: subscription refuses is rarely gone a second later: measured against the
+#: real host, what comes back is
+#:
+#:     403 {"error":true,"reason":"This API endpoint requires the API
+#:          Professional or Enterprise plan"}
+#:
+#: which is a fact about the plan and will be true for every query until
+#: somebody changes the plan. An hour is short enough that an upgrade is
+#: picked up without a restart, and long enough that the second request stops
+#: being paid for with every reading.
+REST_AFTER_A_REFUSAL = 3600.0
+
+
 def reaching(url: str) -> str:
     """The address to actually request for a public query.
 
     Without a subscription this is the query itself, unchanged. With one it is
-    the same query on the host the subscription answers, carrying the key.
+    the same query on the host the subscription answers, carrying the key --
+    unless that host has just refused, in which case the public query stands
+    until the hour is up.
     """
     key = os.environ.get(OPENMETEO_KEY, "").strip()
     if not key or OPENMETEO_FREE not in url:
         return url
+    if resting():
+        return url
     moved = url.replace(OPENMETEO_FREE, OPENMETEO_PAID, 1)
     join = "&" if "?" in moved else "?"
     return f"{moved}{join}apikey={urllib.parse.quote(key, safe='')}"
+
+
+def resting(*, now: float | None = None) -> bool:
+    """Whether the subscription host is being left alone for the moment."""
+    at = float(_refusal.get("at", 0.0) or 0.0)
+    if at <= 0.0:
+        return False
+    return (time.time() if now is None else now) - at < REST_AFTER_A_REFUSAL
 
 
 #: A query the subscription host turns away, by whatever status it chooses.
@@ -58,10 +85,13 @@ def refused(code: int, *, now: float | None = None) -> None:
 def refusal() -> dict[str, float | int]:
     """The last refusal by the subscription host, for the operator's page.
 
-    Empty while the subscription is answering. It names the status code and
-    when, never the key.
+    Empty while the subscription is answering. It names the status code, when,
+    and whether the host is being left alone for the hour after it; never the
+    key.
     """
-    return dict(_refusal)
+    if not _refusal:
+        return {}
+    return {**_refusal, "resting": resting()}
 
 
 def forget_refusal() -> None:

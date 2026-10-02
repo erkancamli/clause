@@ -1,9 +1,26 @@
 
 import datetime as _dt
 
+import pytest
+
 # A departure two weeks out: flight subjects must name a date that is still
 # ahead, whenever the suite runs.
 FLIGHT_DATE = (_dt.date.today() + _dt.timedelta(days=14)).isoformat()
+
+
+@pytest.fixture(autouse=True)
+def _no_refusal_carried_over():
+    """Whether the Open-Meteo subscription has just refused is process state,
+    and it changes which host a reading is asked for. One test recording a
+    refusal made the next one ask the public host and fail on something that
+    had nothing to do with it, which is the whole argument for clearing it
+    here rather than in each file that happens to notice.
+    """
+    from clause.oracle import access
+
+    access.forget_refusal()
+    yield
+    access.forget_refusal()
 
 
 def start_cover(chain, policy) -> None:
