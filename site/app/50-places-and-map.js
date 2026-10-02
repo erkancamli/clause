@@ -49,7 +49,13 @@ function searchAddress(query){
       if(seq!==ADDR.seq)return;
       ADDR.query=key; ADDR.hits=reply.places||[];
       if($("place")&&$("place").value.trim()===key&&flow.step===2)renderResults(key);
-    },function(){});
+    },function(){
+      // A refusal is an answer: without this the box goes on saying it is
+      // still looking, for a call that has already stopped.
+      if(seq!==ADDR.seq)return;
+      ADDR.query=key; ADDR.hits=[];
+      if($("place")&&$("place").value.trim()===key&&flow.step===2)renderResults(key);
+    });
   },450);
 }
 /* The street and the town, as the place the buyer already found says them.

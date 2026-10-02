@@ -85,8 +85,23 @@ function searchWorld(query){
       WORLD.hits = (reply.places || []).filter(function(p){ return p.country && p.country !== "TR"; });
       WORLD.attribution = reply.attribution || "";
       if ($("place") && $("place").value.trim() === key && flow.step === 2) renderResults(key);
-    }, function(){});
+    }, function(){
+      if (seq !== WORLD.seq) return;
+      WORLD.query = key; WORLD.hits = [];
+      if ($("place") && $("place").value.trim() === key && flow.step === 2) renderResults(key);
+    });
   }, 220);
+}
+
+/* Whether either lookup is still out for this exact text. Both record the
+   query they answered, including when they are refused, so this is false the
+   moment there is an answer either way. */
+function stillAsking(key, coordinate){
+  if (!link.live || coordinate || !key) return false;
+  var street = (flow.peril === "quake" || flow.peril === "car" || flow.peril === "storm") &&
+               key.length >= 3 && ADDR.query !== key;
+  var world = flow.peril === "quake" && key.length >= 2 && WORLD.query !== key;
+  return !!(street || world);
 }
 
 function renderResults(query){
@@ -162,6 +177,16 @@ function renderResults(query){
       }));
       bindPlaceButtons(into);
     });
+    return;
+  }
+
+  if (!hits.length && stillAsking(key, coordinate)){
+    /* Neither lookup has answered yet. "Nothing matched" is an answer, and
+       saying it here said the search had failed while the service that would
+       have matched the street was still in flight: the catalogue holds one
+       country's provinces and districts, the geocoder holds the streets, and
+       the geocoder is the slow one, up to 18.9 seconds with its retry. */
+    box.innerHTML = '<div class="empty">' + esc(t("Still looking…")) + '</div>';
     return;
   }
 
