@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.50.6, 2 October 2026
+
+- **clause.insure/proof was a 404, and so were the other thirteen screens.**
+  The page routes on the fragment, so each screen's own address is
+  clause.insure/#/proof and nothing on the site links to it any other way.
+  People write the other one: a path typed from memory, a link pasted with
+  the # dropped, an address read out loud. All of them reached the host's own
+  "Page not found", which to the person holding the link is not a site with
+  unusual addresses, it is a broken site. Each route is now sent to its
+  fragment, found rather than moved, because a permanent redirect sits in the
+  browser's cache and would outlast the decision to route this way at all.
+
+- **The one ending in the demonstration that returns money had stopped
+  happening.** The opening book silences a source on purpose: the drought
+  policy written against it can settle neither way, so at its deadline the
+  protocol returns the premium instead of keeping it, and watching that is
+  the only reason the case is there. Measured on live: expired 0, against
+  2003 lapsed, and the chain's counts include the settlements it has since
+  forgotten, so zero means never, not flushed. Being silent is not a reading,
+  and readings are deliberately not kept but rebuilt from the open policies,
+  so the source came back speaking at the first restart; and because the
+  opening book is written once, on a book that does not yet exist, nothing
+  silenced it again. The silence is written down now and applied again once
+  the policies are armed. The seeding also reads the answer it was ignoring,
+  so the day the simulated world names its stations differently this is a
+  warning rather than a case that quietly left the book.
+
+- **A listener that fails every time looked exactly like one that works.**
+  The anchor's token listener is what writes a policy to the public chain and
+  the settlement listener is what writes its ending there. One throwing could
+  never stop a block, which is right, and it was logged, which is not enough:
+  a log on the host is not somewhere anybody reading the operator's page can
+  look. The failures are counted now and the last one is named.
+
+- **A reading round that wrote nothing could not be told from a feed that had
+  stopped.** Measured on live, the sources block read: measuring, eight
+  rounds, five references asked about, zero readings written, nothing
+  failing. All correct. Every agency answered and none of them had anything
+  larger than the figure already standing: no earthquake inside any circle,
+  no rain over any season total. That is a working oracle on a quiet day, and
+  to the character what a dead one reports. The round now repeats back what
+  it found per reference, bounded at twelve, because a health check is not a
+  log.
+
+- The evaluation loop catches a predicate it cannot read, for the same reason
+  a listener is wrapped, and had no test at all. Three now: the policy stays
+  armed and unpaid, its neighbour on a source that did publish settles in the
+  same pass, and the block closes. Each needed the source to keep publishing
+  a figure beside the one the policy reads, or the policy is never woken and
+  a test of a policy left alone proves nothing about one that is looked at.
+
 ## 1.50.5, 2 October 2026
 
 - Nine of the test audit's findings: assertions that could not fail, and two

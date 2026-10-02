@@ -441,7 +441,17 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
                              for n, t in pool.tranches.items()},
             },
             "chain": {"height": chain.height, "timestamp": chain.timestamp, "genesis": chain.genesis,
-                      "forgotten": dict(getattr(chain, "forgotten", {}) or {})},
+                      "forgotten": dict(getattr(chain, "forgotten", {}) or {}),
+                      # A source taken offline on purpose, so that the one
+                      # ending which returns the premium can be watched
+                      # happening. Being silent is not a reading, so it was
+                      # not rebuilt with them: the source came back speaking
+                      # at the first restart, and because the opening book is
+                      # written once and never again, it stayed that way. The
+                      # chain had recorded no expiry at all.
+                      "silenced": sorted(
+                          reference for reference, reading
+                          in dict(chain.readings).items() if reading.silent)},
             "session_secret": auth._secret.hex(),
             # Sessions given back before they expire. The secret above survives
             # a restart, so without these the tokens it signed would come back
@@ -597,9 +607,16 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
             armed += 1
         except Exception:  # one unreadable policy must not stop the book
             logger.exception("could not arm %s again", policy.policy_id)
+    # Silenced again, here rather than above, because a source only exists
+    # once the policy written against it has been armed.
+    quiet = (store.meta("chain", {}) or {}).get("silenced") or []
+    silenced = sum(1 for reference in quiet if chain.silence(str(reference)))
+    if len(quiet) != silenced:
+        logger.warning("%d of %d silenced sources were not found to silence again",
+                       len(quiet) - silenced, len(quiet))
     return {"policies": len(pool.policies), "armed": armed, "wallets": len(wallets.accounts),
             "carriers": len(registry.carriers), "settlements": len(chain.settlements),
-            "reinstated": reinstated}
+            "reinstated": reinstated, "silenced": silenced}
 
 
 LAPSE_NOTE = "the term ended without the index triggering"

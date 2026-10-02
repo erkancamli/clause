@@ -162,6 +162,10 @@ MAX_ATTEMPTS = 6
 #: The wait after the first failure, and the longest wait between attempts.
 RETRY_FLOOR = 30.0
 RETRY_CEILING = 900.0
+#: How long an attempt may be in the air before it is presumed lost. Longer
+#: than any send takes and longer than the longest back off, so it never
+#: overtakes an attempt that is merely slow.
+IN_FLIGHT_LOST_AFTER = 1800.0
 
 
 @dataclass(slots=True)
@@ -469,12 +473,19 @@ class Payouts:
             reference = self.rail.send(order, pref.destination())
         except Exception as error:  # the order waits and is retried
             with self.lock:
-                order.in_flight = False
                 order.note = (f"attempt {attempt}: the payment partner could not "
                               f"be reached: {str(error)[:120]}")
             return
+        finally:
+            # Cleared here as well, because the two branches below were the
+            # only places that cleared it and neither runs if the process
+            # stops in between, or if what comes out of the rail is not an
+            # Exception. An order left in flight is skipped by retry() for
+            # ever, and the count that would eventually call a person never
+            # rises, so the money neither moves nor surfaces.
+            with self.lock:
+                order.in_flight = False
         with self.lock:
-            order.in_flight = False
             if reference:
                 order.status, order.rail_reference = "sent", reference
                 order.history.append({"at": now, "status": "sent",
@@ -495,7 +506,20 @@ class Payouts:
             if order.status != "queued" or order.rail == "manual":
                 continue
             if order.in_flight:
-                continue
+                if now - order.last_attempt_at < IN_FLIGHT_LOST_AFTER:
+                    continue
+                # Longer than any send takes, so the attempt went down with
+                # whatever was making it. Letting go of the flag puts the
+                # order back in the queue rather than leaving it skipped for
+                # ever; the partner's own idempotency on the order id is what
+                # makes trying again safe, and this is also what lets the
+                # attempt count rise to the point where a person is called.
+                order.in_flight = False
+                order.note = (f"attempt {order.attempts} was still in the air after "
+                              f"{IN_FLIGHT_LOST_AFTER / 60:.0f} minutes and is presumed lost")
+                order.history.append({"at": now, "status": "presumed lost",
+                                      "note": order.note})
+                logger.warning("payout %s: %s", order.order_id, order.note)
             if order.attempts >= MAX_ATTEMPTS:
                 if not order.needs_a_person:
                     order.needs_a_person = True

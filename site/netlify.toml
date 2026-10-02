@@ -47,3 +47,88 @@
   for = "/version.json"
   [headers.values]
     Cache-Control = "no-store"
+
+# A path somebody typed or pasted, sent to the view it names.
+#
+# The page routes on the fragment, so every screen's address is
+# clause.insure/#/proof. Nobody writes it that way. A link in a message, a
+# line read out, a path remembered from the address bar: all of them arrive
+# as clause.insure/proof, and all of them used to arrive at the host's own
+# "Page not found", which from outside is a site that is broken rather than a
+# site whose addresses have a # in them.
+#
+# Found 302 rather than moved 301, because this is where these screens live
+# today and not a promise about where they live: a permanent redirect sits in
+# the browser's cache and would outlast the decision.
+#
+# The routes are the ones in VIEWS, and a test fails if the two drift apart.
+
+[[redirects]]
+  from = "/cover"
+  to = "/#/cover"
+  status = 302
+
+[[redirects]]
+  from = "/mine"
+  to = "/#/mine"
+  status = 302
+
+[[redirects]]
+  from = "/profile"
+  to = "/#/profile"
+  status = 302
+
+[[redirects]]
+  from = "/how"
+  to = "/#/how"
+  status = 302
+
+[[redirects]]
+  from = "/pool"
+  to = "/#/pool"
+  status = 302
+
+[[redirects]]
+  from = "/proof"
+  to = "/#/proof"
+  status = 302
+
+[[redirects]]
+  from = "/rialo"
+  to = "/#/rialo"
+  status = 302
+
+[[redirects]]
+  from = "/insurers"
+  to = "/#/insurers"
+  status = 302
+
+[[redirects]]
+  from = "/privacy"
+  to = "/#/privacy"
+  status = 302
+
+[[redirects]]
+  from = "/faq"
+  to = "/#/faq"
+  status = 302
+
+[[redirects]]
+  from = "/rules"
+  to = "/#/rules"
+  status = 302
+
+[[redirects]]
+  from = "/company"
+  to = "/#/company"
+  status = 302
+
+[[redirects]]
+  from = "/admin"
+  to = "/#/admin"
+  status = 302
+
+[[redirects]]
+  from = "/ask"
+  to = "/#/ask"
+  status = 302
