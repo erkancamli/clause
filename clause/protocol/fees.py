@@ -18,6 +18,15 @@ Every movement is an entry here: which company, which policy, what kind,
 how much, when. A month's entries for a company are its statement. Nothing
 in the statement is computed after the fact from rates that may have
 changed: the entries are what happened.
+
+A policy is counted once, in the month it was written, and its premium with
+it. That has to be said because an instalment plan writes a fee entry every
+month it pays, and counting those is counting the same policy again: a
+twelve month plan on a 1,000 premium was measured reporting twelve policies
+and 12,000 written, and four entries in one month reported four policies and
+4,000. The money columns were right either way. The two volume columns are
+what a delegated authority desk reconciles first, and the rate an operator
+divides out of them read 0.083% against a stated 1%.
 """
 
 from __future__ import annotations
@@ -95,11 +104,25 @@ class Fees:
         seen = {e.month for e in self.entries.values() if carrier_id is None or e.carrier_id == carrier_id}
         return sorted(seen, reverse=True)
 
+    def written_in(self) -> dict[str, str]:
+        """The month each policy was written in: the month of its earliest
+        fee entry, whatever months the instalments after it fall in."""
+        first: dict[str, float] = {}
+        month: dict[str, str] = {}
+        for e in self.entries.values():
+            if e.kind not in ("fronting_fee", "platform_fee"):
+                continue
+            if e.policy_id not in first or e.at < first[e.policy_id]:
+                first[e.policy_id] = e.at
+                month[e.policy_id] = e.month
+        return month
+
     def statement(self, carrier_id: str, month: str, *, names: dict[str, str] | None = None) -> dict[str, Any]:
         """One company's month: the lines, and the totals they add up to."""
         rows = sorted((e for e in self.entries.values() if e.carrier_id == carrier_id and e.month == month),
                       key=lambda e: e.at)
-        return self._summarise(rows, carrier_id=carrier_id, month=month, names=names)
+        return self._summarise(rows, carrier_id=carrier_id, month=month, names=names,
+                               written=self.written_in())
 
     def statements(self, month: str, *, names: dict[str, str] | None = None) -> list[dict[str, Any]]:
         """Every company's statement for a month, for the operator."""
@@ -107,18 +130,28 @@ class Fees:
         for e in self.entries.values():
             if e.month == month:
                 by_carrier.setdefault(e.carrier_id, []).append(e)
-        return [self._summarise(sorted(rows, key=lambda e: e.at), carrier_id=c, month=month, names=names)
+        written = self.written_in()
+        return [self._summarise(sorted(rows, key=lambda e: e.at), carrier_id=c, month=month,
+                                names=names, written=written)
                 for c, rows in sorted(by_carrier.items())]
 
     def platform_totals(self) -> dict[str, Any]:
         """What the platform has taken and given back, all time and by month."""
         by_month: dict[str, dict[str, float]] = {}
         taken = returned = 0.0
-        for e in self.entries.values():
+        written = self.written_in()
+        counted: set[str] = set()
+        for e in sorted(self.entries.values(), key=lambda e: e.at):
             row = by_month.setdefault(e.month, {"platform_fees": 0.0, "platform_fees_returned": 0.0, "premiums": 0.0,
                                                 "policies": 0})
             if e.kind == "platform_fee":
-                row["platform_fees"] += e.amount; row["premiums"] += e.premium; row["policies"] += 1; taken += e.amount
+                row["platform_fees"] += e.amount; taken += e.amount
+                # The policy and its premium belong to the month it was
+                # written, and to that month only, however many instalments
+                # pay the fee afterwards.
+                if e.policy_id not in counted and written.get(e.policy_id, e.month) == e.month:
+                    counted.add(e.policy_id)
+                    row["premiums"] += e.premium; row["policies"] += 1
             elif e.kind == "platform_fee_returned":
                 row["platform_fees_returned"] += e.amount; returned += e.amount
         return {"rate": self.rate, "platform_fees": round(taken, 2), "platform_fees_returned": round(returned, 2),
@@ -128,14 +161,19 @@ class Fees:
 
     @staticmethod
     def _summarise(rows: Iterable[FeeEntry], *, carrier_id: str, month: str,
-                   names: dict[str, str] | None) -> dict[str, Any]:
+                   names: dict[str, str] | None,
+                   written: dict[str, str] | None = None) -> dict[str, Any]:
         rows = list(rows)
+        written = written or {}
         totals = {k: 0.0 for k in KINDS}
         policies: set[str] = set()
         premiums = 0.0
         for e in rows:
             totals[e.kind] += e.amount
-            if e.kind == "fronting_fee" and e.policy_id not in policies:
+            # Written this month, and not already counted in it: an
+            # instalment's fee is this month's money and last month's policy.
+            if (e.kind == "fronting_fee" and e.policy_id not in policies
+                    and written.get(e.policy_id, e.month) == month):
                 policies.add(e.policy_id)
                 premiums += e.premium
         fees_net = totals["fronting_fee"] - totals["fronting_fee_returned"]
