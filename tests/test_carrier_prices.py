@@ -39,11 +39,41 @@ def test_a_company_that_says_nothing_prices_as_the_pool_always_did() -> None:
     assert plain.expense_ratio == EXPENSE_RATIO
 
     said = priced_by(plain, **RISK)
+    # Against loads_for, which is what priced_by calls: the two agree, which
+    # says the company's own figures are not being substituted anywhere.
     risk_load, expense_load, premium = loads_for(
         cost_of_capital=COST_OF_CAPITAL, expense_ratio=EXPENSE_RATIO, **RISK)
     assert said["premium"] == pytest.approx(round(premium, 2))
     assert said["risk_load"] == pytest.approx(round(risk_load, 2))
     assert said["expense_load"] == pytest.approx(round(expense_load, 2))
+
+    # And against the arithmetic, written out here rather than fetched.
+    #
+    # The three assertions above were the whole of it, and both sides of each
+    # is loads_for on the same inputs: any error inside it is invisible to
+    # them. That function is where a company's offer, the price lock and the
+    # policy that is finally bound are all priced -- "Here once, so an offer,
+    # a price lock and the policy that is finally bound cannot answer
+    # differently" -- and it is the figure that leaves the buyer's wallet.
+    # Measured by mutating it: doubling the capital charge passed 146 tests
+    # across nine money files, dropping the term passed, and setting the
+    # expense load to zero passed. The whole suite caught the doubling only
+    # through a 409 about two prices disagreeing, and caught a halved
+    # EXPENSE_RATIO not at all.
+    #
+    # 20,000 of marginal capital at 12% for 365 of 365.25 days, plus 8% of a
+    # 1,000 expected loss, plus the expected loss itself.
+    assert said["risk_load"] == pytest.approx(2398.36, abs=0.01)
+    assert said["expense_load"] == pytest.approx(80.00, abs=0.01)
+    assert said["premium"] == pytest.approx(3478.36, abs=0.02)
+
+    # The two constants, against their published values rather than against
+    # the defaults they are. A company that says nothing takes them, so
+    # comparing the default to the constant that is the default was true for
+    # any value of either: a cost of capital raised from 12% to 50% passed
+    # this file untouched.
+    assert COST_OF_CAPITAL == 0.12
+    assert EXPENSE_RATIO == 0.08
 
 
 def test_the_same_risk_is_priced_differently_by_different_companies() -> None:

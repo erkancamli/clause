@@ -20,6 +20,10 @@ from clause.pricing import (
     capital_from_losses,
     settle,
 )
+# The two constants the price is built from, read from where they are defined
+# rather than written again here: a copy in the test is a second definition
+# that agrees with itself.
+from clause.pricing import COST_OF_CAPITAL, EXPENSE_RATIO  # noqa: E402
 
 TRIALS = 4_000
 
@@ -176,6 +180,22 @@ def test_drought_policies_on_one_station_pay_together() -> None:
 
 
 def test_a_premium_is_its_three_parts(engine: PricingEngine) -> None:
+    """And each part is the figure the rule gives, not merely their sum.
+
+    The sum was all this asked. engine.py computes premium as those three
+    added together and returns all four on one object, so the assertion was
+    that identity read back: it holds for every possible value of the parts
+    and pins no price. Measured by mutating the engine and running this file:
+    doubling the capital charge passed, so did 1.5x, so did 1.25x, and so did
+    setting EXPENSE_RATIO to zero -- against the whole suite as well, 1302 of
+    1303 tests. The quoted premium could be doubled in silence; three times
+    was caught only because the test wallet ran out of money.
+
+    So the figures are written down. One quote, one seed, one trial count:
+    expected_loss 3542.55, risk_load 11546.89 on marginal capital of
+    96,290.00, expense_load 283.40, premium 15,372.84, which is 4.34 times
+    the expected loss. Every mutation above fails against the last two lines.
+    """
     quote = engine.quote(
         peril_key="earthquake",
         subject={"location": "IST-KADIKOY", "radius_km": 50},
@@ -187,6 +207,19 @@ def test_a_premium_is_its_three_parts(engine: PricingEngine) -> None:
     assert quote.expected_loss > 0
     assert quote.risk_load > 0
     assert 0 < quote.rate_on_line < 1
+
+    # Each load against the rule it is written from, so a changed constant is
+    # a changed test rather than a changed price.
+    assert quote.risk_basis == "capital"
+    assert quote.risk_load == pytest.approx(
+        quote.marginal_capital * COST_OF_CAPITAL * (365 / 365.25), abs=0.01)
+    assert quote.expense_load == pytest.approx(quote.expected_loss * EXPENSE_RATIO, abs=0.01)
+
+    # And the figures themselves, because every assertion above holds just as
+    # well with the constants at twice their value.
+    assert quote.marginal_capital == pytest.approx(96_290.00, rel=1e-4)
+    assert quote.premium / quote.expected_loss == pytest.approx(4.34, rel=0.01)
+    assert quote.premium == pytest.approx(15_372.84, rel=1e-4)
 
 
 def test_expected_loss_matches_the_perils_own_model(engine: PricingEngine) -> None:
