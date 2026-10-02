@@ -353,9 +353,21 @@ function structure(){
     // would fall when the protocol answered and rise again when the buyer
     // typed a year.
     var year=z&&z.builtYear?z.builtYear:(VALUATION.built||[1900])[0];
-    var d=homeAge(year,riskCountry()).shift;
-    var base=shakingIndex()?CURVES.shake:CURVES.quake, k=shakingIndex()?1:.4;
-    return {shape:base.shape, pts:base.pts.map(function(p){ return [Math.round((p[0]-d*k)*100)/100, p[1]]; })};
+    /* Rounded where the protocol rounds it, and the protocol rounds twice:
+       vulnerability() returns the shift to two places, curve_for subtracts it
+       and rounds the level to two places, and for the magnitude index the
+       magnitude step is rounded to two places before that. The page rounded
+       once, at the end, which is a different number whenever the shift has a
+       half cent in it. Outside Türkiye that is every building: measured across
+       every year from 1900, 106 of 254 cases disagreed, a pre-1981 New York
+       flat reading 6.63 / 7.63 / 8.63 on the page against 6.62 / 7.62 / 8.62
+       on the contract and on the chain's own predicate. Turkish buildings
+       happened to agree at every age, which is why this survived. With the
+       rounding in the same places, 0 of 254 disagree. */
+    var d=Math.round(homeAge(year,riskCountry()).shift*100)/100;
+    var base=shakingIndex()?CURVES.shake:CURVES.quake;
+    var step=shakingIndex()?d:Math.round(d*.4*100)/100;
+    return {shape:base.shape, pts:base.pts.map(function(p){ return [Math.round((p[0]-step)*100)/100, p[1]]; })};
   }
   if(flow.peril==="flight")return CURVES.flight;
   if(flow.peril==="car")return carCurve();
@@ -808,6 +820,16 @@ function hazardRows(){
   return rows;
 }
 function reference(){
+  /* The protocol's own, where it has answered. Every address below names a
+     .example host, which is the demonstration's reserved domain and is
+     deliberately unresolvable; the reference a policy actually carries names
+     the agency -- earthquake.usgs.gov, archive-api.open-meteo.com -- and the
+     quote has been returning it all along under data_source. Printing the
+     demonstration's address under "what the chain is actually asked to hold"
+     told a buyer the cover reads a source that does not exist. The invented
+     ones stay as the answer before the protocol has answered. */
+  var q=flow.quoted&&flow.quotedFor===quoteKey()&&flow.quoted.data_source;
+  if(q&&q.reference)return q.reference;
   if(flow.peril==="quake"){
     var at=coordinates();
     return "api.seismic.example/v1/max-magnitude?lat="+(+at.latitude)+"&lon="+(+at.longitude)+
@@ -832,8 +854,16 @@ function predicateHtml(){
   // topic and the comparison is what the settlement instruction checks.
   var ref=esc(reference()),body, T=esc(t("topic")), W=esc(t("settles when"));
   if(flow.peril==="quake"){
-    body='<b>'+T+'</b> <em>'+ref+'</em> · max_magnitude<br>'+
-         '<b>'+W+'</b> max_magnitude &gt;= 5.5';
+    /* The field and the level this policy's own curve is written on. Both were
+       written in: max_magnitude and 5.5, for both indices, under the heading
+       "what the chain is actually asked to hold". For a 1975 Istanbul flat on
+       the shaking index the chain is asked to hold
+       edge("...?index=mmi&...").mmi >= 6.25 -- a different field, a different
+       level, and a different topic. The three rows below it have always been
+       built from the curve; this one now is too. */
+    var qf=shakingIndex()?"mmi":"max_magnitude";
+    body='<b>'+T+'</b> <em>'+ref+'</em> · '+qf+'<br>'+
+         '<b>'+W+'</b> '+qf+' &gt;= '+structure().pts[0][0].toFixed(2);
   } else if(flow.peril==="car"){
     body='<b>'+T+'</b> <em>'+ref+'</em> · rain_24h_mm<br>'+
          '<b>'+W+'</b> rain_24h_mm &gt;= '+structure().pts[0][0].toFixed(1);
