@@ -7081,7 +7081,15 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
     # One source is taken offline on purpose. The policy written against it can
     # settle neither way, and watching the protocol return the premium rather
     # than keep it is the point of having the case in the demo at all.
-    chain.silence("api.meteo.example/v1/station/TR-SANLIURFA/cumulative")
+    #
+    # The answer is read, because silence() returns False for a reference it
+    # does not hold and the address above is written out here rather than
+    # taken off the policy: the day the simulated world names its stations
+    # differently, this line would quietly stop doing anything and the only
+    # ending in the book that returns money would be gone with it.
+    if not chain.silence("api.meteo.example/v1/station/TR-SANLIURFA/cumulative"):
+        logger.warning("the opening book's quiet source was not found, so no "
+                       "policy in it will return its premium")
 
 
 async def _arrivals(
