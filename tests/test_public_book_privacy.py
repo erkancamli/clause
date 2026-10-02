@@ -238,3 +238,38 @@ def test_both_public_views_prune_the_token_the_same_way(client, bought) -> None:
     listed = anonymous_row(client, policy_id)["metadata"]["token"]
     carded = client.get(f"/api/policies/{policy_id}/token").json()["token"]
     assert set(listed) == set(carded)
+
+# -- the fourth outlet: who stands behind the book --------------------------
+
+def test_the_pool_does_not_name_who_stands_behind_it(client, buyer) -> None:
+    """The shape of the capital stack is what makes the solvency argument
+    checkable. Whose it is, is not. Read with no credential the live
+    deployment gave four addresses, each with its exact position."""
+    device, address = buyer
+    session = session_for(client, device, address)
+    deposit = _deposit(client, device, address, 5_000.0)
+    assert deposit.status_code == 200, deposit.text
+
+    public = client.get("/api/pool").json()
+    assert public["providers"], "the stack should still be readable"
+    assert all(row["account"] is None for row in public["providers"])
+    # The shape is all still there.
+    for row in public["providers"]:
+        for needed in ("tranche", "shares", "deposited", "withdrawn"):
+            assert needed in row and row[needed] is not None, needed
+
+    ours = client.get("/api/pool", headers={
+        "Authorization": f"Bearer {session}"}).json()["providers"]
+    assert any(row["account"] == address for row in ours), (
+        "the holder cannot find their own capital")
+    assert sum(1 for row in ours if row["account"] is not None) == 1
+
+
+def _deposit(client, device, address, amount: float):
+    challenge = client.post("/api/auth/challenge", json={
+        "address": address, "purpose": "deposit", "terms": {"amount": amount},
+    }).json()
+    return client.post("/api/pool/deposit", json={
+        "account": address, "amount": amount, "nonce": challenge["nonce"],
+        "signature": device.sign(challenge["message"]),
+    })

@@ -34,7 +34,12 @@ function refusalText(error, fallback){
 function renderTranches(){
   if(!link.live){ $("tranche-sec").hidden=true; return; }
   $("tranche-sec").hidden=false;
-  Promise.all([api("/api/pool/risk",{timeout:20000}),api("/api/pool")]).then(function(both){
+  /* With the session, because "Your capital" below is found by matching the
+     reader's own address in the provider list, and the protocol now gives
+     that address on their row only. Without it every row comes back with a
+     null account and the page would say they hold nothing. */
+  Promise.all([api("/api/pool/risk",{timeout:20000}),
+               api("/api/pool",{token:identity.token})]).then(function(both){
     var risk=both[0], pool=both[1], rows=risk.tranches||[];
     // A protocol from before tranches has none to show.
     if(!rows.length){ $("tranche-sec").hidden=true; return; }

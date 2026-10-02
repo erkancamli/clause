@@ -5508,7 +5508,8 @@ def create_app(
     # -- the pool ---------------------------------------------------------
 
     @app.get("/api/pool")
-    async def pool_summary(http: Request) -> dict[str, Any]:
+    async def pool_summary(http: Request,
+                           token: str | None = Depends(bearer)) -> dict[str, Any]:
         """The book's shape, and who stands behind it.
 
         Off the loop and behind a limit, because summary() runs the Monte
@@ -5518,10 +5519,26 @@ def create_app(
         nothing to stop a second caller asking again.
         """
         guard(http, "pool", limit=30, window=60.0)
-        return await run_in_threadpool(lambda: {
-            **pool.summary(),
-            "providers": [p.to_dict() for p in pool.providers.values()],
-        })
+        mine = session_of(token)
+
+        def shaped() -> dict[str, Any]:
+            # The capital stack's shape is the whole point of publishing this:
+            # how much stands behind the book, in which tranche, is what makes
+            # the solvency argument checkable by somebody who does not work
+            # here. Whose it is, is not. Read with no credential it gave every
+            # provider's address next to their exact position -- the fourth
+            # outlet of the same bug as the public book, the token route and
+            # the ledger. Your own row still carries your address, which is
+            # how the tranches page shows you your capital.
+            rows = []
+            for provider in pool.providers.values():
+                row = provider.to_dict()
+                if mine is None or row.get("account") != mine:
+                    row["account"] = None
+                rows.append(row)
+            return {**pool.summary(), "providers": rows}
+
+        return await run_in_threadpool(shaped)
 
     @app.get("/api/pool/risk")
     async def pool_risk(http: Request) -> dict[str, Any]:
