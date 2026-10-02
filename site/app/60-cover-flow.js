@@ -588,6 +588,19 @@ function deadlineText(){
     {days:flow.peril==="quake"?7:flow.peril==="drought"?21:(flow.peril==="car"||flow.peril==="storm")?14:3});
 }
 
+/* The whole price: the pool's premium and the issuing company's fee.
+
+   The most read sentence on the page said "You pay N USDC now, and nothing
+   else ever" and passed the premium alone, while the price row below it, the
+   price bar and payableNow all add the fee, and the server debits it.
+   Measured on one Istanbul earthquake policy -- 100,000 limit, 365 days, a
+   1975 building -- the sentence said 11,758.31 and the address was debited
+   12,087.54; against the carrier charging nine per cent the gap is 1,061.36.
+   Six sentences, one per peril, in seven languages. */
+function wholePrice(){
+  var offer=offerForPrice();
+  return priced().premium+(offer?offer.fee:0);
+}
 function plainSentence(){
   var q=priced(),l=flow.limit;
   /* The levels and the first payment come from the policy's own curve, as the
@@ -601,29 +614,29 @@ function plainSentence(){
     var qc=structure().pts;
     return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
       {place:esc(subjectLabel()), level:fLevel.format(qc[0][0]), top:fLevel.format(qc[2][0]),
-       first:money(qc[0][1]*l), full:money(l), premium:money(q.premium)});
+       first:money(qc[0][1]*l), full:money(l), premium:money(wholePrice())});
   }
   if(flow.peril==="quake"){
     var mc=structure().pts;
     return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
       {mag:fLevel.format(mc[0][0]), top:fLevel.format(mc[2][0]), km:flow.radius,
-       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), premium:money(q.premium)});
+       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), premium:money(wholePrice())});
   }
   if(flow.peril==="car"){
     var cc=structure().pts;
     return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), premium:money(q.premium)});
+      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), premium:money(wholePrice())});
   }
   if(flow.peril==="storm"){
     var sc=structure().pts;
     return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), premium:money(q.premium)});
+      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), premium:money(wholePrice())});
   }
   if(flow.peril==="drought"){
     var s=stationFor();
     return t("If the station at {station}, <b>{km} km</b> from {place}, records less than <b>{mm} mm</b> of rain across the {season} season, you start receiving money, up to <em>{full} USDC</em> if the season comes in at 40% of normal. You pay <b>{premium} USDC</b> now, and nothing else ever.",
       {station:esc(s.name), km:f0.format(Math.round(flow.stationKm)), place:esc(subjectLabel()),
-       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), premium:money(q.premium)});
+       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), premium:money(wholePrice())});
   }
   // The two ends, named the way the rest of the step names them. This read
   // ROUTES[flow.subject], and could not ever hit: the subject of a flight is
@@ -637,7 +650,7 @@ function plainSentence(){
   return t("If your flight from {from} to {to} arrives <b>more than two hours late</b>, you receive <em>{first} USDC</em>, rising to <em>{full}</em> if it is cancelled. You pay <b>{premium} USDC</b> now, and nothing else ever.",
     {from:esc(flow.flightFromText||flow.flightFrom||""),
      to:esc(flow.flightToText||flow.flightTo||""),
-     first:money(.30*l), full:money(l), premium:money(q.premium)});
+     first:money(.30*l), full:money(l), premium:money(wholePrice())});
 }
 function payRows(){
   var c=structure(),l=flow.limit,rows=[];
