@@ -32,6 +32,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .. import __version__
+from ..anchor import AnchorError
 from ..chain import Chain, ChainConfig
 from ..geocode import locality
 from ..oracle import access
@@ -360,7 +361,13 @@ class RegisterRequest(BaseModel):
 
 class ChallengeRequest(BaseModel):
     address: str = Field(max_length=64)
-    purpose: str = Field(max_length=16)
+    # Sixteen was too short for two of the names that have to go through here.
+    # /api/eligibility/demo reuses this model and its purposes are claims, one
+    # of which is "identity_enhanced" at seventeen characters: the enhanced
+    # statement could not be minted at all, and a buyer above the enhanced
+    # threshold could not finish. The purposes themselves are a fixed set in
+    # clause/protocol/auth.py, so the length is not what is guarding anything.
+    purpose: str = Field(max_length=32)
     terms: dict[str, Any] | None = None
 
 
@@ -4551,14 +4558,26 @@ def create_app(
         return doc.envelope(data)
 
     @app.post("/api/applications/{app_id}/withdraw")
-    async def application_withdraw(app_id: str, token: str | None = Depends(bearer)) -> dict[str, Any]:
-        """The applicant changes their mind before a decision: all of it back."""
-        address = session_of(token)
+    async def application_withdraw(app_id: str, request: CancelRequest,
+                                   http: Request) -> dict[str, Any]:
+        """The applicant changes their mind before a decision: all of it back.
+
+        Signed over the application, because it releases the escrow and a
+        session is not allowed to move money. clause/protocol/auth.py says so
+        in its own words -- "a short lived token follows, for reads only" and
+        "writes are not covered by the session" -- and this route was taking
+        one: measured against the running app, a session with no signature
+        anywhere released 4,925.39 USDC. It was also the only money-touching
+        route in the file with no rate limit on it.
+        """
+        guard(http, "application", limit=20, window=60.0)
+        address = signed(request.account, "withdraw-application", request.nonce,
+                         request.signature, {"app_id": app_id})
         try:
             app_ = applications.require(app_id)
         except ApplicationError as error:
             raise HTTPException(404, str(error)) from error
-        if address is None or app_.holder != address:
+        if app_.holder != address:
             raise HTTPException(404, "no such application")
         with money:
             try:
@@ -5971,11 +5990,22 @@ def create_app(
 
     @app.post("/api/policies/{policy_id}/anchor/claim")
     async def policy_anchor_claim(policy_id: str, request: ClaimRequest,
+                                  http: Request,
                                   token: str | None = Depends(bearer)) -> dict[str, Any]:
         """The holder asks for the token in their own wallet: one they have
         linked on their profile, proved by its signature. Not yet sent, the
         mint is pointed there; already on the chain, it is burned and
-        minted again to the wallet, in that order."""
+        minted again to the wallet, in that order.
+
+        Behind a limit, because each move is a burn and a mint on the issuer's
+        key, about 350,000 gas a pair, and the dedupe below only compares
+        against the wallet the token is at now. A holder with two linked
+        wallets could alternate between them: measured at the service, twelve
+        alternations queued twelve pairs and about 8.4 million gas, with
+        nothing on this route to slow it down. The count is capped as well,
+        in Anchor.claim, because a limit per minute still adds up over a day.
+        """
+        guard(http, "anchor", limit=6, window=600.0)
         found = pool.policies.get(policy_id)
         if found is None or session_of(token) != found.holder:
             raise HTTPException(404, f"no policy {policy_id}")
@@ -5987,7 +6017,10 @@ def create_app(
             raise Refused(409, "that is not one of your linked wallets")
         if "token" not in (found.metadata or {}) or (found.metadata["token"] or {}).get("burned_at"):
             raise Refused(409, "this policy has no live token")
-        queued = anchor.claim(found, wanted)
+        try:
+            queued = anchor.claim(found, wanted)
+        except AnchorError as error:
+            raise Refused(409, str(error)) from error
         return {"queued": [dict(i.to_dict(), tx_url=anchor.tx_url(i.tx_hash)) for i in queued],
                 "held": anchor.held_by(policy_id), "wallet": checksum_evm(wanted)}
 

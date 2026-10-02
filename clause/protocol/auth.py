@@ -269,7 +269,7 @@ class Authenticator:
             raise AuthError("unknown address")
         if purpose not in {"sign-in", "buy", "deposit", "withdraw", "link", "register",
                            "payout", "mandate", "cancel", "partner", "cashout", "link-wallet",
-                           "instruct"}:
+                           "instruct", "withdraw-application"}:
             raise AuthError("unknown purpose")
 
         now = time.time() if now is None else now

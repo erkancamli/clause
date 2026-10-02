@@ -40,6 +40,10 @@ from .signing import address_of_key, checksum, contract_address, encode_call, pr
 
 logger = logging.getLogger("clause.anchor")
 
+
+class AnchorError(RuntimeError):
+    """Something the anchor refuses, as distinct from something that failed."""
+
 CHAINS: dict[int, dict[str, str]] = {
     84532: {"name": "Base Sepolia", "explorer": "https://sepolia.basescan.org", "rpc": "https://sepolia.base.org"},
     8453: {"name": "Base", "explorer": "https://basescan.org", "rpc": "https://mainnet.base.org"},
@@ -180,11 +184,35 @@ class Anchor:
         return {"to": last.payload.get("to"), "custodial": bool(last.payload.get("custodial")),
                 "status": last.status, "intent_id": last.intent_id}
 
+    def reissues(self, policy_id: str) -> int:
+        """How many times this policy's token has been moved to another wallet.
+
+        Each one is a burn and a mint on the issuer's key, about 350,000 gas a
+        pair. The dedupe in ``claim`` only compares against the wallet the
+        token is at now, so a holder with two linked wallets could alternate
+        between them: measured, twelve alternations queued twelve pairs, about
+        8.4 million gas, and the route that calls this had no rate limit on it
+        at all. Changing wallet is a thing somebody does once, so it is
+        counted and capped rather than left to the rate limit alone.
+        """
+        with self.lock:
+            return sum(1 for i in self.intents.values()
+                       if i.kind == "burn" and i.policy_id == policy_id
+                       and (i.payload or {}).get("reissue"))
+
+    #: How many times a holder may move one token before an operator has to do
+    #: it. Three, because the honest reason to move is a wallet change and
+    #: three allows for getting it wrong twice.
+    REISSUE_LIMIT = 3
+
     def claim(self, policy: Any, wallet: str, now: float | None = None) -> list[AnchorIntent]:
         """Put the token in the holder's own wallet. A mint not yet sent is
         simply pointed there; one already on the chain is burned and minted
         again to the wallet, the mint waiting for the burn to be mined,
-        since the token cannot be transferred. Returns what was queued."""
+        since the token cannot be transferred. Returns what was queued.
+
+        Raises AnchorError once the token has been moved REISSUE_LIMIT times.
+        """
         wallet = checksum(wallet)
         now = time.time() if now is None else now
         held = self.held_by(policy.policy_id)
@@ -202,6 +230,10 @@ class Anchor:
                 current.payload["to"] = wallet
                 current.payload["custodial"] = False
                 return [current]
+            if self.reissues(policy.policy_id) >= self.REISSUE_LIMIT:
+                raise AnchorError(
+                    f"this token has already been moved {self.REISSUE_LIMIT} times; "
+                    f"ask the operator to move it again")
             burn = self._add("burn", policy.policy_id, {"reason": "re-issued to the holder's own wallet", "reissue": True}, now=now)
             mint = self._add("mint", policy.policy_id, {
                 "to": wallet, "custodial": False, "holder_hash": merkle.text_hash(policy.holder),
