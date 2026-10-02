@@ -3255,7 +3255,7 @@ def create_app(
         if format_ == "csv":
             from fastapi.responses import Response
             return Response(content=Fees.csv(statement), media_type="text/csv; charset=utf-8",
-                            headers={"content-disposition": f'attachment; filename="{filename}"'})
+                            headers=attachment(filename))
         return statement
 
     def desk_reply(policies_: list[Any], *, q: str, status: str, peril: str, province: str,
@@ -3267,7 +3267,7 @@ def create_app(
         if format_ == "csv":
             from fastapi.responses import Response
             return Response(content=desk.to_csv(rows), media_type="text/csv; charset=utf-8",
-                            headers={"content-disposition": f'attachment; filename="{filename}"'})
+                            headers=attachment(filename))
         everything = desk.select(policies_, names=names, private=private)
         return {"summary": desk.summary(everything), "by_province": desk.by_province(everything),
                 "renewals_due": [r for r in everything if r["renewal_due"]][:200],
@@ -4214,7 +4214,8 @@ def create_app(
             record = found.metadata.setdefault("disclosure", {})
             record.setdefault("kept_at", time.time())
             record.setdefault("hash", getattr(app_, "contract_hash", None))
-        headers = {"content-disposition": f'attachment; filename="{policy_id}-contract.txt"'} if download else {}
+        headers = attachment(f"{policy_id}-contract.txt",
+                             fallback="contract.txt") if download else {}
         return PlainTextResponse(text, media_type="text/plain; charset=utf-8", headers=headers)
 
     # -- standing instructions ----------------------------------------------
@@ -6155,7 +6156,8 @@ def create_app(
         package = complaint_package(c)
         if format == "text":
             return PlainTextResponse(Complaints.package_text(package), media_type="text/plain; charset=utf-8",
-                                     headers={"content-disposition": f'attachment; filename="{complaint_id}.txt"'})
+                                     headers=attachment(f"{complaint_id}.txt",
+                                                        fallback="complaint.txt"))
         return package
 
     @app.get("/api/company/complaints")
@@ -6205,7 +6207,7 @@ def create_app(
             from fastapi.responses import PlainTextResponse
             name = f"{carrier_id or 'all'}-{book['month']}-{kind}.csv"
             return PlainTextResponse(bordereaux.to_csv(book), media_type="text/csv; charset=utf-8",
-                                     headers={"content-disposition": f'attachment; filename="{name}"'})
+                                     headers=attachment(name))
         return {"bordereau": book, "months": fees.months(carrier_id)}
 
     @app.get("/api/company/bordereaux")
@@ -6585,6 +6587,32 @@ def public_token(token: Any) -> dict[str, Any]:
     if not isinstance(token, dict):
         return {}
     return {k: v for k, v in token.items() if k in PUBLIC_TOKEN_KEYS}
+
+
+#: What a filename may carry into a content-disposition header. Letters,
+#: digits and the three separators, and nothing else.
+_FILENAME_OK = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def attachment(filename: str, *, fallback: str = "download.csv") -> dict[str, str]:
+    """A content-disposition header that cannot be written by its caller.
+
+    Five of these were built by interpolating a value into a quoted string,
+    and one of the values is a query parameter. Measured against the running
+    app:
+
+        month='a"'      ->  filename="all-a".csv"      the quote closes it
+        month='"; x="'  ->  filename="all-"; x=".csv"  a second parameter
+        month='ş'       ->  500                        headers are latin-1
+
+    The 500 is the plainest of the three: any character outside latin-1 in a
+    header raises inside the response, after the route has returned, so there
+    is no error to catch and nothing says why. What a caller can choose is now
+    reduced to the characters a filename needs, and a value with nothing left
+    of it falls back rather than producing filename="".
+    """
+    clean = _FILENAME_OK.sub("-", str(filename or "")).strip("-.")[:120]
+    return {"content-disposition": f'attachment; filename="{clean or fallback}"'}
 
 
 def token_metadata(policy: Any) -> dict[str, Any]:
