@@ -613,6 +613,22 @@ function wholePrice(){
   var offer=offerForPrice();
   return priced().premium+(offer?offer.fee:0);
 }
+
+/* What the buyer pays, as its own clause.
+
+   Every sentence ended with "and nothing else ever", which is true of a
+   single payment and false of every plan: measured on a Tokyo policy, the
+   sentence said 10,143.15 now and nothing else ever for cover the contract
+   priced at 10,948.52 in twelve instalments of 912.38. The plan box, the
+   price row and the price bar all knew; the sentence above them did not. */
+function payClause(){
+  var whole=wholePrice(), n=flow.instalments||1;
+  if(n<2)return t("You pay <b>{premium} USDC</b> now, and nothing else ever.",{premium:money(whole)});
+  var plan=(PLANS.plans||[]).filter(function(p){return p.count===n;})[0]||{surcharge:0};
+  var total=whole*(1+plan.surcharge);
+  return t("You pay <b>{each} USDC</b> today, then {rest} more payments of the same, <b>{total} USDC</b> in all.",
+    {each:money(total/n), rest:n-1, total:money(total)});
+}
 function plainSentence(){
   var q=priced(),l=flow.limit;
   /* The levels and the first payment come from the policy's own curve, as the
@@ -624,31 +640,31 @@ function plainSentence(){
      the page was wrong about what the policy pays and about when. */
   if(flow.peril==="quake"&&shakingIndex()){
     var qc=structure().pts;
-    return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+    return t("If the ground at {place} shakes at <b>intensity {level} or more</b> in the next year, as the seismic networks' shaking maps record it, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at intensity {top}. {pay}",
       {place:esc(subjectLabel()), level:fLevel.format(qc[0][0]), top:fLevel.format(qc[2][0]),
-       first:money(qc[0][1]*l), full:money(l), premium:money(wholePrice())});
+       first:money(qc[0][1]*l), full:money(l), pay:payClause()});
   }
   if(flow.peril==="quake"){
     var mc=structure().pts;
-    return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+    return t("If an earthquake of <b>magnitude {mag} or more</b> is recorded within <b>{km} km</b> of {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> for a magnitude {top}. {pay}",
       {mag:fLevel.format(mc[0][0]), top:fLevel.format(mc[2][0]), km:flow.radius,
-       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), premium:money(wholePrice())});
+       place:esc(subjectLabel()), first:money(mc[0][1]*l), full:money(l), pay:payClause()});
   }
   if(flow.peril==="car"){
     var cc=structure().pts;
-    return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), premium:money(wholePrice())});
+    return t("If <b>{mm} mm or more</b> of rain falls in one day at {place} in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} mm. {pay}",
+      {mm:f1.format(cc[0][0]), place:esc(subjectLabel()), first:money(cc[0][1]*l), full:money(l), top:f1.format(cc[2][0]), pay:payClause()});
   }
   if(flow.peril==="storm"){
     var sc=structure().pts;
-    return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. You pay <b>{premium} USDC</b> now, and nothing else ever.",
-      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), premium:money(wholePrice())});
+    return t("If the wind at {place} reaches <b>{kmh} km/h or more</b> on one day in the next year, you receive <em>{first} USDC</em>, rising to <em>{full}</em> at {top} km/h. {pay}",
+      {kmh:fLevel.format(sc[0][0]), place:esc(subjectLabel()), first:money(sc[0][1]*l), full:money(l), top:fLevel.format(sc[2][0]), pay:payClause()});
   }
   if(flow.peril==="drought"){
     var s=stationFor();
-    return t("If the station at {station}, <b>{km} km</b> from {place}, records less than <b>{mm} mm</b> of rain across the {season} season, you start receiving money, up to <em>{full} USDC</em> if the season comes in at 40% of normal. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+    return t("If the station at {station}, <b>{km} km</b> from {place}, records less than <b>{mm} mm</b> of rain across the {season} season, you start receiving money, up to <em>{full} USDC</em> if the season comes in at 40% of normal. {pay}",
       {station:esc(s.name), km:f0.format(Math.round(flow.stationKm)), place:esc(subjectLabel()),
-       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), premium:money(wholePrice())});
+       mm:fLevel.format(.8*s.normal), season:esc(t(s.season)), full:money(l), pay:payClause()});
   }
   // The two ends, named the way the rest of the step names them. This read
   // ROUTES[flow.subject], and could not ever hit: the subject of a flight is
@@ -659,10 +675,10 @@ function plainSentence(){
   // showing the policy before this one, with the summary beside them showing
   // this one. The page the buyer signs on cannot be pieced together from two
   // different policies.
-  return t("If your flight from {from} to {to} arrives <b>more than two hours late</b>, you receive <em>{first} USDC</em>, rising to <em>{full}</em> if it is cancelled. You pay <b>{premium} USDC</b> now, and nothing else ever.",
+  return t("If your flight from {from} to {to} arrives <b>more than two hours late</b>, you receive <em>{first} USDC</em>, rising to <em>{full}</em> if it is cancelled. {pay}",
     {from:esc(flow.flightFromText||flow.flightFrom||""),
      to:esc(flow.flightToText||flow.flightTo||""),
-     first:money(.30*l), full:money(l), premium:money(wholePrice())});
+     first:money(.30*l), full:money(l), pay:payClause()});
 }
 function payRows(){
   var c=structure(),l=flow.limit,rows=[];
