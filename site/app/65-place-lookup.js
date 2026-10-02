@@ -472,7 +472,15 @@ function skeleton(n){
    every one of them. The page carries the numbers so it can say the date
    before the protocol has answered; the protocol's own date replaces them the
    moment a price arrives, and it is the one that binds. */
-var WAITING={quake:7,car:10,storm:10,flight:0};
+/* The wait before cover starts, in days, per peril. It has to be the
+   protocol's own figure: quake stood at 7 here while clause/perils/quake.py
+   had been 3 since "Cover starts when the forecast has run out", and section
+   10 of every contract said 3. Once a quote arrives this is not used -- the
+   server's own starts_at is -- so the confirm step printed the right date with
+   the wrong sentence under it, and before the quote it printed a date four days
+   later than the contract would carry. tests/test_site_waiting.py holds the two
+   together. */
+var WAITING={quake:3,car:10,storm:10,flight:0};
 function coverStartsAt(){
   // Only worth saying when it is a different day from today. Flight cover
   // starts the moment it is bought, and "cover starts today" beside the price
@@ -494,7 +502,7 @@ function coverStartsAt(){
 }
 function waitWhy(){
   if(flow.peril==="quake")
-    return t("An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts seven days after it is bought.");
+    return t("An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts three days after it is bought.");
   if(flow.peril==="storm"||flow.peril==="car")
     return t("Weather this severe is forecast about a week ahead, so cover starts ten days after it is bought.");
   if(flow.peril==="drought")
