@@ -131,14 +131,27 @@ is written down here. Both are public and anyone can read them.
 | `ClausePolicy` | [`0x663B145F03B4C76df664730C4D57E66639Aa4197`](https://sepolia.basescan.org/address/0x663B145F03B4C76df664730C4D57E66639Aa4197) |
 | `ClauseBook` | [`0xd7250ab229358ae42a43BdC021F447225e6D2BEB`](https://sepolia.basescan.org/address/0xd7250ab229358ae42a43BdC021F447225e6D2BEB) |
 | issuer, and today also owner | [`0x03Cda5776FD8868dFb69Aaa4f9626590eA1586B2`](https://sepolia.basescan.org/address/0x03Cda5776FD8868dFb69Aaa4f9626590eA1586B2) |
+| the address the owner role is to be handed to | [`0x45A9282bdDBa6755Df15E70a5C3617fF5e7283b4`](https://sepolia.basescan.org/address/0x45A9282bdDBa6755Df15E70a5C3617fF5e7283b4) |
+
+The last row is where owner is going, not where it is. It was checked
+before being written down: the mixed-case checksum holds, so it is not a
+mistyped address; there is no contract code at it, so a plain key can send
+`setIssuer` when the issuer has to be rotated; and it has sent no
+transaction and holds nothing on this chain, which is what a key kept
+offline looks like from the outside. What the chain cannot show is that
+anybody holds the key. Sign something with it before handing over, because
+owner is the one role nothing can recover.
 
 This pair was deployed before the handover existed, so `owner()` on both
 still answers the signing key, which `/api/anchor` says plainly. Moving it
 is one call per contract from that key, which `scripts/hand_over_owner.py`
 makes:
 
-    CLAUSE_ANCHOR_KEY=0x… python scripts/hand_over_owner.py \
-        --owner 0xTheKeyYouKeepOffline --dry-run
+    CLAUSE_ANCHOR_KEY=0x… python3 scripts/hand_over_owner.py \
+        --policy 0x663B145F03B4C76df664730C4D57E66639Aa4197 \
+        --book   0xd7250ab229358ae42a43BdC021F447225e6D2BEB \
+        --owner  0x45A9282bdDBa6755Df15E70a5C3617fF5e7283b4 \
+        --dry-run
 
 It reads the owner of each contract first and sends nothing with
 `--dry-run`; without it, it sends `setOwner` to each and prints the
