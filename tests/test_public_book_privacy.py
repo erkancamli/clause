@@ -181,3 +181,39 @@ def test_a_place_with_no_street_in_it_is_left_alone(client, buyer) -> None:
     mine = [row for row in rows if row["policy_id"] == policy_id][0]
     assert public["subject"]["place"] == mine["subject"]["place"]
     assert public["subject_text"] == mine["subject_text"]
+
+# -- the two copies the first fix missed -----------------------------------
+
+def test_the_token_route_does_not_carry_the_owner(client, bought) -> None:
+    """The first fix took the owner off the public listing and left it on the
+    route a block explorer actually reads. Measured on the live deployment
+    after that fix was written: token.owner, in full, unauthenticated."""
+    _device, address, policy_id = bought
+    token = client.get(f"/api/policies/{policy_id}/token").json()
+    assert "owner" not in token["token"]
+    assert address not in json.dumps(token)
+
+
+def test_the_ledger_does_not_link_an_address_to_its_cover(client, bought) -> None:
+    """One unauthenticated request gave which address bought which policy for
+    how much: account, reference and amount on the same row."""
+    _device, address, policy_id = bought
+    rows = client.get("/api/pool/ledger?limit=500").json()["items"]
+    assert rows, "the ledger should still be readable"
+    assert any(row.get("reference") == policy_id for row in rows), (
+        "this policy left no ledger entry, so the test proves nothing")
+    assert all(row.get("account") is None for row in rows)
+    # What the ledger is for is still there.
+    row = [r for r in rows if r.get("reference") == policy_id][0]
+    for needed in ("at", "kind", "amount", "balance_after"):
+        assert needed in row and row[needed] is not None, needed
+
+
+def test_the_ledger_still_shows_you_your_own_entries(client, bought) -> None:
+    device, address, policy_id = bought
+    session = session_for(client, device, address)
+    rows = client.get("/api/pool/ledger?limit=500",
+                      headers={"Authorization": f"Bearer {session}"}).json()["items"]
+    ours = [row for row in rows if row.get("account") == address]
+    assert ours, "the holder cannot see their own entries"
+    assert any(row.get("reference") == policy_id for row in ours)

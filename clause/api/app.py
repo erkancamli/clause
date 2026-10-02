@@ -5490,9 +5490,30 @@ def create_app(
         return {**pool.risk_view(), "declined": list(reversed(app.state.declined))[:8]}
 
     @app.get("/api/pool/ledger")
-    async def pool_ledger(limit: int = Query(60, ge=1, le=500)) -> dict[str, Any]:
-        entries = [entry.to_dict() for entry in pool.ledger[-limit:]][::-1]
-        return {"items": entries}
+    async def pool_ledger(limit: int = Query(60, ge=1, le=500),
+                          token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """Every movement of money through the pool, without whose it was.
+
+        The ledger exists so that the balance can be checked by somebody who
+        does not work here: the entries have to replay to it, which needs the
+        kind, the amount and the running balance, and not the account. It was
+        publishing the account, and beside it the policy and the premium to
+        the cent -- the same link from an address to its cover that removing
+        holder from the public book was for. Read unauthenticated on the live
+        deployment it gave, in one request, which address bought which policy
+        for how much.
+
+        Your own entries come back with your address on them, as your own
+        policies do.
+        """
+        mine = session_of(token)
+        entries = []
+        for entry in pool.ledger[-limit:]:
+            row = entry.to_dict()
+            if mine is None or row.get("account") != mine:
+                row["account"] = None
+            entries.append(row)
+        return {"items": entries[::-1]}
 
     @app.post("/api/pool/deposit")
     async def deposit(request: CapitalRequest, http: Request) -> dict[str, Any]:
@@ -6597,7 +6618,11 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         "image": "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode(),
         "locked": True,
         "transferable": False,
-        "token": token,
+        # Without the owner. The address is the one that removing holder from
+        # the public book was for, and this is the most public thing the
+        # protocol writes: tokenURI points an explorer at it, beside the
+        # wallet that holds the token. Ownership is the chain's to answer.
+        "token": {k: v for k, v in token.items() if k != "owner"},
         "burned": bool(token.get("burned_at")),
         "attributes": [
             {"trait_type": "Tier", "value": tier.title()},
