@@ -1102,6 +1102,34 @@ def create_app(
             headers.setdefault("content-security-policy", "default-src 'none'; frame-ancestors 'none'")
         return response
 
+    @app.middleware("http")
+    async def count_wrong_operator_tokens(request: Request, call_next):
+        """A wrong operator token is counted wherever it is tried.
+
+        POST /api/operator/session was limited "hard and on every attempt
+        rather than on failures, because a token guessed at a thousand tries
+        a second is not a token", and it was the only one of twenty five
+        doors that was: measured, 400 attempts at GET /api/operator/carriers
+        with a wrong token answered 401 four hundred times at 705 attempts a
+        second, and so did POST /api/carriers/{id}/activate.
+
+        Counted here, before routing, so every route that takes the header is
+        covered and so is every route added later. It only counts and refuses
+        with 429; it never answers in place of the route, because several of
+        these routes answer 404 rather than 401 by design and saying 401
+        first would tell a stranger they exist.
+        """
+        supplied = request.headers.get("x-operator-token")
+        if supplied and not settings.is_operator_token(supplied):
+            try:
+                limiter.check(caller_of(request), "operator-token", limit=10, window=600.0)
+            except Refused as refusal:
+                from fastapi.responses import JSONResponse
+                return JSONResponse({"detail": refusal.detail},
+                                    status_code=refusal.status_code,
+                                    headers=refusal.headers or {})
+        return await call_next(request)
+
     if keeper is not None:
         @app.middleware("http")
         async def keep_what_changed(request: Request, call_next):

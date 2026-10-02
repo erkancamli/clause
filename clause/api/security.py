@@ -27,6 +27,7 @@ import logging
 import math
 import os
 import secrets
+import sys
 import time
 from collections import deque
 from dataclasses import dataclass, field
@@ -48,6 +49,12 @@ MAX_SUBJECT_KEYS = 12
 MAX_STRING = 64                 # any string inside a subject
 MAX_BOOK = 4_000                # open policies; the simulation is O(book)
 MAX_STREAM_CLIENTS = 24         # each open stream costs a simulation every tick
+
+
+#: The shortest operator token a deployment may start with. Thirty two
+#: hexadecimal characters is 128 bits, which is what the example file says
+#: to make; anything a person can remember is not a credential.
+OPERATOR_TOKEN_LEAST = 32
 
 
 class Refused(HTTPException):
@@ -259,6 +266,18 @@ class Settings:
             if o.strip()
         )
         token = os.environ.get("CLAUSE_OPERATOR_TOKEN") or None
+        # deploy/clause.env.example says `openssl rand -hex 32`; an operator
+        # who types a word instead gets a one word admin credential, and the
+        # audit found it tried at 705 attempts a second on twenty five routes.
+        # The counting in the application makes that slow; the length makes it
+        # pointless. Said rather than refused, because a deployment that is
+        # already running on a short token would be taken off the air by a
+        # release, which is worse than the thing being warned about; and said
+        # to the log rather than to /api/health, because that is public.
+        if token is not None and len(token) < OPERATOR_TOKEN_LEAST:
+            print(f"WARNING: CLAUSE_OPERATOR_TOKEN is {len(token)} characters. "
+                  f"Anything shorter than {OPERATOR_TOKEN_LEAST} can be guessed; "
+                  "replace it with one from: openssl rand -hex 32", file=sys.stderr)
         demo = os.environ.get("CLAUSE_DEMO") == "1"
         if demo and not token:
             # Refusing to start is the right response: a demo build reachable
@@ -277,6 +296,16 @@ class Settings:
             privy_verification_key=os.environ.get("CLAUSE_PRIVY_VERIFICATION_KEY", "").strip() or None,
             direct_buy=os.environ.get("CLAUSE_DIRECT_BUY") == "1",
         )
+
+    def is_operator_token(self, supplied: str | None) -> bool:
+        """Whether this is the operator's secret, without refusing anything.
+
+        The middleware that counts wrong guesses asks this, because it must
+        not turn a route's own 404 into a 401 by answering before it.
+        """
+        if not self.operator_token or not supplied:
+            return False
+        return _constant_equal(supplied, self.operator_token)
 
     def require_admin(self, supplied: str | None) -> None:
         """An operator action that a real deployment needs, not a demo lever.
