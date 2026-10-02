@@ -4,7 +4,7 @@
 
 [![deploy](https://github.com/erkancamli/clause/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/erkancamli/clause/actions/workflows/deploy.yml)
 [![live](https://img.shields.io/badge/live-clause.insure-E9EFF5)](https://clause.insure)
-[![version](https://img.shields.io/badge/version-1.50.0-FF6A2B)](CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-1.50.1-FF6A2B)](CHANGELOG.md)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](pyproject.toml)
 [![languages](https://img.shields.io/badge/languages-6-8D9BA9)](site/i18n/)
 [![anchored on](https://img.shields.io/badge/anchored%20on-Base%20Sepolia-0052FF)](docs/anchor.md)

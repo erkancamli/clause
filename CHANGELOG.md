@@ -1,5 +1,87 @@
 # Changelog
 
+## 1.50.1, 2 October 2026
+
+- A session released money, and a token could be moved until the key ran dry.
+
+  clause/protocol/auth.py says what a session is for in its own words: "a
+  short lived token follows, for reads only", and "writes are not covered by
+  the session". Every money-touching route held to that except one.
+  POST /api/applications/{id}/withdraw released the escrow on a bare session,
+  with no signature anywhere and no rate limit either. Measured against the
+  running app: 4,925.39 USDC came back to the wallet on a session alone. A
+  stolen session was a stolen view everywhere else and a stolen refund here.
+  It is signed over the application now, so a signature for one does not
+  release another and a spent nonce does not release it twice.
+
+  The second costs the issuer rather than the buyer.
+  POST /api/policies/{id}/anchor/claim puts a burn and a mint on the issuer's
+  key, about 350,000 gas a pair, and the dedupe only compared against the
+  wallet the token was at. A holder with two linked wallets could alternate
+  between them: measured at the service, twelve alternations queued twelve
+  pairs and about 8.4 million gas, with nothing on the route to slow it down.
+  It is behind a limit now and the moves are counted and capped at three,
+  because a limit per minute still adds up over a day. Asking for the wallet
+  the token is already at still costs nothing.
+
+  And the thing that made the first fix not work at first:
+  ChallengeRequest.purpose was capped at sixteen characters, and
+  /api/eligibility/demo reuses that model with claims as purposes, one of
+  which is "identity_enhanced" at seventeen. So the enhanced statement could
+  never be minted and a buyer above the enhanced threshold could not finish.
+
+- A policy says where it is to about a kilometre, not to eleven metres.
+
+  The one finding from the audit that was a decision rather than an
+  oversight. A policy's coordinate is public twice over: it is in the book
+  anybody can read, and it is inside the oracle reference that lets somebody
+  who does not work here repeat the query and get the same answer. That is
+  why redacting the view was not an answer; the reference would have stopped
+  matching the query that was made.
+
+  So the point is coarsened where the policy is written, and the record, the
+  reference, the predicate and the page now carry the same one. The cost,
+  measured rather than argued: across thirteen coordinates in Türkiye the
+  point moves 61 to 511 m and not one premium changed, and at Osaka, where
+  the hazard comes from a published national model, the distance to the
+  publisher's own grid point goes from 0.0 to 0.5 km, the shift from 1.617 to
+  1.624, and the premium on a 100,000 policy is 13,195.90 either way. It
+  should not change: ShakeMap is published on a grid of about a kilometre,
+  ERA5 on about twenty-five, ERA5-Land on about ten, and a magnitude policy
+  is a circle fifty or a hundred kilometres across.
+
+- The hot signing key owned both contracts, and nothing said so.
+
+  The constructors set owner and issuer to the deploying key and deploy()
+  left both there, with a docstring saying to hand the owner role over
+  "afterwards" and no record of anybody doing it. The roles are not the same
+  size: issuer mints and settles and is hot by nature, living in the
+  environment of a public web process, while owner can change the issuer, and
+  these contracts have no timelock, no guardian and nothing upgradeable. A
+  stolen issuer can be replaced; a stolen owner cannot.
+
+  The handover happens in the same run as the deployment now, from
+  CLAUSE_ANCHOR_OWNER or --owner. Handing it to the deploying key is refused.
+  Deploying without an owner still finishes, because a deployment that cannot
+  be completed is worse, but it says in full what is then true. And the owner
+  is read back off the chain and carried on the operator's page, which is the
+  first caller Rpc.eth_call has ever had: one contract handed over and the
+  other not, which is how doing it by hand fails, is said as plainly as
+  neither.
+
+  Still open: nothing in the repository records a deployed contract address,
+  so the operator's page cannot tell a real deployment from a blank one. The
+  script now says to write them down.
+
+- Two of the corrections above are corrections to this session's own work,
+  and both were caught by running the whole suite rather than the files that
+  had been touched. Fixing the spliced sentence in section 10 was right for
+  the whole sentences every peril supplies and wrong for the clause the
+  rulebook's own signature also allows; both shapes are handled now. And the
+  download header's parameter was named "fallback", which in this project is
+  the name for a refusal message a reader sees, so two filenames were read as
+  copy nobody had translated.
+
 ## 1.50.0, 2 October 2026
 
 - An end-to-end audit, run by eight independent passes and verified by
