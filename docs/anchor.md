@@ -134,9 +134,18 @@ is written down here. Both are public and anyone can read them.
 
 This pair was deployed before the handover existed, so `owner()` on both
 still answers the signing key, which `/api/anchor` says plainly. Moving it
-needs one call per contract from that key, `setOwner(<the offline key>)`,
-and nothing else changes: the issuer stays where it is and no token is
-touched.
+is one call per contract from that key, which `scripts/hand_over_owner.py`
+makes:
+
+    CLAUSE_ANCHOR_KEY=0x… python scripts/hand_over_owner.py \
+        --owner 0xTheKeyYouKeepOffline --dry-run
+
+It reads the owner of each contract first and sends nothing with
+`--dry-run`; without it, it sends `setOwner` to each and prints the
+transactions. Nothing else changes: the issuer stays where it is, no token
+is touched, and every policy already on the chain stays as it is. Afterwards
+set `CLAUSE_ANCHOR_OWNER` on the service, so `/api/anchor` can say the owner
+is where it should be rather than only what it is.
 
 ## What it is not
 
