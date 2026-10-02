@@ -1100,6 +1100,18 @@ def create_app(
         if path.startswith("/api/") and not path.startswith("/api/docs"):
             headers.setdefault("cache-control", "no-store")
             headers.setdefault("content-security-policy", "default-src 'none'; frame-ancestors 'none'")
+        # Only on a connection that is already encrypted, and said by the
+        # application rather than only by the edge: deploy/nginx.conf has sent
+        # this for as long as it has existed, and the deployment that is
+        # actually running answers through a different proxy, which does not.
+        # Measured against the live service: every other header above was
+        # there and this one was missing, so a first visit over http was
+        # downgradeable where the document said it could not be. A header set
+        # here cannot be lost by changing the edge.
+        if request.url.scheme == "https" or \
+                request.headers.get("x-forwarded-proto", "").split(",")[0].strip() == "https":
+            headers.setdefault("strict-transport-security",
+                               "max-age=31536000; includeSubDomains")
         return response
 
     @app.middleware("http")
