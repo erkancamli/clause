@@ -208,9 +208,18 @@ class Store:
         WAL and SHM are the same data in flight, so they are narrowed too, and
         a filesystem that cannot do it (a mount with no permission bits) is not
         a reason to refuse to start.
+
+        A book that is not a file is left alone: tests and the demonstration
+        open ":memory:", which has nothing on disk to narrow. The names are
+        built by adding to the file's name rather than by changing its suffix,
+        because a suffix that does not begin with a dot is not a suffix and
+        pathlib says so by raising.
         """
-        for name in (self.path, self.path.with_suffix(self.path.suffix + "-wal"),
-                     self.path.with_suffix(self.path.suffix + "-shm")):
+        if str(self.path) == ":memory:":
+            return
+        beside = (self.path, self.path.with_name(self.path.name + "-wal"),
+                  self.path.with_name(self.path.name + "-shm"))
+        for name in beside:
             try:
                 if name.exists():
                     name.chmod(0o600)

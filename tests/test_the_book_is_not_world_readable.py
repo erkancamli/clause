@@ -89,3 +89,28 @@ def test_a_filesystem_that_cannot_do_it_is_not_a_reason_to_refuse_to_start(monke
     store = Store(where)                      # does not raise
     assert store.empty()
     store.close()
+
+
+def test_a_book_that_is_not_a_file_is_left_alone() -> None:
+    """Tests and the demonstration open ":memory:".
+
+    The first version of this built the neighbouring names with with_suffix,
+    which raises on a suffix that does not begin with a dot, so opening an
+    in-memory book raised ValueError from inside the constructor. Found by the
+    whole suite rather than by the files this change touched.
+    """
+    store = Store(":memory:")
+    store.narrow()                              # does not raise
+    assert store.empty()
+    store.close()
+
+
+def test_a_name_with_no_dot_in_it_is_a_name() -> None:
+    was = os.umask(0o022)
+    try:
+        where = Path(tempfile.mkdtemp()) / "book"       # no suffix at all
+        store = Store(where)
+        assert mode(where) == 0o600
+        store.close()
+    finally:
+        os.umask(was)
