@@ -190,13 +190,18 @@ def contract_lines(key: str, *, deadline_days: int | None = None, on_missing_dat
         # Two sentences in one, a capital in the middle of it, the same
         # deadline said twice in two different notations, and a doubled full
         # stop. Read off the live API, in the binding document.
-        if on_missing_data:
-            lines.append(f"    Silence: {on_missing_data.rstrip('.')}.")
+        said = (on_missing_data or "").strip().rstrip(".")
+        if said[:1].isupper():
+            # A whole sentence, which is what every peril in clause/perils
+            # supplies. It stands as its own sentence.
+            lines.append(f"    Silence: {said}.")
         else:
+            # A clause, or nothing at all: then this sentence carries the
+            # deadline and the clause finishes it.
             lines.append(
                 f"    Silence: if no final figure has been published "
-                f"{deadline_days} days after the term ends, the policy ends "
-                f"and the premium is returned.")
+                f"{deadline_days} days after the term ends, "
+                f"{said or 'the policy ends and the premium is returned'}.")
     lines.append(f"    Objection: the policyholder may object to a settlement on the Proof page within {OBJECTION_DAYS} days of it, naming the reading they dispute; the operator answers with the archived inputs.")
     lines.append(f"    Successor source: {SUCCESSOR_RULE}")
     lines.append(f"    Archive: {ARCHIVE_RULE}")

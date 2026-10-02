@@ -71,7 +71,7 @@ def test_a_name_with_nothing_left_of_it_falls_back() -> None:
     for nothing in ("", "...", "---", '"', "ş", "..."):
         assert attachment(nothing)["content-disposition"] == \
             'attachment; filename="download.csv"'
-    assert attachment("", fallback="contract.txt")["content-disposition"] == \
+    assert attachment("", named="contract.txt")["content-disposition"] == \
         'attachment; filename="contract.txt"'
 
 

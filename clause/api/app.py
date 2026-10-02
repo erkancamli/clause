@@ -4215,7 +4215,7 @@ def create_app(
             record.setdefault("kept_at", time.time())
             record.setdefault("hash", getattr(app_, "contract_hash", None))
         headers = attachment(f"{policy_id}-contract.txt",
-                             fallback="contract.txt") if download else {}
+                             named="contract.txt") if download else {}
         return PlainTextResponse(text, media_type="text/plain; charset=utf-8", headers=headers)
 
     # -- standing instructions ----------------------------------------------
@@ -6157,7 +6157,7 @@ def create_app(
         if format == "text":
             return PlainTextResponse(Complaints.package_text(package), media_type="text/plain; charset=utf-8",
                                      headers=attachment(f"{complaint_id}.txt",
-                                                        fallback="complaint.txt"))
+                                                        named="complaint.txt"))
         return package
 
     @app.get("/api/company/complaints")
@@ -6594,7 +6594,7 @@ def public_token(token: Any) -> dict[str, Any]:
 _FILENAME_OK = re.compile(r"[^A-Za-z0-9._-]+")
 
 
-def attachment(filename: str, *, fallback: str = "download.csv") -> dict[str, str]:
+def attachment(filename: str, *, named: str = "download.csv") -> dict[str, str]:
     """A content-disposition header that cannot be written by its caller.
 
     Five of these were built by interpolating a value into a quoted string,
@@ -6612,7 +6612,7 @@ def attachment(filename: str, *, fallback: str = "download.csv") -> dict[str, st
     of it falls back rather than producing filename="".
     """
     clean = _FILENAME_OK.sub("-", str(filename or "")).strip("-.")[:120]
-    return {"content-disposition": f'attachment; filename="{clean or fallback}"'}
+    return {"content-disposition": f'attachment; filename="{clean or named}"'}
 
 
 def token_metadata(policy: Any) -> dict[str, Any]:
