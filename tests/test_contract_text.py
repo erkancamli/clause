@@ -14,6 +14,8 @@ would change what the insurer could do.
 
 from __future__ import annotations
 
+import re
+
 import pytest
 
 from clause.perils import DROUGHT, EARTHQUAKE, FLIGHT_DELAY, STORM, VEHICLE_FLOOD
@@ -107,11 +109,41 @@ def test_every_contract_carries_every_promise(promise, name, peril,
     assert promise.lower() in text, f"{name} does not say {promise!r}"
 
 
+def section(text: str, number: int) -> str:
+    """One numbered section of the contract, without the ones after it.
+
+    Asked for because a promise searched for in the whole document is
+    satisfied by any copy of it anywhere: "the premium is returned in full"
+    is in section 3 and again in the rulebook's own silence line at the end,
+    so deleting the one in section 3 left the document saying it once and
+    every test green.
+    """
+    found = re.search(rf"^{number}\. .*?(?=^\d+\. |\Z)", text, re.S | re.M)
+    assert found, f"section {number} is not in the contract"
+    return found.group(0)
+
+
+@pytest.mark.parametrize("name,peril,subject", EVERY_PERIL)
+def test_the_silence_rule_is_in_the_section_about_paying(name, peril, subject) -> None:
+    """No reading, no cover, said where a buyer looks for what they get."""
+    paying = section(written(peril, subject), 3)
+    assert "the premium is returned in full" in paying.lower(), name
+    assert "if no reading is published" in paying.lower(), name
+
+
 def test_cancellation_says_when_it_stops_being_possible() -> None:
     """Without it, a buyer who can see the event coming could still cancel,
-    and the pool carries a policy nobody would keep."""
-    text = written(EARTHQUAKE, QUAKE).lower()
-    assert "cannot be cancelled" in text
+    and the pool carries a policy nobody would keep.
+
+    Asked inside section 6, because "cannot be cancelled" appears in the
+    sentence beside it as well: deleting the line that names the trigger left
+    the whole suite green.
+    """
+    cancelling = section(written(EARTHQUAKE, QUAKE), 6)
+    assert "cannot be cancelled" in cancelling.lower()
+    assert "nothing can be cancelled once the index has reached its trigger" in \
+        cancelling.lower()
+    assert "within one hour of buying" in cancelling.lower()
 
 
 def test_the_document_names_who_is_liable_and_who_supervises_them() -> None:

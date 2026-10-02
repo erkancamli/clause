@@ -208,3 +208,56 @@ def test_income_with_no_shareholders_is_kept_by_the_pool_not_the_next_depositor(
     shares = pool.deposit("late", 100.0, tranche="mezzanine")
     assert shares == pytest.approx(100.0)
     assert pool.providers[f"{RETAINED}/mezzanine"].shares == pytest.approx(500.0)
+
+
+def test_a_payout_collects_what_is_still_owed_on_the_premium() -> None:
+    """The one ending that collects the debt rather than forgiving it.
+
+    Section 5 of every contract says "any premium still owed when a payout is
+    made is deducted from it". Cancellation, expiry and lapse all write the
+    debt off, and each has a test above; a policy on a plan that triggers
+    mid-term had none. Measured by removing the deduction: the holder was
+    paid in full and kept the unpaid premium, and 95 tests across eight money
+    files said nothing.
+    """
+    pool = layered()
+    policy = pool.write(peril_key="earthquake",
+                        subject={"location": "IST-KADIKOY", "radius_km": 50.0},
+                        limit=100_000, term_days=365, holder="buyer", paid_now=100.0)
+    owed = float(policy.metadata["premium_owed"])
+    assert owed > 0, "nothing is owed, so this proves nothing"
+
+    paid = pool.pay(policy, 7.6)
+    assert paid > owed, "the payout is smaller than the debt, which is a different case"
+
+    # What the holder is credited is the payout less what they still owed.
+    assert policy.metadata["withheld_from_payout"] == pytest.approx(owed, abs=0.01)
+    assert policy.metadata["premium_owed"] == 0.0
+    assert policy.payout == pytest.approx(paid, abs=0.01), "the policy records the gross"
+    pool.check_ledger()
+
+
+def test_a_payout_smaller_than_the_debt_takes_all_of_it_and_no_more() -> None:
+    pool = layered()
+    policy = pool.write(peril_key="earthquake",
+                        subject={"location": "IST-KADIKOY", "radius_km": 50.0},
+                        limit=100_000, term_days=365, holder="buyer", paid_now=50.0)
+    owed = float(policy.metadata["premium_owed"])
+    # A reading just over the first step, so the payout is a share of the limit.
+    paid = pool.pay(policy, 6.3)
+    withheld = float(policy.metadata.get("withheld_from_payout", 0.0))
+    assert withheld == pytest.approx(min(owed, paid), abs=0.01)
+    assert float(policy.metadata["premium_owed"]) == pytest.approx(owed - withheld, abs=0.01)
+    assert withheld <= paid + 1e-9, "more was taken than the payout"
+    pool.check_ledger()
+
+
+def test_a_policy_paid_in_full_has_nothing_withheld() -> None:
+    pool = layered()
+    policy = pool.write(peril_key="earthquake",
+                        subject={"location": "IST-KADIKOY", "radius_km": 50.0},
+                        limit=100_000, term_days=365, holder="buyer")
+    assert float(policy.metadata.get("premium_owed", 0.0)) == 0.0
+    pool.pay(policy, 7.6)
+    assert "withheld_from_payout" not in policy.metadata
+    pool.check_ledger()
