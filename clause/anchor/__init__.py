@@ -16,6 +16,6 @@ the roots and records what it would have sent, so the proof page works and
 the day the key arrives nothing is missing.
 """
 
-from .service import Anchor, AnchorConfig, AnchorIntent
+from .service import Anchor, AnchorConfig, AnchorError, AnchorIntent
 
-__all__ = ["Anchor", "AnchorConfig", "AnchorIntent"]
+__all__ = ["Anchor", "AnchorConfig", "AnchorError", "AnchorIntent"]

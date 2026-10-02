@@ -32,6 +32,12 @@ def main() -> int:
     parser.add_argument("--chain-id", type=int, default=84532)
     parser.add_argument("--base-uri", default="", help="prefix for tokenURI, e.g. https://api.clause.insure/api/policies/")
     parser.add_argument("--address", action="store_true", help="print the signer's address and stop; no node is contacted")
+    parser.add_argument("--owner", default=os.environ.get("CLAUSE_ANCHOR_OWNER", "").strip(),
+                        help="the address that should own both contracts, which must not be "
+                             "this signing key. Owner can change the issuer and there is no "
+                             "timelock on these contracts, so leaving it on a key that lives "
+                             "in a web process means a stolen key cannot be taken back. "
+                             "Defaults to CLAUSE_ANCHOR_OWNER.")
     args = parser.parse_args()
     key = os.environ.get("CLAUSE_ANCHOR_KEY", "").strip()
     if not key:
@@ -56,7 +62,8 @@ def main() -> int:
         if balance <= 0:
             print("the signer has no gas; fund it from a faucet first, then run this again", file=sys.stderr)
             return 1
-        out = deploy(rpc, key, chain_id=args.chain_id, base_uri=args.base_uri)
+        out = deploy(rpc, key, chain_id=args.chain_id, base_uri=args.base_uri,
+                     owner=args.owner)
     except RpcError as error:
         print(f"could not talk to the node at {rpc_url}: {error}", file=sys.stderr)
         return 1
@@ -67,6 +74,16 @@ def main() -> int:
     print(f"CLAUSE_ANCHOR_POLICY={out['ClausePolicy']}")
     print(f"CLAUSE_ANCHOR_BOOK={out['ClauseBook']}")
     print("CLAUSE_ANCHOR_KEY=<the same key>")
+    if args.owner:
+        print(f"CLAUSE_ANCHOR_OWNER={args.owner}")
+    else:
+        print()
+        print("# the deploying key still owns both contracts. Hand it over with")
+        print("# --owner, or from this key:  setOwner(<a key you keep offline>)")
+    print()
+    print("# and write the two addresses down somewhere that is not only this")
+    print("# terminal: nothing in the repository records a deployed address, so")
+    print("# the operator's page cannot tell a real deployment from a blank one.")
     return 0
 
 

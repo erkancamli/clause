@@ -40,6 +40,10 @@ from .signing import address_of_key, checksum, contract_address, encode_call, pr
 
 logger = logging.getLogger("clause.anchor")
 
+
+class AnchorError(RuntimeError):
+    """Something the anchor refuses, as distinct from something that failed."""
+
 CHAINS: dict[int, dict[str, str]] = {
     84532: {"name": "Base Sepolia", "explorer": "https://sepolia.basescan.org", "rpc": "https://sepolia.base.org"},
     8453: {"name": "Base", "explorer": "https://basescan.org", "rpc": "https://mainnet.base.org"},
@@ -95,6 +99,16 @@ class AnchorConfig:
     private_key: str = ""
     policy_contract: str = ""
     book_contract: str = ""
+    #: Who owns the two contracts, if anybody but the signing key. The signing
+    #: key is the issuer: it is hot, it lives in the environment of a public
+    #: web process, and it is the one that mints, burns and settles. Owner is a
+    #: different and larger thing: it can change the issuer, and on these
+    #: contracts there is no timelock, no guardian and nothing upgradeable, so
+    #: an owner that is lost or taken is lost or taken for good. deploy() left
+    #: both roles on the signing key and said in its own docstring to hand the
+    #: owner role over "afterwards", which is a step with no record of anybody
+    #: taking it.
+    owner_address: str = ""
     every: float = 600.0
 
     @classmethod
@@ -107,6 +121,7 @@ class AnchorConfig:
         rpc_url = env("CLAUSE_ANCHOR_RPC") or (CHAINS.get(chain_id, {}).get("rpc", "") if env("CLAUSE_ANCHOR_KEY") else "")
         return cls(chain_id=chain_id, rpc_url=rpc_url, private_key=env("CLAUSE_ANCHOR_KEY"),
                    policy_contract=env("CLAUSE_ANCHOR_POLICY"), book_contract=env("CLAUSE_ANCHOR_BOOK"),
+                   owner_address=env("CLAUSE_ANCHOR_OWNER"),
                    every=float(every) if every else 600.0)
 
     @property
@@ -180,11 +195,35 @@ class Anchor:
         return {"to": last.payload.get("to"), "custodial": bool(last.payload.get("custodial")),
                 "status": last.status, "intent_id": last.intent_id}
 
+    def reissues(self, policy_id: str) -> int:
+        """How many times this policy's token has been moved to another wallet.
+
+        Each one is a burn and a mint on the issuer's key, about 350,000 gas a
+        pair. The dedupe in ``claim`` only compares against the wallet the
+        token is at now, so a holder with two linked wallets could alternate
+        between them: measured, twelve alternations queued twelve pairs, about
+        8.4 million gas, and the route that calls this had no rate limit on it
+        at all. Changing wallet is a thing somebody does once, so it is
+        counted and capped rather than left to the rate limit alone.
+        """
+        with self.lock:
+            return sum(1 for i in self.intents.values()
+                       if i.kind == "burn" and i.policy_id == policy_id
+                       and (i.payload or {}).get("reissue"))
+
+    #: How many times a holder may move one token before an operator has to do
+    #: it. Three, because the honest reason to move is a wallet change and
+    #: three allows for getting it wrong twice.
+    REISSUE_LIMIT = 3
+
     def claim(self, policy: Any, wallet: str, now: float | None = None) -> list[AnchorIntent]:
         """Put the token in the holder's own wallet. A mint not yet sent is
         simply pointed there; one already on the chain is burned and minted
         again to the wallet, the mint waiting for the burn to be mined,
-        since the token cannot be transferred. Returns what was queued."""
+        since the token cannot be transferred. Returns what was queued.
+
+        Raises AnchorError once the token has been moved REISSUE_LIMIT times.
+        """
         wallet = checksum(wallet)
         now = time.time() if now is None else now
         held = self.held_by(policy.policy_id)
@@ -202,6 +241,10 @@ class Anchor:
                 current.payload["to"] = wallet
                 current.payload["custodial"] = False
                 return [current]
+            if self.reissues(policy.policy_id) >= self.REISSUE_LIMIT:
+                raise AnchorError(
+                    f"this token has already been moved {self.REISSUE_LIMIT} times; "
+                    f"ask the operator to move it again")
             burn = self._add("burn", policy.policy_id, {"reason": "re-issued to the holder's own wallet", "reissue": True}, now=now)
             mint = self._add("mint", policy.policy_id, {
                 "to": wallet, "custodial": False, "holder_hash": merkle.text_hash(policy.holder),
@@ -556,6 +599,46 @@ class Anchor:
                 "token_url": (f"{self.config.chain['explorer']}/nft/{self.config.policy_contract}/{int(merkle.text_hash(policy_id), 16)}"
                               if self.config.policy_contract and self.config.chain.get("explorer") else None)}
 
+    def owner_of(self, contract: str) -> str | None:
+        """Who the chain says owns a contract, or None if it cannot be asked.
+
+        The first reader of Rpc.eth_call, which until now had no caller at
+        all. Without it, a deployment where the hot signing key is still owner
+        of both contracts looks exactly like one where it is not, and the
+        difference is whether a stolen key can be taken back.
+        """
+        if not contract or self.rpc is None:
+            return None
+        try:
+            out = self.rpc.eth_call(to=contract, data=encode_call("owner()", []))
+        except Exception:                              # noqa: BLE001 - reported
+            return None
+        if len(out) < 32:
+            return None
+        return checksum("0x" + out[-20:].hex())
+
+    def ownership(self) -> dict[str, Any]:
+        """Whether either contract is still owned by the key that signs.
+
+        Said rather than assumed, because it is the one misconfiguration here
+        that cannot be undone after the fact.
+        """
+        signer = (self.signer or "").lower()
+        out: dict[str, Any] = {"signer_is_owner": False, "contracts": {}}
+        for name, contract in (("policy", self.config.policy_contract),
+                               ("book", self.config.book_contract)):
+            held = self.owner_of(contract)
+            out["contracts"][name] = held
+            if held and held.lower() == signer:
+                out["signer_is_owner"] = True
+        out["wanted"] = checksum(self.config.owner_address) if self.config.owner_address else None
+        if out["signer_is_owner"]:
+            out["why_it_matters"] = (
+                "the key that mints and settles also owns the contracts: it can "
+                "change the issuer, and there is no timelock and nothing "
+                "upgradeable, so an owner that is taken is taken for good")
+        return out
+
     def status(self, *, recent: int = 12) -> dict[str, Any]:
         counts = {k: 0 for k in ("pending", "sent", "confirmed", "failed")}
         by_kind = {k: 0 for k in KINDS}
@@ -572,6 +655,7 @@ class Anchor:
                           "policy_url": self.address_url(self.config.policy_contract or None),
                           "book_url": self.address_url(self.config.book_contract or None)},
             "signer": self.signer, "signer_url": self.address_url(self.signer),
+            "ownership": self.ownership(),
             "balance_eth": (self.balance_wei / 1e18) if self.balance_wei is not None else None,
             "every": self.config.every, "last_run_at": self.last_run_at, "last_error": self.last_error,
             "counts": counts, "by_kind": by_kind,
@@ -586,10 +670,23 @@ class Anchor:
 
 
 def deploy(rpc: Rpc, private_key: str, *, chain_id: int, base_uri: str = "",
-           log: Any = print) -> dict[str, str]:
+           owner: str = "", log: Any = print) -> dict[str, str]:
     """Deploy ClausePolicy and ClauseBook from this key and return their
-    addresses. The key becomes owner and issuer of both; hand the owner role
-    to a safer key afterwards with ``setOwner``."""
+    addresses.
+
+    The deploying key becomes owner and issuer of both, because that is what
+    the constructors do. Issuer is the role it needs to keep: it mints, burns
+    and settles, and it is hot by nature, living in the environment of a
+    public web process. Owner is a different and larger thing. It can change
+    the issuer, and these contracts have no timelock, no guardian and nothing
+    upgradeable, so an owner that is lost or taken is lost or taken for good.
+
+    So ``owner`` is handed over here, in the same run, rather than left to a
+    step afterwards: this docstring used to say "hand the owner role to a
+    safer key afterwards with setOwner" and there is no record of anybody ever
+    doing it. Called without one it says so, loudly, rather than finishing
+    quietly with the hot key owning everything.
+    """
     key = private_key_of(private_key)
     sender = address_of_key(key)
     built = artifacts()
@@ -618,4 +715,31 @@ def deploy(rpc: Rpc, private_key: str, *, chain_id: int, base_uri: str = "",
         raw = sign_1559(key, chain_id=chain_id, nonce=nonce, max_priority_fee=tip, max_fee=max_fee, gas=120_000,
                         to=to_address(out["ClausePolicy"]), value=0, data=data)
         log(f"setBaseURI: tx {rpc.send_raw(raw)}")
+        nonce += 1
+
+    if owner:
+        wanted = checksum(owner)
+        if wanted.lower() == sender.lower():
+            raise RuntimeError(
+                "the owner given is the deploying key itself, which is the "
+                "thing handing it over is for")
+        # Last, and in this order: the policy before the book, so that if the
+        # second call fails the first is still the one that was handed over
+        # and the log says which.
+        for name in ("ClausePolicy", "ClauseBook"):
+            data = encode_call("setOwner(address)", [wanted])
+            max_fee, tip = rpc.fees()
+            raw = sign_1559(key, chain_id=chain_id, nonce=nonce, max_priority_fee=tip,
+                            max_fee=max_fee, gas=80_000, to=to_address(out[name]),
+                            value=0, data=data)
+            log(f"{name}: setOwner({wanted}) tx {rpc.send_raw(raw)}")
+            nonce += 1
+        log(f"owner of both contracts is now {wanted}; "
+            f"{sender} keeps the issuer role and nothing else")
+    else:
+        log("WARNING: no owner given, so the deploying key owns both contracts "
+            "as well as issuing from them. It can change the issuer, and there "
+            "is no timelock and nothing upgradeable on these contracts, so an "
+            "owner that is taken is taken for good. Set CLAUSE_ANCHOR_OWNER "
+            "and deploy again, or call setOwner from this key now.")
     return out

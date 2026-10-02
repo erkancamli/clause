@@ -37,7 +37,11 @@ function renderMineApplications(){
     Array.prototype.forEach.call(box.querySelectorAll("[data-withdraw-app]"),function(b){
       b.addEventListener("click",function(){
         b.disabled=true;
-        api("/api/applications/"+encodeURIComponent(b.dataset.withdrawApp)+"/withdraw",{method:"POST",token:identity.token})
+        /* Signed, because it releases the escrow. The session used to be
+           enough and a session is for reading. */
+        signedCall("withdraw-application",{app_id:b.dataset.withdrawApp},
+                   "/api/applications/"+encodeURIComponent(b.dataset.withdrawApp)+"/withdraw",
+                   function(){ return {account:identity.address}; })
           .then(function(){ renderMine(); },function(e){ b.disabled=false; b.textContent=refusalText(e); });
       });
     });

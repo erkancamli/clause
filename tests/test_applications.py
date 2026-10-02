@@ -124,13 +124,25 @@ def test_an_applicant_can_withdraw_and_nobody_else_can_decide(client) -> None:
     stranger_auth = {"authorization": f"Bearer {session_for(client, stranger_device, stranger)}"}
     assert client.post(f"/api/review/applications/{app['app_id']}", headers=stranger_auth,
                        json={"decision": "approve", "checked": app["checks"]}).status_code == 401
+    # Signed, because withdrawing releases the escrow; a session is for
+    # reading. A stranger who signs correctly for their own address is still
+    # not the applicant.
+    def withdraw(who, signer):
+        challenge = client.post("/api/auth/challenge", json={
+            "address": who, "purpose": "withdraw-application",
+            "terms": {"app_id": app["app_id"]}}).json()
+        return client.post(f"/api/applications/{app['app_id']}/withdraw", json={
+            "account": who, "nonce": challenge["nonce"],
+            "signature": signer.sign(challenge["message"])})
+
+    assert withdraw(stranger, stranger_device).status_code == 404
+    # And a session, which is what this used to take, is not enough.
     assert client.post(f"/api/applications/{app['app_id']}/withdraw",
-                       headers=stranger_auth).status_code == 404
+                       headers=stranger_auth, json={}).status_code == 422
     auth = {"authorization": f"Bearer {session_for(client, device, address)}"}
     mine = client.get("/api/applications", headers=auth).json()["applications"]
     assert mine[0]["app_id"] == app["app_id"]
-    assert client.post(f"/api/applications/{app['app_id']}/withdraw", headers=auth).json()[
-        "application"]["status"] == "withdrawn"
+    assert withdraw(address, device).json()["application"]["status"] == "withdrawn"
 
 
 def test_an_unread_or_changed_contract_is_refused(client) -> None:
