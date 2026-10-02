@@ -405,6 +405,12 @@ def checkpoint(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: A
             "chain": {"height": chain.height, "timestamp": chain.timestamp, "genesis": chain.genesis,
                       "forgotten": dict(getattr(chain, "forgotten", {}) or {})},
             "session_secret": auth._secret.hex(),
+            # Sessions given back before they expire. The secret above survives
+            # a restart, so without these the tokens it signed would come back
+            # to life with it. Digests and one timestamp per address, both
+            # forgotten when the sessions they end would have expired anyway.
+            "sessions_ended": {"given_up": dict(auth._given_up),
+                               "signed_out_at": dict(auth._signed_out_at)},
         }
         # Encoded here, under the locks, so the snapshot is one moment. Each
         # book is copied before it is walked: the money lock covers the pool
@@ -497,6 +503,10 @@ def restore(store: Store, *, pool: Any, wallets: Any, chain: Any, registry: Any,
     secret = store.meta("session_secret")
     if secret:
         auth._secret = bytes.fromhex(secret)
+    ended = store.meta("sessions_ended", {}) or {}
+    auth._given_up.update({k: float(v) for k, v in (ended.get("given_up") or {}).items()})
+    auth._signed_out_at.update({k: float(v) for k, v in (ended.get("signed_out_at") or {}).items()})
+    auth.forget_ended_sessions()
     accounts._by_user.update(store.docs("privy"))
 
     c = store.meta("chain", {})

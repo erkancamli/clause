@@ -2662,6 +2662,30 @@ def create_app(
             "wallet": wallets.require(address).as_dict(),
         }
 
+    @app.delete("/api/auth/session")
+    async def auth_sign_out(http: Request, everywhere: bool = Query(False),
+                            token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """Give a session back before it expires.
+
+        A session token is a signed claim rather than a record, so until now
+        nothing could end one: signing out dropped it from the tab and left it
+        valid for the rest of its thirty minutes. Someone who had reason to
+        think a token had got out had no way to act on that thought, which is
+        what ASVS V3.3.1 asks for.
+
+        Given back here, and with everywhere=true every session the address
+        holds, including the ones this process has never seen. Both records
+        are forgotten when the sessions they end would have expired anyway.
+        """
+        guard(http, "auth", limit=30, window=60.0)
+        if not token:
+            raise Refused(401, "sign in first")
+        address = session_of(token)
+        ended = auth.end_session(token)
+        if ended and everywhere and address:
+            auth.end_sessions(address)
+        return {"signed_out": ended, "everywhere": bool(ended and everywhere)}
+
     @app.get("/api/valuation")
     async def valuation_schedule() -> dict[str, Any]:
         """The figures a value at risk is worked out from, so the page can show
@@ -5697,9 +5721,15 @@ def create_app(
 
     @app.post("/api/chain/inject")
     async def inject(
-        reference: str = Query(..., max_length=256),
-        field: str = Query(..., max_length=48),
-        value: float = Query(...),
+        # Optional, and checked below, because a required parameter is checked
+        # before the route runs: a deployment with the demonstration switch off
+        # answers 404 to these two, and deploy/README.md says so in those words,
+        # but an anonymous caller who omitted the parameters was told their
+        # names and types in a 422 instead. Nothing was reachable; what leaked
+        # was that the doors exist.
+        reference: str | None = Query(None, max_length=256),
+        field: str | None = Query(None, max_length=48),
+        value: float | None = Query(None),
         final: bool = Query(True),
         operator: str | None = Header(None, alias="x-operator-token"),
     ) -> dict[str, Any]:
@@ -5713,6 +5743,11 @@ def create_app(
         payout is still the one the policy's structure specifies.
         """
         settings.require_operator(operator)
+        if reference is None or field is None or value is None:
+            raise RequestValidationError([
+                {"type": "missing", "loc": ("query", name), "msg": "Field required", "input": None}
+                for name, given in (("reference", reference), ("field", field), ("value", value))
+                if given is None])
         finite(value, "value")
         reading = chain.attest(reference, field, value, final=final)
         if reading is None:
@@ -5725,7 +5760,7 @@ def create_app(
 
     @app.post("/api/chain/silence")
     async def silence(
-        reference: str = Query(..., max_length=256),
+        reference: str | None = Query(None, max_length=256),
         operator: str | None = Header(None, alias="x-operator-token"),
     ) -> dict[str, Any]:
         """Stop a source publishing, to show what the protocol does about it.
@@ -5735,6 +5770,10 @@ def create_app(
         hiding the most important part.
         """
         settings.require_operator(operator)
+        if reference is None:
+            raise RequestValidationError([
+                {"type": "missing", "loc": ("query", "reference"), "msg": "Field required",
+                 "input": None}])
         if not chain.silence(reference):
             raise Refused(404, "no such source")
         return {"silenced": reference}

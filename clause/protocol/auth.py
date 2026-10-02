@@ -68,6 +68,11 @@ CHALLENGE_SECONDS = 90
 # to look at your own policies.
 SESSION_SECONDS = 30 * 60
 
+
+def session_digest(token: str) -> str:
+    """What is written down about a session that has been given back."""
+    return hashlib.sha256(token.encode()).hexdigest()
+
 # Never hold more unredeemed challenges than this, so an attacker cannot grow
 # the table by asking for challenges and never answering.
 MAX_OPEN_CHALLENGES = 4096
@@ -210,6 +215,19 @@ class Authenticator:
         # job used to decide what it could delete.
         self.unreadable: set[str] = set()
         self._challenges: dict[str, Challenge] = {}
+        # Sessions given back before they expire.
+        #
+        # A session token is a signed claim rather than a record, which is why
+        # it can be checked without a lookup; the cost is that nothing could
+        # end one. Signing out dropped it from the tab and left it valid for
+        # the rest of its thirty minutes, so a token that had leaked outlived
+        # the person noticing. Two small records close that, both of them
+        # bounded by the session's own length:
+        #   - the digests of tokens handed back, until they would have expired;
+        #   - for "sign out everywhere", the moment it was asked, against which
+        #     a token's own issue time is read. That one needs no list at all.
+        self._given_up: dict[str, float] = {}
+        self._signed_out_at: dict[str, float] = {}
 
     # -- registration -----------------------------------------------------
 
@@ -348,10 +366,19 @@ class Authenticator:
         return hmac.new(self._secret, purpose.encode(), hashlib.sha256).digest()
 
     def issue_session(self, address: str, *, now: float | None = None) -> dict[str, Any]:
-        """A bearer token for reading your own position. It cannot spend."""
+        """A bearer token for reading your own position. It cannot spend.
+
+        The id in the middle is what makes two sessions two sessions. Without
+        it the token is a pure function of the address and the expiry, so a
+        second tab signing in within the same second was handed a byte
+        identical token: ending one ended the other, and signing out and
+        straight back in produced a token that had already been given back and
+        was refused for the rest of its half hour. Measured before it was
+        there: sign out, sign in again, 401 on every read.
+        """
         now = time.time() if now is None else now
         expires = int(now + SESSION_SECONDS)
-        body = f"{address}.{expires}"
+        body = f"{address}.{expires}.{_b64(os.urandom(9))}"
         tag = hmac.new(self._secret, body.encode(), hashlib.sha256).digest()[:16]
         return {"token": f"{body}.{_b64(tag)}", "expires_at": expires}
 
@@ -359,16 +386,58 @@ class Authenticator:
         """The address a token belongs to, or an error. Constant time compare."""
         now = time.time() if now is None else now
         try:
-            address, expires, tag = token.rsplit(".", 2)
+            address, expires, session_id, tag = token.rsplit(".", 3)
         except ValueError as error:
             raise AuthError("malformed token") from error
-        body = f"{address}.{expires}"
+        body = f"{address}.{expires}.{session_id}"
         expected = hmac.new(self._secret, body.encode(), hashlib.sha256).digest()[:16]
         if not hmac.compare_digest(_b64(expected), tag):
             raise AuthError("token does not verify")
         try:
-            if int(expires) < now:
-                raise AuthError("token expired")
+            ends = int(expires)
         except ValueError as error:
             raise AuthError("malformed token") from error
+        if ends < now:
+            raise AuthError("token expired")
+        if session_digest(token) in self._given_up:
+            raise AuthError("session ended")
+        # Issued before this address signed out everywhere. The issue time is
+        # not in the token, but the expiry is, and every session is the same
+        # length, so one subtraction gives it.
+        since = self._signed_out_at.get(address)
+        if since is not None and ends - SESSION_SECONDS <= since:
+            raise AuthError("session ended")
         return address
+
+    def end_session(self, token: str, *, now: float | None = None) -> bool:
+        """Give one session back. True if there was one to give back.
+
+        The digest is kept rather than the token, so what is written down can
+        end a session and cannot be used as one, and only until the moment the
+        token would have expired anyway.
+        """
+        now = time.time() if now is None else now
+        try:
+            self.session_address(token, now=now)
+        except AuthError:
+            return False
+        _, expires, _, _ = token.rsplit(".", 3)
+        self._given_up[session_digest(token)] = float(expires)
+        self.forget_ended_sessions(now=now)
+        return True
+
+    def end_sessions(self, address: str, *, now: float | None = None) -> None:
+        """Sign out everywhere: every session this address holds, including
+        the ones this process has never seen."""
+        self._signed_out_at[address] = time.time() if now is None else now
+
+    def forget_ended_sessions(self, *, now: float | None = None) -> None:
+        """Drop what has expired on its own. Both records are bounded by the
+        session length, so this keeps them from being a way to grow memory."""
+        now = time.time() if now is None else now
+        for digest, expires in list(self._given_up.items()):
+            if expires < now:
+                self._given_up.pop(digest, None)
+        for address, at in list(self._signed_out_at.items()):
+            if at + SESSION_SECONDS < now:
+                self._signed_out_at.pop(address, None)

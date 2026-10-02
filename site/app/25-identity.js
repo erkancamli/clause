@@ -246,16 +246,30 @@ function restoreSession(){
     if(kept&&kept.token&&kept.address&&kept.address===identity.address)identity.token=kept.token;
   }catch(e){}
 }
-function signOut(){
+function signOut(everywhere){
   // The operator's session goes whichever role the page is showing: a
   // token kept in memory after a role switch would still be a way in.
   if(OP.token)opSignOut();
   if(getRole()==="admin"){ setRole("person"); renderWho(); location.hash="#/"; return; }
+  /* And the protocol is told, rather than the token simply being dropped
+     here: a session is a signed claim, so one that is only forgotten by this
+     tab stays valid for the rest of its half hour wherever else it is. The
+     answer is not waited for; the tab is signed out either way. */
+  if(identity.token){
+    api("/api/auth/session"+(everywhere?"?everywhere=true":""),
+        {method:"DELETE",token:identity.token}).catch(function(){});
+  }
   setSession(null);
   if (window.ClausePrivy) window.ClausePrivy.logout().catch(function(){});
 }
 
 function forgetDevice(){
+  // Forgetting the device is the strongest of the three, so it ends every
+  // session the address holds and not only this tab's.
+  if(identity.token){
+    api("/api/auth/session?everywhere=true",{method:"DELETE",token:identity.token})
+      .catch(function(){});
+  }
   try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
   identity = {address:null, device:null, token:null, key:null, via:null};
   setTimeout(function(){ if (typeof renderWho === "function") renderWho(); }, 0);
