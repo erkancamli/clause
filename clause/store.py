@@ -192,10 +192,39 @@ class Store:
         self.saved_at: float | None = None
         self._prints: dict[str, dict[str, Any]] = {}
         self._lengths: dict[str, int] = {}
+        self._keep_to_ourselves()
+
+    def _keep_to_ourselves(self) -> None:
+        """The book, readable by the user that runs the service and nobody else.
+
+        It holds the secret that signs every read session and, through
+        Authenticator.derived, every ten minute price promise, so whoever can
+        read this file can mint a session for any address. The installer puts
+        the state directory at 750 and sqlite creates the file at whatever the
+        umask allows, which on a default Debian umask is readable by everyone.
+        Said here rather than only in the installer, because the file is the
+        one thing that gets backed up and copied about.
+
+        WAL and SHM are the same data in flight, so they are narrowed too, and
+        a filesystem that cannot do it (a mount with no permission bits) is not
+        a reason to refuse to start.
+        """
+        for name in (self.path, self.path.with_suffix(self.path.suffix + "-wal"),
+                     self.path.with_suffix(self.path.suffix + "-shm")):
+            try:
+                if name.exists():
+                    name.chmod(0o600)
+            except OSError:               # noqa: PERF203 - one path at a time
+                logger.debug("could not narrow the permissions of %s", name)
 
     def close(self) -> None:
         with self._lock:
             self._db.close()
+
+    def narrow(self) -> None:
+        """The WAL and the SHM are created on the first write, after the
+        constructor has already been past; this is where they are caught."""
+        self._keep_to_ourselves()
 
     # -- reading ------------------------------------------------------------
 
@@ -625,6 +654,9 @@ class Keeper:
             else:
                 self.saved_at = time.time()
                 self.last_error = ""
+                # The WAL and the SHM appear on the first write, which is after
+                # the store was opened, so they are narrowed here instead.
+                self.store.narrow()
 
     def start(self) -> None:
         def run() -> None:
