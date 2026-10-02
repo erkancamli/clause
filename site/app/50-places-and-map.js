@@ -49,7 +49,13 @@ function searchAddress(query){
       if(seq!==ADDR.seq)return;
       ADDR.query=key; ADDR.hits=reply.places||[];
       if($("place")&&$("place").value.trim()===key&&flow.step===2)renderResults(key);
-    },function(){});
+    },function(){
+      // A refusal is an answer: without this the box goes on saying it is
+      // still looking, for a call that has already stopped.
+      if(seq!==ADDR.seq)return;
+      ADDR.query=key; ADDR.hits=[];
+      if($("place")&&$("place").value.trim()===key&&flow.step===2)renderResults(key);
+    });
   },450);
 }
 /* The street and the town, as the place the buyer already found says them.
@@ -91,14 +97,22 @@ function locateMe(auto){
   msg.textContent=t("Finding where you are…");
   navigator.geolocation.getCurrentPosition(function(pos){
     var lat=pos.coords.latitude, lon=pos.coords.longitude;
-    msg.textContent=t("Found, to within about {m} m. Check the pin, and drag it if it is not quite right.",
-      {m:f0.format(Math.max(5,Math.round(pos.coords.accuracy||0)))});
+    var metres=Math.max(5,Math.round(pos.coords.accuracy||0));
+    /* There is no pin yet. The browser answers in a moment and the address
+       behind it takes a call with a nine second timeout and a retry, so
+       "Check the pin, and drag it" was said for up to eighteen seconds about
+       a pin that appears at the end of it. Said when there is one. */
+    msg.textContent=t("Found where you are. Reading the address…");
+    function pinned(){
+      msg.textContent=t("Found, to within about {m} m. Check the pin, and drag it if it is not quite right.",
+        {m:f0.format(metres)});
+    }
     api("/api/reverse?latitude="+lat.toFixed(5)+"&longitude="+lon.toFixed(5)+"&lang="+LANG,{timeout:9000}).then(function(r){
       var p=r.place||{};
       setPoint(lat,lon,[p.name,p.region].filter(Boolean).join(", "),p.country);
       offerAddress({street:p.street,city:p.city});
-      centreMap(16);
-    },function(){ setPoint(lat,lon,null,null); centreMap(16); });
+      centreMap(16); pinned();
+    },function(){ setPoint(lat,lon,null,null); centreMap(16); pinned(); });
   },function(error){
     msg.textContent=error&&error.code===1
       ? t("Location was not shared. Type your address, or allow location in the browser and try again.")
@@ -301,13 +315,34 @@ function contractKey(){
                          flow.instalments,flow.interest.address,sizePayload(),
                          held?["lock",lock.id]:priced().premium]);
 }
+/* Two contract keys that differ only in their last element, which is the
+   price or the lock that stands for it. Everything the buyer chose is in the
+   elements before it. */
+function onlyThePriceMoved(before, now){
+  try {
+    var a=JSON.parse(before), b=JSON.parse(now);
+    return JSON.stringify(a.slice(0,-1))===JSON.stringify(b.slice(0,-1));
+  } catch(e){ return false; }
+}
 function renderContract(){
   var box=$("contract-box"); if(!link.live){ box.hidden=true; return; }
   box.hidden=false;
   var key=contractKey();
+  var note=$("accept-note");
   if(CONTRACT.key===key){ $("contract-text").textContent=CONTRACT.text; return; }
+  /* The tick is about to be taken back. A buyer who changed something knows
+     why; a buyer who was reading does not, and the contract is the longest
+     text in the product. A held price lasts ten minutes, so anyone reading
+     for longer than that had their acceptance undone and the button put back
+     to "Read and accept the contract", with nothing on the screen saying so
+     but the price bar's caption. */
+  var undone=$("accept").checked&&CONTRACT.key&&onlyThePriceMoved(CONTRACT.key,key);
   $("contract-text").textContent=t("Preparing the contract…");
   $("accept").checked=false; setNextLabel();
+  if(note){
+    note.hidden=!undone;
+    if(undone)note.textContent=t("The price was held for ten minutes and that time is up, so the contract has been drawn again at today's price. Read it and accept it again.");
+  }
   // While the protocol is still pricing, wait for its price: the contract is
   // written on it, and carries its lock so the same policy is not priced
   // again for the text. renderPrice() comes back here when the price lands.
@@ -361,7 +396,12 @@ function contractFailed(why){
   if($("accept"))$("accept").checked=false;
   setNextLabel();
 }
-$("accept").addEventListener("change",setNextLabel);
+$("accept").addEventListener("change",function(){
+  // Ticked again: the note has been read and answered.
+  var note=$("accept-note");
+  if(note&&$("accept").checked)note.hidden=true;
+  setNextLabel();
+});
 /* What a buyer can do after buying, said before they buy. */
 var CANCEL_TERMS={key:"",text:""};
 function renderCancelTerms(){

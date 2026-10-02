@@ -98,6 +98,7 @@ function showApplied(reply){
   var a=reply.application;
   LAST_DONE=function(){ showApplied(reply); };
   goStep(DONE_STEP, true);
+  $("s5").classList.remove("unbought");
   $("done-title").removeAttribute("data-i18n"); $("done-state").removeAttribute("data-i18n");
   $("done-title").textContent=t("Your application is with the insurer.");
   $("done-state").textContent=t("Waiting for the insurer's checks");
@@ -195,6 +196,7 @@ function showDone(reply){
   var policy=reply.policy;
   LAST_DONE=function(){ showDone(reply); };
   goStep(DONE_STEP, true);
+  $("s5").classList.remove("unbought");
   $("done-title").removeAttribute("data-i18n"); $("done-state").removeAttribute("data-i18n");
   $("done-title").textContent=t("You are covered. There is nothing else to do.");
   $("done-state").textContent=t("Armed on chain");
@@ -228,6 +230,17 @@ function demoDone(){
   var q=quote();
   var id="CLS-"+Math.random().toString(16).slice(2,8).toUpperCase();
   goStep(DONE_STEP, true);
+  /* The heading, the lamp and the seal, which this screen alone never set.
+
+     They are written into the markup as "You are covered. There is nothing
+     else to do." and "Armed on chain", under a green tick, and only showDone
+     and showApplied replaced them. So the one path that reaches this screen
+     having bought nothing asserted a policy in its heading and contradicted
+     itself three lines below, in the one paragraph it did set. */
+  $("s5").classList.add("unbought");
+  $("done-title").removeAttribute("data-i18n"); $("done-state").removeAttribute("data-i18n");
+  $("done-title").textContent=t("Nothing was bought: this page cannot reach the protocol.");
+  $("done-state").textContent=t("Not connected");
   $("done-id").textContent=id;
   $("done-copy").textContent=
     t("Nothing was bought. The protocol is not reachable from this page right now, "+
