@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from types import SimpleNamespace
 
+import pytest
+
 from clause.protocol.cancellation import assess, cooling_off_for
 from clause.protocol.policy import PolicyStatus
 
@@ -54,3 +56,27 @@ def test_nothing_comes_back_once_the_index_is_reached() -> None:
 
 def test_a_commission_already_paid_is_not_refunded_twice() -> None:
     assert assess(policy(age_days=0.01, commission=100.0))["refund"] == 900
+
+
+def test_a_partners_commission_is_not_refunded_half_way_through_either() -> None:
+    """Section 5 of the contract: "A commission paid to a partner who sold
+    this policy is not returned on cancellation."
+
+    The test above takes the one hour mistake branch, where the commission is
+    netted off a different line, so the pro rata branch -- the one the
+    sentence is about, where a buyer leaves half way through -- had nothing
+    asking about it. Measured by dropping the term from that line: the
+    partner's commission came back out of the pool on any pro rata
+    cancellation where the cover used exceeds it, and 63 tests across six
+    files passed.
+
+    Half of a 365 day term on a 1,000 premium: 500 of cover used, so 500
+    would come back, less the 100 the partner was already paid.
+    """
+    out = assess(policy("earthquake", 365, age_days=182.5, commission=100.0))
+    assert out["basis"] == "pro_rata"
+    assert 380 < out["refund"] < 420, out["refund"]
+
+    without = assess(policy("earthquake", 365, age_days=182.5))
+    assert without["refund"] - out["refund"] == pytest.approx(100.0, abs=0.01), (
+        "the commission is not being kept out of the refund")

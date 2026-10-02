@@ -176,6 +176,77 @@ def test_a_slow_partner_is_not_sent_the_same_payout_twice() -> None:
     assert calls[0] == order.order_id
 
 
+def test_an_attempt_that_went_down_with_the_process_is_let_go_of() -> None:
+    """The other half of the guard above, which had nothing asking for it.
+
+    in_flight is set before the rail is called and cleared on both branches
+    after it, but the process can end in between. retry() then skips the
+    order for ever, and the attempt count that eventually calls a person
+    never rises, so the money neither moves nor surfaces. The test above
+    asserts the rail is not called again while an attempt is in the air;
+    nothing asserted that it is ever called again.
+    """
+    import time as _time
+
+    from clause.protocol.payouts import IN_FLIGHT_LOST_AFTER
+
+    wallets, pool, payouts = book()
+    payouts.set_preference("holder", {"method": "bank", "iban": TR_IBAN,
+                                      "holder_name": "Specimen Holder"})
+    calls: list[str] = []
+
+    def refusing(url, body, headers):
+        calls.append(headers["idempotency-key"])
+        raise OSError("still thinking")
+
+    payouts.rail = HttpRail("https://rail.example/payouts", "s", fetcher=refusing)
+    pool.pay(quake(pool), 7.3)
+    (order,) = payouts.orders.values()
+    assert len(calls) == 1
+
+    # The process stopped with the attempt in the air.
+    at = _time.time()
+    order.in_flight = True
+    order.last_attempt_at = at
+
+    # Up to the window it is left alone, as a slow partner would be.
+    payouts.retry(now=at + IN_FLIGHT_LOST_AFTER - 60)
+    assert len(calls) == 1, "an attempt that may still be in the air was overtaken"
+    assert order.in_flight is True
+
+    # Past it, the order is back in the queue and tried again.
+    payouts.retry(now=at + IN_FLIGHT_LOST_AFTER + 1)
+    assert len(calls) == 2, "the order was skipped for ever"
+    assert order.in_flight is False
+    # The history keeps it; the note has moved on to the attempt that followed
+    # in the same round, which is what a reader wants to see first.
+    assert any(h.get("status") == "presumed lost" for h in order.history), order.history
+    assert "attempt 2" in order.note, order.note
+
+
+def test_an_order_stuck_in_flight_still_reaches_a_person() -> None:
+    """The count only rises when an attempt is made, so an order that is
+    never attempted never stalls, and nobody is ever told about it."""
+    import time as _time
+
+    from clause.protocol.payouts import IN_FLIGHT_LOST_AFTER, MAX_ATTEMPTS
+
+    wallets, pool, payouts = book()
+    payouts.set_preference("holder", {"method": "bank", "iban": TR_IBAN,
+                                      "holder_name": "Specimen Holder"})
+    payouts.rail = HttpRail("https://rail.example/payouts", "s",
+                            fetcher=lambda url, body, headers: (_ for _ in ()).throw(OSError("no")))
+    pool.pay(quake(pool), 7.3)
+    (order,) = payouts.orders.values()
+    order.in_flight = True
+    at = _time.time()
+    order.last_attempt_at = at
+    for hour in range(1, MAX_ATTEMPTS + 3):
+        payouts.retry(now=at + hour * (IN_FLIGHT_LOST_AFTER + 60))
+    assert order.attempts >= MAX_ATTEMPTS, order.attempts
+    assert order.needs_a_person is True, "nobody was ever told"
+
+
 def test_a_payout_nobody_acknowledges_stops_and_waits_for_a_person() -> None:
     """A loop that will retry the same payment for ever is not resilience."""
     import time as _time
