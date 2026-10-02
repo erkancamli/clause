@@ -1119,7 +1119,23 @@ function whatIsMissing(){
       if(z.kind==="home"&&!String(z.built).trim())return {say:t("Enter the year it was built"),at:"size-built"};
       if(!sizeOk())return {say:t("Check the size above"),at:"size-area"};
     }
-    if(!addressOk())return {say:t("Enter the street and the town"),at:"addr-street"};
+    /* Whichever of the two is missing, and the field that is missing it.
+
+       Choosing a place or pressing "use my location" fills the town, so by
+       the time most readers meet this message the town is already there. It
+       asked for it anyway, and sent the cursor to the street even when the
+       street was the part that was filled. Measured on the live site after
+       the locator answered: the button read "Sokağı ve şehri girin" with
+       Küçükçekmece already in the town field. */
+    if(!addressOk()){
+      var a=flow.interest.address||{};
+      var noStreet=!(a.street&&a.street.trim().length>=3);
+      var noTown=!(a.city&&a.city.trim().length>=2);
+      return {say: noStreet&&noTown ? t("Enter the street and the town")
+                 : noStreet ? t("Enter the street")
+                 : t("Enter the town"),
+              at: noStreet ? "addr-street" : "addr-city"};
+    }
     if(!it.inside)return {say:t("Confirm it is inside the area"),at:"inside"};
     // Last, because the ruling reads the answers above it: asked before they
     // exist it refuses everything, and "Cannot be written" was the first thing

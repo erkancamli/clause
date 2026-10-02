@@ -2463,7 +2463,9 @@
     "A magnitude {level} or more": "Eine Magnitude von {level} oder mehr",
     "pays from shaking of intensity {level}": "zahlt ab einer Erschütterung der Intensität {level}",
     "pays from magnitude {level}": "zahlt ab einer Magnitude von {level}",
-    "The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.": "Die Stufe bei {level} ist Ihr Auslöser. Darunter zahlt nichts, und die Auszahlung wächst nicht gleichmäßig: sie steigt in Stufen, und genau das macht die Abwicklung zu einem Ja oder Nein, das ein Validator prüfen kann."
+    "The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.": "Die Stufe bei {level} ist Ihr Auslöser. Darunter zahlt nichts, und die Auszahlung wächst nicht gleichmäßig: sie steigt in Stufen, und genau das macht die Abwicklung zu einem Ja oder Nein, das ein Validator prüfen kann.",
+    "Enter the street": "Geben Sie die Straße ein",
+    "Enter the town": "Geben Sie den Ort ein"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

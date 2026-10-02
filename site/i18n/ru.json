@@ -2463,7 +2463,9 @@
     "A magnitude {level} or more": "Магнитуда {level} и выше",
     "pays from shaking of intensity {level}": "платит начиная с сотрясения интенсивности {level}",
     "pays from magnitude {level}": "платит начиная с магнитуды {level}",
-    "The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.": "Порогом служит ступень {level}. Ниже неё не платится ничего, и выплата растёт не плавно: она идёт ступенями, и именно поэтому расчёт становится «да» или «нет», которое может проверить валидатор."
+    "The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.": "Порогом служит ступень {level}. Ниже неё не платится ничего, и выплата растёт не плавно: она идёт ступенями, и именно поэтому расчёт становится «да» или «нет», которое может проверить валидатор.",
+    "Enter the street": "Укажите улицу",
+    "Enter the town": "Укажите город"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",

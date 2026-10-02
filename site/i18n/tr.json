@@ -2471,7 +2471,9 @@
     "A magnitude {level} or more": "{level} ve üzeri büyüklükte bir deprem",
     "pays from shaking of intensity {level}": "{level} şiddetindeki sarsıntıdan itibaren öder",
     "pays from magnitude {level}": "{level} büyüklüğünden itibaren öder",
-    "The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.": "Tetikleyiciniz {level} basamağı. Altındaki hiçbir değer ödemez ve ödeme düzgün biçimde artmaz: basamaklar hâlinde yükselir, bir doğrulayıcının evet ya da hayır diye denetleyebilmesini sağlayan da budur."
+    "The step at {level} is your trigger. Nothing below it pays, and the payout does not grow smoothly: it steps, which is what makes settlement a yes or no a validator can check.": "Tetikleyiciniz {level} basamağı. Altındaki hiçbir değer ödemez ve ödeme düzgün biçimde artmaz: basamaklar hâlinde yükselir, bir doğrulayıcının evet ya da hayır diye denetleyebilmesini sağlayan da budur.",
+    "Enter the street": "Sokağı girin",
+    "Enter the town": "Şehri girin"
   },
   "patterns": [
     "no tested earthquake model reaches this address. Cover in {country} is written where its own authority publishes the hazard, because our model for the country did not pass its backtest, and the nearest published figure is more than 60 km away. A larger city nearby will have one",
