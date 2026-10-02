@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.50.7, 2 October 2026
+
+- **The ending that returns money happened once, and then never again.**
+  1.50.6 made the deliberate silence survive a restart, which was the first
+  half of it. Measured on the deployment afterwards: still expired 0 against
+  2003 lapsed, and no armed policy anywhere near a quiet source. The reason
+  is the other half. The opening book is written once, on a book that does
+  not yet exist, so its one quiet policy settles, the demonstration forgets
+  it, and nothing writes another: the stream of arrivals that keeps the book
+  turning over offered Konya, Edirne and Adana and never Sanliurfa. So of
+  the three endings a policy can have, the register could show two. The
+  missing one is where the protocol hands the premium back for nothing,
+  which is the one a buyer least believes without seeing it. An arrival on
+  the quiet station now, silenced as it is registered, because a source only
+  exists once something is written against it.
+
+- The quiet station is named once and both lists read that name. It was a
+  literal in three places, one of them the reference the opening book
+  silenced, spelled out rather than taken off the policy: the day the
+  simulated world named its stations differently that line would have gone
+  on doing nothing and the ending would have left the book unnoticed. Taken
+  off the policy now, and the seeding says so in the log if the book comes
+  out with nothing quiet in it at all.
+
+- The address the owner role is going to is written down, with the checks
+  that were run on it before it was: the mixed-case checksum holds, there is
+  no contract code at it so a plain key can rotate the issuer, and it had
+  sent no transaction and held nothing. A signature from it was verified
+  against the recovered address, since the chain cannot show who holds a
+  key. The pair on Base Sepolia is still owned by the key that mints and
+  settles it until the handover is run on the host that has that key.
+
 ## 1.50.6, 2 October 2026
 
 - **clause.insure/proof was a 404, and so were the other thirteen screens.**
