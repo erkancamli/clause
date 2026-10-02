@@ -848,6 +848,37 @@ KIND_FOR = {"earthquake": "home", "drought": "field", "flight_delay": "trip",
             "vehicle_flood": "vehicle", "storm": "home"}
 
 
+def hazard_table(country: str) -> list[list[float]]:
+    """The hazard factor by build year, as the boundaries a reader can use.
+
+    Read out of home_age_factors rather than written beside it, because the
+    non-Türkiye bands are ages -- twenty years, forty-five -- and a table of
+    years is only true for one year. Published as years because that is what a
+    page can compare a building against without knowing today's date, and the
+    page was comparing against boundaries worked out for 2026: on 1 January
+    2027 a building of 2006 priced at 1.0 on the page and 1.25 on this server,
+    and by 2030 eight years of buildings did. Türkiye's bands are real code
+    eras and do not move.
+
+    Descending, which is how the table is read: the first row whose year the
+    building is at or after decides, and the oldest band reaches back for ever.
+    """
+    rows: list[list[float]] = []
+    standing: float | None = None
+    lowest = BUILT[0]
+    for built in range(THIS_YEAR, BUILT[0] - 1, -1):
+        _, hazard = home_age_factors(built, country)
+        if standing is None or hazard != standing:
+            if standing is not None:
+                rows.append([lowest, standing])
+            standing, lowest = hazard, built
+        else:
+            lowest = built
+    if standing is not None:
+        rows.append([0, standing])
+    return rows
+
+
 def schedule(now: float | None = None) -> dict[str, Any]:
     """Every figure the page needs to show a buyer the ceiling as they type.
 
@@ -879,9 +910,13 @@ def schedule(now: float | None = None) -> dict[str, Any]:
         "buildings": list(BUILDINGS), "crops": list(CROPS),
         "area_m2": AREA_M2, "area_ha": AREA_HA, "trip": TRIP, "vehicle": VEHICLE,
         "built": BUILT, "model_year": MODEL_YEAR, "vehicle_new_cap": VEHICLE_NEW_CAP,
+        # The year this was worked out in. Anything reading this schedule has
+        # to count ages from the same year the protocol does, and the page was
+        # counting from a literal 2026 of its own.
+        "this_year": THIS_YEAR,
         "home_age": {"ceiling_per_year": 0.01, "ceiling_floor": 0.55,
-                     "hazard": {"TR": [[2019, 1.0], [2000, 1.15], [1976, 1.6], [0, 2.0]],
-                                "*": [[2006, 1.0], [1981, 1.25], [0, 1.5]]}},
+                     "hazard": {"TR": hazard_table("TR"),
+                                "*": hazard_table("")}},
         "vehicle_age": {"per_year": 0.85, "floor": 0.2},
         "fx": {code: {"per_unit": r.per_unit, "as_at": r.as_at, "source": r.source}
                for code, r in FX.items()},

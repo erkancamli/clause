@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import time
 
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -27,15 +29,30 @@ YEAR = 365 * 86400
 
 
 def app_with(**kw):
+    book = kw.pop("seed_book", False)
     settings = Settings(operator_token=kw.pop("token", TOKEN), **kw)
     return create_app(
-        trials=200, seed=5, run_chain=False, seed_book=False, settings=settings,
+        trials=200, seed=5, run_chain=False, seed_book=book, settings=settings,
     )
 
 
 @pytest.fixture
 def client():
     with TestClient(app_with()) as c:
+        yield c
+
+
+@pytest.fixture
+def client_with_a_book():
+    """An operator console with policies in it.
+
+    The fixture above buys nothing, and the rule that the console never shows
+    a buyer's full address was asserted inside a loop over those policies: it
+    ran zero times. Measured by an independent pass: with shorten() removed
+    from the endpoint and the function left intact, 99 tests passed. The suite
+    tested that shorten() shortens and never that the endpoint calls it.
+    """
+    with TestClient(app_with(faucet=True, seed_book=True)) as c:
         yield c
 
 
@@ -369,6 +386,30 @@ def test_the_operator_sees_companies_and_buyers(client) -> None:
     overview = client.get("/api/operator/overview", headers=auth(token)).json()
     assert set(overview["totals"]) >= {"buyers", "policies", "premiums", "companies", "pending"}
     assert isinstance(overview["policies"], list) and isinstance(overview["companies"], list)
-    for row in overview["policies"]:
-        assert "…" in row["holder"] or len(row["holder"]) <= 13   # shortened, never the full address
     assert client.get("/api/operator/overview").status_code == 401
+
+
+def test_the_operator_console_never_shows_a_buyers_whole_address(
+        client_with_a_book) -> None:
+    """The assertion this used to make inside an empty loop.
+
+    It is asked twice over: that every holder on the page is shortened, and
+    that the address the pool holds for that policy does not appear in the
+    page at all. The second is the one a reader of the page would notice, and
+    the one a shortening that forgets a case would still fail.
+    """
+    client = client_with_a_book
+    token = sign_in(client, "Erkan")
+    overview = client.get("/api/operator/overview", headers=auth(token)).json()
+    rows = overview["policies"]
+    assert rows, "the console has no policies, so this test proves nothing"
+
+    said = json.dumps(overview, ensure_ascii=False)
+    pool = client.app.state.pool
+    whole = {p.holder for p in pool.policies.values() if p.holder}
+    assert whole, "the book has no holders, so this test proves nothing"
+    for address in whole:
+        assert address not in said, f"{address} is on the operator console whole"
+    for row in rows:
+        holder = row["holder"]
+        assert "…" in holder or len(holder) <= 13, holder

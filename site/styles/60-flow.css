@@ -88,7 +88,8 @@
      above the question it belongs under. */
   #view-cover > .wrap > .pricebar{grid-column:1 / -1;grid-row:4}
   #view-cover > .wrap > .pricebar > #pb-live{display:none}
-  #view-cover > .wrap > .pricebar.empty{display:flex}
+  #view-cover > .wrap > .pricebar.empty,
+  #view-cover > .wrap > .pricebar.bare{display:flex}
   #view-cover > .wrap > .pricebar .grow{margin-left:auto}
   /* The rail takes 340 of the row, so the question's own column is no longer
      the viewport and the choice grid cannot be sized off the viewport either.
@@ -273,8 +274,13 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(-
   border:1px solid var(--edge);border-radius:12px;
   padding:14px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 @media (max-width:760px){.pricebar{bottom:70px}
-  /* Nothing to say, so nothing on the screen. See updatePriceBar. */
-  .pricebar.empty{display:none}}
+  /* Nothing to say and nowhere to go back to, so nothing on the screen. That
+     is the first question only. See updatePriceBar. */
+  .pricebar.empty{display:none}
+  /* Nothing to say, but Back is in here. The readout stands down and the row
+     stays, which is what the rail does on a wide screen for the same reason:
+     hiding the bar wholesale strands the reader. */
+  .pricebar.bare > #pb-live{display:none}}
 .pricebar .amt{font-family:var(--display);font-weight:600;font-size:32px;
   line-height:1;font-variant-numeric:tabular-nums}
 .pricebar .amt small{font-size:.5em;color:var(--ink-3);margin-left:5px;font-weight:600}

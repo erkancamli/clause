@@ -154,7 +154,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .sv:hover{color:var(--ink);border-color:var(--ink-3)}
 .sv .n{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .sv.on{color:var(--signal-on-fill);background:var(--signal-fill);border-color:var(--signal-fill)}
-.sv.on .n{color:var(--signal-on-fill);opacity:.82}
+/* White on the fill, at full strength. The .82 blended it to #f4ded1 and
+   axe measured 3.84:1 against #C34700 at 12px, where 4.5 is the floor.
+   White on the same fill is 4.97:1, and .92 was still 4.44, so the count
+   is the same colour as the word beside it and smaller, which is the
+   difference it needed in the first place. */
+.sv.on .n{color:var(--signal-on-fill)}
 .sv:focus-visible{outline:2px solid var(--signal-line);outline-offset:2px}
 .reg-id{font-family:var(--mono);font-size:13px;color:var(--ink);text-decoration:none;
   display:inline-flex;align-items:center;min-height:24px}

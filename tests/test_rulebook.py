@@ -20,7 +20,27 @@ def test_every_peril_has_its_rules_and_they_read_as_contract_lines() -> None:
     assert lines[0].startswith("10. How the reading is determined")
     text = "\n".join(lines)
     assert "Fallback 1: USGS ShakeMap" in text and "Fallback 2:" in text
-    assert "frozen 7 days after the event" in text and "Silence: if no final figure has been published 7 days" in text
+    assert "frozen 7 days after the event" in text
+    # A clause finishes the sentence that carries the deadline.
+    assert ("Silence: if no final figure has been published 7 days after the "
+            "term ends, the premium comes back." in text)
+    # A whole sentence, which is what every peril in clause/perils supplies,
+    # stands as its own: spliced after the comma it read "... term ends, If
+    # the network publishes nothing ... returned in full.." on every contract
+    # the protocol had written.
+    whole = rulebook.contract_lines(
+        "earthquake", deadline_days=7,
+        on_missing_data=("If the network publishes nothing for the radius within "
+                         "seven days of the term ending, the policy expires and "
+                         "the premium is returned in full."))
+    silence = [line.strip() for line in whole if line.strip().startswith("Silence:")]
+    assert silence == ["Silence: If the network publishes nothing for the radius "
+                       "within seven days of the term ending, the policy expires "
+                       "and the premium is returned in full."], silence
+    # And with nothing supplied at all.
+    plain = rulebook.contract_lines("earthquake", deadline_days=7)
+    assert any("term ends, the policy ends and the premium is returned." in line
+               for line in plain), plain
     assert "Objection: the policyholder may object" in text and "Successor source:" in text and "Rulebook version 2026-09" in text
     assert rulebook.contract_lines("no-such-peril") == []
 

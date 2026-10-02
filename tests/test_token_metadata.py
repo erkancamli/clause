@@ -90,14 +90,23 @@ def test_every_number_and_date_says_which_it_is(tokens) -> None:
         assert dates["Ends"]["value"] > dates["Starts"]["value"]
 
 
-def test_who_holds_it_is_not_an_attribute(tokens) -> None:
-    """The viewer names the owner itself, and a trait unique to every token
-    makes a rarity count meaningless."""
+def test_who_holds_it_is_nowhere_on_the_token(tokens) -> None:
+    """It used to be here, under "token", and this test used to require it:
+    "it is still on the token itself". That was the earlier audit's half
+    measure. Nothing authenticates the route this is served from and
+    ClausePolicy's tokenURI points a block explorer at it, beside the wallet
+    that holds the token, so an address here is the link from a person to
+    their cover that removing holder from the public book was for. Whose it
+    is, is the chain's to answer."""
+    import json
+
     for policy, meta in tokens:
         values = [str(a["value"]) for a in meta["attributes"]]
         assert policy.holder not in values
         assert not any(a["trait_type"] == "Held by" for a in meta["attributes"])
-        assert meta["token"]["owner"] == policy.holder, "it is still on the token itself"
+        assert "owner" not in meta["token"]
+        assert "burned_from" not in meta["token"]
+        assert policy.holder not in json.dumps(meta)
 
 
 def test_the_payment_ladder_is_written_out_where_it_is_read_in_full(tokens) -> None:

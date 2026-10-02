@@ -253,16 +253,26 @@ function sizeState(){
 }
 /* Age, as the protocol values it: an older home is worth less to rebuild
    like for like and is damaged by less shaking; an older car is worth less. */
+/* The year the protocol is counting ages from, not the year this file was
+   written in. Both of these had 2026 in them: on 1 January 2027 a building of
+   2006 would have been priced at hazard 1.0 here and 1.25 on the server, and
+   the cover ceiling on a worked example came out 779.78 apart. /api/valuation
+   says which year it is; the browser's own is the answer until it has, and is
+   right every day but the ones where a device's clock is wrong. */
+function protocolYear(){
+  return (VALUATION&&VALUATION.this_year)||new Date().getUTCFullYear();
+}
 function homeAge(built, country){
   var v=VALUATION.home_age||{ceiling_per_year:.01,ceiling_floor:.55,hazard:{}};
-  var age=Math.max(0,2026-built), ceiling=Math.max(v.ceiling_floor,1-v.ceiling_per_year*age);
+  var age=Math.max(0,protocolYear()-built), ceiling=Math.max(v.ceiling_floor,1-v.ceiling_per_year*age);
   var table=(v.hazard||{})[country]||(v.hazard||{})["*"]||[[0,1]], hazard=1;
   for(var i=0;i<table.length;i++){ if(built>=table[i][0]){ hazard=table[i][1]; break; } }
   return {ceiling:ceiling, hazard:hazard, shift:Math.min(.75,Math.max(0,(hazard-1)*.75))};
 }
 function carCap(year){
   var v=VALUATION.vehicle_age||{per_year:.85,floor:.2};
-  return (VALUATION.vehicle_new_cap||250000)*Math.max(v.floor,Math.pow(v.per_year,Math.max(0,2026-year)));
+  return (VALUATION.vehicle_new_cap||250000)*
+    Math.max(v.floor,Math.pow(v.per_year,Math.max(0,protocolYear()-year)));
 }
 /* Whole USDC, rounded down, once and here. Everything downstream carries this
    same number: the figure shown on the "at risk" line, the cover ceiling, the

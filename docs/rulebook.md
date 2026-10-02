@@ -68,7 +68,7 @@ own index allows, and the answer goes into the rulebook (`waiting` in
 
 | Peril | Rule |
 |---|---|
-| Earthquake | Cover starts 7 days after it is bought |
+| Earthquake | Cover starts 3 days after it is bought |
 | Storm | Cover starts 10 days after it is bought |
 | Vehicle flood | Cover starts 10 days after it is bought |
 | Drought | Cover starts on the day the station's season opens, and sales for a season close 15 days before that |

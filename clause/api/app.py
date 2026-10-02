@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 from .. import __version__
 from ..chain import Chain, ChainConfig
+from ..geocode import locality
 from ..oracle import access
 from ..oracle.feed import Feed
 from ..perils import EARTHQUAKE, REGISTRY, get_peril
@@ -1103,6 +1104,28 @@ def create_app(
                 await run_in_threadpool(keeper.save)
             return response
 
+    def _finite(error: RequestValidationError) -> RequestValidationError:
+        """The same errors, with any float that cannot be written as JSON
+        written as what it is instead."""
+        import math
+
+        def plain(value: Any) -> Any:
+            if isinstance(value, float) and not math.isfinite(value):
+                return repr(value)
+            if isinstance(value, dict):
+                return {k: plain(v) for k, v in value.items()}
+            if isinstance(value, (list, tuple)):
+                return [plain(v) for v in value]
+            return value
+
+        errors = error.errors()
+        if not any("input" in e for e in errors):
+            return error
+        return RequestValidationError(
+            [{k: plain(v) for k, v in e.items()} for e in errors],
+            body=plain(getattr(error, "body", None)),
+        )
+
     @app.exception_handler(RequestValidationError)
     async def malformed(request: Request, error: RequestValidationError) -> Response:
         """A body the route could not read. Answered the way FastAPI answers
@@ -1116,7 +1139,16 @@ def create_app(
             for e in error.errors()[:6]
         )
         logger.warning("malformed %s %s: %s", request.method, request.url.path, where)
-        return await request_validation_exception_handler(request, error)
+        # FastAPI's answer quotes the body back under "input", and json.dumps
+        # cannot write a float that is not finite. Python's JSON reader accepts
+        # 1e999, NaN and Infinity, so an eleven byte body -- {"a":1e999} --
+        # reached the error handler and raised inside it: a 500 on every route
+        # with a body, from outside the layer that sets no-store and the content
+        # type rules, with no rate limit on the path because guard never ran,
+        # and a full traceback written to the log for each one. 9,312 fuzzed
+        # requests found 718 of them and this was the whole cause.
+        return await request_validation_exception_handler(
+            request, _finite(error))
 
     @app.exception_handler(Exception)
     async def unexpected(request: Request, error: Exception) -> Response:
@@ -2435,16 +2467,43 @@ def create_app(
 
     PRIVATE_POLICY_KEYS = ("review_note", "reviewed_by", "address_hash", "interest", "plan",
                            "premium_owed", "written_off", "fee_paid", "financing_paid",
-                           "contract", "disclosure", "withdrawal")
+                           "contract", "disclosure", "withdrawal",
+                           # The address as a hash. Unsalted, over a preimage
+                           # whose other parts are in the same row, so it is
+                           # the address to anybody who cares to try the
+                           # street numbers.
+                           "property")
 
     def public_policy(found: Any, *, owner: bool) -> dict[str, Any]:
-        """A policy as anyone may see it: the terms, never the person."""
+        """A policy as anyone may see it: the terms, never the person.
+
+        Three things had to be taken out of it, each of them the same mistake
+        made once more: a fact about the buyer rather than about the cover.
+
+        Removing ``holder`` was the first, from an earlier audit, and it was
+        not enough -- ``metadata.token.owner`` is the same address, and it was
+        still here. Measured on the live book: 199 of 200 rows published the
+        holder while ``holder`` read null.
+
+        The place is the third. A policy's subject carries the place the buyer
+        chose, which for a home is their address, and the public row carried
+        all of it. It is cut back to the locality; the contract keeps the
+        address in full, and so does the holder's own view of their policy.
+        """
         row = found.to_dict()
         if owner:
             return row
         row["holder"] = None
         row["metadata"] = {k: v for k, v in (row.get("metadata") or {}).items()
                            if k not in PRIVATE_POLICY_KEYS}
+        if "token" in row["metadata"]:
+            row["metadata"]["token"] = public_token(row["metadata"]["token"])
+        subject = row.get("subject")
+        if isinstance(subject, dict) and subject.get("place"):
+            short = locality(str(subject["place"]))
+            if short != subject["place"]:
+                row["subject"] = dict(subject, place=short)
+                row["subject_text"] = found.peril.describe_subject(row["subject"])
         return row
 
     @app.get("/api/policies")
@@ -3196,7 +3255,7 @@ def create_app(
         if format_ == "csv":
             from fastapi.responses import Response
             return Response(content=Fees.csv(statement), media_type="text/csv; charset=utf-8",
-                            headers={"content-disposition": f'attachment; filename="{filename}"'})
+                            headers=attachment(filename))
         return statement
 
     def desk_reply(policies_: list[Any], *, q: str, status: str, peril: str, province: str,
@@ -3208,7 +3267,7 @@ def create_app(
         if format_ == "csv":
             from fastapi.responses import Response
             return Response(content=desk.to_csv(rows), media_type="text/csv; charset=utf-8",
-                            headers={"content-disposition": f'attachment; filename="{filename}"'})
+                            headers=attachment(filename))
         everything = desk.select(policies_, names=names, private=private)
         return {"summary": desk.summary(everything), "by_province": desk.by_province(everything),
                 "renewals_due": [r for r in everything if r["renewal_due"]][:200],
@@ -4155,7 +4214,8 @@ def create_app(
             record = found.metadata.setdefault("disclosure", {})
             record.setdefault("kept_at", time.time())
             record.setdefault("hash", getattr(app_, "contract_hash", None))
-        headers = {"content-disposition": f'attachment; filename="{policy_id}-contract.txt"'} if download else {}
+        headers = attachment(f"{policy_id}-contract.txt",
+                             named="contract.txt") if download else {}
         return PlainTextResponse(text, media_type="text/plain; charset=utf-8", headers=headers)
 
     # -- standing instructions ----------------------------------------------
@@ -5449,20 +5509,70 @@ def create_app(
     # -- the pool ---------------------------------------------------------
 
     @app.get("/api/pool")
-    async def pool_summary() -> dict[str, Any]:
-        return {
-            **pool.summary(),
-            "providers": [p.to_dict() for p in pool.providers.values()],
-        }
+    async def pool_summary(http: Request,
+                           token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """The book's shape, and who stands behind it.
+
+        Off the loop and behind a limit, because summary() runs the Monte
+        Carlo: measured against the live deployment this answers in 0.55 s and
+        /api/pool/risk in 2.47 s, all of it in Python, and called straight from
+        an async route that is the whole server stopped for that long, with
+        nothing to stop a second caller asking again.
+        """
+        guard(http, "pool", limit=30, window=60.0)
+        mine = session_of(token)
+
+        def shaped() -> dict[str, Any]:
+            # The capital stack's shape is the whole point of publishing this:
+            # how much stands behind the book, in which tranche, is what makes
+            # the solvency argument checkable by somebody who does not work
+            # here. Whose it is, is not. Read with no credential it gave every
+            # provider's address next to their exact position -- the fourth
+            # outlet of the same bug as the public book, the token route and
+            # the ledger. Your own row still carries your address, which is
+            # how the tranches page shows you your capital.
+            rows = []
+            for provider in pool.providers.values():
+                row = provider.to_dict()
+                if mine is None or row.get("account") != mine:
+                    row["account"] = None
+                rows.append(row)
+            return {**pool.summary(), "providers": rows}
+
+        return await run_in_threadpool(shaped)
 
     @app.get("/api/pool/risk")
-    async def pool_risk() -> dict[str, Any]:
-        return {**pool.risk_view(), "declined": list(reversed(app.state.declined))[:8]}
+    async def pool_risk(http: Request) -> dict[str, Any]:
+        guard(http, "pool", limit=30, window=60.0)
+        return await run_in_threadpool(
+            lambda: {**pool.risk_view(),
+                     "declined": list(reversed(app.state.declined))[:8]})
 
     @app.get("/api/pool/ledger")
-    async def pool_ledger(limit: int = Query(60, ge=1, le=500)) -> dict[str, Any]:
-        entries = [entry.to_dict() for entry in pool.ledger[-limit:]][::-1]
-        return {"items": entries}
+    async def pool_ledger(limit: int = Query(60, ge=1, le=500),
+                          token: str | None = Depends(bearer)) -> dict[str, Any]:
+        """Every movement of money through the pool, without whose it was.
+
+        The ledger exists so that the balance can be checked by somebody who
+        does not work here: the entries have to replay to it, which needs the
+        kind, the amount and the running balance, and not the account. It was
+        publishing the account, and beside it the policy and the premium to
+        the cent -- the same link from an address to its cover that removing
+        holder from the public book was for. Read unauthenticated on the live
+        deployment it gave, in one request, which address bought which policy
+        for how much.
+
+        Your own entries come back with your address on them, as your own
+        policies do.
+        """
+        mine = session_of(token)
+        entries = []
+        for entry in pool.ledger[-limit:]:
+            row = entry.to_dict()
+            if mine is None or row.get("account") != mine:
+                row["account"] = None
+            entries.append(row)
+        return {"items": entries[::-1]}
 
     @app.post("/api/pool/deposit")
     async def deposit(request: CapitalRequest, http: Request) -> dict[str, Any]:
@@ -5599,13 +5709,22 @@ def create_app(
 
                     if now - last_slow > 4.0:
                         last_slow = now
-                        yield _sse(
-                            "pool",
-                            {
-                                "pool": pool.summary(),
-                                "risk": pool.risk_view(),
-                            },
-                        )
+                        # Off the loop. Both of these run the Monte Carlo, in
+                        # Python, and this is an async generator: called here
+                        # they stopped the whole server for as long as they
+                        # took. Measured with a 5 ms timer, one client holding
+                        # this stream open blocked the loop for 15,208 ms
+                        # continuously -- about three seconds in every four --
+                        # while the same simulation through /api/quote, which
+                        # is already offloaded, blocks it for 54 ms. The
+                        # front page opens this stream, so the first visitor
+                        # was the attack. Every other expensive call in this
+                        # file goes through the threadpool; this was the one
+                        # that did not.
+                        seen = await run_in_threadpool(
+                            lambda: {"pool": pool.summary(),
+                                     "risk": pool.risk_view()})
+                        yield _sse("pool", seen)
 
                     await asyncio.sleep(0.4)
             except asyncio.CancelledError:
@@ -6037,7 +6156,8 @@ def create_app(
         package = complaint_package(c)
         if format == "text":
             return PlainTextResponse(Complaints.package_text(package), media_type="text/plain; charset=utf-8",
-                                     headers={"content-disposition": f'attachment; filename="{complaint_id}.txt"'})
+                                     headers=attachment(f"{complaint_id}.txt",
+                                                        named="complaint.txt"))
         return package
 
     @app.get("/api/company/complaints")
@@ -6087,7 +6207,7 @@ def create_app(
             from fastapi.responses import PlainTextResponse
             name = f"{carrier_id or 'all'}-{book['month']}-{kind}.csv"
             return PlainTextResponse(bordereaux.to_csv(book), media_type="text/csv; charset=utf-8",
-                                     headers={"content-disposition": f'attachment; filename="{name}"'})
+                                     headers=attachment(name))
         return {"bordereau": book, "months": fees.months(carrier_id)}
 
     @app.get("/api/company/bordereaux")
@@ -6150,6 +6270,12 @@ def create_app(
             "failing": dict(feed.trouble),
             "last_error": state["last_error"],
             "openmeteo_subscription": access.subscribed(),
+            # A key that is set and refused looks exactly like a key that
+            # works, so it is said. Empty while the subscription answers; the
+            # status it refused with and when, never the key itself. The
+            # readings keep coming either way: a refused paid query is asked
+            # again on the public keyless host.
+            "openmeteo_refused": access.refusal(),
         }
 
     @app.get("/api/health")
@@ -6440,6 +6566,55 @@ def _token_art(policy: Any, seed: int, tone: str) -> str:
     )
 
 
+#: What a policy token may say to anybody. A whitelist, because the list of
+#: keys to take out has now been wrong twice: the first redaction removed
+#: ``holder`` and left ``metadata.token.owner``, and the second removed
+#: ``owner`` and left ``burned_from``, which is the same address on a
+#: cancelled policy. Measured on the live book: one row published it.
+PUBLIC_TOKEN_KEYS = ("token_id", "standard", "transferable", "terms_hash",
+                     "minted_at", "minted_block",
+                     "burned_at", "burned_block", "burned_because")
+
+
+def public_token(token: Any) -> dict[str, Any]:
+    """The token as a stranger may read it: the bargain, never the person.
+
+    Whose it is, is the chain's to answer. This is the most public thing the
+    protocol writes -- ClausePolicy's tokenURI points a block explorer at it,
+    beside the wallet that holds it -- and an address here is the one that
+    removing ``holder`` from the public book was for.
+    """
+    if not isinstance(token, dict):
+        return {}
+    return {k: v for k, v in token.items() if k in PUBLIC_TOKEN_KEYS}
+
+
+#: What a filename may carry into a content-disposition header. Letters,
+#: digits and the three separators, and nothing else.
+_FILENAME_OK = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def attachment(filename: str, *, named: str = "download.csv") -> dict[str, str]:
+    """A content-disposition header that cannot be written by its caller.
+
+    Five of these were built by interpolating a value into a quoted string,
+    and one of the values is a query parameter. Measured against the running
+    app:
+
+        month='a"'      ->  filename="all-a".csv"      the quote closes it
+        month='"; x="'  ->  filename="all-"; x=".csv"  a second parameter
+        month='ş'       ->  500                        headers are latin-1
+
+    The 500 is the plainest of the three: any character outside latin-1 in a
+    header raises inside the response, after the route has returned, so there
+    is no error to catch and nothing says why. What a caller can choose is now
+    reduced to the characters a filename needs, and a value with nothing left
+    of it falls back rather than producing filename="".
+    """
+    clean = _FILENAME_OK.sub("-", str(filename or "")).strip("-.")[:120]
+    return {"content-disposition": f'attachment; filename="{clean or named}"'}
+
+
 def token_metadata(policy: Any) -> dict[str, Any]:
     """The policy token: the bargain as a picture, the terms as attributes.
 
@@ -6454,7 +6629,15 @@ def token_metadata(policy: Any) -> dict[str, Any]:
     token = policy.metadata["token"]
     meta = policy.metadata or {}
     peril = policy.peril
-    what = peril.describe_subject(policy.subject)
+    # The token is the most public thing this protocol writes: ClausePolicy's
+    # tokenURI points a block explorer at it, next to the wallet that holds it.
+    # So the place on it is the locality, never the street -- the live book had
+    # two tokens whose description and "Where" attribute both read
+    # "222. Cadde, Atakent Mahallesi, Küçükçekmece, İstanbul".
+    shown = policy.subject
+    if isinstance(shown, dict) and shown.get("place"):
+        shown = dict(shown, place=locality(str(shown["place"])))
+    what = peril.describe_subject(shown)
     title = peril.title_for(policy.subject)
     unit = peril.unit_for(policy.subject)
     steps = peril.reading_curve(policy.subject, policy.curve).describe(unit)
@@ -6553,7 +6736,7 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         "image": "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode(),
         "locked": True,
         "transferable": False,
-        "token": token,
+        "token": public_token(token),
         "burned": bool(token.get("burned_at")),
         "attributes": [
             {"trait_type": "Tier", "value": tier.title()},

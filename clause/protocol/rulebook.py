@@ -177,7 +177,31 @@ def contract_lines(key: str, *, deadline_days: int | None = None, on_missing_dat
     if attestation:
         lines.append(f"    Attestation: {attestation}")
     if deadline_days:
-        lines.append(f"    Silence: if no final figure has been published {deadline_days} days after the term ends, {on_missing_data or 'the policy ends and the premium is returned'}.")
+        # Each peril's own sentence, where it has one, rather than spliced into
+        # this one. Every on_missing_data in clause/perils is a whole sentence
+        # beginning with a capital "If", and this interpolated it after a
+        # comma, so section 10 of every contract the protocol has written read:
+        #
+        #     Silence: if no final figure has been published 7 days after the
+        #     term ends, If the network publishes nothing for the radius
+        #     within seven days of the term ending, the policy expires and the
+        #     premium is returned in full..
+        #
+        # Two sentences in one, a capital in the middle of it, the same
+        # deadline said twice in two different notations, and a doubled full
+        # stop. Read off the live API, in the binding document.
+        said = (on_missing_data or "").strip().rstrip(".")
+        if said[:1].isupper():
+            # A whole sentence, which is what every peril in clause/perils
+            # supplies. It stands as its own sentence.
+            lines.append(f"    Silence: {said}.")
+        else:
+            # A clause, or nothing at all: then this sentence carries the
+            # deadline and the clause finishes it.
+            lines.append(
+                f"    Silence: if no final figure has been published "
+                f"{deadline_days} days after the term ends, "
+                f"{said or 'the policy ends and the premium is returned'}.")
     lines.append(f"    Objection: the policyholder may object to a settlement on the Proof page within {OBJECTION_DAYS} days of it, naming the reading they dispute; the operator answers with the archived inputs.")
     lines.append(f"    Successor source: {SUCCESSOR_RULE}")
     lines.append(f"    Archive: {ARCHIVE_RULE}")

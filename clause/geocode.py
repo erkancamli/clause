@@ -205,3 +205,26 @@ def _from_nominatim(data: Any, lat: float, lon: float) -> dict[str, Any] | None:
         "city": town,
         "kind": "address",
     }
+
+
+def locality(place: str, *, keep: int = 2) -> str:
+    """A resolved place, cut back to the locality it is in.
+
+    A policy's record carries the place the buyer chose, and for a home that is
+    their address: "222. Cadde, Atakent Mahallesi, Küçükçekmece, İstanbul". The
+    contract needs it in full. Anything a stranger can read does not, and the
+    public listing, the policy token and the token's own description were
+    publishing all four parts -- on a token whose address a block explorer
+    shows beside the wallet that holds it. Measured on the live book: two
+    policies published a street and a house number that way.
+
+    What is kept is the last ``keep`` parts, which is the district and the
+    province in Türkiye and the equivalent elsewhere: enough to say where the
+    cover is, not enough to say which door. A place with no comma in it is
+    already a locality and is returned unchanged.
+    """
+    parts = [p.strip() for p in str(place or "").split(",")]
+    parts = [p for p in parts if p]
+    if len(parts) <= keep:
+        return ", ".join(parts)
+    return ", ".join(parts[-keep:])

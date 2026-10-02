@@ -368,3 +368,71 @@ def test_the_two_quiet_tiers_stay_a_step_apart_in_both_themes() -> None:
     assert spread <= 3.0, (
         f"the two themes climb at different rates: {', '.join(f'{k} {v:.1f}' for k, v in sorted(steps.items()))}"
     )
+
+
+# ---------------------------------------------------------------------------
+# The gap this file had
+# ---------------------------------------------------------------------------
+#
+# Every test above measures a pair of tokens. A rule can take a token that
+# passes and then thin it with opacity, and the result is a third colour no
+# token names. axe found one on the Proof page: the count beside a chosen
+# sieve was --signal-on-fill, which is #FFFFFF, at opacity .82 over
+# --signal-fill, which is #C34700. White on that fill is 4.97:1 and passes.
+# Blended at .82 it is #f4ded1 and 3.84:1 at 12px, where 4.5 is the floor, and
+# .92 was still 4.44. Measured on four runs, both themes, both widths.
+#
+# So: wherever a rule paints an on-fill token, whatever it does to it has to
+# clear the floor against the fill that token exists to sit on.
+
+ON_FILL = re.compile(
+    r"\{(?P<decls>[^{}]*var\(--(?P<name>[a-z0-9-]+)-on-fill\)[^{}]*)\}")
+
+
+def thinned(declarations: str) -> float:
+    """The opacity a rule puts on the text it is painting, if any."""
+    found = re.findall(r"(?<![-\w])opacity\s*:\s*([0-9.]+)", declarations)
+    return min((float(v) for v in found), default=1.0)
+
+
+def rules_painting_an_on_fill(sheet: str) -> list[tuple[str, str, float]]:
+    out = []
+    for match in ON_FILL.finditer(sheet):
+        declarations = match.group("decls")
+        if "color:" not in declarations:
+            continue
+        out.append((match.group("name"), declarations, thinned(declarations)))
+    return out
+
+
+def test_an_on_fill_token_is_not_thinned_below_the_floor(palette) -> None:
+    sheet = stylesheet()
+    rules = rules_painting_an_on_fill(sheet)
+    assert rules, "no rule paints an on-fill token; this test is stale"
+    for theme in ("dark", "light"):
+        tokens = palette[theme]
+        for name, declarations, opacity in rules:
+            face, fill = f"{name}-on-fill", f"{name}-fill"
+            if face not in tokens or fill not in tokens:
+                continue
+            blended = over_opacity(tokens[face], tokens[fill], opacity)
+            got = ratio(blended, tokens[fill])
+            assert got >= BODY_TEXT, (
+                f"{theme}: {face} at opacity {opacity:g} on {fill} is "
+                f"{got:.2f}:1, under {BODY_TEXT}  ({declarations.strip()[:80]})")
+
+
+def over_opacity(fg: str, bg: str, opacity: float):
+    """A solid colour painted at less than full strength."""
+    front, back = rgb(fg), rgb(bg)
+    return tuple(front[i] * opacity + back[i] * (1 - opacity) for i in range(3))
+
+
+def test_the_blend_matches_what_the_browser_measured() -> None:
+    """Pinned against axe's own figures for the rule that failed, so a later
+    edit to the arithmetic cannot quietly change what the test above means."""
+    was = over_opacity("#FFFFFF", "#C34700", 0.82)
+    assert [round(v) for v in was] == [244, 222, 209]      # #f4ded1
+    assert round(ratio(was, "#C34700"), 2) == 3.84
+    assert round(ratio("#FFFFFF", "#C34700"), 2) == 4.97
+    assert round(ratio(over_opacity("#FFFFFF", "#C34700", 0.92), "#C34700"), 2) == 4.44

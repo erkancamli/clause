@@ -472,7 +472,15 @@ function skeleton(n){
    every one of them. The page carries the numbers so it can say the date
    before the protocol has answered; the protocol's own date replaces them the
    moment a price arrives, and it is the one that binds. */
-var WAITING={quake:7,car:10,storm:10,flight:0};
+/* The wait before cover starts, in days, per peril. It has to be the
+   protocol's own figure: quake stood at 7 here while clause/perils/quake.py
+   had been 3 since "Cover starts when the forecast has run out", and section
+   10 of every contract said 3. Once a quote arrives this is not used -- the
+   server's own starts_at is -- so the confirm step printed the right date with
+   the wrong sentence under it, and before the quote it printed a date four days
+   later than the contract would carry. tests/test_site_waiting.py holds the two
+   together. */
+var WAITING={quake:3,car:10,storm:10,flight:0};
 function coverStartsAt(){
   // Only worth saying when it is a different day from today. Flight cover
   // starts the moment it is bought, and "cover starts today" beside the price
@@ -494,7 +502,7 @@ function coverStartsAt(){
 }
 function waitWhy(){
   if(flow.peril==="quake")
-    return t("An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts seven days after it is bought.");
+    return t("An aftershock sequence is public knowledge from the moment the mainshock is felt, so cover starts three days after it is bought.");
   if(flow.peril==="storm"||flow.peril==="car")
     return t("Weather this severe is forecast about a week ahead, so cover starts ten days after it is bought.");
   if(flow.peril==="drought")
@@ -686,7 +694,28 @@ function updatePriceBar(){
   // the price", and a disabled button repeating the heading word for word --
   // is already on the screen above. So it stands down until it has a figure.
   var bar=$("pricebar");
-  function saying(price){ if(bar) bar.classList.toggle("empty",!price); }
+  /* A bar with no figure in it is one of two different things, and treating
+     them as one took the way back off the screen.
+
+     On the first question there is nothing in it worth the room: no price, no
+     Back, and a disabled button repeating the heading word for word. That one
+     stands down, which is what .empty does and what the phone hides.
+
+     From the second question on the bar is also where Back lives, and Back is
+     not a duplicate of anything. Hiding it wholesale is the bug this fixed
+     once for the desktop rail -- the comment at the override says so -- and
+     left standing on a phone. Measured on the live site at 390 x 844, on the
+     "where do you live" step with nothing chosen yet: #back 0px high and off
+     screen, #next off screen, one button on the whole page. A reader who
+     picked the wrong peril had the browser's gesture and nothing else.
+
+     So .bare: no figure, the row stays. */
+  function saying(price){
+    if(!bar)return;
+    var back=$("back"), goBack=!!(back&&!back.hidden);
+    bar.classList.toggle("empty",!price&&!goBack);
+    bar.classList.toggle("bare",!price&&goBack);
+  }
   if(flow.peril==="quake"&&flow.subject&&!quakeReady()){
     noAmount($("pb-amt"));
     $("pb-cap").textContent=flow.gridError?t("cannot be priced here"):t("asking the protocol");
@@ -828,7 +857,16 @@ function resetFlow(){
   flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
   flow.quoted=null; flow.refusal=null; flow.unreached=false; flow.offers=null; flow.carrier=null;
   flow.instalments=1; flow.index=null; flow.indexChosen=false; flow.pricing=false; flow.shaking=null; flow.vehicle=null; flow.storm=null;
-  flow.need=null; flow.statements=null; flow.renewing=null; flow.askedWhere=false;
+  /* An empty map, not null. Every reader treats it as a map: the mandate
+     dialog assigns flow.statements.sanctions_clear, and both purchase paths
+     index it with flow.statements[claim] whenever flow.need is set, which the
+     requirement check sets again as soon as the next purchase reaches the
+     third question. Where it starts life, and where a change of country
+     clears it, it is {}; this one line made it null, so a second purchase in
+     the same tab -- which the done screen's own "Cover something else" leads
+     to -- threw before anything was sent and told the buyer the protocol
+     could not be reached. */
+  flow.need=null; flow.statements={}; flow.renewing=null; flow.askedWhere=false;
   flow.interest.what=""; flow.interest.touched=false; flow.interest.inside=false; flow.interest.declared=0; flow.interest.modelYear=null; flow.interest.address=null; flow.interest.documents=[]; flow.interest.insideTouched=false; flow.offersOpen=false;
   CONTRACT={key:"",text:"",hash:""};
   if($("place"))$("place").value="";

@@ -9,6 +9,7 @@ somewhere its owner never signed for.
 from __future__ import annotations
 
 import hashlib
+import json
 import time
 
 import pytest
@@ -273,8 +274,12 @@ def test_cover_rider_bought_can_be_cancelled_for_a_day(client) -> None:
     burned = reply.json()["policy"]["metadata"]["token"]
     assert burned["owner"] is None and burned["burned_from"] == address and burned["burned_at"]
     assert burned["burned_block"] >= burned["minted_block"]
+    # The public card says it is burned and when, and names nobody: owner and
+    # burned_from are both the holder's address and both come off it.
     card = client.get(f"/api/policies/{policy['policy_id']}/token").json()
-    assert card["burned"] and card["token"]["owner"] is None
+    assert card["burned"] and card["token"]["burned_at"]
+    assert "owner" not in card["token"] and "burned_from" not in card["token"]
+    assert address not in json.dumps(card)
     after = client.get("/api/wallet", headers={
         "authorization": f"Bearer {session_for(client, device, address)}"}).json()["wallet"]["balance"]
     # Within the day, the premium and the issuer's fee both come back.
@@ -305,7 +310,15 @@ def test_a_token_cancelled_before_burning_existed_is_burned_on_restart(tmp_path,
     again = create_app(trials=400, seed=11, run_chain=False, seed_book=True, settings=settings)
     with TestClient(again) as c:
         card = c.get(f"/api/policies/{policy['policy_id']}/token").json()
-        assert card["burned"] and card["token"]["owner"] is None and card["token"]["burned_from"] == address
+        assert card["burned"] and card["token"]["burned_at"]
+        assert address not in json.dumps(card)
+        # The burn is on the record the holder reads, with whom it left. The
+        # device's key is still registered: the restart read it back off disk,
+        # which is the thing this test is about.
+        theirs = c.get(f"/api/policies/{policy['policy_id']}",
+                       headers={"Authorization": f"Bearer "
+                                f"{session_for(c, device, address)}"}).json()
+        assert theirs["policy"]["metadata"]["token"]["burned_from"] == address
 
 
 def test_cover_bought_by_a_person_is_not_cancellable_here(client) -> None:
