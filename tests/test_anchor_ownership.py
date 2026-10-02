@@ -204,3 +204,25 @@ def test_the_deploy_script_offers_it() -> None:
     # And it says what to write down, because nothing in the repository
     # records a deployed address.
     assert "write the two addresses down" in script
+
+
+def test_the_deployed_addresses_are_written_down_correctly() -> None:
+    """A transcribed address is the one thing here nothing else can check.
+
+    The audit's finding was that nothing in the repository records an
+    address, so the operator's page cannot tell a real deployment from a
+    blank one. docs/anchor.md records them now, and a typo in one is
+    invisible to every other test, so the checksum is read here.
+    """
+    import re
+    from pathlib import Path
+
+    doc = (Path(__file__).resolve().parent.parent / "docs" / "anchor.md"
+           ).read_text(encoding="utf-8")
+    where = doc.split("## What is deployed", 1)
+    assert len(where) == 2, "the deployment is not recorded"
+    found = set(re.findall(r"0x[0-9a-fA-F]{40}", where[1]))
+    assert len(found) == 3, f"policy, book and signer; found {sorted(found)}"
+    for address in found:
+        assert checksum(address) == address, (
+            f"{address} is not its own EIP-55 checksum, so a character is wrong")

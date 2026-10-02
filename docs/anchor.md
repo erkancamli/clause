@@ -109,12 +109,34 @@ no linked wallet, not bound by a partner) is taken as the demonstration's.
    the last root with its transaction; `POST /api/operator/anchor/run`
    runs a cycle now.
 
-The key is a hot key with the issuer role only. It can mint, burn, settle
-and anchor; it cannot change the issuer. Move the owner role of both
-contracts to a safer key (`setOwner`) once deployed, keep only a few
+The key should be a hot key with the issuer role only. It can mint, burn,
+settle and anchor; it cannot change the issuer. Pass `--owner`, or set
+`CLAUSE_ANCHOR_OWNER`, so the deployment hands the owner role to a key
+that stays offline in the same run: owner can change the issuer, and
+these contracts have no timelock, no guardian and nothing upgradeable, so
+a stolen issuer can be replaced and a stolen owner cannot. Keep only a few
 weeks of gas on the signer, and rotate it by calling `setIssuer` from the
 owner and changing the variable. `/api/anchor` reports the balance so a
-low one is seen before it stops sending.
+low one is seen before it stops sending, and the owner of each contract so
+a deployment that was never handed over does not look like one that was.
+
+## What is deployed
+
+Nothing in the code records an address, so the deployment that is running
+is written down here. Both are public and anyone can read them.
+
+| | |
+|---|---|
+| chain | Base Sepolia, id 84532 |
+| `ClausePolicy` | [`0x663B145F03B4C76df664730C4D57E66639Aa4197`](https://sepolia.basescan.org/address/0x663B145F03B4C76df664730C4D57E66639Aa4197) |
+| `ClauseBook` | [`0xd7250ab229358ae42a43BdC021F447225e6D2BEB`](https://sepolia.basescan.org/address/0xd7250ab229358ae42a43BdC021F447225e6D2BEB) |
+| issuer, and today also owner | [`0x03Cda5776FD8868dFb69Aaa4f9626590eA1586B2`](https://sepolia.basescan.org/address/0x03Cda5776FD8868dFb69Aaa4f9626590eA1586B2) |
+
+This pair was deployed before the handover existed, so `owner()` on both
+still answers the signing key, which `/api/anchor` says plainly. Moving it
+needs one call per contract from that key, `setOwner(<the offline key>)`,
+and nothing else changes: the issuer stays where it is and no token is
+touched.
 
 ## What it is not
 
