@@ -38,7 +38,8 @@ import math
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from .base import DataSource, Direction, Peril, PayoutCurve, Shape, curve_from_spec
+from .base import (DataSource, Direction, Peril, PayoutCurve, Shape,
+                   curve_from_spec, insured_point)
 from .geo import (
     Site,
     characteristic_rate_at,
@@ -424,9 +425,10 @@ class Earthquake(Peril):
                 f"written only where one does ({priced})"
             )
 
+        here = insured_point(latitude, longitude)
         out: dict[str, Any] = {
-            "latitude": round(latitude, 4),
-            "longitude": round(longitude, 4),
+            "latitude": here[0],
+            "longitude": here[1],
             "radius_km": radius,
         }
         if label:

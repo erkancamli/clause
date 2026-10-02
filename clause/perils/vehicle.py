@@ -32,7 +32,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable
 
-from .base import DataSource, Direction, PayoutCurve, Peril, Shape, curve_from_spec
+from .base import (DataSource, Direction, PayoutCurve, Peril, Shape,
+                   curve_from_spec, insured_point)
 from . import daily
 
 MODEL = Path(__file__).resolve().parents[1] / "hazard" / "models" / "rain_TR.json"
@@ -121,7 +122,8 @@ class VehicleFlood(Peril):
                 f"record has been fitted and tested. That is {where}, and the "
                 f"nearest such place to this one is further than that"
             )
-        out = {"latitude": round(latitude, 4), "longitude": round(longitude, 4),
+        here = insured_point(latitude, longitude)
+        out = {"latitude": here[0], "longitude": here[1],
                "station": place["name"], "country": place["country"],
                "distance_km": round(km, 1)}
         label = str(subject.get("place", "") or "")[:60]

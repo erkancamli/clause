@@ -237,6 +237,32 @@ class DataSource:
 
 
 # ---------------------------------------------------------------------------
+# Where a policy says it is
+# ---------------------------------------------------------------------------
+#
+# Two decimal places, about 1.1 km of latitude. A policy's coordinate is
+# public: it is in the book anyone can read, and it is in the oracle reference
+# that makes a reading repeatable by somebody who does not work here, which is
+# why it cannot be coarsened in the public view alone. So it is coarsened where
+# the policy is written, and then the record, the reference, the predicate and
+# the page all carry the same point.
+#
+# It was four places, about eleven metres, which for a home is the front door.
+# Nothing is lost by moving to two: the data this protocol settles on is
+# coarser than that everywhere. USGS ShakeMap is published on a grid of about
+# a kilometre, ERA5 on about twenty-five and ERA5-Land on about ten, and a
+# magnitude policy is a circle fifty or a hundred kilometres across. The
+# measurement point moves by up to about 800 m and lands in the same cell of
+# every source.
+PLACE_PLACES = 2
+
+
+def insured_point(latitude: float, longitude: float) -> tuple[float, float]:
+    """The coordinate a policy is written on, as everything will read it."""
+    return round(float(latitude), PLACE_PLACES), round(float(longitude), PLACE_PLACES)
+
+
+# ---------------------------------------------------------------------------
 # Perils
 # ---------------------------------------------------------------------------
 
