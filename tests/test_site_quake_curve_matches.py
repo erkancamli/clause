@@ -72,6 +72,7 @@ function stormCurve(){ return null; }
 function nearestStation(){ return null; }
 function coordinates(){ return {latitude: 0, longitude: 0}; }
 var STATIONS = {};
+PROTOCOL_YEAR
 HOME_AGE
 STRUCTURE
 var out = CASES.map(function(c){
@@ -84,10 +85,12 @@ console.log(JSON.stringify(out));
 """
     program = (program
                .replace("CURVES_LITERAL", literal(model, "CURVES"))
+               .replace("PROTOCOL_YEAR", body_of(risk, "protocolYear"))
                .replace("HOME_AGE", body_of(risk, "homeAge"))
                .replace("STRUCTURE", body_of(flow_js, "structure"))
                .replace("VALUATION_LITERAL",
                         json.dumps({"home_age": _schedule()["home_age"],
+                                    "this_year": THIS_YEAR,
                                     "built": [1900, THIS_YEAR]}))
                .replace("CASES", json.dumps(cases)))
     done = subprocess.run([NODE, "-e", program], capture_output=True, text=True,
