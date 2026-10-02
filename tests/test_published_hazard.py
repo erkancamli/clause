@@ -172,7 +172,17 @@ def test_the_quote_says_whose_model_priced_it(published) -> None:
     reply = client.get("/api/hazard", params={"latitude": OSAKA[0], "longitude": OSAKA[1]}).json()
     said = reply["shaking"]["published"]
     assert said["publisher"] == "NIED J-SHIS" and said["place"] == "Osaka"
-    assert said["distance_km"] == 0.0 and said["shift"] > 0
+    # Near enough that the publisher's own figure is the one being used, not
+    # exactly on their grid point. It used to be exactly on it, because the
+    # coordinate this test passes is one of their points and a policy was
+    # written on the coordinate it was given. A policy is written on a
+    # kilometre grid now, for the buyer's privacy, so the nearest published
+    # point is up to about 800 m away. Measured at Osaka: the distance goes
+    # from 0.0 to 0.5 km, the shift from 1.617 to 1.624, the reconciliation
+    # stays exact at every intensity, and the premium on a 100,000 policy is
+    # 13,195.90 either way.
+    assert 0.0 <= said["distance_km"] <= 1.0, said
+    assert said["shift"] > 0
 
     # An address no published model covers says nothing rather than something.
     far = client.get("/api/hazard", params={"latitude": 35.68, "longitude": 139.69}).json()
