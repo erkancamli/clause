@@ -2496,10 +2496,8 @@ def create_app(
         row["holder"] = None
         row["metadata"] = {k: v for k, v in (row.get("metadata") or {}).items()
                            if k not in PRIVATE_POLICY_KEYS}
-        token = row["metadata"].get("token")
-        if isinstance(token, dict):
-            row["metadata"]["token"] = {k: v for k, v in token.items()
-                                        if k != "owner"}
+        if "token" in row["metadata"]:
+            row["metadata"]["token"] = public_token(row["metadata"]["token"])
         subject = row.get("subject")
         if isinstance(subject, dict) and subject.get("place"):
             short = locality(str(subject["place"]))
@@ -6549,6 +6547,29 @@ def _token_art(policy: Any, seed: int, tone: str) -> str:
     )
 
 
+#: What a policy token may say to anybody. A whitelist, because the list of
+#: keys to take out has now been wrong twice: the first redaction removed
+#: ``holder`` and left ``metadata.token.owner``, and the second removed
+#: ``owner`` and left ``burned_from``, which is the same address on a
+#: cancelled policy. Measured on the live book: one row published it.
+PUBLIC_TOKEN_KEYS = ("token_id", "standard", "transferable", "terms_hash",
+                     "minted_at", "minted_block",
+                     "burned_at", "burned_block", "burned_because")
+
+
+def public_token(token: Any) -> dict[str, Any]:
+    """The token as a stranger may read it: the bargain, never the person.
+
+    Whose it is, is the chain's to answer. This is the most public thing the
+    protocol writes -- ClausePolicy's tokenURI points a block explorer at it,
+    beside the wallet that holds it -- and an address here is the one that
+    removing ``holder`` from the public book was for.
+    """
+    if not isinstance(token, dict):
+        return {}
+    return {k: v for k, v in token.items() if k in PUBLIC_TOKEN_KEYS}
+
+
 def token_metadata(policy: Any) -> dict[str, Any]:
     """The policy token: the bargain as a picture, the terms as attributes.
 
@@ -6670,11 +6691,7 @@ def token_metadata(policy: Any) -> dict[str, Any]:
         "image": "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode(),
         "locked": True,
         "transferable": False,
-        # Without the owner. The address is the one that removing holder from
-        # the public book was for, and this is the most public thing the
-        # protocol writes: tokenURI points an explorer at it, beside the
-        # wallet that holds the token. Ownership is the chain's to answer.
-        "token": {k: v for k, v in token.items() if k != "owner"},
+        "token": public_token(token),
         "burned": bool(token.get("burned_at")),
         "attributes": [
             {"trait_type": "Tier", "value": tier.title()},

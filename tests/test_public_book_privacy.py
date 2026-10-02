@@ -217,3 +217,24 @@ def test_the_ledger_still_shows_you_your_own_entries(client, bought) -> None:
     ours = [row for row in rows if row.get("account") == address]
     assert ours, "the holder cannot see their own entries"
     assert any(row.get("reference") == policy_id for row in ours)
+
+def test_the_burn_does_not_name_whose_token_it_was(client, bought) -> None:
+    """burned_from is the holder's address, and the first redaction took only
+    owner. Measured on the live book: one cancelled policy published it in the
+    public listing and on the token card."""
+    _device, address, policy_id = bought
+    from clause.api.app import PUBLIC_TOKEN_KEYS, public_token
+    assert "owner" not in PUBLIC_TOKEN_KEYS
+    assert "burned_from" not in PUBLIC_TOKEN_KEYS
+    pruned = public_token({"owner": address, "burned_from": address,
+                           "token_id": policy_id, "burned_at": 1.0,
+                           "a_key_added_later": address})
+    assert pruned == {"token_id": policy_id, "burned_at": 1.0}, pruned
+
+
+def test_both_public_views_prune_the_token_the_same_way(client, bought) -> None:
+    """Two routes serve it and each one had its own idea of what to remove."""
+    _device, _address, policy_id = bought
+    listed = anonymous_row(client, policy_id)["metadata"]["token"]
+    carded = client.get(f"/api/policies/{policy_id}/token").json()["token"]
+    assert set(listed) == set(carded)
