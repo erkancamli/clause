@@ -98,3 +98,67 @@ def test_a_quiet_source_whose_policy_is_gone_is_not_mourned(tmp_path) -> None:
         # The real one is still silenced; the stray one is simply not found.
         assert chain_of(app).readings[QUIET].silent is True
         assert "api.nowhere.example/v1/x" not in chain_of(app).readings
+
+def test_the_quiet_station_is_named_once() -> None:
+    """The opening book and the stream of arrivals have to mean the same
+    station, or only one of them silences anything and the other writes
+    cover against a source that answers."""
+    from clause.api.app import QUIET_STATION
+
+    source = (pathlib.Path(__file__).resolve().parent.parent / "clause" / "api"
+              / "app.py").read_text(encoding="utf-8")
+
+    assert QUIET_STATION in QUIET
+    # Written out as a literal nowhere but its own definition.
+    assert source.count(f'"{QUIET_STATION}"') == 1, (
+        "the station is spelled out more than once, so the two can drift")
+
+
+def test_the_ending_that_returns_money_is_not_a_one_off() -> None:
+    """The finding behind this one.
+
+    The opening book silences a source and the policy written against it
+    returns its premium at the deadline. That happens once. The book is
+    written on a book that does not yet exist, the policy settles, the
+    demonstration forgets it, and the register can never show that ending
+    again: live reported expired 0 against 2003 lapsed. So the stream of
+    arrivals that keeps the book turning over has to keep supplying it.
+    """
+    import asyncio
+    import time
+
+    from clause.api.app import QUIET_STATION, _arrivals
+    from clause.chain import Chain, ChainConfig
+    from clause.pricing import PricingEngine
+    from clause.protocol import Pool
+    from clause.protocol.wallet import Wallets
+
+    async def watch() -> tuple[bool, bool]:
+        pool = Pool(engine=PricingEngine(trials=40, seed=1))
+        pool.deposit("lp", 40_000_000.0)
+        chain = Chain(pool, ChainConfig(seed=1))
+        # every=0 runs the stream as fast as it can price, which is what makes
+        # this a test of the stream rather than of a sleep.
+        stream = asyncio.create_task(
+            _arrivals(pool, chain, Wallets(), [], every=0.0))
+        try:
+            began = time.monotonic()
+            while time.monotonic() - began < 30:
+                await asyncio.sleep(0.1)
+                if any(r.silent for r in chain.readings.values()):
+                    break
+        finally:
+            stream.cancel()
+        written = any(p.subject.get("station") == QUIET_STATION
+                      for p in pool.policies.values())
+        return any(r.silent for r in chain.readings.values()), written
+
+    quiet, written = asyncio.run(watch())
+
+    assert written, (
+        "no arrival is ever written against the quiet station, so the ending "
+        "where the premium comes back happens once and never again")
+    assert quiet, (
+        "the arrival is written but its source is never silenced, so it "
+        "settles like any other and returns nobody anything")
+

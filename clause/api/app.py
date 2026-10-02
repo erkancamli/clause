@@ -130,6 +130,12 @@ SITE_ROOT = Path(__file__).resolve().parent.parent.parent / "site"
 #: measured references grows with the book and a health check is not a log.
 LAST_ROUND_NOTES = 12
 
+#: The demonstration's quiet station. Its source is silenced, so a policy
+#: written against it can settle neither way and its deadline returns the
+#: premium. Named once, because the opening book and the arrivals stream both
+#: have to mean the same station or only one of them silences anything.
+QUIET_STATION = "TR-SANLIURFA"
+
 
 def round_notes(attestations: Sequence[Any]) -> list[dict[str, Any]]:
     """What a reading round found, in the shape the health check repeats back.
@@ -7050,7 +7056,7 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
         ("drought", {"station": "TR-KONYA", "distance_km": 6.0, "hectares": 60.0}, 85_000, 150, "konya.farm"),
         ("drought", {"station": "TR-EDIRNE", "distance_km": 4.0, "hectares": 80.0}, 70_000, 150, "edirne.farm"),
         ("drought", {"station": "TR-ADANA", "distance_km": 9.0, "hectares": 55.0}, 65_000, 140, "cukurova.farm"),
-        ("drought", {"station": "TR-SANLIURFA", "distance_km": 22.0, "hectares": 40.0}, 55_000, 140, "urfa.farm"),
+        ("drought", {"station": QUIET_STATION, "distance_km": 22.0, "hectares": 40.0}, 55_000, 140, "urfa.farm"),
         ("flight_delay", {"origin": "IST", "destination": "LHR", "flight_number": "TK1979", "departure_date": _soon(), "departure_time": "07:45"}, 1_500, 2, "traveller.a"),
         ("flight_delay", {"origin": "IST", "destination": "JFK", "flight_number": "TK0003", "departure_date": _soon(), "departure_time": "13:20"}, 2_000, 2, "traveller.b"),
         ("flight_delay", {"origin": "SAW", "destination": "ESB", "flight_number": "PC2310", "departure_date": _soon(1), "departure_time": "18:05"}, 800, 2, "traveller.c"),
@@ -7075,21 +7081,28 @@ def _seed(pool: Pool, chain: Chain, wallets: Wallets, registry: Any = None) -> N
                     policy.metadata["carrier"] = carrier_id
             policy.metadata["synthetic"] = True
             chain.register(policy)
+            if subject.get("station") == QUIET_STATION:
+                # One source is taken offline on purpose. The policy written
+                # against it can settle neither way, so at its deadline the
+                # protocol returns the premium rather than keeping it, and
+                # watching that is the point of having the case in the book.
+                #
+                # Taken off the policy, not written out: the reference used to
+                # be a literal here, which is a string that has to agree with
+                # whatever the simulated world calls its stations, and the day
+                # it stopped agreeing this line would have gone on doing
+                # nothing at all.
+                chain.silence(policy.data_reference)
         except PoolError as error:
             logger.info("opening book skipped a policy: %s", error)
 
-    # One source is taken offline on purpose. The policy written against it can
-    # settle neither way, and watching the protocol return the premium rather
-    # than keep it is the point of having the case in the demo at all.
-    #
-    # The answer is read, because silence() returns False for a reference it
-    # does not hold and the address above is written out here rather than
-    # taken off the policy: the day the simulated world names its stations
-    # differently, this line would quietly stop doing anything and the only
-    # ending in the book that returns money would be gone with it.
-    if not chain.silence("api.meteo.example/v1/station/TR-SANLIURFA/cumulative"):
-        logger.warning("the opening book's quiet source was not found, so no "
-                       "policy in it will return its premium")
+    # And it is an error if the book came out with nothing quiet in it: that
+    # silence is the whole of one of the three endings, and losing it is
+    # invisible from the outside until somebody notices the register has never
+    # returned a premium.
+    if not any(r.silent for r in chain.readings.values()):
+        logger.warning("the opening book has no quiet source, so nothing in it "
+                       "will return its premium")
 
 
 async def _arrivals(
@@ -7115,6 +7128,13 @@ async def _arrivals(
         ("drought", {"station": "TR-KONYA", "distance_km": 7.0, "hectares": 55.0}, (40_000, 95_000), 150),
         ("drought", {"station": "TR-EDIRNE", "distance_km": 5.0, "hectares": 70.0}, (40_000, 85_000), 150),
         ("drought", {"station": "TR-ADANA", "distance_km": 11.0, "hectares": 60.0}, (35_000, 80_000), 140),
+        # Sanliurfa is the quiet one: its source is silenced on registration
+        # just below, so this arrival is the book's supply of the ending
+        # where the premium comes back. Without it the opening book's single
+        # such policy settles once, is forgotten, and the register can never
+        # show that ending again -- which is what the live deployment was
+        # reporting as "expired: 0" against two thousand lapsed.
+        ("drought", {"station": QUIET_STATION, "distance_km": 20.0, "hectares": 45.0}, (35_000, 75_000), 140),
         ("flight_delay", {"origin": "IST", "destination": "LHR", "flight_number": "TK1979", "departure_date": _soon(7), "departure_time": "07:45"}, (900, 2_400), 2),
         ("flight_delay", {"origin": "IST", "destination": "AMS", "flight_number": "TK1953", "departure_date": _soon(7), "departure_time": "11:30"}, (900, 2_200), 2),
         ("flight_delay", {"origin": "FRA", "destination": "IST", "flight_number": "LH1302", "departure_date": _soon(8), "departure_time": "16:40"}, (800, 2_000), 2),
@@ -7160,6 +7180,14 @@ async def _arrivals(
                         policy.metadata["carrier"] = carrier_id
                 policy.metadata["synthetic"] = True
                 chain.register(policy)
+                if subject.get("station") == QUIET_STATION:
+                    # Silenced here rather than in the candidate list, because
+                    # a source only exists once a policy has been registered
+                    # against it. A source that publishes nothing is the only
+                    # way the deadline ends in the premium being returned, and
+                    # a demonstration that cannot show that ending is missing
+                    # the one a buyer most wants to see.
+                    chain.silence(policy.data_reference)
         except PoolError as error:
             # A refusal is the capital rules working, not a fault.
             declined.append(

@@ -206,6 +206,16 @@ def test_the_deploy_script_offers_it() -> None:
     assert "write the two addresses down" in script
 
 
+def deployment_section() -> str:
+    from pathlib import Path
+
+    doc = (Path(__file__).resolve().parent.parent / "docs" / "anchor.md"
+           ).read_text(encoding="utf-8")
+    where = doc.split("## What is deployed", 1)
+    assert len(where) == 2, "the deployment is not recorded"
+    return where[1]
+
+
 def test_the_deployed_addresses_are_written_down_correctly() -> None:
     """A transcribed address is the one thing here nothing else can check.
 
@@ -215,17 +225,33 @@ def test_the_deployed_addresses_are_written_down_correctly() -> None:
     invisible to every other test, so the checksum is read here.
     """
     import re
-    from pathlib import Path
 
-    doc = (Path(__file__).resolve().parent.parent / "docs" / "anchor.md"
-           ).read_text(encoding="utf-8")
-    where = doc.split("## What is deployed", 1)
-    assert len(where) == 2, "the deployment is not recorded"
-    found = set(re.findall(r"0x[0-9a-fA-F]{40}", where[1]))
-    assert len(found) == 3, f"policy, book and signer; found {sorted(found)}"
+    found = set(re.findall(r"0x[0-9a-fA-F]{40}", deployment_section()))
+    assert len(found) == 4, (
+        f"policy, book, signer and the owner it is going to; found {sorted(found)}")
     for address in found:
         assert checksum(address) == address, (
             f"{address} is not its own EIP-55 checksum, so a character is wrong")
+
+
+def test_the_owner_it_is_going_to_is_not_the_key_it_is_coming_from() -> None:
+    """Which is the whole of the handover.
+
+    Owner can replace the issuer, and these contracts have no timelock and
+    nothing upgradeable, so a stolen issuer can be replaced and a stolen
+    owner cannot. Recording the signing key in that row would read like a
+    handover and be none, and the script's own refusal would be the only
+    thing standing between the two.
+    """
+    import re
+
+    section = deployment_section()
+    rows = {line.split("|")[1].strip(): re.findall(r"0x[0-9a-fA-F]{40}", line)
+            for line in section.splitlines() if line.startswith("|")}
+    signer = next(a for name, a in rows.items() if "issuer" in name)[0]
+    wanted = next(a for name, a in rows.items() if "handed to" in name)[0]
+
+    assert wanted.lower() != signer.lower()
 
 
 # -- and the pair that is already deployed ---------------------------------
