@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 from .. import __version__
 from ..chain import Chain, ChainConfig
+from ..geocode import locality
 from ..oracle import access
 from ..oracle.feed import Feed
 from ..perils import EARTHQUAKE, REGISTRY, get_peril
@@ -2435,16 +2436,45 @@ def create_app(
 
     PRIVATE_POLICY_KEYS = ("review_note", "reviewed_by", "address_hash", "interest", "plan",
                            "premium_owed", "written_off", "fee_paid", "financing_paid",
-                           "contract", "disclosure", "withdrawal")
+                           "contract", "disclosure", "withdrawal",
+                           # The address as a hash. Unsalted, over a preimage
+                           # whose other parts are in the same row, so it is
+                           # the address to anybody who cares to try the
+                           # street numbers.
+                           "property")
 
     def public_policy(found: Any, *, owner: bool) -> dict[str, Any]:
-        """A policy as anyone may see it: the terms, never the person."""
+        """A policy as anyone may see it: the terms, never the person.
+
+        Three things had to be taken out of it, each of them the same mistake
+        made once more: a fact about the buyer rather than about the cover.
+
+        Removing ``holder`` was the first, from an earlier audit, and it was
+        not enough -- ``metadata.token.owner`` is the same address, and it was
+        still here. Measured on the live book: 199 of 200 rows published the
+        holder while ``holder`` read null.
+
+        The place is the third. A policy's subject carries the place the buyer
+        chose, which for a home is their address, and the public row carried
+        all of it. It is cut back to the locality; the contract keeps the
+        address in full, and so does the holder's own view of their policy.
+        """
         row = found.to_dict()
         if owner:
             return row
         row["holder"] = None
         row["metadata"] = {k: v for k, v in (row.get("metadata") or {}).items()
                            if k not in PRIVATE_POLICY_KEYS}
+        token = row["metadata"].get("token")
+        if isinstance(token, dict):
+            row["metadata"]["token"] = {k: v for k, v in token.items()
+                                        if k != "owner"}
+        subject = row.get("subject")
+        if isinstance(subject, dict) and subject.get("place"):
+            short = locality(str(subject["place"]))
+            if short != subject["place"]:
+                row["subject"] = dict(subject, place=short)
+                row["subject_text"] = found.peril.describe_subject(row["subject"])
         return row
 
     @app.get("/api/policies")
@@ -6460,7 +6490,15 @@ def token_metadata(policy: Any) -> dict[str, Any]:
     token = policy.metadata["token"]
     meta = policy.metadata or {}
     peril = policy.peril
-    what = peril.describe_subject(policy.subject)
+    # The token is the most public thing this protocol writes: ClausePolicy's
+    # tokenURI points a block explorer at it, next to the wallet that holds it.
+    # So the place on it is the locality, never the street -- the live book had
+    # two tokens whose description and "Where" attribute both read
+    # "222. Cadde, Atakent Mahallesi, Küçükçekmece, İstanbul".
+    shown = policy.subject
+    if isinstance(shown, dict) and shown.get("place"):
+        shown = dict(shown, place=locality(str(shown["place"])))
+    what = peril.describe_subject(shown)
     title = peril.title_for(policy.subject)
     unit = peril.unit_for(policy.subject)
     steps = peril.reading_curve(policy.subject, policy.curve).describe(unit)
