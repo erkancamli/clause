@@ -17,6 +17,7 @@ import os
 import re
 import threading
 import time
+from collections.abc import Sequence
 from types import SimpleNamespace
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -123,6 +124,26 @@ from .security import (
 logger = logging.getLogger("clause.api")
 
 SITE_ROOT = Path(__file__).resolve().parent.parent.parent / "site"
+
+#: How many of a reading round's references the health check repeats back.
+#: Enough to see what the round did; a bound, because the number of
+#: measured references grows with the book and a health check is not a log.
+LAST_ROUND_NOTES = 12
+
+
+def round_notes(attestations: Sequence[Any]) -> list[dict[str, Any]]:
+    """What a reading round found, in the shape the health check repeats back.
+
+    A round that writes nothing is the ordinary case: no earthquake happened,
+    no rain beat the total already standing. From outside it reads exactly
+    like a feed that has stopped working, and the two have the same answer on
+    the health check -- readings_written at zero and nothing failing. The
+    reasons were always written to the log; a log is not somewhere an operator
+    can look from the outside, which is the whole reason this check exists.
+    """
+    return [{"reference": note.reference, "written": bool(note.written),
+             "why": note.why}
+            for note in list(attestations)[:LAST_ROUND_NOTES]]
 
 
 # ---------------------------------------------------------------------------
@@ -1039,6 +1060,13 @@ def create_app(
                 app.state.measuring["last_at"] = time.time()
                 app.state.measuring["asked"] = len(wrote)
                 app.state.measuring["wrote"] += sum(1 for n in wrote if n.written)
+                # Why each reference wrote nothing, for the health check. A
+                # round of nothing written is the ordinary case -- no quake
+                # happened, no rain beat the total already standing -- and it
+                # reads exactly like a feed that has stopped working. The
+                # reasons are already written to the log below; a log is not
+                # somewhere an operator can look from the outside.
+                app.state.measuring["notes"] = round_notes(wrote)
                 for note in wrote:
                     if note.written:
                         logger.info("measured %s = %s (%s)",
@@ -6387,6 +6415,9 @@ def create_app(
             # and nothing happens": there is no measured policy to read for.
             "references_last_round": state["asked"],
             "readings_written": state["wrote"],
+            # None written is normal, so the round says what it found rather
+            # than leaving a zero to be read as a breakdown.
+            "last_round": state.get("notes", []),
             "failing": dict(feed.trouble),
             "last_error": state["last_error"],
             "openmeteo_subscription": access.subscribed(),
