@@ -6150,6 +6150,12 @@ def create_app(
             "failing": dict(feed.trouble),
             "last_error": state["last_error"],
             "openmeteo_subscription": access.subscribed(),
+            # A key that is set and refused looks exactly like a key that
+            # works, so it is said. Empty while the subscription answers; the
+            # status it refused with and when, never the key itself. The
+            # readings keep coming either way: a refused paid query is asked
+            # again on the public keyless host.
+            "openmeteo_refused": access.refusal(),
         }
 
     @app.get("/api/health")

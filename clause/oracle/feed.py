@@ -204,6 +204,14 @@ class Feed:
     #: operator asking why a policy has not moved gets an answer that names the
     #: source and the error rather than a silence.
     trouble: dict[str, str] = field(default_factory=dict)
+    #: Of those, the ones that failed during the read just made. Separate from
+    #: ``trouble`` because the two answer different questions, and answering
+    #: the second with the first was a bug: a quiet EMSC round or an
+    #: unsubscribed reanalysis left a key standing in ``trouble``, and every
+    #: reference of every peril then behaved as though its own sources had not
+    #: answered -- no window ever closed, and a drought policy's silence was
+    #: explained by naming an earthquake agency.
+    last_trouble: dict[str, str] = field(default_factory=dict)
 
     # -- asking -----------------------------------------------------------
 
@@ -212,15 +220,24 @@ class Feed:
         try:
             body, final = self.fetch(url)
         except Exception as error:                      # noqa: BLE001 - reported
-            self.trouble[source] = f"{type(error).__name__}: {error}"
+            self._failed(source, f"{type(error).__name__}: {error}")
             return []
         try:
             seen = read(body, final)
         except Exception as error:                      # noqa: BLE001 - reported
-            self.trouble[source] = f"unreadable: {type(error).__name__}: {error}"
+            self._failed(source, f"unreadable: {type(error).__name__}: {error}")
             return []
         self.trouble.pop(source, None)
+        self.last_trouble.pop(source, None)
         return seen
+
+    def _failed(self, source: str, said: str) -> None:
+        self.trouble[source] = said
+        self.last_trouble[source] = said
+
+    def _reading_now(self) -> None:
+        """Start a read, so what fails during it is told apart from the rest."""
+        self.last_trouble.clear()
 
     def earthquake(self, *, latitude: float, longitude: float, radius_km: float,
                    since: float, until: float, index_field: str = "max_magnitude",
@@ -238,6 +255,7 @@ class Feed:
         two official magnitudes is a third number no agency published and
         nobody can be pointed at.
         """
+        self._reading_now()
         usgs_field = "mmi" if index_field == "mmi" else "magnitude"
         seen: list[Observation] = self._ask(
             "USGS",
@@ -292,6 +310,7 @@ class Feed:
         cover that pays on a revised figure pays on whichever revision it
         happened to read.
         """
+        self._reading_now()
         seen: list[Observation] = []
         for model in weather.MODELS:
             name = "ERA5-Land" if model == "era5_land" else "ERA5"
@@ -323,6 +342,8 @@ class Feed:
         harvest.
         """
         from ..perils.weather import STATIONS
+
+        self._reading_now()
 
         station = STATIONS.get(code.upper())
         if station is None:
@@ -386,8 +407,9 @@ class Feed:
         return "AFAD" if _in_turkiye(latitude, longitude) else "USGS"
 
     def _silence(self) -> str:
-        if self.trouble:
-            named = ", ".join(f"{k} ({v})" for k, v in sorted(self.trouble.items()))
+        if self.last_trouble:
+            named = ", ".join(f"{k} ({v})"
+                              for k, v in sorted(self.last_trouble.items()))
             return f"no reading: {named}"
         return "the sources answered and reported nothing in this window"
 
@@ -436,7 +458,7 @@ class Feed:
                                            "this reference names no station "
                                            "whose season could be read"))
                     continue
-                if not self.trouble:
+                if not self.last_trouble:
                     reading.measured_through = now
                 if not got.observations:
                     out.append(Attestation(reference, index_field, False, got.why))
@@ -469,7 +491,7 @@ class Feed:
             # The window closes only when somebody actually answered. A visit
             # that reached nobody must be retried over the same window, or a
             # source being down for an hour would silently erase that hour.
-            if not self.trouble:
+            if not self.last_trouble:
                 reading.measured_through = now
             if not got.observations:
                 out.append(Attestation(reference, index_field, False, got.why))

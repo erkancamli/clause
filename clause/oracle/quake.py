@@ -13,6 +13,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -60,7 +61,25 @@ def fetch(url: str, *, timeout: float = TIMEOUT) -> tuple[bytes, str]:
     back is the public query the caller gave rather than the one that was
     made: a reader has to be able to repeat it without this machine's key.
     """
-    asked = access.reaching(address(url))
+    public = address(url)
+    asked = access.reaching(public)
+    try:
+        body, final = _open(url, asked, timeout=timeout)
+    except urllib.error.HTTPError as refusal:
+        # A subscription that refuses is a fact about who is paying, not about
+        # the weather. The same query is public and keyless, so it is asked
+        # again there rather than letting an expired key stop every storm and
+        # drought policy from reading anything. The refusal is recorded so the
+        # operator is told their key needs attention; on the live deployment
+        # both reanalyses answered 403 and nothing said which host refused.
+        if asked == public:
+            raise
+        access.refused(refusal.code)
+        body, final = _open(url, public, timeout=timeout)
+    return body, final
+
+
+def _open(url: str, asked: str, *, timeout: float) -> tuple[bytes, str]:
     request = urllib.request.Request(asked, headers={"User-Agent": USER_AGENT})
     with urllib.request.urlopen(request, timeout=timeout) as reply:  # noqa: S310
         body = reply.read(MAX_BYTES + 1)
@@ -202,6 +221,14 @@ def emsc_query(*, latitude: float, longitude: float, radius_km: float,
 
 def read_emsc(body: bytes, url: str, *, now: float | None = None) -> list[Observation]:
     now = time.time() if now is None else now
+    if not body.strip():
+        # The portal answers 204 with an empty body when nothing in the window
+        # matched, and that is an answer: no earthquake above the floor
+        # magnitude happened in that circle. Read as JSON it raised, the feed
+        # filed EMSC as unreadable, and an operator asking why a policy had not
+        # moved was told a working agency was broken -- on the live deployment
+        # it had been saying so for every quiet round.
+        return []
     stamp = digest_of(body)
     out: list[Observation] = []
     for feature in json.loads(body).get("features", []):
