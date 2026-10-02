@@ -806,6 +806,11 @@ function renewFrom(policy){
   var pk=policy.peril_key||policy.peril;
   var key={earthquake:"quake",drought:"drought",vehicle_flood:"car",flight_delay:"flight",storm:"storm"}[pk]||pk;
   if(!PERILS[key])return;
+  // A renewal is a new contract, so it starts the declaration again rather
+  // than inheriting whatever the tab was holding. choosePeril only clears
+  // when the answer changes, and renewing the cover you are already looking
+  // at is the case where it does not change.
+  flow.chosen=false;
   choosePeril(key);
   flow.limit=policy.limit; flow.renewing=policy.policy_id;
   var place=$("place"), text=policy.subject_text||"";
@@ -829,10 +834,24 @@ function choosePeril(key){
     flow.flightFrom=null; flow.flightTo=null; flow.flightFromText=""; flow.flightToText="";
     if($("place"))$("place").value="";
     flow.reached=1;
+    flow.subject=null; flow.radius=50; flow.asset=null;
+    flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
+    flow.limit=PERILS[key].presets[1];
   }
-  flow.peril=key; flow.chosen=true; flow.subject=null; flow.radius=50; flow.asset=null;
-  flow.grid=null; flow.gridError=null; flow.placeCountry=null; flow.pointCountry=null; flow.size=null;
-  flow.limit=PERILS[key].presets[1];
+  /* Tapping the card that is already ticked changes nothing.
+
+     Everything above is inside the branch now. It used to run on every tap,
+     including a tap on the card already chosen, and it cleared the place, the
+     floor area, the radius and the cover while flow.place and the text in the
+     search box survived in the branch that was skipped. So going back to the
+     first question and tapping the same card left the buyer looking at their
+     own address in the search box, an empty result list because the query
+     equalled the place it had just deleted, no pin on the map, and a button
+     reading "Choose a place". The only way out was to edit the text.
+
+     Going back to a question already answered is free in both directions,
+     which is what the flow says of itself two hundred lines above. */
+  flow.peril=key; flow.chosen=true;
   goStep(2);
 }
 

@@ -474,7 +474,17 @@ $("what").addEventListener("input",function(e){
 $("value").addEventListener("input",function(e){
   flow.interest.touched=true;
   flow.interest.value=valueFromSlider(+e.target.value);
+  /* Cover follows the declared value down, as it does on the size path and
+     on a car. A flight was the one place it did not: the cover arrives at
+     1,000 from the card and the slider's floor is 200, so dragging the value
+     to the bottom left cover above the value at risk, which the protocol
+     refuses as a wager rather than an indemnity. The sentence that says so
+     is on the fifth step, the only control that lowers cover is on the
+     fourth, and the third would not let the buyer past: the button read
+     "Cannot be written" and pointed at nothing. The only way out was to drag
+     the slider back up, with nothing on screen saying so. */
   if(flow.peril==="car"){ flow.interest.declared=flow.interest.value; applyCarCap(); }
+  else clampLimit();
   $("value-val").textContent=f0.format(flow.interest.declared||flow.interest.value)+" USDC";
   renderInterest();
 });
