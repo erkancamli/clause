@@ -297,7 +297,10 @@ def test_a_bar_that_stood_down_does_not_count_back_from_the_old_price() -> None:
     """
     stand_down = _function("noAmount")
     assert "dataset.v" in stand_down, "the remembered figure survives standing down"
-    assert "\u2014" in stand_down or "—" in stand_down, "standing down shows nothing in its place"
+    # One check, not two: "\u2014" and "—" are the same string, so the second
+    # operand could never change the answer. It reads as a second spelling
+    # being allowed for, and there is only one.
+    assert "—" in stand_down, "standing down shows nothing in its place"
 
     # And nowhere writes the em dash without going through it.
     body = PAGE[PAGE.index("function updatePriceBar("):]
@@ -355,9 +358,22 @@ def test_the_payout_table_is_the_policy_and_not_the_round_numbers_near_it() -> N
         block = block[: block.index("else if")] if "else if" in block else block
 
         assert "Intensity {level} or more" in block, f"{name} still names a fixed level"
+
+        # Not a list of the three spellings that were there before: a fourth
+        # written-in level in any other spelling satisfied all of that, and
+        # one was added as a mutation and passed sixty seven tests across the
+        # five files that guard this screen. What is asked instead is that no
+        # level reaches the block except through the template, and that no
+        # share is read at a written-in level.
+        for row in re.findall(r"rows\.push\(\[t\((.+?)\)", block, re.S):
+            assert ("{level}" in row or "{from}" in row or "{to}" in row), (
+                f"{name} writes a level into a row: {row[:80]}")
+        assert not re.search(r"shareAt\(\s*\w+\s*,\s*[\d.]", block), (
+            f"{name} reads a share at a written-in level")
+        # And the old literals, which are still the ones a reader would reach
+        # for first.
         for fixed in ("Intensity VI:", "Intensity VII:", "Intensity VIII"):
             assert fixed not in block, f"{name} still writes {fixed!r} down"
-        # And the shares come from the curve rather than from this file.
         for share in ("0.25", "0.6,", "),0.25", ",0.6"):
             assert share not in block.replace(" ", ""), f"{name} still writes a share down"
 
