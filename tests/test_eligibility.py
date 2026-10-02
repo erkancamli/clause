@@ -118,6 +118,33 @@ def test_a_large_policy_asks_the_enhanced_standard(engine) -> None:
     assert Claim.IDENTITY_BASIC not in claims, "the stronger one stands in"
 
 
+def test_the_two_thresholds_are_the_figures_they_are_meant_to_be() -> None:
+    """Asked as figures, because asking at THRESHOLD + 1 asks the constant
+    about itself: raised to 1e9 it would mean nobody is ever asked to verify
+    their identity, and an independent pass measured 73 tests passing with
+    exactly that.
+
+    These are the amounts of cover at which more is asked of a buyer. Moving
+    one is a compliance decision, so it fails here and is re-pinned
+    deliberately.
+    """
+    assert IDENTITY_THRESHOLD == 10_000.0
+    assert ENHANCED_THRESHOLD == 100_000.0
+
+
+def test_what_is_asked_for_at_each_figure(engine) -> None:
+    """The ladder itself, at amounts rather than at the constants, so a
+    threshold that moves is seen from the outside."""
+    assert need(engine, limit=800.0).claims == (Claim.SANCTIONS_CLEAR,)
+    assert need(engine, limit=9_999.0).claims == (Claim.SANCTIONS_CLEAR,)
+    at_ten = need(engine, limit=10_001.0).claims
+    assert Claim.IDENTITY_BASIC in at_ten
+    assert Claim.IDENTITY_ENHANCED not in at_ten
+    at_a_hundred = need(engine, limit=100_001.0).claims
+    assert Claim.IDENTITY_ENHANCED in at_a_hundred
+    assert Claim.IDENTITY_BASIC not in at_a_hundred
+
+
 def test_an_index_contract_asks_whether_you_are_really_a_professional(engine) -> None:
     assert Claim.PROFESSIONAL in need(engine, professional=True).claims
 

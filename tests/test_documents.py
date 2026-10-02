@@ -75,10 +75,24 @@ DEED = b"%PDF-1.4 a title deed, in the name of the applicant " * 40
 
 
 @pytest.fixture
-def client(tmp_path):
+def client(tmp_path, monkeypatch):
+    """With a state directory, so the two assertions about what is on disk
+    actually run.
+
+    They were written as `if root:` and `... if root else []`, and without a
+    store Documents has no root at all, so neither ever ran. Measured by an
+    independent pass: reducing Documents._drop() to `doc.stored = ""` keeps
+    every applicant's sealed title deed and identity document on disk for
+    ever, while the record says purged_at and the API answers 410 -- and
+    fifteen tests passed. The guards are gone with the fixture that made them
+    necessary.
+    """
+    monkeypatch.setenv("CLAUSE_STATE_DIR", str(tmp_path))
     app = create_app(trials=400, seed=11, run_chain=False, seed_book=True,
                      settings=Settings(faucet=True, operator_token=TOKEN, specimens=True))
     with TestClient(app) as c:
+        assert c.app.state.documents.root is not None, (
+            "no state directory, so the on-disk assertions would not run")
         yield c
 
 
@@ -127,7 +141,8 @@ def test_a_document_is_sealed_to_the_operator_who_decides_for_a_stand_in(client)
     assert all(d["recipient"] == "operator" and d["available"] and d["opened"] == [] for d in docs)
     # The protocol holds ciphertext: the deed is not in the state directory in the open.
     root = client.app.state.documents.root
-    stored = [p for p in (root / "documents" / app["app_id"]).iterdir()] if root else []
+    stored = list((root / "documents" / app["app_id"]).iterdir())
+    assert stored, "nothing was written to disk, so this proves nothing"
     assert all(b"title deed" not in p.read_bytes() for p in stored)
 
     # The applicant sees what was sent, and that nobody has opened it.
@@ -159,8 +174,11 @@ def test_a_document_is_sealed_to_the_operator_who_decides_for_a_stand_in(client)
     after = decided.json()["application"]["documents"]
     assert all(not d["available"] and d["purged_at"] for d in after)
     assert client.get(f"/api/applications/{app['app_id']}/documents/{docs[0]['doc_id']}", headers=op).status_code == 410
-    if root:
-        assert not any((root / "documents" / app["app_id"]).iterdir())
+    # The ciphertext is gone from the disk, not merely unlinked from the
+    # record. This is the assertion that was never reached.
+    folder = root / "documents" / app["app_id"]
+    assert not folder.exists() or not any(folder.iterdir()), (
+        f"{len(list(folder.iterdir()))} sealed documents are still on disk")
 
 
 def test_a_company_at_its_own_desk_reads_what_is_sealed_to_it(client) -> None:
