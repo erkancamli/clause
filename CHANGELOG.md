@@ -1,5 +1,162 @@
 # Changelog
 
+## 1.50.0, 2 October 2026
+
+- An end-to-end audit, run by eight independent passes and verified by
+  measurement rather than by reading. Every finding below was reproduced
+  before it was fixed, and every fix has a test that was shown to fail
+  without it.
+
+- Storm and drought cover could not settle at all.
+
+  The deployment's own health page had been saying so to anybody who asked:
+  three sources failing, and no reading written in two hundred rounds. Two of
+  the three were not failing. EMSC answers 204 with an empty body when nothing
+  in the window matched, which is an answer, and read as JSON it raised. And
+  the reanalyses were not refusing: the host the subscription pays for was.
+  Asked without the key, the same query answers 200, with fourteen days and a
+  strongest wind of 31.0 km/h for the window the deployment was reading
+  nothing at all for.
+
+  A refused paid query is now asked again on the public keyless host. Because
+  it is the same query, one that is genuinely malformed refuses there too and
+  is raised rather than hidden. Asked directly, the host says the archive
+  endpoint is not in the plan, which is a fact about the plan and not about
+  the moment, so after a refusal the paid host is left alone for an hour
+  rather than being paid for twice on every reading. The operator's page says
+  the status it refused with and whether it is resting, never the key.
+
+  Both of those then did real damage through a third fault: trouble was one
+  dict for every source, and the window-closing guard reads it. A quiet EMSC
+  or an unsubscribed reanalysis left a key standing there permanently, so no
+  window ever closed for any reference of any peril, and a drought policy's
+  silence was explained by naming an earthquake agency that is not one of its
+  sources.
+
+- Every drought threshold the page showed was not the one the contract
+  settles on.
+
+  site/app/10-model.js carried a copy of the station table the build
+  overwrites. The protocol prices and settles on the measured figures; nothing
+  ever told the page. All 58 stations disagreed on the normal and 57 of 58 on
+  the variability, by 0.6 to 58.4 per cent, and because the drought curve is
+  shares of the normal the error went straight into every millimetre a buyer
+  reads. At Samsun the page said "records less than 214.4 mm" where the
+  contract says "at or below 135.36 mm". For 27 of the 58 stations the page
+  named a trigger easier to reach than the predicate: a payout shown and then
+  refused. The table is now written from the model, and the test runs the
+  writer to check it has nothing left to write.
+
+- The public book published the holder, the address hash and the street.
+
+  Unauthenticated, from four places. The listing gave the holder's address in
+  199 of 200 rows while the holder field read null, an unsalted fingerprint of
+  the postal address, and the place in full: "222. Cadde, Atakent Mahallesi,
+  Küçükçekmece, İstanbul". The policy token gave the same, and ClausePolicy's
+  tokenURI points a block explorer at it, beside the wallet that holds it. The
+  ledger gave the account, the policy and the premium to the cent on one row.
+  And /api/pool gave every capital provider's address with their exact
+  position.
+
+  Removing the holder field was an earlier audit's finding, and this is what
+  it missed. Fixing it the first time missed burned_from, which is the same
+  address on a cancelled policy. So the list of keys to remove is gone and a
+  list of what a stranger may read is in its place: a redaction that has been
+  wrong twice should be wrong in the direction that does not publish an
+  address. A holder still sees their own policy, their own ledger entries and
+  their own capital in full, and the contract still carries the address, which
+  is where it belongs.
+
+- The confirm step named a price the buyer was not charged.
+
+  "You pay 11,758.31 USDC now, and nothing else ever" while 12,087.54 left the
+  address: the sentence passed the pool's premium and the price row beside it,
+  the price bar and the server all add the issuing company's fee. Against the
+  carrier charging nine per cent the gap is 1,061.36. Six sentences, one per
+  peril, in seven languages.
+
+- The earthquake wait was four days wrong, in four places.
+
+  The protocol was changed from seven days to three deliberately; the page's
+  table, the sentence under the start date, the FAQ answer and the rulebook
+  page were not. Section 10 of every contract said three. Once a quote arrives
+  the date comes from the server, so the confirm step printed the right date
+  with "cover starts seven days after it is bought" directly beneath it.
+
+- 106 of 254 earthquake curves on the page were not the contract's.
+
+  Measured across every building year from 1900, both indices, inside Türkiye
+  and out. A pre-1981 New York flat read 6.63 / 7.63 / 8.63 on the page and
+  6.62 / 7.62 / 8.62 on the contract and in the chain's own predicate. The
+  cause is where the rounding happens: the protocol rounds twice, the page
+  rounded once. Turkish buildings agree either way, which is why it survived.
+  With the rounding in the same places, 0 of 254 disagree.
+
+  On the same screen, under "what the chain is actually asked to hold", the
+  earthquake row had max_magnitude and 5.5 written into it for both indices
+  where the chain is asked to hold mmi >= 6.25, and the topic named a
+  .example host that deliberately does not resolve.
+
+- Eleven bytes for a 500, and one stream client for the whole server.
+
+  A body of {"a":1e999} returned 500 on every route that takes one: the
+  failure happened inside the error handler, so the answer carried none of the
+  hardening headers, nothing rate limited that path, and each request wrote a
+  traceback to the log. And GET /api/stream ran the Monte Carlo on the event
+  loop every four seconds, so one client held the server for 15,208 ms
+  continuously, about three seconds in four. The front page opens that stream.
+  /api/pool and /api/pool/risk did the same on an ordinary GET with no limit.
+
+- A phone had no way back, and a second purchase in the same tab threw.
+
+  At 390 x 844 on the "where do you live" step with nothing chosen, Back was
+  0 px high and off screen and there was one button on the page: the bar that
+  holds Back stands down when it has no figure, which on a phone meant
+  display:none. The identical bug had been found and fixed for the desktop
+  rail and left standing on the narrow one. And resetFlow set a map to null
+  that every reader indexes, so the second purchase in a tab -- which the done
+  screen's own "cover something else" leads to -- threw before anything was
+  sent and reported that the protocol could not be reached.
+
+- A Japanese buyer was told their trigger on the wrong intensity scale.
+
+  Modified Mercalli intensity was written as bare 震度 in all seven live
+  strings that carry a buyer's own trigger, and in Japanese that is the JMA
+  shindo scale, the only one a Japanese reader has met. Shindo 6 collapses
+  wooden houses; MMI VI is "strong, light damage" and sits around shindo 4. So
+  the cover read as paying far more rarely than it does, and the top rung
+  printed 震度 8.0, a level that cannot exist on the scale the reader believes
+  is in use. Russian had lost two copulas to a dash sweep, leaving a sentence
+  that no longer said which season was covered, and one Turkish sentence
+  turned permission into obligation.
+
+- Section 10 of every contract had two sentences spliced into one, a capital
+  letter in the middle of it and a doubled full stop. The filename on every
+  download was the caller's to choose, and a Turkish letter in it answered
+  500. The Proof page had one contrast failure at 3.84:1 against a floor of
+  4.5. And from 1 January 2027 the page and the protocol would have priced
+  buildings a year apart, silently, because both counted ages from a literal
+  2026.
+
+- The suite's own honesty, which is the finding that matters most.
+
+  An independent pass mutation-tested 55 assertions and proved sixteen could
+  not fail. No test anywhere asserted what a policy costs: the two that look
+  like they do are identities, so removing eight per cent from every premium
+  the protocol quotes left 1302 of 1303 tests green, as did doubling the
+  capital charge. Five policies and their four figures are now pinned. The
+  operator console's rule that it never shows a buyer's whole address was
+  asserted inside a loop that ran zero times; the document purge was asserted
+  behind a guard that was never true, and reducing the purge to a no-op kept
+  every applicant's sealed title deed on disk for ever while the record said
+  purged and the API answered 410; the eligibility thresholds were asked
+  against themselves, so raising one to a billion, meaning nobody is ever
+  identity-checked, passed 73 tests; and the contract document's own text was
+  never read, so printing twice the policy's ceiling passed 87.
+
+  Each of those is closed, and each closure was shown to fail against exactly
+  the mutation that escaped before.
+
 ## 1.49.3, 1 October 2026
 
 - "Nothing matched" was said over a pin that was placed and a price that was
