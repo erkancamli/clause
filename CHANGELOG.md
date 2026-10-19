@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.50.8, 19 October 2026
+
+- **The weather band read nothing for Türkiye, and said it the way a dry
+  week says it.** Measured on the deployment: Germany's five cities came
+  back at once, the world's sixteen too, and Türkiye never had a reading,
+  `fetched_at` null since the restart. Its list is the eighty one provincial
+  centres, asked for in one request, which the free host counts as eighty
+  one calls from an address it shares with everything else on the server,
+  and refuses as a burst; and where it does not refuse, forty kilobytes has
+  to arrive whole inside one timeout over whatever line the server has that
+  minute. The places are now asked for twenty at a time, paced, a refused
+  chunk asked for once more after a breath, and a chunk that still fails
+  costs its own places only: the band shows the sixty that came rather than
+  nothing. The long list is read in the background, so the visitor whose
+  visit triggers the refresh gets the last answer at once instead of waiting
+  out five pieces the page gives up on at forty five seconds; and half as
+  often, because today's forecast does not change by the quarter hour and
+  every place asked for counts against the day's quota.
+
+- A feed that read nothing now says why. The answer carried the stand in
+  phrase "the source did not answer" for every kind of failure, and the log
+  that knew the kind was on the server; the kind and the words are in the
+  reply now (`error`), so the question can be answered from a browser.
+
+- The forecast honours the Open-Meteo subscription when `CLAUSE_OPENMETEO_KEY`
+  is set, on the customer host with its own quota, the way the archive reads
+  already did; a key the host refuses falls back to the free host for that
+  chunk, so a wrong key reads slower rather than reading nothing.
+
 ## 1.50.7, 2 October 2026
 
 - **The ending that returns money happened once, and then never again.**
