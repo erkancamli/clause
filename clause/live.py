@@ -54,6 +54,7 @@ import logging
 import re
 import threading
 import time
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -540,6 +541,12 @@ class Feed:
     fetched_at: float = 0.0
     last_attempt: float = 0.0
     error: str = ""
+    #: A feed read in the background answers at once with what it last had and
+    #: refreshes on a thread. For a source read in several pieces over a slow
+    #: line, the alternative is the visitor who happens to trigger the refresh
+    #: waiting out every piece, which the page gives up on before they arrive.
+    background: bool = False
+    busy: bool = False
     lock: threading.Lock = field(default_factory=threading.Lock)
 
     def read(self, *, now: float | None = None) -> dict[str, Any]:
@@ -548,23 +555,17 @@ class Feed:
         # readers of a slow source get the last answer at once rather than
         # queueing behind the network.
         with self.lock:
-            due = now - self.last_attempt >= self.interval
+            due = now - self.last_attempt >= self.interval and not self.busy
             if due:
                 self.last_attempt = now
-        if due:
-            try:
-                items = self.parse(self.fetcher(self.url))
-                with self.lock:
-                    self.items = items
-                    self.fetched_at = now
-                    self.error = ""
-            except Exception as error:  # a feed failing is a state, not a crash
-                logger.warning("live feed %s failed: %s", self.name, error)
-                with self.lock:
-                    self.error = "the source did not answer"
+                self.busy = True
+        if due and self.background:
+            threading.Thread(target=self.refresh, args=(now,), name=f"feed-{self.name}", daemon=True).start()
+        elif due:
+            self.refresh(now)
         with self.lock:
             age = now - self.fetched_at if self.fetched_at else None
-            return {
+            reply = {
                 "items": list(self.items),
                 "fetched_at": self.fetched_at or None,
                 "age_seconds": round(age) if age is not None else None,
@@ -572,6 +573,30 @@ class Feed:
                 "source": self.source,
                 "coverage": self.coverage,
             }
+            if self.error:
+                reply["error"] = self.error
+            if self.busy and self.background:
+                reply["refreshing"] = True
+            return reply
+
+    def refresh(self, now: float) -> None:
+        try:
+            items = self.parse(self.fetcher(self.url))
+            with self.lock:
+                self.items = items
+                self.fetched_at = now
+                self.error = ""
+        except Exception as error:  # a feed failing is a state, not a crash
+            logger.warning("live feed %s failed: %s", self.name, error)
+            with self.lock:
+                # The kind and the words, not a stand in phrase: when the
+                # deployment reads nothing for a country, the answer has to
+                # say whether that was a timeout, a 429 or a parse, because
+                # the log is on the server and the question is asked here.
+                self.error = f"{type(error).__name__}: {error}"[:160]
+        finally:
+            with self.lock:
+                self.busy = False
 
 
 def quake_feed(**kw: Any) -> Feed:
@@ -688,7 +713,12 @@ def parse_weather(raw: bytes, points: list[tuple[str, float, float]]) -> list[di
         data = [data]
     out = []
     for (name, lat, lon), row in zip(points, data):
-        daily = row.get("daily") or {}
+        daily = (row or {}).get("daily") or {}
+        if not daily:
+            # A place whose chunk did not come back is left out, not shown
+            # with blanks: the page sorts by rain, and a row of nothing would
+            # sit among real readings looking like a dry day.
+            continue
         rain = (daily.get("precipitation_sum") or [0])[0] or 0.0
         temp = (daily.get("temperature_2m_max") or [None])[0]
         low = (daily.get("temperature_2m_min") or [None])[0]
@@ -702,14 +732,112 @@ def parse_weather(raw: bytes, points: list[tuple[str, float, float]]) -> list[di
     return out
 
 
+#: Open-Meteo answers one forecast request for many places, but a single
+#: answer for eighty one of them is forty kilobytes that has to arrive whole
+#: inside one timeout, over whatever line the server has that minute. The
+#: deployment read nothing for Türkiye for days that way while five cities of
+#: Germany came back at once. So places are asked for in chunks, and a chunk
+#: that fails costs its own places only.
+WEATHER_CHUNK = 20
+#: A subscription (CLAUSE_OPENMETEO_KEY) sends the same query to the customer
+#: host, which has its own quota instead of the one shared by everybody behind
+#: the server's address. A key the host does not accept falls back to the free
+#: host for that chunk, so a wrong key reads slower rather than reading nothing.
+OPENMETEO_FORECAST_FREE = "api.open-meteo.com"
+OPENMETEO_FORECAST_PAID = "customer-api.open-meteo.com"
+
+
+def weather_url(points: list[tuple[str, float, float]]) -> str:
+    return OPEN_METEO.format(lat=",".join(f"{p[1]:.2f}" for p in points),
+                             lon=",".join(f"{p[2]:.2f}" for p in points))
+
+
+def subscribed_url(url: str) -> str | None:
+    """The same query on the customer host with the key, or None without one."""
+    import os
+    import urllib.parse
+    key = os.environ.get("CLAUSE_OPENMETEO_KEY", "").strip()
+    if not key or OPENMETEO_FORECAST_FREE not in url:
+        return None
+    moved = url.replace(OPENMETEO_FORECAST_FREE, OPENMETEO_FORECAST_PAID, 1)
+    join = "&" if "?" in moved else "?"
+    return f"{moved}{join}apikey={urllib.parse.quote(key, safe='')}"
+
+
+def fetch_weather(points: list[tuple[str, float, float]], fetcher: Callable[[str], bytes],
+                  *, chunk: int = WEATHER_CHUNK, pause: float = 0.5,
+                  sleep: Callable[[float], None] = time.sleep) -> bytes:
+    """Every place's forecast as one JSON list, read a chunk at a time.
+
+    Places whose chunk failed are present as empty objects, so the list lines
+    up with the points and parse_weather can leave them out. Only when no
+    chunk came back at all does this raise, carrying the last reason.
+
+    The free host counts every place as a call and refuses a burst with 429:
+    measured from a shared address, the fourth chunk of five was refused when
+    they went out back to back. So chunks are paced, and a refused chunk is
+    asked for once more after a breath before its places are given up.
+    """
+    rows: list[Any] = []
+    failures: list[str] = []
+
+    def read(url: str) -> bytes:
+        try:
+            return fetcher(url)
+        except urllib.error.HTTPError as error:
+            if error.code != 429:
+                raise
+            sleep(pause * 4)
+            return fetcher(url)
+
+    for start in range(0, len(points), chunk):
+        if start and pause:
+            sleep(pause)
+        part = points[start:start + chunk]
+        url = weather_url(part)
+        try:
+            raw = None
+            paid = subscribed_url(url)
+            if paid:
+                try:
+                    raw = read(paid)
+                except urllib.error.HTTPError as error:
+                    if error.code not in (400, 401, 403):
+                        raise
+                    logger.warning("open-meteo refused the subscription key (%s); reading the free host", error.code)
+            if raw is None:
+                raw = read(url)
+            data = json.loads(raw)
+            if isinstance(data, dict):
+                data = [data]
+            if len(data) != len(part):
+                raise ValueError(f"asked for {len(part)} places and got {len(data)} answers")
+            rows.extend(data)
+        except Exception as error:
+            failures.append(f"{type(error).__name__}: {error}"[:120])
+            rows.extend({} for _ in part)
+    if failures and len(failures) * chunk >= len(points):
+        raise RuntimeError(f"no chunk of {len(points)} places answered; last: {failures[-1]}")
+    if failures:
+        logger.warning("open-meteo: %s of %s chunks failed: %s", len(failures),
+                       -(-len(points) // chunk), failures[-1])
+    return json.dumps(rows).encode()
+
+
 def weather_feed(country: str | None, **kw: Any) -> Feed | None:
     points = weather_points(country)
     if not points:
         return None
-    url = OPEN_METEO.format(lat=",".join(f"{p[1]:.2f}" for p in points),
-                            lon=",".join(f"{p[2]:.2f}" for p in points))
-    # Eighty one points in one answer take a moment; the feed is read every
-    # fifteen minutes, so a longer wait costs nothing.
-    kw.setdefault("fetcher", lambda url: fetch(url, timeout=25.0))
-    return Feed(name=f"weather-{country}", url=url, parse=lambda raw: parse_weather(raw, points),
-                interval=900.0, source="Open-Meteo", coverage="today's forecast, by place", **kw)
+    # The fetcher a caller hands in (tests, mostly) reads one URL; the feed's
+    # own reads the chunks through it. Each chunk gets a wait of its own.
+    one = kw.pop("fetcher", None) or (lambda url: fetch(url, timeout=25.0))
+    # Today's forecast does not change by the quarter hour, and every place
+    # asked for counts against the day's quota: the big lists read half as often.
+    interval = 1800.0 if len(points) > 30 else 900.0
+    # Read in the background once the list is long enough to be read in
+    # pieces: the page asks again every minute and shows the pieces that came.
+    kw.setdefault("background", len(points) > WEATHER_CHUNK)
+    return Feed(name=f"weather-{country}", url=weather_url(points),
+                parse=lambda raw: parse_weather(raw, points),
+                fetcher=lambda _url: fetch_weather(points, one),
+                interval=interval, source="Open-Meteo", coverage="today's forecast, by place", **kw)
