@@ -1,3 +1,5 @@
+Türkçe: [README.tr.md](README.tr.md)
+
 # Clause
 
 **Parametric cover that settles itself, on Rialo.**
